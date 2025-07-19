@@ -1,0 +1,15 @@
+# Material API
+- `POST /api/v1/materials`：创建素材，Body `{title,type,summary?,content,tags?}`。
+- `GET /api/v1/materials`：素材列表。
+- `GET /api/v1/materials/{id}`：素材详情。
+- `PUT /api/v1/materials/{id}`：更新素材。
+- `DELETE /api/v1/materials/{id}`：删除素材。
+- `POST /api/v1/materials/upload` (multipart) ：TXT 上传，返回任务 `{id,status,progress}`。
+- `GET /api/v1/materials/upload/{jobId}`：轮询任务状态，完成后附带 `progress=100`。
+- `POST /api/v1/materials/search`：Body `{query,limit?}`，返回检索结果列表。
+- `POST /api/v1/materials/editor/auto-hints`：正文自动提示，Body `{text,workspaceId?,limit?}`。
+- `POST /api/v1/materials/review/pending`：待审核列表。
+- `POST /api/v1/materials/{id}/review/approve|reject`：审核操作。
+- `POST /api/v1/materials/find-duplicates`：查重（当前返回空数组）。
+- `POST /api/v1/materials/merge`：合并素材，Body `{sourceMaterialId,targetMaterialId,mergeTags?,mergeSummaryWhenEmpty?,note?}`。
+- `GET /api/v1/materials/{id}/citations`：引用历史（当前空数组）。

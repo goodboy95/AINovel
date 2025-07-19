@@ -1,0 +1,15 @@
+# World API
+- `GET /api/v1/world-building/definitions`：模块/字段定义列表。
+- `GET /api/v1/worlds`：世界列表。
+- `POST /api/v1/worlds`：创建草稿世界，Body `{name,tagline?,themes?,creativeIntent?,notes?}`。
+- `GET /api/v1/worlds/{id}`：世界详情（含 modules/map）。
+- `PUT /api/v1/worlds/{id}`：更新基础信息。
+- `DELETE /api/v1/worlds/{id}`：删除草稿世界。
+- `PUT /api/v1/worlds/{id}/modules`：批量保存模块，Body `{modules: {key: {field:value}}}`。
+- `PUT /api/v1/worlds/{id}/modules/{moduleKey}`：单模块保存。
+- `POST /api/v1/worlds/{id}/modules/{moduleKey}/fields/{fieldKey}/refine`：字段精修，返回文本。
+- `GET /api/v1/worlds/{id}/publish/preview`：发布预检。
+- `POST /api/v1/worlds/{id}/publish`：进入生成状态。
+- `GET /api/v1/worlds/{id}/generation`：生成队列状态。
+- `POST /api/v1/worlds/{id}/generation/{moduleKey}`：生成单模块（示例逻辑）。
+- `POST /api/v1/worlds/{id}/generation/{moduleKey}/retry`：重试生成。
