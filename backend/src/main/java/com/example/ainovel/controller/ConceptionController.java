@@ -1,0 +1,52 @@
+package com.example.ainovel.controller;
+
+import com.example.ainovel.dto.ConceptionRequest;
+import com.example.ainovel.dto.ConceptionResponse;
+import com.example.ainovel.model.CharacterCard;
+import com.example.ainovel.model.StoryCard;
+import com.example.ainovel.service.ConceptionService;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+
+@RestController
+@RequestMapping("/api/v1")
+public class ConceptionController {
+
+    private final ConceptionService conceptionService;
+
+    public ConceptionController(ConceptionService conceptionService) {
+        this.conceptionService = conceptionService;
+    }
+
+    @PostMapping("/conception")
+    public ResponseEntity<ConceptionResponse> generateStory(
+            @RequestBody ConceptionRequest request) {
+        // TODO: Implement user identification if needed later
+        String username = "duwei";
+        ConceptionResponse response = conceptionService.generateAndSaveStory(username, request);
+        return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/story-cards")
+    public ResponseEntity<List<StoryCard>> getAllStoryCards() {
+        // TODO: Implement user identification
+        String username = "duwei";
+        List<StoryCard> storyCards = conceptionService.getAllStoryCards(username);
+        return ResponseEntity.ok(storyCards);
+    }
+
+    @PutMapping("/story-cards/{id}")
+    public ResponseEntity<StoryCard> updateStoryCard(@PathVariable Long id, @RequestBody StoryCard storyDetails) {
+        StoryCard updatedStoryCard = conceptionService.updateStoryCard(id, storyDetails);
+        return ResponseEntity.ok(updatedStoryCard);
+    }
+
+    @PutMapping("/character-cards/{id}")
+    public ResponseEntity<CharacterCard> updateCharacterCard(@PathVariable Long id, @RequestBody CharacterCard characterDetails) {
+        CharacterCard updatedCharacterCard = conceptionService.updateCharacterCard(id, characterDetails);
+        return ResponseEntity.ok(updatedCharacterCard);
+    }
+}
