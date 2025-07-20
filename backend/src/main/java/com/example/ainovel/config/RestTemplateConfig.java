@@ -20,8 +20,4 @@ public class RestTemplateConfig {
         return new RestTemplate(requestFactory);
     }
 
-    @Bean
-    public ObjectMapper objectMapper() {
-        return new ObjectMapper();
-    }
 }

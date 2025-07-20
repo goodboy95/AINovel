@@ -78,6 +78,15 @@ public class ConceptionService {
         return storyCardRepository.findByUserId(user.getId());
     }
 
+    public StoryCard getStoryCardById(Long id) {
+        return storyCardRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("StoryCard not found with id " + id));
+    }
+
+    public List<CharacterCard> getCharacterCardsByStoryId(Long storyId) {
+        return characterCardRepository.findByStoryCardId(storyId);
+    }
+
     @Transactional
     public StoryCard updateStoryCard(Long cardId, StoryCard storyDetails) {
         StoryCard storyCard = storyCardRepository.findById(cardId)

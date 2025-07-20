@@ -38,6 +38,18 @@ public class ConceptionController {
         return ResponseEntity.ok(storyCards);
     }
 
+    @GetMapping("/story-cards/{id}")
+    public ResponseEntity<StoryCard> getStoryCardById(@PathVariable Long id) {
+        StoryCard storyCard = conceptionService.getStoryCardById(id);
+        return ResponseEntity.ok(storyCard);
+    }
+
+    @GetMapping("/story-cards/{storyId}/character-cards")
+    public ResponseEntity<List<CharacterCard>> getCharacterCardsByStoryId(@PathVariable Long storyId) {
+        List<CharacterCard> characterCards = conceptionService.getCharacterCardsByStoryId(storyId);
+        return ResponseEntity.ok(characterCards);
+    }
+
     @PutMapping("/story-cards/{id}")
     public ResponseEntity<StoryCard> updateStoryCard(@PathVariable Long id, @RequestBody StoryCard storyDetails) {
         StoryCard updatedStoryCard = conceptionService.updateStoryCard(id, storyDetails);

@@ -21,8 +21,6 @@ import {
 const { Header, Content, Sider } = Layout;
 const { Title, Paragraph } = Typography;
 const { Option } = Select;
-const { TabPane } = Tabs;
-
 // Define types for the data structures
 interface StoryCard {
     id: number;
@@ -57,6 +55,7 @@ const StoryConception = () => {
     const [isListLoading, setIsListLoading] = useState(false);
     const [editingStory, setEditingStory] = useState<StoryCard | null>(null);
     const [editingCharacter, setEditingCharacter] = useState<CharacterCard | null>(null);
+    const [activeTab, setActiveTab] = useState("1");
 
     useEffect(() => {
         fetchStoryList();
@@ -78,6 +77,34 @@ const StoryConception = () => {
             setError(err instanceof Error ? err.message : '发生未知错误。');
         } finally {
             setIsListLoading(false);
+        }
+    };
+
+    const handleViewStory = async (storyId: number) => {
+        setIsLoading(true);
+        setError('');
+        try {
+            const token = localStorage.getItem('token');
+            const headers: HeadersInit = { 'Content-Type': 'application/json' };
+            if (token) headers['Authorization'] = `Bearer ${token}`;
+
+            // Fetch story card details
+            const storyResponse = await fetch(`/api/v1/story-cards/${storyId}`, { headers });
+            if (!storyResponse.ok) throw new Error('获取故事详情失败');
+            const storyData = await storyResponse.json();
+            setStoryCard(storyData);
+
+            // Fetch associated character cards
+            const characterResponse = await fetch(`/api/v1/story-cards/${storyId}/character-cards`, { headers });
+            if (!characterResponse.ok) throw new Error('获取角色卡失败');
+            const characterData = await characterResponse.json();
+            setCharacterCards(characterData);
+
+            setActiveTab("1"); // Switch to the "创作" tab
+        } catch (err) {
+            setError(err instanceof Error ? err.message : '发生未知错误。');
+        } finally {
+            setIsLoading(false);
         }
     };
 
@@ -245,60 +272,74 @@ const StoryConception = () => {
                     <Title level={3} style={{ margin: '16px 0' }}>AI 小说家工作台</Title>
                 </Header>
                 <Content style={{ padding: '24px', margin: 0, minHeight: 280, background: '#f0f2f5' }}>
-                    <Tabs defaultActiveKey="1">
-                        <TabPane tab="创作" key="1">
-                            <Spin spinning={isLoading} tip="正在构想一个新宇宙..." size="large">
-                                <div style={{ padding: 24, background: '#fff', borderRadius: '8px' }}>
-                                    {error && <Alert message="错误" description={error} type="error" showIcon closable onClose={() => setError('')} style={{ marginBottom: 24 }} />}
-                                    
-                                    {!storyCard && !isLoading && (
-                                        <Empty description="您生成的故事将显示在这里。让我们一起创造一些惊人的东西吧！" />
-                                    )}
+                    <Tabs 
+                        activeKey={activeTab} 
+                        onChange={setActiveTab}
+                        items={[
+                            {
+                                label: '创作',
+                                key: '1',
+                                children: (
+                                    <Spin spinning={isLoading} tip="正在构想一个新宇宙..." size="large">
+                                        <div style={{ padding: 24, background: '#fff', borderRadius: '8px' }}>
+                                            {error && <Alert message="错误" description={error} type="error" showIcon closable onClose={() => setError('')} style={{ marginBottom: 24 }} />}
+                                            
+                                            {!storyCard && !isLoading && (
+                                                <Empty description="您生成的故事将显示在这里。让我们一起创造一些惊人的东西吧！" />
+                                            )}
 
-                                    {storyCard && (
-                                        <Row gutter={[24, 24]}>
-                                            <Col xs={24} lg={8}>
-                                                {renderStoryCard(storyCard)}
-                                            </Col>
-                                            <Col xs={24} lg={16}>
-                                                <Title level={4} style={{ marginBottom: 16 }}>角色</Title>
-                                                <Row gutter={[16, 16]}>
-                                                    {characterCards.map((char) => (
-                                                        <Col key={char.id} xs={24} md={12}>
-                                                            {renderCharacterCard(char)}
-                                                        </Col>
-                                                    ))}
+                                            {storyCard && (
+                                                <Row gutter={[24, 24]}>
+                                                    <Col xs={24} lg={8}>
+                                                        {renderStoryCard(storyCard)}
+                                                    </Col>
+                                                    <Col xs={24} lg={16}>
+                                                        <Title level={4} style={{ marginBottom: 16 }}>角色</Title>
+                                                        <Row gutter={[16, 16]}>
+                                                            {characterCards.map((char) => (
+                                                                <Col key={char.id} xs={24} md={12}>
+                                                                    {renderCharacterCard(char)}
+                                                                </Col>
+                                                            ))}
+                                                        </Row>
+                                                    </Col>
                                                 </Row>
-                                            </Col>
-                                        </Row>
-                                    )}
-                                </div>
-                            </Spin>
-                        </TabPane>
-                        <TabPane tab="管理" key="2">
-                            <Spin spinning={isListLoading}>
-                                <List
-                                    itemLayout="horizontal"
-                                    dataSource={storyList}
-                                    renderItem={item => (
-                                        <List.Item
-                                            actions={[<Button type="link" onClick={() => { setStoryCard(item); /* TODO: fetch characters */ }}>查看</Button>]}
-                                        >
-                                            <List.Item.Meta
-                                                title={<a href="#">{item.title}</a>}
-                                                description={`类型: ${item.genre} | 基调: ${item.tone}`}
-                                            />
-                                        </List.Item>
-                                    )}
-                                />
-                            </Spin>
-                        </TabPane>
-                    </Tabs>
+                                            )}
+                                        </div>
+                                    </Spin>
+                                )
+                            },
+                            {
+                                label: '管理',
+                                key: '2',
+                                children: (
+                                    <Spin spinning={isListLoading}>
+                                        <List
+                                            itemLayout="horizontal"
+                                            dataSource={storyList}
+                                            renderItem={item => (
+                                                <List.Item
+                                                    onClick={() => handleViewStory(item.id)}
+                                                    style={{ cursor: 'pointer' }}
+                                                    actions={[<Button type="link">查看</Button>]}
+                                                >
+                                                    <List.Item.Meta
+                                                        title={item.title}
+                                                        description={`类型: ${item.genre} | 基调: ${item.tone}`}
+                                                    />
+                                                </List.Item>
+                                            )}
+                                        />
+                                    </Spin>
+                                )
+                            }
+                        ]}
+                    />
                 </Content>
             </Layout>
             <Modal
                 title="编辑故事卡"
-                visible={!!editingStory}
+                open={!!editingStory}
                 onOk={handleUpdateStoryCard}
                 onCancel={() => setEditingStory(null)}
                 confirmLoading={isLoading}
@@ -307,7 +348,7 @@ const StoryConception = () => {
             </Modal>
             <Modal
                 title="编辑角色卡"
-                visible={!!editingCharacter}
+                open={!!editingCharacter}
                 onOk={handleUpdateCharacterCard}
                 onCancel={() => setEditingCharacter(null)}
                 confirmLoading={isLoading}

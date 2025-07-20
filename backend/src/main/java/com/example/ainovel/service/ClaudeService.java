@@ -36,7 +36,7 @@ public class ClaudeService implements AiService {
         headers.setContentType(MediaType.APPLICATION_JSON);
 
         String prompt = String.format(
-            "你是一个富有想象力的故事作家。请根据以下信息，为我构思一个故事。\n" +
+            "你是一个富有想象力的故事作家。请根据以下信息，为我构思一个故事。请使用简体中文进行创作。\n" +
             "用户想法: \"%s\"\n" +
             "故事类型: \"%s\"\n" +
             "故事基调: \"%s\"\n\n" +
