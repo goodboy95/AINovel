@@ -3,6 +3,7 @@ import Login from './components/Login';
 import Register from './components/Register';
 import Settings from './components/Settings';
 import StoryConception from './components/StoryConception';
+import ManuscriptWriter from './components/ManuscriptWriter';
 
 function Home() {
   return (
@@ -28,6 +29,7 @@ function App() {
         <Route path="/register" element={<Register />} />
         <Route path="/settings" element={<Settings />} />
         <Route path="/story-conception" element={<StoryConception />} />
+        <Route path="/writer/:outlineId" element={<ManuscriptWriter />} />
       </Routes>
     </Router>
   )

@@ -18,6 +18,8 @@ import {
     Modal
 } from 'antd';
 import OutlineDesign from './OutlineDesign';
+import { Link } from 'react-router-dom';
+import { PlusOutlined, EditOutlined, DeleteOutlined, EyeOutlined } from '@ant-design/icons';
 import type { Outline } from '../types';
 
 const { Header, Content, Sider } = Layout;
@@ -58,6 +60,8 @@ const StoryConception = () => {
     const [isListLoading, setIsListLoading] = useState(false);
     const [editingStory, setEditingStory] = useState<StoryCard | null>(null);
     const [editingCharacter, setEditingCharacter] = useState<CharacterCard | null>(null);
+    const [isAddCharacterModalVisible, setIsAddCharacterModalVisible] = useState(false);
+    const [newCharacter, setNewCharacter] = useState({ name: '', synopsis: '', details: '', relationships: '' });
     const [activeTab, setActiveTab] = useState("1");
 
     // New state for outline generation
@@ -65,6 +69,12 @@ const StoryConception = () => {
     const [outlineError, setOutlineError] = useState<string | null>(null);
     const [isOutlineLoading, setIsOutlineLoading] = useState(false);
     const [selectedStoryForOutline, setSelectedStoryForOutline] = useState<string | null>(null);
+    
+    // State for outline management
+    const [outlinesForStory, setOutlinesForStory] = useState<Outline[]>([]);
+    const [isOutlineListLoading, setIsOutlineListLoading] = useState(false);
+    const [editingOutline, setEditingOutline] = useState<Outline | null>(null);
+
 
     useEffect(() => {
         fetchStoryList();
@@ -223,6 +233,74 @@ const StoryConception = () => {
         }
     };
 
+    const fetchOutlinesForStory = async (storyId: string) => {
+        setIsOutlineListLoading(true);
+        try {
+            const token = localStorage.getItem('token');
+            const headers: HeadersInit = { 'Content-Type': 'application/json' };
+            if (token) headers['Authorization'] = `Bearer ${token}`;
+
+            const response = await fetch(`/api/v1/story-cards/${storyId}/outlines`, { headers });
+            if (!response.ok) throw new Error('获取大纲列表失败');
+            
+            const data = await response.json();
+            setOutlinesForStory(data);
+        } catch (err) {
+            setError(err instanceof Error ? err.message : '发生未知错误。');
+        } finally {
+            setIsOutlineListLoading(false);
+        }
+    };
+
+    const handleUpdateOutline = async () => {
+        if (!editingOutline) return;
+        setIsLoading(true);
+        try {
+            const token = localStorage.getItem('token');
+            const headers: HeadersInit = { 'Content-Type': 'application/json' };
+            if (token) headers['Authorization'] = `Bearer ${token}`;
+
+            const response = await fetch(`/api/v1/outlines/${editingOutline.id}`, {
+                method: 'PUT',
+                headers,
+                body: JSON.stringify({ title: editingOutline.title, pointOfView: editingOutline.pointOfView }),
+            });
+
+            if (!response.ok) throw new Error('更新大纲失败');
+            
+            const updatedOutline = await response.json();
+            setOutlinesForStory(prev => prev.map(o => o.id === updatedOutline.id ? updatedOutline : o));
+            setEditingOutline(null);
+        } catch (err) {
+            setError(err instanceof Error ? err.message : '发生未知错误。');
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
+    const handleDeleteOutline = async (outlineId: number) => {
+        if (!window.confirm('您确定要删除此大纲吗？这将无法恢复。')) return;
+        setIsLoading(true);
+        try {
+            const token = localStorage.getItem('token');
+            const headers: HeadersInit = { 'Content-Type': 'application/json' };
+            if (token) headers['Authorization'] = `Bearer ${token}`;
+
+            const response = await fetch(`/api/v1/outlines/${outlineId}`, {
+                method: 'DELETE',
+                headers,
+            });
+
+            if (!response.ok) throw new Error('删除大纲失败');
+            
+            setOutlinesForStory(prev => prev.filter(o => o.id !== outlineId));
+        } catch (err) {
+            setError(err instanceof Error ? err.message : '发生未知错误。');
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
     const handleUpdateCharacterCard = async () => {
         if (!editingCharacter) return;
         setIsLoading(true);
@@ -242,6 +320,33 @@ const StoryConception = () => {
             const updatedChar = await response.json();
             setCharacterCards(prev => prev.map(c => c.id === updatedChar.id ? updatedChar : c));
             setEditingCharacter(null);
+        } catch (err) {
+            setError(err instanceof Error ? err.message : '发生未知错误。');
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
+    const handleCreateCharacter = async () => {
+        if (!storyCard) return;
+        setIsLoading(true);
+        try {
+            const token = localStorage.getItem('token');
+            const headers: HeadersInit = { 'Content-Type': 'application/json' };
+            if (token) headers['Authorization'] = `Bearer ${token}`;
+
+            const response = await fetch(`/api/v1/story-cards/${storyCard.id}/characters`, {
+                method: 'POST',
+                headers,
+                body: JSON.stringify(newCharacter),
+            });
+
+            if (!response.ok) throw new Error('创建新角色失败');
+            
+            const createdChar = await response.json();
+            setCharacterCards(prev => [...prev, createdChar]);
+            setIsAddCharacterModalVisible(false);
+            setNewCharacter({ name: '', synopsis: '', details: '', relationships: '' }); // Reset form
         } catch (err) {
             setError(err instanceof Error ? err.message : '发生未知错误。');
         } finally {
@@ -278,8 +383,38 @@ const StoryConception = () => {
         </Card>
     );
 
+    const handleDeleteCharacter = async (characterId: number) => {
+        if (!window.confirm('您确定要删除此角色吗？')) return;
+
+        setIsLoading(true);
+        try {
+            const token = localStorage.getItem('token');
+            const headers: HeadersInit = { 'Content-Type': 'application/json' };
+            if (token) headers['Authorization'] = `Bearer ${token}`;
+
+            const response = await fetch(`/api/v1/character-cards/${characterId}`, {
+                method: 'DELETE',
+                headers,
+            });
+
+            if (!response.ok) throw new Error('删除角色卡失败');
+            
+            setCharacterCards(prev => prev.filter(c => c.id !== characterId));
+        } catch (err) {
+            setError(err instanceof Error ? err.message : '发生未知错误。');
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
     const renderCharacterCard = (char: CharacterCard) => (
-         <Card title={<Input value={char.name} onChange={e => setEditingCharacter({...char, name: e.target.value})} />} extra={<Button onClick={() => setEditingCharacter(char)}>编辑</Button>}>
+         <Card 
+            title={<Input value={char.name} onChange={e => setEditingCharacter({...char, name: e.target.value})} />} 
+            actions={[
+                <Button type="primary" ghost onClick={() => setEditingCharacter(char)}>编辑</Button>,
+                <Button danger onClick={() => handleDeleteCharacter(char.id)}>删除</Button>
+            ]}
+         >
             <Title level={5}>概要</Title>
             <Input.TextArea value={char.synopsis} autoSize onChange={e => setEditingCharacter({...char, synopsis: e.target.value})} />
             <Divider />
@@ -366,6 +501,11 @@ const StoryConception = () => {
                                                             {renderCharacterCard(char)}
                                                         </Col>
                                                     ))}
+                                                    <Col xs={24} md={12}>
+                                                        <Button type="dashed" onClick={() => setIsAddCharacterModalVisible(true)} style={{ width: '100%', height: '100%', minHeight: '150px' }}>
+                                                            + 添加新角色
+                                                        </Button>
+                                                    </Col>
                                                 </Row>
                                             </Col>
                                         </Row>
@@ -406,6 +546,58 @@ const StoryConception = () => {
                                 />
                             </div>
                         </TabPane>
+                        <TabPane tab="大纲管理" key="4">
+                            <div style={{ padding: 24, background: '#fff', borderRadius: '8px' }}>
+                                <Title level={4}>选择一个故事以管理其大纲</Title>
+                                <Select
+                                    showSearch
+                                    style={{ width: '100%', marginBottom: 24 }}
+                                    placeholder="选择故事"
+                                    value={selectedStoryForOutline}
+                                    onChange={(value) => {
+                                        setSelectedStoryForOutline(value);
+                                        fetchOutlinesForStory(value);
+                                    }}
+                                    filterOption={(input, option) =>
+                                        (option?.children as unknown as string)?.toLowerCase().includes(input.toLowerCase())
+                                    }
+                                >
+                                    {storyList.map(story => (
+                                        <Option key={story.id} value={story.id.toString()}>{story.title}</Option>
+                                    ))}
+                                </Select>
+                                <Button 
+                                    type="primary" 
+                                    icon={<PlusOutlined />} 
+                                    onClick={() => setActiveTab("3")}
+                                    disabled={!selectedStoryForOutline}
+                                    style={{marginBottom: 24}}
+                                >
+                                    为当前故事创建新大纲
+                                </Button>
+                                <Spin spinning={isOutlineListLoading}>
+                                    <List
+                                        grid={{ gutter: 16, xs: 1, sm: 2, md: 3, lg: 4 }}
+                                        dataSource={outlinesForStory}
+                                        renderItem={item => (
+                                            <List.Item>
+                                                <Card
+                                                    title={item.title}
+                                                    actions={[
+                                                        <Link to={`/writer/${item.id}`}><EyeOutlined key="view" /></Link>,
+                                                        <EditOutlined key="edit" onClick={() => setEditingOutline(item)} />,
+                                                        <DeleteOutlined key="delete" onClick={() => handleDeleteOutline(item.id)} />,
+                                                    ]}
+                                                >
+                                                    <Paragraph>视角: {item.pointOfView}</Paragraph>
+                                                    <Paragraph>章节数: {item.chapters.length}</Paragraph>
+                                                </Card>
+                                            </List.Item>
+                                        )}
+                                    />
+                                </Spin>
+                            </div>
+                        </TabPane>
                     </Tabs>
                 </Content>
             </Layout>
@@ -426,6 +618,49 @@ const StoryConception = () => {
                 confirmLoading={isLoading}
             >
                 {editingCharacter && renderCharacterCard(editingCharacter)}
+            </Modal>
+            <Modal
+                title="编辑大纲"
+                open={!!editingOutline}
+                onOk={handleUpdateOutline}
+                onCancel={() => setEditingOutline(null)}
+                confirmLoading={isLoading}
+            >
+                {editingOutline && (
+                    <Form layout="vertical">
+                        <Form.Item label="大纲标题">
+                            <Input value={editingOutline.title} onChange={e => setEditingOutline({...editingOutline, title: e.target.value})} />
+                        </Form.Item>
+                        <Form.Item label="叙事视角">
+                            <Select value={editingOutline.pointOfView} onChange={value => setEditingOutline({...editingOutline, pointOfView: value})}>
+                                <Option value="第一人称">第一人称</Option>
+                                <Option value="第三人称">第三人称</Option>
+                            </Select>
+                        </Form.Item>
+                    </Form>
+                )}
+            </Modal>
+            <Modal
+                title="添加新角色"
+                open={isAddCharacterModalVisible}
+                onOk={handleCreateCharacter}
+                onCancel={() => setIsAddCharacterModalVisible(false)}
+                confirmLoading={isLoading}
+            >
+                <Form layout="vertical">
+                    <Form.Item label="姓名">
+                        <Input value={newCharacter.name} onChange={e => setNewCharacter({...newCharacter, name: e.target.value})} />
+                    </Form.Item>
+                    <Form.Item label="概要">
+                        <Input.TextArea value={newCharacter.synopsis} autoSize onChange={e => setNewCharacter({...newCharacter, synopsis: e.target.value})} />
+                    </Form.Item>
+                    <Form.Item label="详情">
+                        <Input.TextArea value={newCharacter.details} autoSize onChange={e => setNewCharacter({...newCharacter, details: e.target.value})} />
+                    </Form.Item>
+                    <Form.Item label="人物关系">
+                        <Input.TextArea value={newCharacter.relationships} autoSize onChange={e => setNewCharacter({...newCharacter, relationships: e.target.value})} />
+                    </Form.Item>
+                </Form>
             </Modal>
         </Layout>
     );

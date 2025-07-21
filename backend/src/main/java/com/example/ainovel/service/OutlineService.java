@@ -183,4 +183,36 @@ public class OutlineService {
         dto.setExpectedWords(scene.getExpectedWords());
         return dto;
     }
+
+    @Transactional(readOnly = true)
+    public List<OutlineDto> getOutlinesByStoryCardId(Long storyCardId, Long userId) {
+        if (!storyCardRepository.existsByIdAndUserId(storyCardId, userId)) {
+            throw new RuntimeException("Unauthorized access or StoryCard not found");
+        }
+        List<OutlineCard> outlines = outlineCardRepository.findByStoryCardId(storyCardId);
+        return outlines.stream().map(this::convertToDto).collect(Collectors.toList());
+    }
+
+    @Transactional
+    public OutlineDto updateOutline(Long outlineId, OutlineCard outlineDetails, Long userId) {
+        OutlineCard outlineCard = outlineCardRepository.findById(outlineId)
+                .orElseThrow(() -> new RuntimeException("OutlineCard not found"));
+        if (!outlineCard.getUser().getId().equals(userId)) {
+            throw new RuntimeException("Unauthorized access to outline card");
+        }
+        outlineCard.setTitle(outlineDetails.getTitle());
+        outlineCard.setPointOfView(outlineDetails.getPointOfView());
+        OutlineCard updatedOutline = outlineCardRepository.save(outlineCard);
+        return convertToDto(updatedOutline);
+    }
+
+    @Transactional
+    public void deleteOutline(Long outlineId, Long userId) {
+        OutlineCard outlineCard = outlineCardRepository.findById(outlineId)
+                .orElseThrow(() -> new RuntimeException("OutlineCard not found"));
+        if (!outlineCard.getUser().getId().equals(userId)) {
+            throw new RuntimeException("Unauthorized access to outline card");
+        }
+        outlineCardRepository.delete(outlineCard);
+    }
 }

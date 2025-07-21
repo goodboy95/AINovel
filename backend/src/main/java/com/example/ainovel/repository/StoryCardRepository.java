@@ -6,4 +6,5 @@ import java.util.List;
 
 public interface StoryCardRepository extends JpaRepository<StoryCard, Long> {
     List<StoryCard> findByUserId(Long userId);
+    boolean existsByIdAndUserId(Long id, Long userId);
 }

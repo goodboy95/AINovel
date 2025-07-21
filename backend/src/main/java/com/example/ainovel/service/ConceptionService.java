@@ -114,4 +114,21 @@ public class ConceptionService {
         
         return characterCardRepository.save(characterCard);
     }
+
+    @Transactional
+    public CharacterCard addCharacterToStory(Long storyCardId, CharacterCard characterCard, User user) {
+        StoryCard storyCard = storyCardRepository.findById(storyCardId)
+                .orElseThrow(() -> new RuntimeException("StoryCard not found with id " + storyCardId));
+        characterCard.setStoryCard(storyCard);
+        characterCard.setUser(user);
+        return characterCardRepository.save(characterCard);
+    }
+
+    @Transactional
+    public void deleteCharacterCard(Long cardId) {
+        if (!characterCardRepository.existsById(cardId)) {
+            throw new RuntimeException("CharacterCard not found with id " + cardId);
+        }
+        characterCardRepository.deleteById(cardId);
+    }
 }

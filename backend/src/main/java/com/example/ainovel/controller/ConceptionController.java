@@ -59,4 +59,17 @@ public class ConceptionController {
         CharacterCard updatedCharacterCard = conceptionService.updateCharacterCard(id, characterDetails);
         return ResponseEntity.ok(updatedCharacterCard);
     }
+
+    @PostMapping("/story-cards/{storyCardId}/characters")
+    public ResponseEntity<CharacterCard> addCharacterToStory(
+            @PathVariable Long storyCardId, @RequestBody CharacterCard characterCard, @AuthenticationPrincipal User user) {
+        CharacterCard newCharacterCard = conceptionService.addCharacterToStory(storyCardId, characterCard, user);
+        return ResponseEntity.ok(newCharacterCard);
+    }
+
+    @DeleteMapping("/character-cards/{id}")
+    public ResponseEntity<Void> deleteCharacterCard(@PathVariable Long id) {
+        conceptionService.deleteCharacterCard(id);
+        return ResponseEntity.noContent().build();
+    }
 }
