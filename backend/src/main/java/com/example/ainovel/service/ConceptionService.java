@@ -51,7 +51,7 @@ public class ConceptionService {
         }
 
         AiService aiService = (AiService) applicationContext.getBean(settings.getLlmProvider().toLowerCase());
-        ConceptionResponse responseFromAi = aiService.generateStory(request, apiKey);
+        ConceptionResponse responseFromAi = aiService.generateConception(request, apiKey);
 
         // Save the story card
         StoryCard storyCard = responseFromAi.getStoryCard();

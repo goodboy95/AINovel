@@ -16,12 +16,12 @@ import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
 
-// @Component
+@Component
 public class JwtRequestFilter extends OncePerRequestFilter {
 
-    // @Autowired
+    @Autowired
     private UserDetailsService userDetailsService;
-    // @Autowired
+    @Autowired
     private JwtUtil jwtUtil;
 
     @Override

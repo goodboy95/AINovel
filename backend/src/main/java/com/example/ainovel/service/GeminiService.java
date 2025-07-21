@@ -28,7 +28,40 @@ public class GeminiService implements AiService {
     }
 
     @Override
-    public ConceptionResponse generateStory(ConceptionRequest request, String apiKey) {
+    public String generate(String prompt, String apiKey) {
+        String url = geminiApiUrl + "?key=" + apiKey;
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+
+        Map<String, Object> textPart = new HashMap<>();
+        textPart.put("text", prompt);
+
+        Map<String, Object> content = new HashMap<>();
+        content.put("parts", Collections.singletonList(textPart));
+
+        Map<String, Object> body = new HashMap<>();
+        body.put("contents", Collections.singletonList(content));
+
+        HttpEntity<Map<String, Object>> entity = new HttpEntity<>(body, headers);
+
+        try {
+            ResponseEntity<String> response = restTemplate.exchange(url, HttpMethod.POST, entity, String.class);
+            String responseBody = response.getBody();
+
+            Map<String, Object> responseMap = objectMapper.readValue(responseBody, Map.class);
+            List<Map<String, Object>> candidates = (List<Map<String, Object>>) responseMap.get("candidates");
+            Map<String, Object> candidateContent = (Map<String, Object>) candidates.get(0).get("content");
+            List<Map<String, Object>> parts = (List<Map<String, Object>>) candidateContent.get("parts");
+            return (String) parts.get(0).get("text");
+        } catch (Exception e) {
+            System.err.println("Error calling Gemini API for text generation: " + e.getMessage());
+            throw new RuntimeException("Failed to generate text from Gemini.", e);
+        }
+    }
+
+    @Override
+    public ConceptionResponse generateConception(ConceptionRequest request, String apiKey) {
         String url = geminiApiUrl + "?key=" + apiKey;
 
         HttpHeaders headers = new HttpHeaders();

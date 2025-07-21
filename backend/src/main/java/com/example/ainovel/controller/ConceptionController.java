@@ -4,9 +4,11 @@ import com.example.ainovel.dto.ConceptionRequest;
 import com.example.ainovel.dto.ConceptionResponse;
 import com.example.ainovel.model.CharacterCard;
 import com.example.ainovel.model.StoryCard;
+import com.example.ainovel.model.User;
 import com.example.ainovel.service.ConceptionService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -23,18 +25,14 @@ public class ConceptionController {
 
     @PostMapping("/conception")
     public ResponseEntity<ConceptionResponse> generateStory(
-            @RequestBody ConceptionRequest request) {
-        // TODO: Implement user identification if needed later
-        String username = "duwei";
-        ConceptionResponse response = conceptionService.generateAndSaveStory(username, request);
+            @RequestBody ConceptionRequest request, @AuthenticationPrincipal User user) {
+        ConceptionResponse response = conceptionService.generateAndSaveStory(user.getUsername(), request);
         return ResponseEntity.ok(response);
     }
 
     @GetMapping("/story-cards")
-    public ResponseEntity<List<StoryCard>> getAllStoryCards() {
-        // TODO: Implement user identification
-        String username = "duwei";
-        List<StoryCard> storyCards = conceptionService.getAllStoryCards(username);
+    public ResponseEntity<List<StoryCard>> getAllStoryCards(@AuthenticationPrincipal User user) {
+        List<StoryCard> storyCards = conceptionService.getAllStoryCards(user.getUsername());
         return ResponseEntity.ok(storyCards);
     }
 

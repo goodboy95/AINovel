@@ -28,10 +28,12 @@ public class SecurityConfig {
 
     private final UserRepository userRepository;
     private final JwtUtil jwtUtil;
+    private final JwtRequestFilter jwtRequestFilter;
 
-    public SecurityConfig(UserRepository userRepository, JwtUtil jwtUtil) {
+    public SecurityConfig(UserRepository userRepository, JwtUtil jwtUtil, JwtRequestFilter jwtRequestFilter) {
         this.userRepository = userRepository;
         this.jwtUtil = jwtUtil;
+        this.jwtRequestFilter = jwtRequestFilter;
     }
 
     @Bean
@@ -40,9 +42,13 @@ public class SecurityConfig {
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
+                        .requestMatchers("/api/v1/auth/**", "/login", "/register", "/").permitAll()
+                        .requestMatchers("/index.html", "/vite.svg", "/assets/**").permitAll()
+                        .requestMatchers("/api/v1/**").authenticated()
                         .anyRequest().permitAll()
                 )
-                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
+                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .addFilterBefore(jwtRequestFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }

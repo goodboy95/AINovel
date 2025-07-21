@@ -1,5 +1,6 @@
 package com.example.ainovel.model;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
@@ -19,6 +20,7 @@ public class CharacterCard {
 
     @ManyToOne
     @JoinColumn(name = "story_card_id", nullable = false)
+    @JsonBackReference
     private StoryCard storyCard;
 
     @Column(nullable = false, length = 100)

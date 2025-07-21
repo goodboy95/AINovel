@@ -27,7 +27,40 @@ public class ClaudeService implements AiService {
     }
 
     @Override
-    public ConceptionResponse generateStory(ConceptionRequest request, String apiKey) {
+    public String generate(String prompt, String apiKey) {
+        String url = claudeApiUrl + "/messages";
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.set("x-api-key", apiKey);
+        headers.set("anthropic-version", "2023-06-01");
+        headers.setContentType(MediaType.APPLICATION_JSON);
+
+        Map<String, Object> message = new HashMap<>();
+        message.put("role", "user");
+        message.put("content", prompt);
+
+        Map<String, Object> body = new HashMap<>();
+        body.put("model", "claude-3-opus-20240229");
+        body.put("messages", List.of(message));
+        body.put("max_tokens", 4096);
+
+        HttpEntity<Map<String, Object>> entity = new HttpEntity<>(body, headers);
+
+        try {
+            ResponseEntity<String> response = restTemplate.exchange(url, HttpMethod.POST, entity, String.class);
+            String responseBody = response.getBody();
+
+            Map<String, Object> responseMap = objectMapper.readValue(responseBody, Map.class);
+            List<Map<String, Object>> contentBlocks = (List<Map<String, Object>>) responseMap.get("content");
+            return (String) contentBlocks.get(0).get("text");
+        } catch (Exception e) {
+            System.err.println("Error calling Claude API for text generation: " + e.getMessage());
+            throw new RuntimeException("Failed to generate text from Claude.", e);
+        }
+    }
+
+    @Override
+    public ConceptionResponse generateConception(ConceptionRequest request, String apiKey) {
         String url = claudeApiUrl + "/messages";
 
         HttpHeaders headers = new HttpHeaders();

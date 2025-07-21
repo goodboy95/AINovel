@@ -1,9 +1,11 @@
 package com.example.ainovel.model;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Entity
 @Table(name = "story_cards")
@@ -38,7 +40,19 @@ public class StoryCard {
     @UpdateTimestamp
     private LocalDateTime updatedAt;
 
+    @OneToMany(mappedBy = "storyCard", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonManagedReference
+    private List<CharacterCard> characters;
+
     // Getters and Setters
+
+    public List<CharacterCard> getCharacters() {
+        return characters;
+    }
+
+    public void setCharacters(List<CharacterCard> characters) {
+        this.characters = characters;
+    }
 
     public Long getId() {
         return id;

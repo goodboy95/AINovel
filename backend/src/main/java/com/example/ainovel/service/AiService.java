@@ -4,5 +4,7 @@ import com.example.ainovel.dto.ConceptionRequest;
 import com.example.ainovel.dto.ConceptionResponse;
 
 public interface AiService {
-    ConceptionResponse generateStory(ConceptionRequest request, String apiKey);
+    String generate(String prompt, String apiKey);
+
+    ConceptionResponse generateConception(ConceptionRequest request, String apiKey);
 }
