@@ -54392,7 +54392,7 @@ const ManuscriptWriter = ({
       const newSection = await response.json();
       setManuscriptMap((prev2) => ({ ...prev2, [newSection.sceneId]: newSection }));
       setManuscriptContent(newSection.content);
-      staticMethods.success("内容已生成！");
+      staticMethods.success("内容已生成！现在您可以继续编辑。");
     } catch (error) {
       console.error("Failed to generate content:", error);
       staticMethods.error(error instanceof Error ? error.message : "内容生成失败，请检查后台服务。");
@@ -54424,6 +54424,7 @@ const ManuscriptWriter = ({
       }
       const updatedSection = await response.json();
       setManuscriptMap((prev2) => ({ ...prev2, [updatedSection.sceneId]: updatedSection }));
+      setManuscriptContent(updatedSection.content);
       staticMethods.success("内容已保存！");
     } catch (error) {
       console.error("Failed to save content:", error);
@@ -54463,7 +54464,8 @@ const ManuscriptWriter = ({
           value: manuscriptContent,
           onChange: (e2) => setManuscriptContent(e2.target.value),
           placeholder: "这里是您创作的故事内容...",
-          style: { flexGrow: 1, resize: "none" },
+          rows: 20,
+          style: { resize: "none" },
           disabled: !selectedSceneId
         }
       ),

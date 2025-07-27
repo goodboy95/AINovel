@@ -94,8 +94,8 @@ const ManuscriptWriter: React.FC<ManuscriptWriterProps> = ({
 
             const newSection = await response.json();
             setManuscriptMap(prev => ({ ...prev, [newSection.sceneId]: newSection }));
-            setManuscriptContent(newSection.content);
-            message.success('内容已生成！');
+            setManuscriptContent(newSection.content); // 实时显示生成的内容
+            message.success('内容已生成！现在您可以继续编辑。');
         } catch (error) {
             console.error('Failed to generate content:', error);
             message.error(error instanceof Error ? error.message : '内容生成失败，请检查后台服务。');
@@ -132,6 +132,7 @@ const ManuscriptWriter: React.FC<ManuscriptWriterProps> = ({
 
             const updatedSection = await response.json();
             setManuscriptMap(prev => ({ ...prev, [updatedSection.sceneId]: updatedSection }));
+            setManuscriptContent(updatedSection.content);
             message.success('内容已保存！');
         } catch (error) {
             console.error("Failed to save content:", error);
@@ -175,7 +176,8 @@ const ManuscriptWriter: React.FC<ManuscriptWriterProps> = ({
                                     value={manuscriptContent}
                                     onChange={(e) => setManuscriptContent(e.target.value)}
                                     placeholder="这里是您创作的故事内容..."
-                                    style={{ flexGrow: 1, resize: 'none' }}
+                                    rows={20}
+                                    style={{ resize: 'none' }}
                                     disabled={!selectedSceneId}
                                 />
                                 <div className="mt-4 flex items-center justify-between">
