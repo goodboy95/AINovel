@@ -63,7 +63,8 @@ const ManuscriptWriter: React.FC<ManuscriptWriterProps> = ({
 
     useEffect(() => {
         if (selectedSceneId && manuscriptMap[selectedSceneId]) {
-            setManuscriptContent(manuscriptMap[selectedSceneId].content);
+            const newContent = manuscriptMap[selectedSceneId].content;
+            setManuscriptContent(newContent);
         } else {
             setManuscriptContent('');
         }
@@ -88,16 +89,16 @@ const ManuscriptWriter: React.FC<ManuscriptWriterProps> = ({
 
             if (!response.ok) {
                 const errorData = await response.text();
-                console.error('Failed to generate content: Response not OK', errorData);
                 throw new Error(errorData || '生成内容失败。');
             }
 
             const newSection = await response.json();
-            setManuscriptMap(prev => ({ ...prev, [newSection.sceneId]: newSection }));
-            setManuscriptContent(newSection.content); // 实时显示生成的内容
+            setManuscriptMap(prev => {
+                const newMap = { ...prev, [newSection.scene.id]: newSection };
+                return newMap;
+            });
             message.success('内容已生成！现在您可以继续编辑。');
         } catch (error) {
-            console.error('Failed to generate content:', error);
             message.error(error instanceof Error ? error.message : '内容生成失败，请检查后台服务。');
         } finally {
             setIsLoading(false);
@@ -132,7 +133,6 @@ const ManuscriptWriter: React.FC<ManuscriptWriterProps> = ({
 
             const updatedSection = await response.json();
             setManuscriptMap(prev => ({ ...prev, [updatedSection.sceneId]: updatedSection }));
-            setManuscriptContent(updatedSection.content);
             message.success('内容已保存！');
         } catch (error) {
             console.error("Failed to save content:", error);
