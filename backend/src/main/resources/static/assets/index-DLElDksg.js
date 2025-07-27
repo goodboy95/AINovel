@@ -19265,7 +19265,7 @@ function getAlphaColor(frontColor, backgroundColor) {
     a: 1
   }).toRgbString();
 }
-var __rest$K = function(s, e2) {
+var __rest$O = function(s, e2) {
   var t2 = {};
   for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p) && e2.indexOf(p) < 0) t2[p] = s[p];
   if (s != null && typeof Object.getOwnPropertySymbols === "function") for (var i = 0, p = Object.getOwnPropertySymbols(s); i < p.length; i++) {
@@ -19276,7 +19276,7 @@ var __rest$K = function(s, e2) {
 function formatToken(derivativeToken) {
   const {
     override
-  } = derivativeToken, restToken = __rest$K(derivativeToken, ["override"]);
+  } = derivativeToken, restToken = __rest$O(derivativeToken, ["override"]);
   const overrideTokens = Object.assign({}, override);
   Object.keys(seedToken).forEach((token2) => {
     delete overrideTokens[token2];
@@ -19430,7 +19430,7 @@ function formatToken(derivativeToken) {
   }), overrideTokens);
   return aliasToken;
 }
-var __rest$J = function(s, e2) {
+var __rest$N = function(s, e2) {
   var t2 = {};
   for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p) && e2.indexOf(p) < 0) t2[p] = s[p];
   if (s != null && typeof Object.getOwnPropertySymbols === "function") for (var i = 0, p = Object.getOwnPropertySymbols(s); i < p.length; i++) {
@@ -19491,7 +19491,7 @@ const getComputedToken = (originToken, overrideToken, theme) => {
   const derivativeToken = theme.getDerivativeToken(originToken);
   const {
     override
-  } = overrideToken, components = __rest$J(overrideToken, ["override"]);
+  } = overrideToken, components = __rest$N(overrideToken, ["override"]);
   let mergedDerivativeToken = Object.assign(Object.assign({}, derivativeToken), {
     override
   });
@@ -19500,7 +19500,7 @@ const getComputedToken = (originToken, overrideToken, theme) => {
     Object.entries(components).forEach(([key, value]) => {
       const {
         theme: componentTheme
-      } = value, componentTokens = __rest$J(value, ["theme"]);
+      } = value, componentTokens = __rest$N(value, ["theme"]);
       let mergedComponentToken = componentTokens;
       if (componentTheme) {
         mergedComponentToken = getComputedToken(Object.assign(Object.assign({}, mergedDerivativeToken), componentTokens), {
@@ -19786,10 +19786,10 @@ function useTheme(theme, parentTheme, config) {
     return !isEqual(prevTheme, nextTheme, true);
   }));
 }
-var _excluded$D = ["children"];
+var _excluded$F = ["children"];
 var Context$1 = /* @__PURE__ */ reactExports.createContext({});
 function MotionProvider(_ref) {
-  var children = _ref.children, props = _objectWithoutProperties(_ref, _excluded$D);
+  var children = _ref.children, props = _objectWithoutProperties(_ref, _excluded$F);
   return /* @__PURE__ */ reactExports.createElement(Context$1.Provider, {
     value: props
   }, children);
@@ -20308,7 +20308,7 @@ function diffKeys() {
   });
   return list;
 }
-var _excluded$C = ["component", "children", "onVisibleChanged", "onAllRemoved"], _excluded2$7 = ["status"];
+var _excluded$E = ["component", "children", "onVisibleChanged", "onAllRemoved"], _excluded2$7 = ["status"];
 var MOTION_PROP_NAMES = ["eventProps", "visible", "children", "motionName", "motionAppear", "motionEnter", "motionLeave", "motionLeaveImmediately", "motionDeadline", "removeOnLeave", "leavedClassName", "onAppearPrepare", "onAppearStart", "onAppearActive", "onAppearEnd", "onEnterStart", "onEnterActive", "onEnterEnd", "onLeaveStart", "onLeaveActive", "onLeaveEnd"];
 function genCSSMotionList(transitionSupport) {
   var CSSMotion$1 = arguments.length > 1 && arguments[1] !== void 0 ? arguments[1] : CSSMotion;
@@ -20356,7 +20356,7 @@ function genCSSMotionList(transitionSupport) {
         var keyEntities = this.state.keyEntities;
         var _this$props = this.props, component = _this$props.component, children = _this$props.children, _onVisibleChanged = _this$props.onVisibleChanged;
         _this$props.onAllRemoved;
-        var restProps = _objectWithoutProperties(_this$props, _excluded$C);
+        var restProps = _objectWithoutProperties(_this$props, _excluded$E);
         var Component = component || reactExports.Fragment;
         var motionProps = {};
         MOTION_PROP_NAMES.forEach(function(prop) {
@@ -20437,7 +20437,7 @@ function MotionWrapper(props) {
   return children;
 }
 const PropWarning = () => null;
-var __rest$I = function(s, e2) {
+var __rest$M = function(s, e2) {
   var t2 = {};
   for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p) && e2.indexOf(p) < 0) t2[p] = s[p];
   if (s != null && typeof Object.getOwnPropertySymbols === "function") for (var i = 0, p = Object.getOwnPropertySymbols(s); i < p.length; i++) {
@@ -20738,7 +20738,7 @@ const ProviderChildren = (props) => {
       token: token2,
       components,
       cssVar
-    } = _a, rest = __rest$I(_a, ["algorithm", "token", "components", "cssVar"]);
+    } = _a, rest = __rest$M(_a, ["algorithm", "token", "components", "cssVar"]);
     const themeObj = algorithm && (!Array.isArray(algorithm) || algorithm.length > 0) ? createTheme(algorithm) : defaultTheme;
     const parsedComponents = {};
     Object.entries(components || {}).forEach(([componentName, componentToken]) => {
@@ -20888,7 +20888,7 @@ var useInsertStyles = function useInsertStyles2(eleRef) {
     });
   }, []);
 };
-var _excluded$B = ["icon", "className", "onClick", "style", "primaryColor", "secondaryColor"];
+var _excluded$D = ["icon", "className", "onClick", "style", "primaryColor", "secondaryColor"];
 var twoToneColorPalette = {
   primaryColor: "#333",
   secondaryColor: "#E6E6E6",
@@ -20904,7 +20904,7 @@ function getTwoToneColors() {
   return _objectSpread2({}, twoToneColorPalette);
 }
 var IconBase = function IconBase2(props) {
-  var icon = props.icon, className = props.className, onClick = props.onClick, style2 = props.style, primaryColor = props.primaryColor, secondaryColor = props.secondaryColor, restProps = _objectWithoutProperties(props, _excluded$B);
+  var icon = props.icon, className = props.className, onClick = props.onClick, style2 = props.style, primaryColor = props.primaryColor, secondaryColor = props.secondaryColor, restProps = _objectWithoutProperties(props, _excluded$D);
   var svgRef = reactExports.useRef();
   var colors = twoToneColorPalette;
   if (primaryColor) {
@@ -20954,10 +20954,10 @@ function getTwoToneColor() {
   }
   return [colors.primaryColor, colors.secondaryColor];
 }
-var _excluded$A = ["className", "icon", "spin", "rotate", "tabIndex", "onClick", "twoToneColor"];
+var _excluded$C = ["className", "icon", "spin", "rotate", "tabIndex", "onClick", "twoToneColor"];
 setTwoToneColor(blue.primary);
 var Icon$2 = /* @__PURE__ */ reactExports.forwardRef(function(props, ref) {
-  var className = props.className, icon = props.icon, spin = props.spin, rotate = props.rotate, tabIndex = props.tabIndex, onClick = props.onClick, twoToneColor = props.twoToneColor, restProps = _objectWithoutProperties(props, _excluded$A);
+  var className = props.className, icon = props.icon, spin = props.spin, rotate = props.rotate, tabIndex = props.tabIndex, onClick = props.onClick, twoToneColor = props.twoToneColor, restProps = _objectWithoutProperties(props, _excluded$C);
   var _React$useContext = reactExports.useContext(IconContext), _React$useContext$pre = _React$useContext.prefixCls, prefixCls = _React$useContext$pre === void 0 ? "anticon" : _React$useContext$pre, rootClassName = _React$useContext.rootClassName;
   var classString = classNames(rootClassName, prefixCls, _defineProperty(_defineProperty({}, "".concat(prefixCls, "-").concat(icon.name), !!icon.name), "".concat(prefixCls, "-spin"), !!spin || icon.name === "loading"), className);
   var iconTabIndex = tabIndex;
@@ -21082,7 +21082,7 @@ const genAlertTypeStyle = (bgColor, borderColor, iconColor, token2, alertCls) =>
     color: iconColor
   }
 });
-const genBaseStyle$3 = (token2) => {
+const genBaseStyle$5 = (token2) => {
   const {
     componentCls,
     motionDurationSlow: duration,
@@ -21240,7 +21240,7 @@ const genActionStyle = (token2) => {
     }
   };
 };
-const prepareComponentToken$g = (token2) => {
+const prepareComponentToken$i = (token2) => {
   const paddingHorizontal = 12;
   return {
     withDescriptionIconSize: token2.fontSizeHeading3,
@@ -21248,8 +21248,8 @@ const prepareComponentToken$g = (token2) => {
     withDescriptionPadding: `${token2.paddingMD}px ${token2.paddingContentHorizontalLG}px`
   };
 };
-const useStyle$l = genStyleHooks("Alert", (token2) => [genBaseStyle$3(token2), genTypeStyle(token2), genActionStyle(token2)], prepareComponentToken$g);
-var __rest$H = function(s, e2) {
+const useStyle$o = genStyleHooks("Alert", (token2) => [genBaseStyle$5(token2), genTypeStyle(token2), genActionStyle(token2)], prepareComponentToken$i);
+var __rest$L = function(s, e2) {
   var t2 = {};
   for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p) && e2.indexOf(p) < 0) t2[p] = s[p];
   if (s != null && typeof Object.getOwnPropertySymbols === "function") for (var i = 0, p = Object.getOwnPropertySymbols(s); i < p.length; i++) {
@@ -21316,7 +21316,7 @@ const Alert$1 = /* @__PURE__ */ reactExports.forwardRef((props, ref) => {
     closeIcon,
     action,
     id
-  } = props, otherProps = __rest$H(props, ["description", "prefixCls", "message", "banner", "className", "rootClassName", "style", "onMouseEnter", "onMouseLeave", "onClick", "afterClose", "showIcon", "closable", "closeText", "closeIcon", "action", "id"]);
+  } = props, otherProps = __rest$L(props, ["description", "prefixCls", "message", "banner", "className", "rootClassName", "style", "onMouseEnter", "onMouseLeave", "onClick", "afterClose", "showIcon", "closable", "closeText", "closeIcon", "action", "id"]);
   const [closed, setClosed] = reactExports.useState(false);
   const internalRef = reactExports.useRef(null);
   reactExports.useImperativeHandle(ref, () => ({
@@ -21331,7 +21331,7 @@ const Alert$1 = /* @__PURE__ */ reactExports.forwardRef((props, ref) => {
     style: contextStyle
   } = useComponentConfig("alert");
   const prefixCls = getPrefixCls("alert", customizePrefixCls);
-  const [wrapCSSVar, hashId, cssVarCls] = useStyle$l(prefixCls);
+  const [wrapCSSVar, hashId, cssVarCls] = useStyle$o(prefixCls);
   const handleClose = (e2) => {
     var _a;
     setClosed(true);
@@ -21387,7 +21387,7 @@ const Alert$1 = /* @__PURE__ */ reactExports.forwardRef((props, ref) => {
     if (typeof merged === "object") {
       const {
         closeIcon: _
-      } = merged, ariaProps = __rest$H(merged, ["closeIcon"]);
+      } = merged, ariaProps = __rest$L(merged, ["closeIcon"]);
       return ariaProps;
     }
     return {};
@@ -21853,7 +21853,7 @@ var useStack = function useStack2(config) {
   }
   return [!!config, result];
 };
-var _excluded$z = ["className", "style", "classNames", "styles"];
+var _excluded$B = ["className", "style", "classNames", "styles"];
 var NoticeList = function NoticeList2(props) {
   var configList = props.configList, placement = props.placement, prefixCls = props.prefixCls, className = props.className, style2 = props.style, motion2 = props.motion, onAllNoticeRemoved = props.onAllNoticeRemoved, onNoticeClose = props.onNoticeClose, stackConfig = props.stack;
   var _useContext = reactExports.useContext(NotificationContext), ctxCls = _useContext.classNames;
@@ -21902,7 +21902,7 @@ var NoticeList = function NoticeList2(props) {
     var config = _ref2.config, motionClassName = _ref2.className, motionStyle = _ref2.style, motionIndex = _ref2.index;
     var _ref3 = config, key = _ref3.key, times = _ref3.times;
     var strKey = String(key);
-    var _ref4 = config, configClassName = _ref4.className, configStyle = _ref4.style, configClassNames = _ref4.classNames, configStyles = _ref4.styles, restConfig = _objectWithoutProperties(_ref4, _excluded$z);
+    var _ref4 = config, configClassName = _ref4.className, configStyle = _ref4.style, configClassNames = _ref4.classNames, configStyles = _ref4.styles, restConfig = _objectWithoutProperties(_ref4, _excluded$B);
     var dataIndex = keys2.findIndex(function(item) {
       return item.key === strKey;
     });
@@ -22066,7 +22066,7 @@ var Notifications = /* @__PURE__ */ reactExports.forwardRef(function(props, ref)
     }) : list;
   })), container);
 });
-var _excluded$y = ["getContainer", "motion", "prefixCls", "maxCount", "className", "style", "onAllRemoved", "stack", "renderNotifications"];
+var _excluded$A = ["getContainer", "motion", "prefixCls", "maxCount", "className", "style", "onAllRemoved", "stack", "renderNotifications"];
 var defaultGetContainer = function defaultGetContainer2() {
   return document.body;
 };
@@ -22090,7 +22090,7 @@ function mergeConfig() {
 }
 function useNotification() {
   var rootConfig = arguments.length > 0 && arguments[0] !== void 0 ? arguments[0] : {};
-  var _rootConfig$getContai = rootConfig.getContainer, getContainer2 = _rootConfig$getContai === void 0 ? defaultGetContainer : _rootConfig$getContai, motion2 = rootConfig.motion, prefixCls = rootConfig.prefixCls, maxCount = rootConfig.maxCount, className = rootConfig.className, style2 = rootConfig.style, onAllRemoved = rootConfig.onAllRemoved, stack = rootConfig.stack, renderNotifications2 = rootConfig.renderNotifications, shareConfig = _objectWithoutProperties(rootConfig, _excluded$y);
+  var _rootConfig$getContai = rootConfig.getContainer, getContainer2 = _rootConfig$getContai === void 0 ? defaultGetContainer : _rootConfig$getContai, motion2 = rootConfig.motion, prefixCls = rootConfig.prefixCls, maxCount = rootConfig.maxCount, className = rootConfig.className, style2 = rootConfig.style, onAllRemoved = rootConfig.onAllRemoved, stack = rootConfig.stack, renderNotifications2 = rootConfig.renderNotifications, shareConfig = _objectWithoutProperties(rootConfig, _excluded$A);
   var _React$useState = reactExports.useState(), _React$useState2 = _slicedToArray(_React$useState, 2), container = _React$useState2[0], setContainer = _React$useState2[1];
   var notificationsRef = reactExports.useRef();
   var contextHolder = /* @__PURE__ */ reactExports.createElement(Notifications, {
@@ -22363,18 +22363,18 @@ const genMessageStyle = (token2) => {
     }
   ];
 };
-const prepareComponentToken$f = (token2) => ({
+const prepareComponentToken$h = (token2) => ({
   zIndexPopup: token2.zIndexPopupBase + CONTAINER_MAX_OFFSET + 10,
   contentBg: token2.colorBgElevated,
   contentPadding: `${(token2.controlHeightLG - token2.fontSize * token2.lineHeight) / 2}px ${token2.paddingSM}px`
 });
-const useStyle$k = genStyleHooks("Message", (token2) => {
+const useStyle$n = genStyleHooks("Message", (token2) => {
   const combinedToken = merge(token2, {
     height: 150
   });
   return [genMessageStyle(combinedToken)];
-}, prepareComponentToken$f);
-var __rest$G = function(s, e2) {
+}, prepareComponentToken$h);
+var __rest$K = function(s, e2) {
   var t2 = {};
   for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p) && e2.indexOf(p) < 0) t2[p] = s[p];
   if (s != null && typeof Object.getOwnPropertySymbols === "function") for (var i = 0, p = Object.getOwnPropertySymbols(s); i < p.length; i++) {
@@ -22404,13 +22404,13 @@ const PurePanel$4 = (props) => {
     type: type4,
     icon,
     content
-  } = props, restProps = __rest$G(props, ["prefixCls", "className", "type", "icon", "content"]);
+  } = props, restProps = __rest$K(props, ["prefixCls", "className", "type", "icon", "content"]);
   const {
     getPrefixCls
   } = reactExports.useContext(ConfigContext);
   const prefixCls = staticPrefixCls || getPrefixCls("message");
   const rootCls = useCSSVarCls(prefixCls);
-  const [wrapCSSVar, hashId, cssVarCls] = useStyle$k(prefixCls, rootCls);
+  const [wrapCSSVar, hashId, cssVarCls] = useStyle$n(prefixCls, rootCls);
   return wrapCSSVar(/* @__PURE__ */ reactExports.createElement(Notify, Object.assign({}, restProps, {
     prefixCls,
     className: classNames(className, hashId, `${prefixCls}-notice-pure-panel`, cssVarCls, rootCls),
@@ -22442,7 +22442,7 @@ function wrapPromiseFn(openFn) {
   result.promise = closePromise;
   return result;
 }
-var __rest$F = function(s, e2) {
+var __rest$J = function(s, e2) {
   var t2 = {};
   for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p) && e2.indexOf(p) < 0) t2[p] = s[p];
   if (s != null && typeof Object.getOwnPropertySymbols === "function") for (var i = 0, p = Object.getOwnPropertySymbols(s); i < p.length; i++) {
@@ -22457,7 +22457,7 @@ const Wrapper = ({
   prefixCls
 }) => {
   const rootCls = useCSSVarCls(prefixCls);
-  const [wrapCSSVar, hashId, cssVarCls] = useStyle$k(prefixCls, rootCls);
+  const [wrapCSSVar, hashId, cssVarCls] = useStyle$n(prefixCls, rootCls);
   return wrapCSSVar(/* @__PURE__ */ reactExports.createElement(NotificationProvider, {
     classNames: {
       list: classNames(hashId, cssVarCls, rootCls)
@@ -22553,7 +22553,7 @@ function useInternalMessage(messageConfig) {
         className,
         style: style2,
         onClose
-      } = config, restConfig = __rest$F(config, ["content", "icon", "type", "key", "className", "style", "onClose"]);
+      } = config, restConfig = __rest$J(config, ["content", "icon", "type", "key", "className", "style", "onClose"]);
       let mergedKey = key;
       if (mergedKey === void 0 || mergedKey === null) {
         keyIndex += 1;
@@ -23081,7 +23081,7 @@ const genWaveStyle = (token2) => {
     }
   };
 };
-const useStyle$j = genComponentStyleHook("Wave", (token2) => [genWaveStyle(token2)]);
+const useStyle$m = genComponentStyleHook("Wave", (token2) => [genWaveStyle(token2)]);
 const TARGET_CLS = `${defaultPrefixCls}-wave-target`;
 function isValidWaveColor(color) {
   return color && color !== "#fff" && color !== "#ffffff" && color !== "rgb(255, 255, 255)" && color !== "rgba(255, 255, 255, 1)" && !/rgba\((?:\d*, ){3}0\)/.test(color) && // any transparent rgba color
@@ -23267,7 +23267,7 @@ const Wave = (props) => {
   } = reactExports.useContext(ConfigContext);
   const containerRef = reactExports.useRef(null);
   const prefixCls = getPrefixCls("wave");
-  const [, hashId] = useStyle$j(prefixCls);
+  const [, hashId] = useStyle$m(prefixCls);
   const showWave = useWave(containerRef, classNames(prefixCls, hashId), component);
   React.useEffect(() => {
     const node2 = containerRef.current;
@@ -23310,14 +23310,108 @@ const useSize = (customSize) => {
   }, [customSize, size]);
   return mergedSize;
 };
-(function(s, e2) {
+const genSpaceCompactStyle = (token2) => {
+  const {
+    componentCls
+  } = token2;
+  return {
+    [componentCls]: {
+      "&-block": {
+        display: "flex",
+        width: "100%"
+      },
+      "&-vertical": {
+        flexDirection: "column"
+      }
+    }
+  };
+};
+const genSpaceStyle = (token2) => {
+  const {
+    componentCls,
+    antCls
+  } = token2;
+  return {
+    [componentCls]: {
+      display: "inline-flex",
+      "&-rtl": {
+        direction: "rtl"
+      },
+      "&-vertical": {
+        flexDirection: "column"
+      },
+      "&-align": {
+        flexDirection: "column",
+        "&-center": {
+          alignItems: "center"
+        },
+        "&-start": {
+          alignItems: "flex-start"
+        },
+        "&-end": {
+          alignItems: "flex-end"
+        },
+        "&-baseline": {
+          alignItems: "baseline"
+        }
+      },
+      [`${componentCls}-item:empty`]: {
+        display: "none"
+      },
+      // https://github.com/ant-design/ant-design/issues/47875
+      [`${componentCls}-item > ${antCls}-badge-not-a-wrapper:only-child`]: {
+        display: "block"
+      }
+    }
+  };
+};
+const genSpaceGapStyle = (token2) => {
+  const {
+    componentCls
+  } = token2;
+  return {
+    [componentCls]: {
+      "&-gap-row-small": {
+        rowGap: token2.spaceGapSmallSize
+      },
+      "&-gap-row-middle": {
+        rowGap: token2.spaceGapMiddleSize
+      },
+      "&-gap-row-large": {
+        rowGap: token2.spaceGapLargeSize
+      },
+      "&-gap-col-small": {
+        columnGap: token2.spaceGapSmallSize
+      },
+      "&-gap-col-middle": {
+        columnGap: token2.spaceGapMiddleSize
+      },
+      "&-gap-col-large": {
+        columnGap: token2.spaceGapLargeSize
+      }
+    }
+  };
+};
+const useStyle$l = genStyleHooks("Space", (token2) => {
+  const spaceToken = merge(token2, {
+    spaceGapSmallSize: token2.paddingXS,
+    spaceGapMiddleSize: token2.padding,
+    spaceGapLargeSize: token2.paddingLG
+  });
+  return [genSpaceStyle(spaceToken), genSpaceGapStyle(spaceToken), genSpaceCompactStyle(spaceToken)];
+}, () => ({}), {
+  // Space component don't apply extra font style
+  // https://github.com/ant-design/ant-design/issues/40315
+  resetStyle: false
+});
+var __rest$I = function(s, e2) {
   var t2 = {};
   for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p) && e2.indexOf(p) < 0) t2[p] = s[p];
   if (s != null && typeof Object.getOwnPropertySymbols === "function") for (var i = 0, p = Object.getOwnPropertySymbols(s); i < p.length; i++) {
     if (e2.indexOf(p[i]) < 0 && Object.prototype.propertyIsEnumerable.call(s, p[i])) t2[p[i]] = s[p[i]];
   }
   return t2;
-});
+};
 const SpaceCompactItemContext = /* @__PURE__ */ reactExports.createContext(null);
 const useCompactItemContext = (prefixCls, direction) => {
   const compactItemContext = reactExports.useContext(SpaceCompactItemContext);
@@ -23351,7 +23445,56 @@ const NoCompactStyle = (props) => {
     value: null
   }, children);
 };
-var __rest$E = function(s, e2) {
+const CompactItem = (props) => {
+  const {
+    children
+  } = props, others = __rest$I(props, ["children"]);
+  return /* @__PURE__ */ reactExports.createElement(SpaceCompactItemContext.Provider, {
+    value: reactExports.useMemo(() => others, [others])
+  }, children);
+};
+const Compact$1 = (props) => {
+  const {
+    getPrefixCls,
+    direction: directionConfig
+  } = reactExports.useContext(ConfigContext);
+  const {
+    size,
+    direction,
+    block,
+    prefixCls: customizePrefixCls,
+    className,
+    rootClassName,
+    children
+  } = props, restProps = __rest$I(props, ["size", "direction", "block", "prefixCls", "className", "rootClassName", "children"]);
+  const mergedSize = useSize((ctx) => size !== null && size !== void 0 ? size : ctx);
+  const prefixCls = getPrefixCls("space-compact", customizePrefixCls);
+  const [wrapCSSVar, hashId] = useStyle$l(prefixCls);
+  const clx = classNames(prefixCls, hashId, {
+    [`${prefixCls}-rtl`]: directionConfig === "rtl",
+    [`${prefixCls}-block`]: block,
+    [`${prefixCls}-vertical`]: direction === "vertical"
+  }, className, rootClassName);
+  const compactItemContext = reactExports.useContext(SpaceCompactItemContext);
+  const childNodes = toArray$4(children);
+  const nodes = reactExports.useMemo(() => childNodes.map((child, i) => {
+    const key = (child === null || child === void 0 ? void 0 : child.key) || `${prefixCls}-item-${i}`;
+    return /* @__PURE__ */ reactExports.createElement(CompactItem, {
+      key,
+      compactSize: mergedSize,
+      compactDirection: direction,
+      isFirstItem: i === 0 && (!compactItemContext || (compactItemContext === null || compactItemContext === void 0 ? void 0 : compactItemContext.isFirstItem)),
+      isLastItem: i === childNodes.length - 1 && (!compactItemContext || (compactItemContext === null || compactItemContext === void 0 ? void 0 : compactItemContext.isLastItem))
+    }, child);
+  }), [size, childNodes, compactItemContext]);
+  if (childNodes.length === 0) {
+    return null;
+  }
+  return wrapCSSVar(/* @__PURE__ */ reactExports.createElement("div", Object.assign({
+    className: clx
+  }, restProps), nodes));
+};
+var __rest$H = function(s, e2) {
   var t2 = {};
   for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p) && e2.indexOf(p) < 0) t2[p] = s[p];
   if (s != null && typeof Object.getOwnPropertySymbols === "function") for (var i = 0, p = Object.getOwnPropertySymbols(s); i < p.length; i++) {
@@ -23369,7 +23512,7 @@ const ButtonGroup = (props) => {
     prefixCls: customizePrefixCls,
     size,
     className
-  } = props, others = __rest$E(props, ["prefixCls", "size", "className"]);
+  } = props, others = __rest$H(props, ["prefixCls", "size", "className"]);
   const prefixCls = getPrefixCls("btn-group", customizePrefixCls);
   const [, , hashId] = useToken();
   const sizeCls = reactExports.useMemo(() => {
@@ -23599,7 +23742,7 @@ const genGroupStyle$1 = (token2) => {
     ]
   };
 };
-var _excluded$x = ["b"], _excluded2$6 = ["v"];
+var _excluded$z = ["b"], _excluded2$6 = ["v"];
 var getRoundNumber = function getRoundNumber2(value) {
   return Math.round(Number(value || 0));
 };
@@ -23608,7 +23751,7 @@ var convertHsb2Hsv = function convertHsb2Hsv2(color) {
     return color;
   }
   if (color && _typeof(color) === "object" && "h" in color && "b" in color) {
-    var _ref = color, b = _ref.b, resets = _objectWithoutProperties(_ref, _excluded$x);
+    var _ref = color, b = _ref.b, resets = _objectWithoutProperties(_ref, _excluded$z);
     return _objectSpread2(_objectSpread2({}, resets), {}, {
       v: b
     });
@@ -23769,6 +23912,252 @@ var RightOutlined = function RightOutlined2(props, ref) {
   }));
 };
 var RefIcon$k = /* @__PURE__ */ reactExports.forwardRef(RightOutlined);
+var PanelContent = /* @__PURE__ */ React.forwardRef(function(props, ref) {
+  var prefixCls = props.prefixCls, forceRender = props.forceRender, className = props.className, style2 = props.style, children = props.children, isActive2 = props.isActive, role = props.role, customizeClassNames = props.classNames, styles = props.styles;
+  var _React$useState = React.useState(isActive2 || forceRender), _React$useState2 = _slicedToArray(_React$useState, 2), rendered = _React$useState2[0], setRendered = _React$useState2[1];
+  React.useEffect(function() {
+    if (forceRender || isActive2) {
+      setRendered(true);
+    }
+  }, [forceRender, isActive2]);
+  if (!rendered) {
+    return null;
+  }
+  return /* @__PURE__ */ React.createElement("div", {
+    ref,
+    className: classNames("".concat(prefixCls, "-content"), _defineProperty(_defineProperty({}, "".concat(prefixCls, "-content-active"), isActive2), "".concat(prefixCls, "-content-inactive"), !isActive2), className),
+    style: style2,
+    role
+  }, /* @__PURE__ */ React.createElement("div", {
+    className: classNames("".concat(prefixCls, "-content-box"), customizeClassNames === null || customizeClassNames === void 0 ? void 0 : customizeClassNames.body),
+    style: styles === null || styles === void 0 ? void 0 : styles.body
+  }, children));
+});
+PanelContent.displayName = "PanelContent";
+var _excluded$y = ["showArrow", "headerClass", "isActive", "onItemClick", "forceRender", "className", "classNames", "styles", "prefixCls", "collapsible", "accordion", "panelKey", "extra", "header", "expandIcon", "openMotion", "destroyInactivePanel", "children"];
+var CollapsePanel$1 = /* @__PURE__ */ React.forwardRef(function(props, ref) {
+  var _props$showArrow = props.showArrow, showArrow = _props$showArrow === void 0 ? true : _props$showArrow, headerClass = props.headerClass, isActive2 = props.isActive, onItemClick = props.onItemClick, forceRender = props.forceRender, className = props.className, _props$classNames = props.classNames, customizeClassNames = _props$classNames === void 0 ? {} : _props$classNames, _props$styles = props.styles, styles = _props$styles === void 0 ? {} : _props$styles, prefixCls = props.prefixCls, collapsible = props.collapsible, accordion = props.accordion, panelKey = props.panelKey, extra = props.extra, header = props.header, expandIcon = props.expandIcon, openMotion = props.openMotion, destroyInactivePanel = props.destroyInactivePanel, children = props.children, resetProps = _objectWithoutProperties(props, _excluded$y);
+  var disabled = collapsible === "disabled";
+  var ifExtraExist = extra !== null && extra !== void 0 && typeof extra !== "boolean";
+  var collapsibleProps = _defineProperty(_defineProperty(_defineProperty({
+    onClick: function onClick() {
+      onItemClick === null || onItemClick === void 0 || onItemClick(panelKey);
+    },
+    onKeyDown: function onKeyDown(e2) {
+      if (e2.key === "Enter" || e2.keyCode === KeyCode.ENTER || e2.which === KeyCode.ENTER) {
+        onItemClick === null || onItemClick === void 0 || onItemClick(panelKey);
+      }
+    },
+    role: accordion ? "tab" : "button"
+  }, "aria-expanded", isActive2), "aria-disabled", disabled), "tabIndex", disabled ? -1 : 0);
+  var iconNodeInner = typeof expandIcon === "function" ? expandIcon(props) : /* @__PURE__ */ React.createElement("i", {
+    className: "arrow"
+  });
+  var iconNode = iconNodeInner && /* @__PURE__ */ React.createElement("div", _extends({
+    className: "".concat(prefixCls, "-expand-icon")
+  }, ["header", "icon"].includes(collapsible) ? collapsibleProps : {}), iconNodeInner);
+  var collapsePanelClassNames = classNames("".concat(prefixCls, "-item"), _defineProperty(_defineProperty({}, "".concat(prefixCls, "-item-active"), isActive2), "".concat(prefixCls, "-item-disabled"), disabled), className);
+  var headerClassName = classNames(headerClass, "".concat(prefixCls, "-header"), _defineProperty({}, "".concat(prefixCls, "-collapsible-").concat(collapsible), !!collapsible), customizeClassNames.header);
+  var headerProps = _objectSpread2({
+    className: headerClassName,
+    style: styles.header
+  }, ["header", "icon"].includes(collapsible) ? {} : collapsibleProps);
+  return /* @__PURE__ */ React.createElement("div", _extends({}, resetProps, {
+    ref,
+    className: collapsePanelClassNames
+  }), /* @__PURE__ */ React.createElement("div", headerProps, showArrow && iconNode, /* @__PURE__ */ React.createElement("span", _extends({
+    className: "".concat(prefixCls, "-header-text")
+  }, collapsible === "header" ? collapsibleProps : {}), header), ifExtraExist && /* @__PURE__ */ React.createElement("div", {
+    className: "".concat(prefixCls, "-extra")
+  }, extra)), /* @__PURE__ */ React.createElement(CSSMotion, _extends({
+    visible: isActive2,
+    leavedClassName: "".concat(prefixCls, "-content-hidden")
+  }, openMotion, {
+    forceRender,
+    removeOnLeave: destroyInactivePanel
+  }), function(_ref, motionRef) {
+    var motionClassName = _ref.className, motionStyle = _ref.style;
+    return /* @__PURE__ */ React.createElement(PanelContent, {
+      ref: motionRef,
+      prefixCls,
+      className: motionClassName,
+      classNames: customizeClassNames,
+      style: motionStyle,
+      styles,
+      isActive: isActive2,
+      forceRender,
+      role: accordion ? "tabpanel" : void 0
+    }, children);
+  }));
+});
+var _excluded$x = ["children", "label", "key", "collapsible", "onItemClick", "destroyInactivePanel"];
+var convertItemsToNodes$1 = function convertItemsToNodes(items, props) {
+  var prefixCls = props.prefixCls, accordion = props.accordion, collapsible = props.collapsible, destroyInactivePanel = props.destroyInactivePanel, onItemClick = props.onItemClick, activeKey = props.activeKey, openMotion = props.openMotion, expandIcon = props.expandIcon;
+  return items.map(function(item, index2) {
+    var children = item.children, label = item.label, rawKey = item.key, rawCollapsible = item.collapsible, rawOnItemClick = item.onItemClick, rawDestroyInactivePanel = item.destroyInactivePanel, restProps = _objectWithoutProperties(item, _excluded$x);
+    var key = String(rawKey !== null && rawKey !== void 0 ? rawKey : index2);
+    var mergeCollapsible = rawCollapsible !== null && rawCollapsible !== void 0 ? rawCollapsible : collapsible;
+    var mergeDestroyInactivePanel = rawDestroyInactivePanel !== null && rawDestroyInactivePanel !== void 0 ? rawDestroyInactivePanel : destroyInactivePanel;
+    var handleItemClick = function handleItemClick2(value) {
+      if (mergeCollapsible === "disabled") return;
+      onItemClick(value);
+      rawOnItemClick === null || rawOnItemClick === void 0 || rawOnItemClick(value);
+    };
+    var isActive2 = false;
+    if (accordion) {
+      isActive2 = activeKey[0] === key;
+    } else {
+      isActive2 = activeKey.indexOf(key) > -1;
+    }
+    return /* @__PURE__ */ React.createElement(CollapsePanel$1, _extends({}, restProps, {
+      prefixCls,
+      key,
+      panelKey: key,
+      isActive: isActive2,
+      accordion,
+      openMotion,
+      expandIcon,
+      header: label,
+      collapsible: mergeCollapsible,
+      onItemClick: handleItemClick,
+      destroyInactivePanel: mergeDestroyInactivePanel
+    }), children);
+  });
+};
+var getNewChild = function getNewChild2(child, index2, props) {
+  if (!child) return null;
+  var prefixCls = props.prefixCls, accordion = props.accordion, collapsible = props.collapsible, destroyInactivePanel = props.destroyInactivePanel, onItemClick = props.onItemClick, activeKey = props.activeKey, openMotion = props.openMotion, expandIcon = props.expandIcon;
+  var key = child.key || String(index2);
+  var _child$props = child.props, header = _child$props.header, headerClass = _child$props.headerClass, childDestroyInactivePanel = _child$props.destroyInactivePanel, childCollapsible = _child$props.collapsible, childOnItemClick = _child$props.onItemClick;
+  var isActive2 = false;
+  if (accordion) {
+    isActive2 = activeKey[0] === key;
+  } else {
+    isActive2 = activeKey.indexOf(key) > -1;
+  }
+  var mergeCollapsible = childCollapsible !== null && childCollapsible !== void 0 ? childCollapsible : collapsible;
+  var handleItemClick = function handleItemClick2(value) {
+    if (mergeCollapsible === "disabled") return;
+    onItemClick(value);
+    childOnItemClick === null || childOnItemClick === void 0 || childOnItemClick(value);
+  };
+  var childProps = {
+    key,
+    panelKey: key,
+    header,
+    headerClass,
+    isActive: isActive2,
+    prefixCls,
+    destroyInactivePanel: childDestroyInactivePanel !== null && childDestroyInactivePanel !== void 0 ? childDestroyInactivePanel : destroyInactivePanel,
+    openMotion,
+    accordion,
+    children: child.props.children,
+    onItemClick: handleItemClick,
+    expandIcon,
+    collapsible: mergeCollapsible
+  };
+  if (typeof child.type === "string") {
+    return child;
+  }
+  Object.keys(childProps).forEach(function(propName) {
+    if (typeof childProps[propName] === "undefined") {
+      delete childProps[propName];
+    }
+  });
+  return /* @__PURE__ */ React.cloneElement(child, childProps);
+};
+function useItems(items, rawChildren, props) {
+  if (Array.isArray(items)) {
+    return convertItemsToNodes$1(items, props);
+  }
+  return toArray$4(rawChildren).map(function(child, index2) {
+    return getNewChild(child, index2, props);
+  });
+}
+function getActiveKeysArray(activeKey) {
+  var currentActiveKey = activeKey;
+  if (!Array.isArray(currentActiveKey)) {
+    var activeKeyType = _typeof(currentActiveKey);
+    currentActiveKey = activeKeyType === "number" || activeKeyType === "string" ? [currentActiveKey] : [];
+  }
+  return currentActiveKey.map(function(key) {
+    return String(key);
+  });
+}
+var Collapse$2 = /* @__PURE__ */ React.forwardRef(function(props, ref) {
+  var _props$prefixCls = props.prefixCls, prefixCls = _props$prefixCls === void 0 ? "rc-collapse" : _props$prefixCls, _props$destroyInactiv = props.destroyInactivePanel, destroyInactivePanel = _props$destroyInactiv === void 0 ? false : _props$destroyInactiv, style2 = props.style, accordion = props.accordion, className = props.className, children = props.children, collapsible = props.collapsible, openMotion = props.openMotion, expandIcon = props.expandIcon, rawActiveKey = props.activeKey, defaultActiveKey = props.defaultActiveKey, _onChange = props.onChange, items = props.items;
+  var collapseClassName = classNames(prefixCls, className);
+  var _useMergedState = useMergedState([], {
+    value: rawActiveKey,
+    onChange: function onChange(v) {
+      return _onChange === null || _onChange === void 0 ? void 0 : _onChange(v);
+    },
+    defaultValue: defaultActiveKey,
+    postState: getActiveKeysArray
+  }), _useMergedState2 = _slicedToArray(_useMergedState, 2), activeKey = _useMergedState2[0], setActiveKey = _useMergedState2[1];
+  var onItemClick = function onItemClick2(key) {
+    return setActiveKey(function() {
+      if (accordion) {
+        return activeKey[0] === key ? [] : [key];
+      }
+      var index2 = activeKey.indexOf(key);
+      var isActive2 = index2 > -1;
+      if (isActive2) {
+        return activeKey.filter(function(item) {
+          return item !== key;
+        });
+      }
+      return [].concat(_toConsumableArray(activeKey), [key]);
+    });
+  };
+  warningOnce(!children, "[rc-collapse] `children` will be removed in next major version. Please use `items` instead.");
+  var mergedChildren = useItems(items, children, {
+    prefixCls,
+    accordion,
+    openMotion,
+    expandIcon,
+    collapsible,
+    destroyInactivePanel,
+    onItemClick,
+    activeKey
+  });
+  return /* @__PURE__ */ React.createElement("div", _extends({
+    ref,
+    className: collapseClassName,
+    style: style2,
+    role: accordion ? "tablist" : void 0
+  }, pickAttrs(props, {
+    aria: true,
+    data: true
+  })), mergedChildren);
+});
+const Collapse$3 = Object.assign(Collapse$2, {
+  /**
+   * @deprecated use `items` instead, will be removed in `v4.0.0`
+   */
+  Panel: CollapsePanel$1
+});
+Collapse$3.Panel;
+const CollapsePanel = /* @__PURE__ */ reactExports.forwardRef((props, ref) => {
+  const {
+    getPrefixCls
+  } = reactExports.useContext(ConfigContext);
+  const {
+    prefixCls: customizePrefixCls,
+    className,
+    showArrow = true
+  } = props;
+  const prefixCls = getPrefixCls("collapse", customizePrefixCls);
+  const collapsePanelClassName = classNames({
+    [`${prefixCls}-no-arrow`]: !showArrow
+  }, className);
+  return /* @__PURE__ */ reactExports.createElement(Collapse$3.Panel, Object.assign({
+    ref
+  }, props, {
+    prefixCls,
+    className: collapsePanelClassName
+  }));
+});
 const genCollapseMotion = (token2) => ({
   [token2.componentCls]: {
     // For common/openAnimation
@@ -24314,6 +24703,363 @@ const initZoomMotion = (token2, motionName) => {
     }
   }];
 };
+const genBaseStyle$4 = (token2) => {
+  const {
+    componentCls,
+    contentBg,
+    padding,
+    headerBg,
+    headerPadding,
+    collapseHeaderPaddingSM,
+    collapseHeaderPaddingLG,
+    collapsePanelBorderRadius,
+    lineWidth,
+    lineType,
+    colorBorder,
+    colorText,
+    colorTextHeading,
+    colorTextDisabled,
+    fontSizeLG,
+    lineHeight,
+    lineHeightLG,
+    marginSM,
+    paddingSM,
+    paddingLG,
+    paddingXS,
+    motionDurationSlow,
+    fontSizeIcon,
+    contentPadding,
+    fontHeight,
+    fontHeightLG
+  } = token2;
+  const borderBase = `${unit$1(lineWidth)} ${lineType} ${colorBorder}`;
+  return {
+    [componentCls]: Object.assign(Object.assign({}, resetComponent(token2)), {
+      backgroundColor: headerBg,
+      border: borderBase,
+      borderRadius: collapsePanelBorderRadius,
+      "&-rtl": {
+        direction: "rtl"
+      },
+      [`& > ${componentCls}-item`]: {
+        borderBottom: borderBase,
+        "&:first-child": {
+          [`
+            &,
+            & > ${componentCls}-header`]: {
+            borderRadius: `${unit$1(collapsePanelBorderRadius)} ${unit$1(collapsePanelBorderRadius)} 0 0`
+          }
+        },
+        "&:last-child": {
+          [`
+            &,
+            & > ${componentCls}-header`]: {
+            borderRadius: `0 0 ${unit$1(collapsePanelBorderRadius)} ${unit$1(collapsePanelBorderRadius)}`
+          }
+        },
+        [`> ${componentCls}-header`]: Object.assign(Object.assign({
+          position: "relative",
+          display: "flex",
+          flexWrap: "nowrap",
+          alignItems: "flex-start",
+          padding: headerPadding,
+          color: colorTextHeading,
+          lineHeight,
+          cursor: "pointer",
+          transition: `all ${motionDurationSlow}, visibility 0s`
+        }, genFocusStyle(token2)), {
+          [`> ${componentCls}-header-text`]: {
+            flex: "auto"
+          },
+          // >>>>> Arrow
+          [`${componentCls}-expand-icon`]: {
+            height: fontHeight,
+            display: "flex",
+            alignItems: "center",
+            paddingInlineEnd: marginSM
+          },
+          [`${componentCls}-arrow`]: Object.assign(Object.assign({}, resetIcon()), {
+            fontSize: fontSizeIcon,
+            // when `transform: rotate()` is applied to icon's root element
+            transition: `transform ${motionDurationSlow}`,
+            // when `transform: rotate()` is applied to icon's child element
+            svg: {
+              transition: `transform ${motionDurationSlow}`
+            }
+          }),
+          // >>>>> Text
+          [`${componentCls}-header-text`]: {
+            marginInlineEnd: "auto"
+          }
+        }),
+        [`${componentCls}-collapsible-header`]: {
+          cursor: "default",
+          [`${componentCls}-header-text`]: {
+            flex: "none",
+            cursor: "pointer"
+          }
+        },
+        [`${componentCls}-collapsible-icon`]: {
+          cursor: "unset",
+          [`${componentCls}-expand-icon`]: {
+            cursor: "pointer"
+          }
+        }
+      },
+      [`${componentCls}-content`]: {
+        color: colorText,
+        backgroundColor: contentBg,
+        borderTop: borderBase,
+        [`& > ${componentCls}-content-box`]: {
+          padding: contentPadding
+        },
+        "&-hidden": {
+          display: "none"
+        }
+      },
+      "&-small": {
+        [`> ${componentCls}-item`]: {
+          [`> ${componentCls}-header`]: {
+            padding: collapseHeaderPaddingSM,
+            paddingInlineStart: paddingXS,
+            [`> ${componentCls}-expand-icon`]: {
+              // Arrow offset
+              marginInlineStart: token2.calc(paddingSM).sub(paddingXS).equal()
+            }
+          },
+          [`> ${componentCls}-content > ${componentCls}-content-box`]: {
+            padding: paddingSM
+          }
+        }
+      },
+      "&-large": {
+        [`> ${componentCls}-item`]: {
+          fontSize: fontSizeLG,
+          lineHeight: lineHeightLG,
+          [`> ${componentCls}-header`]: {
+            padding: collapseHeaderPaddingLG,
+            paddingInlineStart: padding,
+            [`> ${componentCls}-expand-icon`]: {
+              height: fontHeightLG,
+              // Arrow offset
+              marginInlineStart: token2.calc(paddingLG).sub(padding).equal()
+            }
+          },
+          [`> ${componentCls}-content > ${componentCls}-content-box`]: {
+            padding: paddingLG
+          }
+        }
+      },
+      [`${componentCls}-item:last-child`]: {
+        borderBottom: 0,
+        [`> ${componentCls}-content`]: {
+          borderRadius: `0 0 ${unit$1(collapsePanelBorderRadius)} ${unit$1(collapsePanelBorderRadius)}`
+        }
+      },
+      [`& ${componentCls}-item-disabled > ${componentCls}-header`]: {
+        [`
+          &,
+          & > .arrow
+        `]: {
+          color: colorTextDisabled,
+          cursor: "not-allowed"
+        }
+      },
+      // ========================== Icon Position ==========================
+      [`&${componentCls}-icon-position-end`]: {
+        [`& > ${componentCls}-item`]: {
+          [`> ${componentCls}-header`]: {
+            [`${componentCls}-expand-icon`]: {
+              order: 1,
+              paddingInlineEnd: 0,
+              paddingInlineStart: marginSM
+            }
+          }
+        }
+      }
+    })
+  };
+};
+const genArrowStyle = (token2) => {
+  const {
+    componentCls
+  } = token2;
+  const fixedSelector = `> ${componentCls}-item > ${componentCls}-header ${componentCls}-arrow`;
+  return {
+    [`${componentCls}-rtl`]: {
+      [fixedSelector]: {
+        transform: `rotate(180deg)`
+      }
+    }
+  };
+};
+const genBorderlessStyle$2 = (token2) => {
+  const {
+    componentCls,
+    headerBg,
+    borderlessContentPadding,
+    borderlessContentBg,
+    colorBorder
+  } = token2;
+  return {
+    [`${componentCls}-borderless`]: {
+      backgroundColor: headerBg,
+      border: 0,
+      [`> ${componentCls}-item`]: {
+        borderBottom: `1px solid ${colorBorder}`
+      },
+      [`
+        > ${componentCls}-item:last-child,
+        > ${componentCls}-item:last-child ${componentCls}-header
+      `]: {
+        borderRadius: 0
+      },
+      [`> ${componentCls}-item:last-child`]: {
+        borderBottom: 0
+      },
+      [`> ${componentCls}-item > ${componentCls}-content`]: {
+        backgroundColor: borderlessContentBg,
+        borderTop: 0
+      },
+      [`> ${componentCls}-item > ${componentCls}-content > ${componentCls}-content-box`]: {
+        padding: borderlessContentPadding
+      }
+    }
+  };
+};
+const genGhostStyle = (token2) => {
+  const {
+    componentCls,
+    paddingSM
+  } = token2;
+  return {
+    [`${componentCls}-ghost`]: {
+      backgroundColor: "transparent",
+      border: 0,
+      [`> ${componentCls}-item`]: {
+        borderBottom: 0,
+        [`> ${componentCls}-content`]: {
+          backgroundColor: "transparent",
+          border: 0,
+          [`> ${componentCls}-content-box`]: {
+            paddingBlock: paddingSM
+          }
+        }
+      }
+    }
+  };
+};
+const prepareComponentToken$g = (token2) => ({
+  headerPadding: `${token2.paddingSM}px ${token2.padding}px`,
+  headerBg: token2.colorFillAlter,
+  contentPadding: `${token2.padding}px 16px`,
+  // Fixed Value
+  contentBg: token2.colorBgContainer,
+  borderlessContentPadding: `${token2.paddingXXS}px 16px ${token2.padding}px`,
+  borderlessContentBg: "transparent"
+});
+const useStyle$k = genStyleHooks("Collapse", (token2) => {
+  const collapseToken = merge(token2, {
+    collapseHeaderPaddingSM: `${unit$1(token2.paddingXS)} ${unit$1(token2.paddingSM)}`,
+    collapseHeaderPaddingLG: `${unit$1(token2.padding)} ${unit$1(token2.paddingLG)}`,
+    collapsePanelBorderRadius: token2.borderRadiusLG
+  });
+  return [genBaseStyle$4(collapseToken), genBorderlessStyle$2(collapseToken), genGhostStyle(collapseToken), genArrowStyle(collapseToken), genCollapseMotion(collapseToken)];
+}, prepareComponentToken$g);
+const Collapse = /* @__PURE__ */ reactExports.forwardRef((props, ref) => {
+  const {
+    getPrefixCls,
+    direction,
+    expandIcon: contextExpandIcon,
+    className: contextClassName,
+    style: contextStyle
+  } = useComponentConfig("collapse");
+  const {
+    prefixCls: customizePrefixCls,
+    className,
+    rootClassName,
+    style: style2,
+    bordered = true,
+    ghost,
+    size: customizeSize,
+    expandIconPosition = "start",
+    children,
+    destroyInactivePanel,
+    destroyOnHidden,
+    expandIcon
+  } = props;
+  const mergedSize = useSize((ctx) => {
+    var _a;
+    return (_a = customizeSize !== null && customizeSize !== void 0 ? customizeSize : ctx) !== null && _a !== void 0 ? _a : "middle";
+  });
+  const prefixCls = getPrefixCls("collapse", customizePrefixCls);
+  const rootPrefixCls = getPrefixCls();
+  const [wrapCSSVar, hashId, cssVarCls] = useStyle$k(prefixCls);
+  const mergedExpandIconPosition = reactExports.useMemo(() => {
+    if (expandIconPosition === "left") {
+      return "start";
+    }
+    return expandIconPosition === "right" ? "end" : expandIconPosition;
+  }, [expandIconPosition]);
+  const mergedExpandIcon = expandIcon !== null && expandIcon !== void 0 ? expandIcon : contextExpandIcon;
+  const renderExpandIcon = reactExports.useCallback((panelProps = {}) => {
+    const icon = typeof mergedExpandIcon === "function" ? mergedExpandIcon(panelProps) : /* @__PURE__ */ reactExports.createElement(RefIcon$k, {
+      rotate: panelProps.isActive ? direction === "rtl" ? -90 : 90 : void 0,
+      "aria-label": panelProps.isActive ? "expanded" : "collapsed"
+    });
+    return cloneElement(icon, () => {
+      var _a;
+      return {
+        className: classNames((_a = icon === null || icon === void 0 ? void 0 : icon.props) === null || _a === void 0 ? void 0 : _a.className, `${prefixCls}-arrow`)
+      };
+    });
+  }, [mergedExpandIcon, prefixCls]);
+  const collapseClassName = classNames(`${prefixCls}-icon-position-${mergedExpandIconPosition}`, {
+    [`${prefixCls}-borderless`]: !bordered,
+    [`${prefixCls}-rtl`]: direction === "rtl",
+    [`${prefixCls}-ghost`]: !!ghost,
+    [`${prefixCls}-${mergedSize}`]: mergedSize !== "middle"
+  }, contextClassName, className, rootClassName, hashId, cssVarCls);
+  const openMotion = Object.assign(Object.assign({}, initCollapseMotion(rootPrefixCls)), {
+    motionAppear: false,
+    leavedClassName: `${prefixCls}-content-hidden`
+  });
+  const items = reactExports.useMemo(() => {
+    if (children) {
+      return toArray$4(children).map((child, index2) => {
+        var _a, _b;
+        const childProps = child.props;
+        if (childProps === null || childProps === void 0 ? void 0 : childProps.disabled) {
+          const key = (_a = child.key) !== null && _a !== void 0 ? _a : String(index2);
+          const mergedChildProps = Object.assign(Object.assign({}, omit(child.props, ["disabled"])), {
+            key,
+            collapsible: (_b = childProps.collapsible) !== null && _b !== void 0 ? _b : "disabled"
+          });
+          return cloneElement(child, mergedChildProps);
+        }
+        return child;
+      });
+    }
+    return null;
+  }, [children]);
+  return wrapCSSVar(
+    // @ts-ignore
+    /* @__PURE__ */ reactExports.createElement(Collapse$3, Object.assign({
+      ref,
+      openMotion
+    }, omit(props, ["rootClassName"]), {
+      expandIcon: renderExpandIcon,
+      prefixCls,
+      className: collapseClassName,
+      style: Object.assign(Object.assign({}, contextStyle), style2),
+      // TODO: In the future, destroyInactivePanel in rc-collapse needs to be upgrade to destroyOnHidden
+      destroyInactivePanel: destroyOnHidden !== null && destroyOnHidden !== void 0 ? destroyOnHidden : destroyInactivePanel
+    }), items)
+  );
+});
+const Collapse$1 = Object.assign(Collapse, {
+  Panel: CollapsePanel
+});
 const isBright = (value, bgColorToken) => {
   const {
     r: r2,
@@ -24327,7 +25073,7 @@ const isBright = (value, bgColorToken) => {
   }
   return r2 * 0.299 + g * 0.587 + b * 0.114 > 192;
 };
-const prepareToken$3 = (token2) => {
+const prepareToken$4 = (token2) => {
   const {
     paddingInline,
     onlyIconSize
@@ -24339,7 +25085,7 @@ const prepareToken$3 = (token2) => {
   });
   return buttonToken;
 };
-const prepareComponentToken$e = (token2) => {
+const prepareComponentToken$f = (token2) => {
   var _a, _b, _c, _d, _e, _f;
   const contentFontSize = (_a = token2.contentFontSize) !== null && _a !== void 0 ? _a : token2.fontSize;
   const contentFontSizeSM = (_b = token2.contentFontSizeSM) !== null && _b !== void 0 ? _b : token2.fontSize;
@@ -24837,8 +25583,8 @@ const genBlockButtonStyle = (token2) => {
     }
   };
 };
-const useStyle$i = genStyleHooks("Button", (token2) => {
-  const buttonToken = prepareToken$3(token2);
+const useStyle$j = genStyleHooks("Button", (token2) => {
+  const buttonToken = prepareToken$4(token2);
   return [
     // Shared
     genSharedButtonStyle(buttonToken),
@@ -24855,7 +25601,7 @@ const useStyle$i = genStyleHooks("Button", (token2) => {
     // Button Group
     genGroupStyle$1(buttonToken)
   ];
-}, prepareComponentToken$e, {
+}, prepareComponentToken$f, {
   unitless: {
     fontWeight: true,
     contentLineHeight: true,
@@ -24990,15 +25736,15 @@ const genButtonCompactStyle = (token2) => {
   return Object.assign(Object.assign({}, getCompactBorderStyle()), getCompactBorderStyle(true));
 };
 const Compact = genSubStyleComponent(["Button", "compact"], (token2) => {
-  const buttonToken = prepareToken$3(token2);
+  const buttonToken = prepareToken$4(token2);
   return [
     // Space Compact
     genCompactItemStyle(buttonToken),
     genCompactItemVerticalStyle(buttonToken),
     genButtonCompactStyle(buttonToken)
   ];
-}, prepareComponentToken$e);
-var __rest$D = function(s, e2) {
+}, prepareComponentToken$f);
+var __rest$G = function(s, e2) {
   var t2 = {};
   for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p) && e2.indexOf(p) < 0) t2[p] = s[p];
   if (s != null && typeof Object.getOwnPropertySymbols === "function") for (var i = 0, p = Object.getOwnPropertySymbols(s); i < p.length; i++) {
@@ -25054,7 +25800,7 @@ const InternalCompoundedButton = /* @__PURE__ */ React.forwardRef((props, ref) =
     style: customStyle = {},
     autoInsertSpace,
     autoFocus
-  } = props, rest = __rest$D(props, ["loading", "prefixCls", "color", "variant", "type", "danger", "shape", "size", "styles", "disabled", "className", "rootClassName", "children", "icon", "iconPosition", "ghost", "block", "htmlType", "classNames", "style", "autoInsertSpace", "autoFocus"]);
+  } = props, rest = __rest$G(props, ["loading", "prefixCls", "color", "variant", "type", "danger", "shape", "size", "styles", "disabled", "className", "rootClassName", "children", "icon", "iconPosition", "ghost", "block", "htmlType", "classNames", "style", "autoInsertSpace", "autoFocus"]);
   const mergedType = type4 || "default";
   const {
     button
@@ -25088,7 +25834,7 @@ const InternalCompoundedButton = /* @__PURE__ */ React.forwardRef((props, ref) =
   } = useComponentConfig("button");
   const mergedInsertSpace = (_a = autoInsertSpace !== null && autoInsertSpace !== void 0 ? autoInsertSpace : contextAutoInsertSpace) !== null && _a !== void 0 ? _a : true;
   const prefixCls = getPrefixCls("btn", customizePrefixCls);
-  const [wrapCSSVar, hashId, cssVarCls] = useStyle$i(prefixCls);
+  const [wrapCSSVar, hashId, cssVarCls] = useStyle$j(prefixCls);
   const disabled = reactExports.useContext(DisabledContext);
   const mergedDisabled = customDisabled !== null && customDisabled !== void 0 ? customDisabled : disabled;
   const groupSize = reactExports.useContext(GroupSizeContext);
@@ -25641,7 +26387,7 @@ var sentinelStyle = {
 var entityStyle = {
   outline: "none"
 };
-var Panel = /* @__PURE__ */ React.forwardRef(function(props, ref) {
+var Panel$1 = /* @__PURE__ */ React.forwardRef(function(props, ref) {
   var prefixCls = props.prefixCls, className = props.className, style2 = props.style, title = props.title, ariaId = props.ariaId, footer = props.footer, closable = props.closable, closeIcon = props.closeIcon, onClose = props.onClose, children = props.children, bodyStyle = props.bodyStyle, bodyProps = props.bodyProps, modalRender = props.modalRender, onMouseDown = props.onMouseDown, onMouseUp = props.onMouseUp, holderRef = props.holderRef, visible = props.visible, forceRender = props.forceRender, width = props.width, height = props.height, modalClassNames = props.classNames, modalStyles = props.styles;
   var _React$useContext = React.useContext(RefContext), panelRef = _React$useContext.panel;
   var mergedRef = useComposeRef(holderRef, panelRef);
@@ -25762,7 +26508,7 @@ var Content$3 = /* @__PURE__ */ reactExports.forwardRef(function(props, ref) {
     ref: dialogRef
   }, function(_ref, motionRef) {
     var motionClassName = _ref.className, motionStyle = _ref.style;
-    return /* @__PURE__ */ reactExports.createElement(Panel, _extends({}, props, {
+    return /* @__PURE__ */ reactExports.createElement(Panel$1, _extends({}, props, {
       ref,
       title,
       ariaId,
@@ -29358,7 +30104,7 @@ const genSkeletonElementButton = (token2) => {
     [`${skeletonButtonCls}-sm`]: Object.assign({}, genSkeletonElementButtonSize(controlHeightSM, calc))
   }), genSkeletonElementButtonShape(token2, controlHeightSM, `${skeletonButtonCls}-sm`));
 };
-const genBaseStyle$2 = (token2) => {
+const genBaseStyle$3 = (token2) => {
   const {
     componentCls,
     skeletonAvatarCls,
@@ -29475,7 +30221,7 @@ const genBaseStyle$2 = (token2) => {
     }
   };
 };
-const prepareComponentToken$d = (token2) => {
+const prepareComponentToken$e = (token2) => {
   const {
     colorFillContent,
     colorFill
@@ -29493,7 +30239,7 @@ const prepareComponentToken$d = (token2) => {
     paragraphLiHeight: token2.controlHeight / 2
   };
 };
-const useStyle$h = genStyleHooks("Skeleton", (token2) => {
+const useStyle$i = genStyleHooks("Skeleton", (token2) => {
   const {
     componentCls,
     calc
@@ -29511,8 +30257,8 @@ const useStyle$h = genStyleHooks("Skeleton", (token2) => {
     skeletonLoadingBackground: `linear-gradient(90deg, ${token2.gradientFromColor} 25%, ${token2.gradientToColor} 37%, ${token2.gradientFromColor} 63%)`,
     skeletonLoadingMotionDuration: "1.4s"
   });
-  return [genBaseStyle$2(skeletonToken)];
-}, prepareComponentToken$d, {
+  return [genBaseStyle$3(skeletonToken)];
+}, prepareComponentToken$e, {
   deprecatedTokens: [["color", "gradientFromColor"], ["colorGradientEnd", "gradientToColor"]]
 });
 const SkeletonAvatar = (props) => {
@@ -29528,7 +30274,7 @@ const SkeletonAvatar = (props) => {
     getPrefixCls
   } = reactExports.useContext(ConfigContext);
   const prefixCls = getPrefixCls("skeleton", customizePrefixCls);
-  const [wrapCSSVar, hashId, cssVarCls] = useStyle$h(prefixCls);
+  const [wrapCSSVar, hashId, cssVarCls] = useStyle$i(prefixCls);
   const otherProps = omit(props, ["prefixCls", "className"]);
   const cls = classNames(prefixCls, `${prefixCls}-element`, {
     [`${prefixCls}-active`]: active
@@ -29554,7 +30300,7 @@ const SkeletonButton = (props) => {
     getPrefixCls
   } = reactExports.useContext(ConfigContext);
   const prefixCls = getPrefixCls("skeleton", customizePrefixCls);
-  const [wrapCSSVar, hashId, cssVarCls] = useStyle$h(prefixCls);
+  const [wrapCSSVar, hashId, cssVarCls] = useStyle$i(prefixCls);
   const otherProps = omit(props, ["prefixCls"]);
   const cls = classNames(prefixCls, `${prefixCls}-element`, {
     [`${prefixCls}-active`]: active,
@@ -29580,7 +30326,7 @@ const SkeletonImage = (props) => {
     getPrefixCls
   } = reactExports.useContext(ConfigContext);
   const prefixCls = getPrefixCls("skeleton", customizePrefixCls);
-  const [wrapCSSVar, hashId, cssVarCls] = useStyle$h(prefixCls);
+  const [wrapCSSVar, hashId, cssVarCls] = useStyle$i(prefixCls);
   const cls = classNames(prefixCls, `${prefixCls}-element`, {
     [`${prefixCls}-active`]: active
   }, className, rootClassName, hashId, cssVarCls);
@@ -29611,7 +30357,7 @@ const SkeletonInput = (props) => {
     getPrefixCls
   } = reactExports.useContext(ConfigContext);
   const prefixCls = getPrefixCls("skeleton", customizePrefixCls);
-  const [wrapCSSVar, hashId, cssVarCls] = useStyle$h(prefixCls);
+  const [wrapCSSVar, hashId, cssVarCls] = useStyle$i(prefixCls);
   const otherProps = omit(props, ["prefixCls"]);
   const cls = classNames(prefixCls, `${prefixCls}-element`, {
     [`${prefixCls}-active`]: active,
@@ -29637,7 +30383,7 @@ const SkeletonNode = (props) => {
     getPrefixCls
   } = reactExports.useContext(ConfigContext);
   const prefixCls = getPrefixCls("skeleton", customizePrefixCls);
-  const [wrapCSSVar, hashId, cssVarCls] = useStyle$h(prefixCls);
+  const [wrapCSSVar, hashId, cssVarCls] = useStyle$i(prefixCls);
   const cls = classNames(prefixCls, `${prefixCls}-element`, {
     [`${prefixCls}-active`]: active
   }, hashId, className, rootClassName, cssVarCls);
@@ -29661,7 +30407,7 @@ const getWidth = (index2, props) => {
   }
   return void 0;
 };
-const Paragraph$4 = (props) => {
+const Paragraph$5 = (props) => {
   const {
     prefixCls,
     className,
@@ -29684,7 +30430,7 @@ const Paragraph$4 = (props) => {
     style: style2
   }, rowList);
 };
-const Title$8 = ({
+const Title$9 = ({
   prefixCls,
   className,
   width,
@@ -29762,7 +30508,7 @@ const Skeleton = (props) => {
     style: contextStyle
   } = useComponentConfig("skeleton");
   const prefixCls = getPrefixCls("skeleton", customizePrefixCls);
-  const [wrapCSSVar, hashId, cssVarCls] = useStyle$h(prefixCls);
+  const [wrapCSSVar, hashId, cssVarCls] = useStyle$i(prefixCls);
   if (loading || !("loading" in props)) {
     const hasAvatar = !!avatar;
     const hasTitle = !!title;
@@ -29783,14 +30529,14 @@ const Skeleton = (props) => {
         const titleProps = Object.assign(Object.assign({
           prefixCls: `${prefixCls}-title`
         }, getTitleBasicProps(hasAvatar, hasParagraph)), getComponentProps(title));
-        $title = /* @__PURE__ */ reactExports.createElement(Title$8, Object.assign({}, titleProps));
+        $title = /* @__PURE__ */ reactExports.createElement(Title$9, Object.assign({}, titleProps));
       }
       let paragraphNode;
       if (hasParagraph) {
         const paragraphProps = Object.assign(Object.assign({
           prefixCls: `${prefixCls}-paragraph`
         }, getParagraphBasicProps(hasAvatar, hasTitle)), getComponentProps(paragraph));
-        paragraphNode = /* @__PURE__ */ reactExports.createElement(Paragraph$4, Object.assign({}, paragraphProps));
+        paragraphNode = /* @__PURE__ */ reactExports.createElement(Paragraph$5, Object.assign({}, paragraphProps));
       }
       contentNode = /* @__PURE__ */ reactExports.createElement("div", {
         className: `${prefixCls}-content`
@@ -30313,7 +31059,7 @@ const genResponsiveWidthStyle = (token2) => {
     }
   };
 };
-const prepareToken$2 = (token2) => {
+const prepareToken$3 = (token2) => {
   const headerPaddingVertical = token2.padding;
   const headerFontSize = token2.fontSizeHeading5;
   const headerLineHeight = token2.lineHeightHeading5;
@@ -30330,7 +31076,7 @@ const prepareToken$2 = (token2) => {
   });
   return modalToken;
 };
-const prepareComponentToken$c = (token2) => ({
+const prepareComponentToken$d = (token2) => ({
   footerBg: "transparent",
   headerBg: token2.colorBgElevated,
   titleLineHeight: token2.lineHeightHeading5,
@@ -30351,15 +31097,15 @@ const prepareComponentToken$c = (token2) => ({
   confirmIconMarginInlineEnd: token2.wireframe ? token2.margin : token2.marginSM,
   confirmBtnsMarginTop: token2.wireframe ? token2.marginLG : token2.marginSM
 });
-const useStyle$g = genStyleHooks("Modal", (token2) => {
-  const modalToken = prepareToken$2(token2);
+const useStyle$h = genStyleHooks("Modal", (token2) => {
+  const modalToken = prepareToken$3(token2);
   return [genModalStyle(modalToken), genRTLStyle(modalToken), genModalMaskStyle(modalToken), initZoomMotion(modalToken, "zoom"), genResponsiveWidthStyle(modalToken)];
-}, prepareComponentToken$c, {
+}, prepareComponentToken$d, {
   unitless: {
     titleLineHeight: true
   }
 });
-var __rest$C = function(s, e2) {
+var __rest$F = function(s, e2) {
   var t2 = {};
   for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p) && e2.indexOf(p) < 0) t2[p] = s[p];
   if (s != null && typeof Object.getOwnPropertySymbols === "function") for (var i = 0, p = Object.getOwnPropertySymbols(s); i < p.length; i++) {
@@ -30406,7 +31152,7 @@ const Modal$1 = (props) => {
     onCancel,
     destroyOnHidden,
     destroyOnClose
-  } = props, restProps = __rest$C(props, ["prefixCls", "className", "rootClassName", "open", "wrapClassName", "centered", "getContainer", "focusTriggerAfterClose", "style", "visible", "width", "footer", "classNames", "styles", "children", "loading", "confirmLoading", "zIndex", "mousePosition", "onOk", "onCancel", "destroyOnHidden", "destroyOnClose"]);
+  } = props, restProps = __rest$F(props, ["prefixCls", "className", "rootClassName", "open", "wrapClassName", "centered", "getContainer", "focusTriggerAfterClose", "style", "visible", "width", "footer", "classNames", "styles", "children", "loading", "confirmLoading", "zIndex", "mousePosition", "onOk", "onCancel", "destroyOnHidden", "destroyOnClose"]);
   const {
     getPopupContainer: getContextPopupContainer,
     getPrefixCls,
@@ -30425,7 +31171,7 @@ const Modal$1 = (props) => {
   const prefixCls = getPrefixCls("modal", customizePrefixCls);
   const rootPrefixCls = getPrefixCls();
   const rootCls = useCSSVarCls(prefixCls);
-  const [wrapCSSVar, hashId, cssVarCls] = useStyle$g(prefixCls, rootCls);
+  const [wrapCSSVar, hashId, cssVarCls] = useStyle$h(prefixCls, rootCls);
   const wrapClassNameExtended = classNames(wrapClassName, {
     [`${prefixCls}-centered`]: centered !== null && centered !== void 0 ? centered : modalContext === null || modalContext === void 0 ? void 0 : modalContext.centered,
     [`${prefixCls}-wrap-rtl`]: direction === "rtl"
@@ -30592,13 +31338,13 @@ const genModalConfirmStyle = (token2) => {
   };
 };
 const Confirm = genSubStyleComponent(["Modal", "confirm"], (token2) => {
-  const modalToken = prepareToken$2(token2);
+  const modalToken = prepareToken$3(token2);
   return [genModalConfirmStyle(modalToken)];
-}, prepareComponentToken$c, {
+}, prepareComponentToken$d, {
   // confirm is weak than modal since no conflict here
   order: -1e3
 });
-var __rest$B = function(s, e2) {
+var __rest$E = function(s, e2) {
   var t2 = {};
   for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p) && e2.indexOf(p) < 0) t2[p] = s[p];
   if (s != null && typeof Object.getOwnPropertySymbols === "function") for (var i = 0, p = Object.getOwnPropertySymbols(s); i < p.length; i++) {
@@ -30618,7 +31364,7 @@ function ConfirmContent(props) {
     footer,
     // Legacy for static function usage
     locale: staticLocale
-  } = props, resetProps = __rest$B(props, ["prefixCls", "icon", "okText", "cancelText", "confirmPrefixCls", "type", "okCancel", "footer", "locale"]);
+  } = props, resetProps = __rest$E(props, ["prefixCls", "icon", "okText", "cancelText", "confirmPrefixCls", "type", "okCancel", "footer", "locale"]);
   let mergedIcon = icon;
   if (!icon && icon !== null) {
     switch (type4) {
@@ -30877,7 +31623,7 @@ function modalGlobalConfig({
 }) {
   defaultRootPrefixCls = rootPrefixCls;
 }
-var __rest$A = function(s, e2) {
+var __rest$D = function(s, e2) {
   var t2 = {};
   for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p) && e2.indexOf(p) < 0) t2[p] = s[p];
   if (s != null && typeof Object.getOwnPropertySymbols === "function") for (var i = 0, p = Object.getOwnPropertySymbols(s); i < p.length; i++) {
@@ -30890,7 +31636,7 @@ const HookModal = (_a, ref) => {
   var {
     afterClose: hookAfterClose,
     config
-  } = _a, restProps = __rest$A(_a, ["afterClose", "config"]);
+  } = _a, restProps = __rest$D(_a, ["afterClose", "config"]);
   const [open2, setOpen] = reactExports.useState(true);
   const [innerConfig, setInnerConfig] = reactExports.useState(config);
   const {
@@ -31324,8 +32070,8 @@ function InternalItem$1(props, ref) {
   }
   return itemNode;
 }
-var Item$2 = /* @__PURE__ */ reactExports.forwardRef(InternalItem$1);
-Item$2.displayName = "Item";
+var Item$3 = /* @__PURE__ */ reactExports.forwardRef(InternalItem$1);
+Item$3.displayName = "Item";
 function channelUpdate(callback) {
   if (typeof MessageChannel === "undefined") {
     wrapperRaf(callback);
@@ -31378,7 +32124,7 @@ var InternalRawItem = function InternalRawItem2(props, ref) {
   var className = props.className, restProps = _objectWithoutProperties(props, _excluded3$1);
   return /* @__PURE__ */ reactExports.createElement(OverflowContext.Provider, {
     value: null
-  }, /* @__PURE__ */ reactExports.createElement(Item$2, _extends({
+  }, /* @__PURE__ */ reactExports.createElement(Item$3, _extends({
     ref,
     className: classNames(contextClassName, className)
   }, restContext, restProps)));
@@ -31547,7 +32293,7 @@ function Overflow(props, ref) {
     }, renderRawItem(item, index2));
   } : function(item, index2) {
     var key = getKey2(item, index2);
-    return /* @__PURE__ */ reactExports.createElement(Item$2, _extends({}, itemSharedProps, {
+    return /* @__PURE__ */ reactExports.createElement(Item$3, _extends({}, itemSharedProps, {
       order: index2,
       key,
       item,
@@ -31566,12 +32312,12 @@ function Overflow(props, ref) {
   var mergedRenderRest = renderRest || defaultRenderRest;
   var restNode = renderRawRest ? /* @__PURE__ */ reactExports.createElement(OverflowContext.Provider, {
     value: _objectSpread2(_objectSpread2({}, itemSharedProps), restContextProps)
-  }, renderRawRest(omittedItems)) : /* @__PURE__ */ reactExports.createElement(Item$2, _extends({}, itemSharedProps, restContextProps), typeof mergedRenderRest === "function" ? mergedRenderRest(omittedItems) : mergedRenderRest);
+  }, renderRawRest(omittedItems)) : /* @__PURE__ */ reactExports.createElement(Item$3, _extends({}, itemSharedProps, restContextProps), typeof mergedRenderRest === "function" ? mergedRenderRest(omittedItems) : mergedRenderRest);
   var overflowNode = /* @__PURE__ */ reactExports.createElement(Component, _extends({
     className: classNames(!invalidate && prefixCls, className),
     style: style2,
     ref
-  }, restProps), mergedData.map(internalRenderItemNode), showRest ? restNode : null, suffix && /* @__PURE__ */ reactExports.createElement(Item$2, _extends({}, itemSharedProps, {
+  }, restProps), mergedData.map(internalRenderItemNode), showRest ? restNode : null, suffix && /* @__PURE__ */ reactExports.createElement(Item$3, _extends({}, itemSharedProps, {
     responsive: isResponsive,
     responsiveDisabled: !shouldResponsive,
     order: mergedDisplayCount,
@@ -33760,7 +34506,7 @@ var Filler = /* @__PURE__ */ reactExports.forwardRef(function(_ref, ref) {
   }, innerProps), children, extra)));
 });
 Filler.displayName = "Filler";
-function Item$1(_ref) {
+function Item$2(_ref) {
   var children = _ref.children, setRef = _ref.setRef;
   var refFunc = reactExports.useCallback(function(node2) {
     setRef(node2);
@@ -33780,7 +34526,7 @@ function useChildren$1(list, startIndex, endIndex, scrollWidth, offsetX, setNode
       offsetX
     });
     var key = getKey2(item);
-    return /* @__PURE__ */ reactExports.createElement(Item$1, {
+    return /* @__PURE__ */ reactExports.createElement(Item$2, {
       key,
       setRef: function setRef(ele) {
         return setNodeRef(item, ele);
@@ -35872,7 +36618,7 @@ const genSharedEmptyStyle = (token2) => {
     }
   };
 };
-const useStyle$f = genStyleHooks("Empty", (token2) => {
+const useStyle$g = genStyleHooks("Empty", (token2) => {
   const {
     componentCls,
     controlHeightLG,
@@ -35886,7 +36632,7 @@ const useStyle$f = genStyleHooks("Empty", (token2) => {
   });
   return [genSharedEmptyStyle(emptyToken)];
 });
-var __rest$z = function(s, e2) {
+var __rest$C = function(s, e2) {
   var t2 = {};
   for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p) && e2.indexOf(p) < 0) t2[p] = s[p];
   if (s != null && typeof Object.getOwnPropertySymbols === "function") for (var i = 0, p = Object.getOwnPropertySymbols(s); i < p.length; i++) {
@@ -35908,7 +36654,7 @@ const Empty = (props) => {
     style: style2,
     classNames: emptyClassNames,
     styles
-  } = props, restProps = __rest$z(props, ["className", "rootClassName", "prefixCls", "image", "description", "children", "imageStyle", "style", "classNames", "styles"]);
+  } = props, restProps = __rest$C(props, ["className", "rootClassName", "prefixCls", "image", "description", "children", "imageStyle", "style", "classNames", "styles"]);
   const {
     getPrefixCls,
     direction,
@@ -35918,7 +36664,7 @@ const Empty = (props) => {
     styles: contextStyles
   } = useComponentConfig("empty");
   const prefixCls = getPrefixCls("empty", customizePrefixCls);
-  const [wrapCSSVar, hashId, cssVarCls] = useStyle$f(prefixCls);
+  const [wrapCSSVar, hashId, cssVarCls] = useStyle$g(prefixCls);
   const [locale2] = useLocale("Empty");
   const des = typeof description !== "undefined" ? description : locale2 === null || locale2 === void 0 ? void 0 : locale2.description;
   const alt = typeof des === "string" ? des : "empty";
@@ -36607,7 +37353,7 @@ function genSingleStyle(token2) {
     }), "lg")
   ];
 }
-const prepareComponentToken$b = (token2) => {
+const prepareComponentToken$c = (token2) => {
   const {
     fontSize,
     lineHeight,
@@ -36926,7 +37672,7 @@ const getSearchInputWithoutBorderStyle = (token2) => {
     }
   };
 };
-const genBaseStyle$1 = (token2) => {
+const genBaseStyle$2 = (token2) => {
   const {
     antCls,
     componentCls,
@@ -37079,7 +37825,7 @@ const genSelectStyle = (token2) => {
     // ==                       LTR                       ==
     // =====================================================
     // Base
-    genBaseStyle$1(token2),
+    genBaseStyle$2(token2),
     // Single
     genSingleStyle(token2),
     // Multiple
@@ -37113,7 +37859,7 @@ const useSelectStyle = genStyleHooks("Select", (token2, {
     selectHeight: token2.controlHeight
   });
   return [genSelectStyle(selectToken), genVariantsStyle(selectToken)];
-}, prepareComponentToken$b, {
+}, prepareComponentToken$c, {
   unitless: {
     optionLineHeight: true,
     optionSelectedFontWeight: true
@@ -37211,7 +37957,7 @@ function useIcons({
 function useShowArrow(suffixIcon, showArrow) {
   return showArrow !== void 0 ? showArrow : suffixIcon !== null;
 }
-var __rest$y = function(s, e2) {
+var __rest$B = function(s, e2) {
   var t2 = {};
   for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p) && e2.indexOf(p) < 0) t2[p] = s[p];
   if (s != null && typeof Object.getOwnPropertySymbols === "function") for (var i = 0, p = Object.getOwnPropertySymbols(s); i < p.length; i++) {
@@ -37255,7 +38001,7 @@ const InternalSelect = (props, ref) => {
     onOpenChange,
     styles,
     classNames: classNames$1
-  } = props, rest = __rest$y(props, ["prefixCls", "bordered", "className", "rootClassName", "getPopupContainer", "popupClassName", "dropdownClassName", "listHeight", "placement", "listItemHeight", "size", "disabled", "notFoundContent", "status", "builtinPlacements", "dropdownMatchSelectWidth", "popupMatchSelectWidth", "direction", "style", "allowClear", "variant", "dropdownStyle", "transitionName", "tagRender", "maxCount", "prefix", "dropdownRender", "popupRender", "onDropdownVisibleChange", "onOpenChange", "styles", "classNames"]);
+  } = props, rest = __rest$B(props, ["prefixCls", "bordered", "className", "rootClassName", "getPopupContainer", "popupClassName", "dropdownClassName", "listHeight", "placement", "listItemHeight", "size", "disabled", "notFoundContent", "status", "builtinPlacements", "dropdownMatchSelectWidth", "popupMatchSelectWidth", "direction", "style", "allowClear", "variant", "dropdownStyle", "transitionName", "tagRender", "maxCount", "prefix", "dropdownRender", "popupRender", "onDropdownVisibleChange", "onOpenChange", "styles", "classNames"]);
   const {
     getPopupContainer: getContextPopupContainer,
     getPrefixCls,
@@ -38162,7 +38908,7 @@ const genTooltipStyle = (token2) => {
     }
   ];
 };
-const prepareComponentToken$a = (token2) => Object.assign(Object.assign({
+const prepareComponentToken$b = (token2) => Object.assign(Object.assign({
   zIndexPopup: token2.zIndexPopupBase + 70
 }, getArrowOffsetToken({
   contentRadius: token2.borderRadius,
@@ -38170,7 +38916,7 @@ const prepareComponentToken$a = (token2) => Object.assign(Object.assign({
 })), getArrowToken(merge(token2, {
   borderRadiusOuter: Math.min(token2.borderRadiusOuter, 4)
 })));
-const useStyle$e = (prefixCls, injectStyle = true) => {
+const useStyle$f = (prefixCls, injectStyle = true) => {
   const useStyle2 = genStyleHooks("Tooltip", (token2) => {
     const {
       borderRadius,
@@ -38185,7 +38931,7 @@ const useStyle$e = (prefixCls, injectStyle = true) => {
       tooltipBg: colorBgSpotlight
     });
     return [genTooltipStyle(TooltipToken), initZoomMotion(token2, "zoom-big-fast")];
-  }, prepareComponentToken$a, {
+  }, prepareComponentToken$b, {
     resetStyle: false,
     // Popover use Tooltip as internal component. We do not need to handle this.
     injectStyle
@@ -38193,11 +38939,15 @@ const useStyle$e = (prefixCls, injectStyle = true) => {
   return useStyle2(prefixCls);
 };
 const inverseColors = PresetColors.map((color) => `${color}-inverse`);
+const PresetStatusColorTypes = ["success", "processing", "error", "default", "warning"];
 function isPresetColor(color, includeInverse = true) {
   if (includeInverse) {
     return [].concat(_toConsumableArray(inverseColors), _toConsumableArray(PresetColors)).includes(color);
   }
   return PresetColors.includes(color);
+}
+function isPresetStatusColor(color) {
+  return PresetStatusColorTypes.includes(color);
 }
 function parseColor(prefixCls, color) {
   const isInternalColor = isPresetColor(color);
@@ -38229,7 +38979,7 @@ const PurePanel$2 = (props) => {
     getPrefixCls
   } = reactExports.useContext(ConfigContext);
   const prefixCls = getPrefixCls("tooltip", customizePrefixCls);
-  const [wrapCSSVar, hashId, cssVarCls] = useStyle$e(prefixCls);
+  const [wrapCSSVar, hashId, cssVarCls] = useStyle$f(prefixCls);
   const colorInfo = parseColor(prefixCls, color);
   const arrowContentStyle = colorInfo.arrowStyle;
   const formattedOverlayInnerStyle = Object.assign(Object.assign({}, overlayInnerStyle), colorInfo.overlayStyle);
@@ -38245,7 +38995,7 @@ const PurePanel$2 = (props) => {
     overlayInnerStyle: formattedOverlayInnerStyle
   }), title)));
 };
-var __rest$x = function(s, e2) {
+var __rest$A = function(s, e2) {
   var t2 = {};
   for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p) && e2.indexOf(p) < 0) t2[p] = s[p];
   if (s != null && typeof Object.getOwnPropertySymbols === "function") for (var i = 0, p = Object.getOwnPropertySymbols(s); i < p.length; i++) {
@@ -38282,7 +39032,7 @@ const InternalTooltip = /* @__PURE__ */ reactExports.forwardRef((props, ref) => 
     overlayClassName,
     styles,
     classNames: tooltipClassNames
-  } = props, restProps = __rest$x(props, ["prefixCls", "openClassName", "getTooltipContainer", "color", "overlayInnerStyle", "children", "afterOpenChange", "afterVisibleChange", "destroyTooltipOnHide", "destroyOnHidden", "arrow", "title", "overlay", "builtinPlacements", "arrowPointAtCenter", "autoAdjustOverflow", "motion", "getPopupContainer", "placement", "mouseEnterDelay", "mouseLeaveDelay", "overlayStyle", "rootClassName", "overlayClassName", "styles", "classNames"]);
+  } = props, restProps = __rest$A(props, ["prefixCls", "openClassName", "getTooltipContainer", "color", "overlayInnerStyle", "children", "afterOpenChange", "afterVisibleChange", "destroyTooltipOnHide", "destroyOnHidden", "arrow", "title", "overlay", "builtinPlacements", "arrowPointAtCenter", "autoAdjustOverflow", "motion", "getPopupContainer", "placement", "mouseEnterDelay", "mouseLeaveDelay", "overlayStyle", "rootClassName", "overlayClassName", "styles", "classNames"]);
   const mergedShowArrow = !!arrow;
   const [, token2] = useToken();
   const {
@@ -38358,7 +39108,7 @@ const InternalTooltip = /* @__PURE__ */ reactExports.forwardRef((props, ref) => 
   const child = /* @__PURE__ */ reactExports.isValidElement(children) && !isFragment(children) ? children : /* @__PURE__ */ reactExports.createElement("span", null, children);
   const childProps = child.props;
   const childCls = !childProps.className || typeof childProps.className === "string" ? classNames(childProps.className, openClassName || `${prefixCls}-open`) : childProps.className;
-  const [wrapCSSVar, hashId, cssVarCls] = useStyle$e(prefixCls, !injectFromPopover);
+  const [wrapCSSVar, hashId, cssVarCls] = useStyle$f(prefixCls, !injectFromPopover);
   const colorInfo = parseColor(prefixCls, color);
   const arrowContentStyle = colorInfo.arrowStyle;
   const rootClassNames = classNames(overlayClassName, {
@@ -39648,7 +40398,7 @@ var MenuItemGroup = /* @__PURE__ */ reactExports.forwardRef(function(props, ref)
   }, omit(props, ["warnKey"])), childList);
 });
 var _excluded$a = ["label", "children", "key", "type", "extra"];
-function convertItemsToNodes(list, components, prefixCls) {
+function convertItemsToNodes2(list, components, prefixCls) {
   var MergedMenuItem = components.item, MergedMenuItemGroup = components.group, MergedSubMenu = components.submenu, MergedDivider = components.divider;
   return (list || []).map(function(opt, index2) {
     if (opt && _typeof(opt) === "object") {
@@ -39660,13 +40410,13 @@ function convertItemsToNodes(list, components, prefixCls) {
             key: mergedKey
           }, restProps, {
             title: label
-          }), convertItemsToNodes(children, components, prefixCls));
+          }), convertItemsToNodes2(children, components, prefixCls));
         }
         return /* @__PURE__ */ reactExports.createElement(MergedSubMenu, _extends({
           key: mergedKey
         }, restProps, {
           title: label
-        }), convertItemsToNodes(children, components, prefixCls));
+        }), convertItemsToNodes2(children, components, prefixCls));
       }
       if (type4 === "divider") {
         return /* @__PURE__ */ reactExports.createElement(MergedDivider, _extends({
@@ -39695,7 +40445,7 @@ function parseItems(children, items, keyPath, components, prefixCls) {
     submenu: SubMenu
   }, components);
   if (items) {
-    childNodes = convertItemsToNodes(items, mergedComponents, prefixCls);
+    childNodes = convertItemsToNodes2(items, mergedComponents, prefixCls);
   }
   return parseChildren(childNodes, keyPath);
 }
@@ -40065,7 +40815,7 @@ const genLayoutStyle = (token2) => {
     }
   };
 };
-const prepareComponentToken$9 = (token2) => {
+const prepareComponentToken$a = (token2) => {
   const {
     colorBgLayout,
     controlHeight,
@@ -40101,7 +40851,7 @@ const prepareComponentToken$9 = (token2) => {
   };
 };
 const DEPRECATED_TOKENS = [["colorBgBody", "bodyBg"], ["colorBgHeader", "headerBg"], ["colorBgTrigger", "triggerBg"]];
-const useStyle$d = genStyleHooks("Layout", (token2) => [genLayoutStyle(token2)], prepareComponentToken$9, {
+const useStyle$e = genStyleHooks("Layout", (token2) => [genLayoutStyle(token2)], prepareComponentToken$a, {
   deprecatedTokens: DEPRECATED_TOKENS
 });
 const genSiderStyle = (token2) => {
@@ -40211,10 +40961,10 @@ const genSiderStyle = (token2) => {
     }
   };
 };
-const useStyle$c = genStyleHooks(["Layout", "Sider"], (token2) => [genSiderStyle(token2)], prepareComponentToken$9, {
+const useStyle$d = genStyleHooks(["Layout", "Sider"], (token2) => [genSiderStyle(token2)], prepareComponentToken$a, {
   deprecatedTokens: DEPRECATED_TOKENS
 });
-var __rest$w = function(s, e2) {
+var __rest$z = function(s, e2) {
   var t2 = {};
   for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p) && e2.indexOf(p) < 0) t2[p] = s[p];
   if (s != null && typeof Object.getOwnPropertySymbols === "function") for (var i = 0, p = Object.getOwnPropertySymbols(s); i < p.length; i++) {
@@ -40256,7 +41006,7 @@ const Sider$1 = /* @__PURE__ */ reactExports.forwardRef((props, ref) => {
     breakpoint,
     onCollapse,
     onBreakpoint
-  } = props, otherProps = __rest$w(props, ["prefixCls", "className", "trigger", "children", "defaultCollapsed", "theme", "style", "collapsible", "reverseArrow", "width", "collapsedWidth", "zeroWidthTriggerStyle", "breakpoint", "onCollapse", "onBreakpoint"]);
+  } = props, otherProps = __rest$z(props, ["prefixCls", "className", "trigger", "children", "defaultCollapsed", "theme", "style", "collapsible", "reverseArrow", "width", "collapsedWidth", "zeroWidthTriggerStyle", "breakpoint", "onCollapse", "onBreakpoint"]);
   const {
     siderHook
   } = reactExports.useContext(LayoutContext);
@@ -40278,7 +41028,7 @@ const Sider$1 = /* @__PURE__ */ reactExports.forwardRef((props, ref) => {
     direction
   } = reactExports.useContext(ConfigContext);
   const prefixCls = getPrefixCls("layout-sider", customizePrefixCls);
-  const [wrapCSSVar, hashId, cssVarCls] = useStyle$c(prefixCls);
+  const [wrapCSSVar, hashId, cssVarCls] = useStyle$d(prefixCls);
   const responsiveHandlerRef = reactExports.useRef(null);
   responsiveHandlerRef.current = (mql) => {
     setBelow(mql.matches);
@@ -40398,7 +41148,7 @@ function getStatus(errors, warnings, meta, defaultValidateStatus, hasFeedback, v
   }
   return status;
 }
-var __rest$v = function(s, e2) {
+var __rest$y = function(s, e2) {
   var t2 = {};
   for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p) && e2.indexOf(p) < 0) t2[p] = s[p];
   if (s != null && typeof Object.getOwnPropertySymbols === "function") for (var i = 0, p = Object.getOwnPropertySymbols(s); i < p.length; i++) {
@@ -40438,7 +41188,7 @@ function useForm(form) {
     scrollToField: (name, options = {}) => {
       const {
         focus
-      } = options, restOpt = __rest$v(options, ["focus"]);
+      } = options, restOpt = __rest$y(options, ["focus"]);
       const node2 = getFieldDOMNode(name, wrapForm);
       if (node2) {
         e(node2, Object.assign({
@@ -41451,7 +42201,7 @@ const useSharedStyle = genStyleHooks(["Input", "Shared"], (token2) => {
 }, initComponentToken, {
   resetFont: false
 });
-const useStyle$b = genStyleHooks(["Input", "Component"], (token2) => {
+const useStyle$c = genStyleHooks(["Input", "Component"], (token2) => {
   const inputToken = merge(token2, initInputToken(token2));
   return [
     genGroupStyle(inputToken),
@@ -42740,7 +43490,7 @@ function useAnimateConfig(prefixCls, animated = {
   }
   return mergedAnimated;
 }
-var __rest$u = function(s, e2) {
+var __rest$x = function(s, e2) {
   var t2 = {};
   for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p) && e2.indexOf(p) < 0) t2[p] = s[p];
   if (s != null && typeof Object.getOwnPropertySymbols === "function") for (var i = 0, p = Object.getOwnPropertySymbols(s); i < p.length; i++) {
@@ -42770,7 +43520,7 @@ function useLegacyItems(items, children) {
       } = node2;
       const _a = props || {}, {
         tab
-      } = _a, restProps = __rest$u(_a, ["tab"]);
+      } = _a, restProps = __rest$x(_a, ["tab"]);
       const item = Object.assign(Object.assign({
         key: String(key)
       }, restProps), {
@@ -43618,7 +44368,7 @@ const genTabsStyle = (token2) => {
     }
   };
 };
-const prepareComponentToken$8 = (token2) => {
+const prepareComponentToken$9 = (token2) => {
   const {
     cardHeight,
     cardHeightSM,
@@ -43663,7 +44413,7 @@ const prepareComponentToken$8 = (token2) => {
     cardGutter: token2.marginXXS / 2
   };
 };
-const useStyle$a = genStyleHooks("Tabs", (token2) => {
+const useStyle$b = genStyleHooks("Tabs", (token2) => {
   const tabsToken = merge(token2, {
     // `cardPadding` is empty by default, so we could calculate with dynamic `cardHeight`
     tabsCardPadding: token2.cardPadding,
@@ -43675,9 +44425,9 @@ const useStyle$a = genStyleHooks("Tabs", (token2) => {
     tabsHorizontalItemMarginRTL: `0 0 0 ${unit$1(token2.horizontalItemGutter)}`
   });
   return [genSizeStyle(tabsToken), genRtlStyle(tabsToken), genPositionStyle(tabsToken), genDropdownStyle(tabsToken), genCardStyle$1(tabsToken), genTabsStyle(tabsToken), genMotionStyle(tabsToken)];
-}, prepareComponentToken$8);
+}, prepareComponentToken$9);
 const TabPane$1 = () => null;
-var __rest$t = function(s, e2) {
+var __rest$w = function(s, e2) {
   var t2 = {};
   for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p) && e2.indexOf(p) < 0) t2[p] = s[p];
   if (s != null && typeof Object.getOwnPropertySymbols === "function") for (var i = 0, p = Object.getOwnPropertySymbols(s); i < p.length; i++) {
@@ -43708,7 +44458,7 @@ const Tabs = (props) => {
     indicator,
     destroyInactiveTabPane,
     destroyOnHidden
-  } = props, otherProps = __rest$t(props, ["type", "className", "rootClassName", "size", "onEdit", "hideAdd", "centered", "addIcon", "removeIcon", "moreIcon", "more", "popupClassName", "children", "items", "animated", "style", "indicatorSize", "indicator", "destroyInactiveTabPane", "destroyOnHidden"]);
+  } = props, otherProps = __rest$w(props, ["type", "className", "rootClassName", "size", "onEdit", "hideAdd", "centered", "addIcon", "removeIcon", "moreIcon", "more", "popupClassName", "children", "items", "animated", "style", "indicatorSize", "indicator", "destroyInactiveTabPane", "destroyOnHidden"]);
   const {
     prefixCls: customizePrefixCls
   } = otherProps;
@@ -43720,7 +44470,7 @@ const Tabs = (props) => {
   } = reactExports.useContext(ConfigContext);
   const prefixCls = getPrefixCls("tabs", customizePrefixCls);
   const rootCls = useCSSVarCls(prefixCls);
-  const [wrapCSSVar, hashId, cssVarCls] = useStyle$a(prefixCls, rootCls);
+  const [wrapCSSVar, hashId, cssVarCls] = useStyle$b(prefixCls, rootCls);
   let editable;
   if (type4 === "editable-card") {
     editable = {
@@ -43770,7 +44520,7 @@ const Tabs = (props) => {
   })));
 };
 Tabs.TabPane = TabPane$1;
-var __rest$s = function(s, e2) {
+var __rest$v = function(s, e2) {
   var t2 = {};
   for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p) && e2.indexOf(p) < 0) t2[p] = s[p];
   if (s != null && typeof Object.getOwnPropertySymbols === "function") for (var i = 0, p = Object.getOwnPropertySymbols(s); i < p.length; i++) {
@@ -43783,7 +44533,7 @@ const Grid = (_a) => {
     prefixCls,
     className,
     hoverable = true
-  } = _a, props = __rest$s(_a, ["prefixCls", "className", "hoverable"]);
+  } = _a, props = __rest$v(_a, ["prefixCls", "className", "hoverable"]);
   const {
     getPrefixCls
   } = reactExports.useContext(ConfigContext);
@@ -44101,7 +44851,7 @@ const genCardSizeStyle = (token2) => {
     }
   };
 };
-const prepareComponentToken$7 = (token2) => {
+const prepareComponentToken$8 = (token2) => {
   var _a, _b;
   return {
     headerBg: "transparent",
@@ -44120,7 +44870,7 @@ const prepareComponentToken$7 = (token2) => {
     headerPadding: (_b = token2.headerPadding) !== null && _b !== void 0 ? _b : token2.paddingLG
   };
 };
-const useStyle$9 = genStyleHooks("Card", (token2) => {
+const useStyle$a = genStyleHooks("Card", (token2) => {
   const cardToken = merge(token2, {
     cardShadow: token2.boxShadowCard,
     cardHeadPadding: token2.padding,
@@ -44133,8 +44883,8 @@ const useStyle$9 = genStyleHooks("Card", (token2) => {
     // Size
     genCardSizeStyle(cardToken)
   ];
-}, prepareComponentToken$7);
-var __rest$r = function(s, e2) {
+}, prepareComponentToken$8);
+var __rest$u = function(s, e2) {
   var t2 = {};
   for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p) && e2.indexOf(p) < 0) t2[p] = s[p];
   if (s != null && typeof Object.getOwnPropertySymbols === "function") for (var i = 0, p = Object.getOwnPropertySymbols(s); i < p.length; i++) {
@@ -44187,7 +44937,7 @@ const Card$1 = /* @__PURE__ */ reactExports.forwardRef((props, ref) => {
     tabProps = {},
     classNames: customClassNames,
     styles: customStyles
-  } = props, others = __rest$r(props, ["prefixCls", "className", "rootClassName", "style", "extra", "headStyle", "bodyStyle", "title", "loading", "bordered", "variant", "size", "type", "cover", "actions", "tabList", "children", "activeTabKey", "defaultActiveTabKey", "tabBarExtraContent", "hoverable", "tabProps", "classNames", "styles"]);
+  } = props, others = __rest$u(props, ["prefixCls", "className", "rootClassName", "style", "extra", "headStyle", "bodyStyle", "title", "loading", "bordered", "variant", "size", "type", "cover", "actions", "tabList", "children", "activeTabKey", "defaultActiveTabKey", "tabBarExtraContent", "hoverable", "tabProps", "classNames", "styles"]);
   const {
     getPrefixCls,
     direction,
@@ -44216,7 +44966,7 @@ const Card$1 = /* @__PURE__ */ reactExports.forwardRef((props, ref) => {
     return containGrid;
   }, [children]);
   const prefixCls = getPrefixCls("card", customizePrefixCls);
-  const [wrapCSSVar, hashId, cssVarCls] = useStyle$9(prefixCls);
+  const [wrapCSSVar, hashId, cssVarCls] = useStyle$a(prefixCls);
   const loadingBlock = /* @__PURE__ */ reactExports.createElement(Skeleton, {
     loading: true,
     active: true,
@@ -44241,7 +44991,7 @@ const Card$1 = /* @__PURE__ */ reactExports.forwardRef((props, ref) => {
     items: tabList.map((_a) => {
       var {
         tab
-      } = _a, item = __rest$r(_a, ["tab"]);
+      } = _a, item = __rest$u(_a, ["tab"]);
       return Object.assign({
         label: tab
       }, item);
@@ -44301,7 +45051,7 @@ const Card$1 = /* @__PURE__ */ reactExports.forwardRef((props, ref) => {
     style: mergedStyle
   }), head, coverDom, body, actionDom));
 });
-var __rest$q = function(s, e2) {
+var __rest$t = function(s, e2) {
   var t2 = {};
   for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p) && e2.indexOf(p) < 0) t2[p] = s[p];
   if (s != null && typeof Object.getOwnPropertySymbols === "function") for (var i = 0, p = Object.getOwnPropertySymbols(s); i < p.length; i++) {
@@ -44316,7 +45066,7 @@ const Meta$1 = (props) => {
     avatar,
     title,
     description
-  } = props, others = __rest$q(props, ["prefixCls", "className", "avatar", "title", "description"]);
+  } = props, others = __rest$t(props, ["prefixCls", "className", "avatar", "title", "description"]);
   const {
     getPrefixCls
   } = reactExports.useContext(ConfigContext);
@@ -44399,7 +45149,7 @@ function debounce(delay, callback, options) {
   });
 }
 const RowContext = /* @__PURE__ */ reactExports.createContext({});
-var __rest$p = function(s, e2) {
+var __rest$s = function(s, e2) {
   var t2 = {};
   for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p) && e2.indexOf(p) < 0) t2[p] = s[p];
   if (s != null && typeof Object.getOwnPropertySymbols === "function") for (var i = 0, p = Object.getOwnPropertySymbols(s); i < p.length; i++) {
@@ -44437,7 +45187,7 @@ const Col = /* @__PURE__ */ reactExports.forwardRef((props, ref) => {
     children,
     flex,
     style: style2
-  } = props, others = __rest$p(props, ["prefixCls", "span", "order", "offset", "push", "pull", "className", "children", "flex", "style"]);
+  } = props, others = __rest$s(props, ["prefixCls", "span", "order", "offset", "push", "pull", "className", "children", "flex", "style"]);
   const prefixCls = getPrefixCls("col", customizePrefixCls);
   const [wrapCSSVar, hashId, cssVarCls] = useColStyle(prefixCls);
   const sizeStyle = {};
@@ -44515,7 +45265,7 @@ function useGutter(gutter, screens) {
   });
   return results;
 }
-var __rest$o = function(s, e2) {
+var __rest$r = function(s, e2) {
   var t2 = {};
   for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p) && e2.indexOf(p) < 0) t2[p] = s[p];
   if (s != null && typeof Object.getOwnPropertySymbols === "function") for (var i = 0, p = Object.getOwnPropertySymbols(s); i < p.length; i++) {
@@ -44559,7 +45309,7 @@ const Row = /* @__PURE__ */ reactExports.forwardRef((props, ref) => {
     children,
     gutter = 0,
     wrap
-  } = props, others = __rest$o(props, ["prefixCls", "justify", "align", "className", "style", "children", "gutter", "wrap"]);
+  } = props, others = __rest$r(props, ["prefixCls", "justify", "align", "className", "style", "children", "gutter", "wrap"]);
   const {
     getPrefixCls,
     direction
@@ -44754,23 +45504,23 @@ const genSharedDividerStyle = (token2) => {
     })
   };
 };
-const prepareComponentToken$6 = (token2) => ({
+const prepareComponentToken$7 = (token2) => ({
   textPaddingInline: "1em",
   orientationMargin: 0.05,
   verticalMarginInline: token2.marginXS
 });
-const useStyle$8 = genStyleHooks("Divider", (token2) => {
+const useStyle$9 = genStyleHooks("Divider", (token2) => {
   const dividerToken = merge(token2, {
     dividerHorizontalWithTextGutterMargin: token2.margin,
     sizePaddingEdgeHorizontal: 0
   });
   return [genSharedDividerStyle(dividerToken), genSizeDividerStyle(dividerToken)];
-}, prepareComponentToken$6, {
+}, prepareComponentToken$7, {
   unitless: {
     orientationMargin: true
   }
 });
-var __rest$n = function(s, e2) {
+var __rest$q = function(s, e2) {
   var t2 = {};
   for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p) && e2.indexOf(p) < 0) t2[p] = s[p];
   if (s != null && typeof Object.getOwnPropertySymbols === "function") for (var i = 0, p = Object.getOwnPropertySymbols(s); i < p.length; i++) {
@@ -44802,9 +45552,9 @@ const Divider = (props) => {
     plain,
     style: style2,
     size: customSize
-  } = props, restProps = __rest$n(props, ["prefixCls", "type", "orientation", "orientationMargin", "className", "rootClassName", "children", "dashed", "variant", "plain", "style", "size"]);
+  } = props, restProps = __rest$q(props, ["prefixCls", "type", "orientation", "orientationMargin", "className", "rootClassName", "children", "dashed", "variant", "plain", "style", "size"]);
   const prefixCls = getPrefixCls("divider", customizePrefixCls);
-  const [wrapCSSVar, hashId, cssVarCls] = useStyle$8(prefixCls);
+  const [wrapCSSVar, hashId, cssVarCls] = useStyle$9(prefixCls);
   const sizeFullName = useSize(customSize);
   const sizeCls = sizeClassNameMap[sizeFullName];
   const hasChildren = !!children;
@@ -46090,7 +46840,7 @@ var InputNumber$1 = /* @__PURE__ */ reactExports.forwardRef(function(props, ref)
     className: classNames2 === null || classNames2 === void 0 ? void 0 : classNames2.input
   }, rest)));
 });
-const prepareComponentToken$5 = (token2) => {
+const prepareComponentToken$6 = (token2) => {
   var _a;
   const handleVisible = (_a = token2.handleVisible) !== null && _a !== void 0 ? _a : "auto";
   const handleWidth = token2.controlHeightSM - token2.lineWidth * 2;
@@ -46501,7 +47251,7 @@ const genAffixWrapperStyles = (token2) => {
     }
   };
 };
-const useStyle$7 = genStyleHooks("InputNumber", (token2) => {
+const useStyle$8 = genStyleHooks("InputNumber", (token2) => {
   const inputNumberToken = merge(token2, initInputToken(token2));
   return [
     genInputNumberStyles(inputNumberToken),
@@ -46511,12 +47261,12 @@ const useStyle$7 = genStyleHooks("InputNumber", (token2) => {
     // =====================================================
     genCompactItemStyle(inputNumberToken)
   ];
-}, prepareComponentToken$5, {
+}, prepareComponentToken$6, {
   unitless: {
     handleOpacity: true
   }
 });
-var __rest$m = function(s, e2) {
+var __rest$p = function(s, e2) {
   var t2 = {};
   for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p) && e2.indexOf(p) < 0) t2[p] = s[p];
   if (s != null && typeof Object.getOwnPropertySymbols === "function") for (var i = 0, p = Object.getOwnPropertySymbols(s); i < p.length; i++) {
@@ -46546,10 +47296,10 @@ const InputNumber = /* @__PURE__ */ reactExports.forwardRef((props, ref) => {
     status: customStatus,
     controls,
     variant: customVariant
-  } = props, others = __rest$m(props, ["className", "rootClassName", "size", "disabled", "prefixCls", "addonBefore", "addonAfter", "prefix", "suffix", "bordered", "readOnly", "status", "controls", "variant"]);
+  } = props, others = __rest$p(props, ["className", "rootClassName", "size", "disabled", "prefixCls", "addonBefore", "addonAfter", "prefix", "suffix", "bordered", "readOnly", "status", "controls", "variant"]);
   const prefixCls = getPrefixCls("input-number", customizePrefixCls);
   const rootCls = useCSSVarCls(prefixCls);
-  const [wrapCSSVar, hashId, cssVarCls] = useStyle$7(prefixCls, rootCls);
+  const [wrapCSSVar, hashId, cssVarCls] = useStyle$8(prefixCls, rootCls);
   const {
     compactSize,
     compactItemClassnames
@@ -46681,7 +47431,7 @@ function useRemovePasswordTimeout(inputRef, triggerOnMount) {
 function hasPrefixSuffix(props) {
   return !!(props.prefix || props.suffix || props.allowClear || props.showCount);
 }
-var __rest$l = function(s, e2) {
+var __rest$o = function(s, e2) {
   var t2 = {};
   for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p) && e2.indexOf(p) < 0) t2[p] = s[p];
   if (s != null && typeof Object.getOwnPropertySymbols === "function") for (var i = 0, p = Object.getOwnPropertySymbols(s); i < p.length; i++) {
@@ -46709,7 +47459,7 @@ const Input$1 = /* @__PURE__ */ reactExports.forwardRef((props, ref) => {
     onChange,
     classNames: classNames$1,
     variant: customVariant
-  } = props, rest = __rest$l(props, ["prefixCls", "bordered", "status", "size", "disabled", "onBlur", "onFocus", "suffix", "allowClear", "addonAfter", "addonBefore", "className", "style", "styles", "rootClassName", "onChange", "classNames", "variant"]);
+  } = props, rest = __rest$o(props, ["prefixCls", "bordered", "status", "size", "disabled", "onBlur", "onFocus", "suffix", "allowClear", "addonAfter", "addonBefore", "className", "style", "styles", "rootClassName", "onChange", "classNames", "variant"]);
   const {
     getPrefixCls,
     direction,
@@ -46724,7 +47474,7 @@ const Input$1 = /* @__PURE__ */ reactExports.forwardRef((props, ref) => {
   const inputRef = reactExports.useRef(null);
   const rootCls = useCSSVarCls(prefixCls);
   const [wrapSharedCSSVar, hashId, cssVarCls] = useSharedStyle(prefixCls, rootClassName);
-  const [wrapCSSVar] = useStyle$b(prefixCls, rootCls);
+  const [wrapCSSVar] = useStyle$c(prefixCls, rootCls);
   const {
     compactSize,
     compactItemClassnames
@@ -46807,6 +47557,131 @@ const Input$1 = /* @__PURE__ */ reactExports.forwardRef((props, ref) => {
     })
   }))));
 });
+function isPresetSize(size) {
+  return ["small", "middle", "large"].includes(size);
+}
+function isValidGapNumber(size) {
+  if (!size) {
+    return false;
+  }
+  return typeof size === "number" && !Number.isNaN(size);
+}
+const SpaceContext = /* @__PURE__ */ React.createContext({
+  latestIndex: 0
+});
+const SpaceContextProvider = SpaceContext.Provider;
+const Item$1 = ({
+  className,
+  index: index2,
+  children,
+  split,
+  style: style2
+}) => {
+  const {
+    latestIndex
+  } = reactExports.useContext(SpaceContext);
+  if (children === null || children === void 0) {
+    return null;
+  }
+  return /* @__PURE__ */ reactExports.createElement(reactExports.Fragment, null, /* @__PURE__ */ reactExports.createElement("div", {
+    className,
+    style: style2
+  }, children), index2 < latestIndex && split && /* @__PURE__ */ reactExports.createElement("span", {
+    className: `${className}-split`
+  }, split));
+};
+var __rest$n = function(s, e2) {
+  var t2 = {};
+  for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p) && e2.indexOf(p) < 0) t2[p] = s[p];
+  if (s != null && typeof Object.getOwnPropertySymbols === "function") for (var i = 0, p = Object.getOwnPropertySymbols(s); i < p.length; i++) {
+    if (e2.indexOf(p[i]) < 0 && Object.prototype.propertyIsEnumerable.call(s, p[i])) t2[p[i]] = s[p[i]];
+  }
+  return t2;
+};
+const InternalSpace = /* @__PURE__ */ reactExports.forwardRef((props, ref) => {
+  var _a;
+  const {
+    getPrefixCls,
+    direction: directionConfig,
+    size: contextSize,
+    className: contextClassName,
+    style: contextStyle,
+    classNames: contextClassNames,
+    styles: contextStyles
+  } = useComponentConfig("space");
+  const {
+    size = contextSize !== null && contextSize !== void 0 ? contextSize : "small",
+    align,
+    className,
+    rootClassName,
+    children,
+    direction = "horizontal",
+    prefixCls: customizePrefixCls,
+    split,
+    style: style2,
+    wrap = false,
+    classNames: customClassNames,
+    styles
+  } = props, otherProps = __rest$n(props, ["size", "align", "className", "rootClassName", "children", "direction", "prefixCls", "split", "style", "wrap", "classNames", "styles"]);
+  const [horizontalSize, verticalSize] = Array.isArray(size) ? size : [size, size];
+  const isPresetVerticalSize = isPresetSize(verticalSize);
+  const isPresetHorizontalSize = isPresetSize(horizontalSize);
+  const isValidVerticalSize = isValidGapNumber(verticalSize);
+  const isValidHorizontalSize = isValidGapNumber(horizontalSize);
+  const childNodes = toArray$4(children, {
+    keepEmpty: true
+  });
+  const mergedAlign = align === void 0 && direction === "horizontal" ? "center" : align;
+  const prefixCls = getPrefixCls("space", customizePrefixCls);
+  const [wrapCSSVar, hashId, cssVarCls] = useStyle$l(prefixCls);
+  const cls = classNames(prefixCls, contextClassName, hashId, `${prefixCls}-${direction}`, {
+    [`${prefixCls}-rtl`]: directionConfig === "rtl",
+    [`${prefixCls}-align-${mergedAlign}`]: mergedAlign,
+    [`${prefixCls}-gap-row-${verticalSize}`]: isPresetVerticalSize,
+    [`${prefixCls}-gap-col-${horizontalSize}`]: isPresetHorizontalSize
+  }, className, rootClassName, cssVarCls);
+  const itemClassName = classNames(`${prefixCls}-item`, (_a = customClassNames === null || customClassNames === void 0 ? void 0 : customClassNames.item) !== null && _a !== void 0 ? _a : contextClassNames.item);
+  let latestIndex = 0;
+  const nodes = childNodes.map((child, i) => {
+    var _a2;
+    if (child !== null && child !== void 0) {
+      latestIndex = i;
+    }
+    const key = (child === null || child === void 0 ? void 0 : child.key) || `${itemClassName}-${i}`;
+    return /* @__PURE__ */ reactExports.createElement(Item$1, {
+      className: itemClassName,
+      key,
+      index: i,
+      split,
+      style: (_a2 = styles === null || styles === void 0 ? void 0 : styles.item) !== null && _a2 !== void 0 ? _a2 : contextStyles.item
+    }, child);
+  });
+  const spaceContext = reactExports.useMemo(() => ({
+    latestIndex
+  }), [latestIndex]);
+  if (childNodes.length === 0) {
+    return null;
+  }
+  const gapStyle = {};
+  if (wrap) {
+    gapStyle.flexWrap = "wrap";
+  }
+  if (!isPresetHorizontalSize && isValidHorizontalSize) {
+    gapStyle.columnGap = horizontalSize;
+  }
+  if (!isPresetVerticalSize && isValidVerticalSize) {
+    gapStyle.rowGap = verticalSize;
+  }
+  return wrapCSSVar(/* @__PURE__ */ reactExports.createElement("div", Object.assign({
+    ref,
+    className: cls,
+    style: Object.assign(Object.assign(Object.assign({}, gapStyle), contextStyle), style2)
+  }, otherProps), /* @__PURE__ */ reactExports.createElement(SpaceContextProvider, {
+    value: spaceContext
+  }, nodes)));
+});
+const Space = InternalSpace;
+Space.Compact = Compact$1;
 function convertToTooltipProps(tooltip) {
   if (tooltip === void 0 || tooltip === null) {
     return null;
@@ -47350,7 +48225,7 @@ const genItemVerticalStyle = (token2) => {
     }
   };
 };
-const prepareComponentToken$4 = (token2) => ({
+const prepareComponentToken$5 = (token2) => ({
   labelRequiredMarkColor: token2.colorError,
   labelColor: token2.colorTextHeading,
   labelFontSize: token2.fontSize,
@@ -47362,19 +48237,19 @@ const prepareComponentToken$4 = (token2) => ({
   verticalLabelMargin: 0,
   inlineItemMarginBottom: 0
 });
-const prepareToken$1 = (token2, rootPrefixCls) => {
+const prepareToken$2 = (token2, rootPrefixCls) => {
   const formToken = merge(token2, {
     formItemCls: `${token2.componentCls}-item`,
     rootPrefixCls
   });
   return formToken;
 };
-const useStyle$6 = genStyleHooks("Form", (token2, {
+const useStyle$7 = genStyleHooks("Form", (token2, {
   rootPrefixCls
 }) => {
-  const formToken = prepareToken$1(token2, rootPrefixCls);
+  const formToken = prepareToken$2(token2, rootPrefixCls);
   return [genFormStyle(formToken), genFormItemStyle(formToken), genFormValidateMotionStyle(formToken), genHorizontalStyle(formToken, formToken.componentCls), genHorizontalStyle(formToken, formToken.formItemCls), genInlineStyle(formToken), genVerticalStyle(formToken), genItemVerticalStyle(formToken), genCollapseMotion(formToken), zoomIn];
-}, prepareComponentToken$4, {
+}, prepareComponentToken$5, {
   // Let From style before the Grid
   // ref https://github.com/ant-design/ant-design/issues/44386
   order: -1e3
@@ -47401,7 +48276,7 @@ const ErrorList = ({
   } = reactExports.useContext(FormItemPrefixContext);
   const baseClassName = `${prefixCls}-item-explain`;
   const rootCls = useCSSVarCls(prefixCls);
-  const [wrapCSSVar, hashId, cssVarCls] = useStyle$6(prefixCls, rootCls);
+  const [wrapCSSVar, hashId, cssVarCls] = useStyle$7(prefixCls, rootCls);
   const collapseMotion = reactExports.useMemo(() => initCollapseMotion(prefixCls), [prefixCls]);
   const debounceErrors = useDebounce(errors);
   const debounceWarnings = useDebounce(warnings);
@@ -47462,7 +48337,7 @@ const ErrorList = ({
     }));
   }));
 };
-var __rest$k = function(s, e2) {
+var __rest$m = function(s, e2) {
   var t2 = {};
   for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p) && e2.indexOf(p) < 0) t2[p] = s[p];
   if (s != null && typeof Object.getOwnPropertySymbols === "function") for (var i = 0, p = Object.getOwnPropertySymbols(s); i < p.length; i++) {
@@ -47502,7 +48377,7 @@ const InternalForm = (props, ref) => {
     style: style2,
     feedbackIcons,
     variant
-  } = props, restFormProps = __rest$k(props, ["prefixCls", "className", "rootClassName", "size", "disabled", "form", "colon", "labelAlign", "labelWrap", "labelCol", "wrapperCol", "hideRequiredMark", "layout", "scrollToFirstError", "requiredMark", "onFinishFailed", "name", "style", "feedbackIcons", "variant"]);
+  } = props, restFormProps = __rest$m(props, ["prefixCls", "className", "rootClassName", "size", "disabled", "form", "colon", "labelAlign", "labelWrap", "labelCol", "wrapperCol", "hideRequiredMark", "layout", "scrollToFirstError", "requiredMark", "onFinishFailed", "name", "style", "feedbackIcons", "variant"]);
   const mergedSize = useSize(size);
   const contextValidateMessages = reactExports.useContext(ValidateMessagesContext);
   const mergedRequiredMark = reactExports.useMemo(() => {
@@ -47520,7 +48395,7 @@ const InternalForm = (props, ref) => {
   const mergedColon = colon !== null && colon !== void 0 ? colon : contextColon;
   const prefixCls = getPrefixCls("form", customizePrefixCls);
   const rootCls = useCSSVarCls(prefixCls);
-  const [wrapCSSVar, hashId, cssVarCls] = useStyle$6(prefixCls, rootCls);
+  const [wrapCSSVar, hashId, cssVarCls] = useStyle$7(prefixCls, rootCls);
   const formClassName = classNames(prefixCls, `${prefixCls}-${layout}`, {
     [`${prefixCls}-hide-required-mark`]: mergedRequiredMark === false,
     // todo: remove in next major version
@@ -47686,10 +48561,10 @@ const genFallbackStyle = (token2) => {
 const FallbackCmp = genSubStyleComponent(["Form", "item-item"], (token2, {
   rootPrefixCls
 }) => {
-  const formToken = prepareToken$1(token2, rootPrefixCls);
+  const formToken = prepareToken$2(token2, rootPrefixCls);
   return [genFallbackStyle(formToken)];
 });
-var __rest$j = function(s, e2) {
+var __rest$l = function(s, e2) {
   var t2 = {};
   for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p) && e2.indexOf(p) < 0) t2[p] = s[p];
   if (s != null && typeof Object.getOwnPropertySymbols === "function") for (var i = 0, p = Object.getOwnPropertySymbols(s); i < p.length; i++) {
@@ -47739,7 +48614,7 @@ const FormItemInput = (props) => {
     const {
       labelCol: labelCol2,
       wrapperCol: wrapperCol2
-    } = formContext, rest = __rest$j(formContext, ["labelCol", "wrapperCol"]);
+    } = formContext, rest = __rest$l(formContext, ["labelCol", "wrapperCol"]);
     return rest;
   }, [formContext]);
   const extraRef = reactExports.useRef(null);
@@ -47806,7 +48681,7 @@ var QuestionCircleOutlined = function QuestionCircleOutlined2(props, ref) {
   }));
 };
 var RefIcon$b = /* @__PURE__ */ reactExports.forwardRef(QuestionCircleOutlined);
-var __rest$i = function(s, e2) {
+var __rest$k = function(s, e2) {
   var t2 = {};
   for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p) && e2.indexOf(p) < 0) t2[p] = s[p];
   if (s != null && typeof Object.getOwnPropertySymbols === "function") for (var i = 0, p = Object.getOwnPropertySymbols(s); i < p.length; i++) {
@@ -47853,7 +48728,7 @@ const FormItemLabel = ({
   if (tooltipProps) {
     const {
       icon = /* @__PURE__ */ reactExports.createElement(RefIcon$b, null)
-    } = tooltipProps, restTooltipProps = __rest$i(tooltipProps, ["icon"]);
+    } = tooltipProps, restTooltipProps = __rest$k(tooltipProps, ["icon"]);
     const tooltipNode = /* @__PURE__ */ reactExports.createElement(Tooltip2, Object.assign({}, restTooltipProps), /* @__PURE__ */ reactExports.cloneElement(icon, {
       className: `${prefixCls}-item-tooltip`,
       title: "",
@@ -47962,7 +48837,7 @@ function StatusProvider({
     value: formItemStatusContext
   }, children);
 }
-var __rest$h = function(s, e2) {
+var __rest$j = function(s, e2) {
   var t2 = {};
   for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p) && e2.indexOf(p) < 0) t2[p] = s[p];
   if (s != null && typeof Object.getOwnPropertySymbols === "function") for (var i = 0, p = Object.getOwnPropertySymbols(s); i < p.length; i++) {
@@ -47990,7 +48865,7 @@ function ItemHolder(props) {
     onSubItemMetaChange,
     layout,
     name
-  } = props, restProps = __rest$h(props, ["prefixCls", "className", "rootClassName", "style", "help", "errors", "warnings", "validateStatus", "meta", "hasFeedback", "hidden", "children", "fieldId", "required", "isRequired", "onSubItemMetaChange", "layout", "name"]);
+  } = props, restProps = __rest$j(props, ["prefixCls", "className", "rootClassName", "style", "help", "errors", "warnings", "validateStatus", "meta", "hasFeedback", "hidden", "children", "fieldId", "required", "isRequired", "onSubItemMetaChange", "layout", "name"]);
   const itemPrefixCls = `${prefixCls}-item`;
   const {
     requiredMark,
@@ -48162,7 +49037,7 @@ function InternalFormItem(props) {
   const hasName = !(name === void 0 || name === null);
   const prefixCls = getPrefixCls("form", customizePrefixCls);
   const rootCls = useCSSVarCls(prefixCls);
-  const [wrapCSSVar, hashId, cssVarCls] = useStyle$6(prefixCls, rootCls);
+  const [wrapCSSVar, hashId, cssVarCls] = useStyle$7(prefixCls, rootCls);
   devUseWarning();
   const listContext = reactExports.useContext(ListContext$1);
   const fieldKeyPathRef = reactExports.useRef(null);
@@ -48321,7 +49196,7 @@ function InternalFormItem(props) {
 }
 const FormItem = InternalFormItem;
 FormItem.useStatus = useFormItemStatus;
-var __rest$g = function(s, e2) {
+var __rest$i = function(s, e2) {
   var t2 = {};
   for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p) && e2.indexOf(p) < 0) t2[p] = s[p];
   if (s != null && typeof Object.getOwnPropertySymbols === "function") for (var i = 0, p = Object.getOwnPropertySymbols(s); i < p.length; i++) {
@@ -48333,7 +49208,7 @@ const FormList = (_a) => {
   var {
     prefixCls: customizePrefixCls,
     children
-  } = _a, props = __rest$g(_a, ["prefixCls", "children"]);
+  } = _a, props = __rest$i(_a, ["prefixCls", "children"]);
   const {
     getPrefixCls
   } = reactExports.useContext(ConfigContext);
@@ -48386,7 +49261,7 @@ const Group = (props) => {
   } = props;
   const prefixCls = getPrefixCls("input-group", customizePrefixCls);
   const inputPrefixCls = getPrefixCls("input");
-  const [wrapCSSVar, hashId, cssVarCls] = useStyle$b(inputPrefixCls);
+  const [wrapCSSVar, hashId, cssVarCls] = useStyle$c(inputPrefixCls);
   const cls = classNames(prefixCls, cssVarCls, {
     [`${prefixCls}-lg`]: props.size === "large",
     [`${prefixCls}-sm`]: props.size === "small",
@@ -48458,11 +49333,11 @@ const genOTPStyle = (token2) => {
     }
   };
 };
-const useStyle$5 = genStyleHooks(["Input", "OTP"], (token2) => {
+const useStyle$6 = genStyleHooks(["Input", "OTP"], (token2) => {
   const inputToken = merge(token2, initInputToken(token2));
   return [genOTPStyle(inputToken)];
 }, initComponentToken);
-var __rest$f = function(s, e2) {
+var __rest$h = function(s, e2) {
   var t2 = {};
   for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p) && e2.indexOf(p) < 0) t2[p] = s[p];
   if (s != null && typeof Object.getOwnPropertySymbols === "function") for (var i = 0, p = Object.getOwnPropertySymbols(s); i < p.length; i++) {
@@ -48478,7 +49353,7 @@ const OTPInput = /* @__PURE__ */ reactExports.forwardRef((props, ref) => {
     onActiveChange,
     index: index2,
     mask
-  } = props, restProps = __rest$f(props, ["className", "value", "onChange", "onActiveChange", "index", "mask"]);
+  } = props, restProps = __rest$h(props, ["className", "value", "onChange", "onActiveChange", "index", "mask"]);
   const {
     getPrefixCls
   } = reactExports.useContext(ConfigContext);
@@ -48542,7 +49417,7 @@ const OTPInput = /* @__PURE__ */ reactExports.forwardRef((props, ref) => {
     })
   })));
 });
-var __rest$e = function(s, e2) {
+var __rest$g = function(s, e2) {
   var t2 = {};
   for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p) && e2.indexOf(p) < 0) t2[p] = s[p];
   if (s != null && typeof Object.getOwnPropertySymbols === "function") for (var i = 0, p = Object.getOwnPropertySymbols(s); i < p.length; i++) {
@@ -48585,7 +49460,7 @@ const OTP = /* @__PURE__ */ reactExports.forwardRef((props, ref) => {
     type: type4,
     onInput,
     inputMode
-  } = props, restProps = __rest$e(props, ["prefixCls", "length", "size", "defaultValue", "value", "onChange", "formatter", "separator", "variant", "disabled", "status", "autoFocus", "mask", "type", "onInput", "inputMode"]);
+  } = props, restProps = __rest$g(props, ["prefixCls", "length", "size", "defaultValue", "value", "onChange", "formatter", "separator", "variant", "disabled", "status", "autoFocus", "mask", "type", "onInput", "inputMode"]);
   const {
     getPrefixCls,
     direction
@@ -48596,7 +49471,7 @@ const OTP = /* @__PURE__ */ reactExports.forwardRef((props, ref) => {
     data: true,
     attr: true
   });
-  const [wrapCSSVar, hashId, cssVarCls] = useStyle$5(prefixCls);
+  const [wrapCSSVar, hashId, cssVarCls] = useStyle$6(prefixCls);
   const mergedSize = useSize((ctx) => customSize !== null && customSize !== void 0 ? customSize : ctx);
   const formContext = reactExports.useContext(FormItemInputContext);
   const mergedStatus = getMergedStatus(formContext.status, customStatus);
@@ -48729,7 +49604,7 @@ var EyeInvisibleOutlined = function EyeInvisibleOutlined2(props, ref) {
   }));
 };
 var RefIcon$9 = /* @__PURE__ */ reactExports.forwardRef(EyeInvisibleOutlined);
-var __rest$d = function(s, e2) {
+var __rest$f = function(s, e2) {
   var t2 = {};
   for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p) && e2.indexOf(p) < 0) t2[p] = s[p];
   if (s != null && typeof Object.getOwnPropertySymbols === "function") for (var i = 0, p = Object.getOwnPropertySymbols(s); i < p.length; i++) {
@@ -48795,7 +49670,7 @@ const Password = /* @__PURE__ */ reactExports.forwardRef((props, ref) => {
     prefixCls: customizePrefixCls,
     inputPrefixCls: customizeInputPrefixCls,
     size
-  } = props, restProps = __rest$d(props, ["className", "prefixCls", "inputPrefixCls", "size"]);
+  } = props, restProps = __rest$f(props, ["className", "prefixCls", "inputPrefixCls", "size"]);
   const {
     getPrefixCls
   } = reactExports.useContext(ConfigContext);
@@ -48818,7 +49693,7 @@ const Password = /* @__PURE__ */ reactExports.forwardRef((props, ref) => {
     ref: composeRef(ref, inputRef)
   }, omittedProps));
 });
-var __rest$c = function(s, e2) {
+var __rest$e = function(s, e2) {
   var t2 = {};
   for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p) && e2.indexOf(p) < 0) t2[p] = s[p];
   if (s != null && typeof Object.getOwnPropertySymbols === "function") for (var i = 0, p = Object.getOwnPropertySymbols(s); i < p.length; i++) {
@@ -48843,7 +49718,7 @@ const Search = /* @__PURE__ */ reactExports.forwardRef((props, ref) => {
     onCompositionEnd,
     variant,
     onPressEnter: customOnPressEnter
-  } = props, restProps = __rest$c(props, ["prefixCls", "inputPrefixCls", "className", "size", "suffix", "enterButton", "addonAfter", "loading", "disabled", "onSearch", "onChange", "onCompositionStart", "onCompositionEnd", "variant", "onPressEnter"]);
+  } = props, restProps = __rest$e(props, ["prefixCls", "inputPrefixCls", "className", "size", "suffix", "enterButton", "addonAfter", "loading", "disabled", "onSearch", "onChange", "onCompositionStart", "onCompositionEnd", "variant", "onPressEnter"]);
   const {
     getPrefixCls,
     direction
@@ -49143,7 +50018,7 @@ var ResizableTextArea = /* @__PURE__ */ reactExports.forwardRef(function(props, 
   })));
 });
 var _excluded$1 = ["defaultValue", "value", "onFocus", "onBlur", "onChange", "allowClear", "maxLength", "onCompositionStart", "onCompositionEnd", "suffix", "prefixCls", "showCount", "count", "className", "style", "disabled", "hidden", "classNames", "styles", "onResize", "onClear", "onPressEnter", "readOnly", "autoSize", "onKeyDown"];
-var TextArea$3 = /* @__PURE__ */ React.forwardRef(function(_ref, ref) {
+var TextArea$2 = /* @__PURE__ */ React.forwardRef(function(_ref, ref) {
   var _countConfig$max;
   var defaultValue = _ref.defaultValue, customValue = _ref.value, onFocus = _ref.onFocus, onBlur = _ref.onBlur, onChange = _ref.onChange, allowClear = _ref.allowClear, maxLength = _ref.maxLength, onCompositionStart = _ref.onCompositionStart, onCompositionEnd = _ref.onCompositionEnd, suffix = _ref.suffix, _ref$prefixCls = _ref.prefixCls, prefixCls = _ref$prefixCls === void 0 ? "rc-textarea" : _ref$prefixCls, showCount = _ref.showCount, count = _ref.count, className = _ref.className, style2 = _ref.style, disabled = _ref.disabled, hidden = _ref.hidden, classNames$1 = _ref.classNames, styles = _ref.styles, onResize2 = _ref.onResize, onClear = _ref.onClear, onPressEnter = _ref.onPressEnter, readOnly = _ref.readOnly, autoSize = _ref.autoSize, onKeyDown = _ref.onKeyDown, rest = _objectWithoutProperties(_ref, _excluded$1);
   var _useMergedState = useMergedState(defaultValue, {
@@ -49402,13 +50277,13 @@ const genTextAreaStyle = (token2) => {
     }
   };
 };
-const useStyle$4 = genStyleHooks(["Input", "TextArea"], (token2) => {
+const useStyle$5 = genStyleHooks(["Input", "TextArea"], (token2) => {
   const inputToken = merge(token2, initInputToken(token2));
   return [genTextAreaStyle(inputToken)];
 }, initComponentToken, {
   resetFont: false
 });
-var __rest$b = function(s, e2) {
+var __rest$d = function(s, e2) {
   var t2 = {};
   for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p) && e2.indexOf(p) < 0) t2[p] = s[p];
   if (s != null && typeof Object.getOwnPropertySymbols === "function") for (var i = 0, p = Object.getOwnPropertySymbols(s); i < p.length; i++) {
@@ -49416,7 +50291,7 @@ var __rest$b = function(s, e2) {
   }
   return t2;
 };
-const TextArea$2 = /* @__PURE__ */ reactExports.forwardRef((props, ref) => {
+const TextArea$1 = /* @__PURE__ */ reactExports.forwardRef((props, ref) => {
   var _a;
   const {
     prefixCls: customizePrefixCls,
@@ -49434,7 +50309,7 @@ const TextArea$2 = /* @__PURE__ */ reactExports.forwardRef((props, ref) => {
     showCount,
     onMouseDown,
     onResize: onResize2
-  } = props, rest = __rest$b(props, ["prefixCls", "bordered", "size", "disabled", "status", "allowClear", "classNames", "rootClassName", "className", "style", "styles", "variant", "showCount", "onMouseDown", "onResize"]);
+  } = props, rest = __rest$d(props, ["prefixCls", "bordered", "size", "disabled", "status", "allowClear", "classNames", "rootClassName", "className", "style", "styles", "variant", "showCount", "onMouseDown", "onResize"]);
   const {
     getPrefixCls,
     direction,
@@ -49471,7 +50346,7 @@ const TextArea$2 = /* @__PURE__ */ reactExports.forwardRef((props, ref) => {
   const prefixCls = getPrefixCls("input", customizePrefixCls);
   const rootCls = useCSSVarCls(prefixCls);
   const [wrapSharedCSSVar, hashId, cssVarCls] = useSharedStyle(prefixCls, rootClassName);
-  const [wrapCSSVar] = useStyle$4(prefixCls, rootCls);
+  const [wrapCSSVar] = useStyle$5(prefixCls, rootCls);
   const {
     compactSize,
     compactItemClassnames
@@ -49503,7 +50378,7 @@ const TextArea$2 = /* @__PURE__ */ reactExports.forwardRef((props, ref) => {
       }
     }
   };
-  return wrapSharedCSSVar(wrapCSSVar(/* @__PURE__ */ reactExports.createElement(TextArea$3, Object.assign({
+  return wrapSharedCSSVar(wrapCSSVar(/* @__PURE__ */ reactExports.createElement(TextArea$2, Object.assign({
     autoComplete: contextAutoComplete
   }, rest, {
     style: Object.assign(Object.assign({}, contextStyle), style2),
@@ -49548,7 +50423,7 @@ const TextArea$2 = /* @__PURE__ */ reactExports.forwardRef((props, ref) => {
 const Input = Input$1;
 Input.Group = Group;
 Input.Search = Search;
-Input.TextArea = TextArea$2;
+Input.TextArea = TextArea$1;
 Input.Password = Password;
 Input.OTP = OTP;
 function useHasSider(siders, children, hasSider) {
@@ -49561,7 +50436,7 @@ function useHasSider(siders, children, hasSider) {
   const childNodes = toArray$4(children);
   return childNodes.some((node2) => node2.type === Sider$1);
 }
-var __rest$a = function(s, e2) {
+var __rest$c = function(s, e2) {
   var t2 = {};
   for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p) && e2.indexOf(p) < 0) t2[p] = s[p];
   if (s != null && typeof Object.getOwnPropertySymbols === "function") for (var i = 0, p = Object.getOwnPropertySymbols(s); i < p.length; i++) {
@@ -49589,12 +50464,12 @@ const Basic = /* @__PURE__ */ reactExports.forwardRef((props, ref) => {
     suffixCls,
     className,
     tagName: TagName
-  } = props, others = __rest$a(props, ["prefixCls", "suffixCls", "className", "tagName"]);
+  } = props, others = __rest$c(props, ["prefixCls", "suffixCls", "className", "tagName"]);
   const {
     getPrefixCls
   } = reactExports.useContext(ConfigContext);
   const prefixCls = getPrefixCls("layout", customizePrefixCls);
-  const [wrapSSR, hashId, cssVarCls] = useStyle$d(prefixCls);
+  const [wrapSSR, hashId, cssVarCls] = useStyle$e(prefixCls);
   const prefixWithSuffixCls = suffixCls ? `${prefixCls}-${suffixCls}` : prefixCls;
   return wrapSSR(/* @__PURE__ */ reactExports.createElement(TagName, Object.assign({
     className: classNames(customizePrefixCls || prefixWithSuffixCls, className, hashId, cssVarCls),
@@ -49612,9 +50487,9 @@ const BasicLayout = /* @__PURE__ */ reactExports.forwardRef((props, ref) => {
     rootClassName,
     children,
     hasSider,
-    tagName: Tag,
+    tagName: Tag2,
     style: style2
-  } = props, others = __rest$a(props, ["prefixCls", "className", "rootClassName", "children", "hasSider", "tagName", "style"]);
+  } = props, others = __rest$c(props, ["prefixCls", "className", "rootClassName", "children", "hasSider", "tagName", "style"]);
   const passedProps = omit(others, ["suffixCls"]);
   const {
     getPrefixCls,
@@ -49623,7 +50498,7 @@ const BasicLayout = /* @__PURE__ */ reactExports.forwardRef((props, ref) => {
   } = useComponentConfig("layout");
   const prefixCls = getPrefixCls("layout", customizePrefixCls);
   const mergedHasSider = useHasSider(siders, children, hasSider);
-  const [wrapCSSVar, hashId, cssVarCls] = useStyle$d(prefixCls);
+  const [wrapCSSVar, hashId, cssVarCls] = useStyle$e(prefixCls);
   const classString = classNames(prefixCls, {
     [`${prefixCls}-has-sider`]: mergedHasSider,
     [`${prefixCls}-rtl`]: direction === "rtl"
@@ -49640,7 +50515,7 @@ const BasicLayout = /* @__PURE__ */ reactExports.forwardRef((props, ref) => {
   }), []);
   return wrapCSSVar(/* @__PURE__ */ reactExports.createElement(LayoutContext.Provider, {
     value: contextValue
-  }, /* @__PURE__ */ reactExports.createElement(Tag, Object.assign({
+  }, /* @__PURE__ */ reactExports.createElement(Tag2, Object.assign({
     ref,
     className: classString,
     style: Object.assign(Object.assign({}, contextStyle), style2)
@@ -50664,7 +51539,7 @@ const genPaginationFocusStyle = (token2) => {
     }
   };
 };
-const prepareComponentToken$3 = (token2) => Object.assign({
+const prepareComponentToken$4 = (token2) => Object.assign({
   itemBg: token2.colorBgContainer,
   itemSize: token2.controlHeight,
   itemSizeSM: token2.controlHeightSM,
@@ -50675,7 +51550,7 @@ const prepareComponentToken$3 = (token2) => Object.assign({
   itemInputBg: token2.colorBgContainer,
   miniOptionsSizeChangerTop: 0
 }, initComponentToken(token2));
-const prepareToken = (token2) => merge(token2, {
+const prepareToken$1 = (token2) => merge(token2, {
   inputOutlineOffset: 0,
   paginationMiniOptionsMarginInlineStart: token2.calc(token2.marginXXS).div(2).equal(),
   paginationMiniQuickJumperInputWidth: token2.calc(token2.controlHeightLG).mul(1.1).equal(),
@@ -50686,10 +51561,10 @@ const prepareToken = (token2) => merge(token2, {
   paginationEllipsisTextIndent: "0.13em"
   // magic for ui experience
 }, initInputToken(token2));
-const useStyle$3 = genStyleHooks("Pagination", (token2) => {
-  const paginationToken = prepareToken(token2);
+const useStyle$4 = genStyleHooks("Pagination", (token2) => {
+  const paginationToken = prepareToken$1(token2);
   return [genPaginationStyle(paginationToken), genPaginationFocusStyle(paginationToken)];
-}, prepareComponentToken$3);
+}, prepareComponentToken$4);
 const genBorderedStyle$1 = (token2) => {
   const {
     componentCls
@@ -50772,9 +51647,9 @@ const genBorderedStyle$1 = (token2) => {
   };
 };
 const BorderedStyle = genSubStyleComponent(["Pagination", "bordered"], (token2) => {
-  const paginationToken = prepareToken(token2);
+  const paginationToken = prepareToken$1(token2);
   return [genBorderedStyle$1(paginationToken)];
-}, prepareComponentToken$3);
+}, prepareComponentToken$4);
 function useShowSizeChanger(showSizeChanger) {
   return reactExports.useMemo(() => {
     if (typeof showSizeChanger === "boolean") {
@@ -50786,7 +51661,7 @@ function useShowSizeChanger(showSizeChanger) {
     return [void 0, void 0];
   }, [showSizeChanger]);
 }
-var __rest$9 = function(s, e2) {
+var __rest$b = function(s, e2) {
   var t2 = {};
   for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p) && e2.indexOf(p) < 0) t2[p] = s[p];
   if (s != null && typeof Object.getOwnPropertySymbols === "function") for (var i = 0, p = Object.getOwnPropertySymbols(s); i < p.length; i++) {
@@ -50808,7 +51683,7 @@ const Pagination = (props) => {
     showSizeChanger,
     selectComponentClass,
     pageSizeOptions
-  } = props, restProps = __rest$9(props, ["align", "prefixCls", "selectPrefixCls", "className", "rootClassName", "style", "size", "locale", "responsive", "showSizeChanger", "selectComponentClass", "pageSizeOptions"]);
+  } = props, restProps = __rest$b(props, ["align", "prefixCls", "selectPrefixCls", "className", "rootClassName", "style", "size", "locale", "responsive", "showSizeChanger", "selectComponentClass", "pageSizeOptions"]);
   const {
     xs
   } = useBreakpoint(responsive);
@@ -50821,7 +51696,7 @@ const Pagination = (props) => {
     style: contextStyle
   } = useComponentConfig("pagination");
   const prefixCls = getPrefixCls("pagination", customizePrefixCls);
-  const [wrapCSSVar, hashId, cssVarCls] = useStyle$3(prefixCls);
+  const [wrapCSSVar, hashId, cssVarCls] = useStyle$4(prefixCls);
   const mergedSize = useSize(customizeSize);
   const isSmall = mergedSize === "small" || !!(xs && !mergedSize && responsive);
   const [contextLocale] = useLocale("Pagination", locale$4);
@@ -51289,7 +52164,7 @@ const genSpinStyle = (token2) => {
     })
   };
 };
-const prepareComponentToken$2 = (token2) => {
+const prepareComponentToken$3 = (token2) => {
   const {
     controlHeightLG,
     controlHeight
@@ -51301,12 +52176,12 @@ const prepareComponentToken$2 = (token2) => {
     dotSizeLG: controlHeight
   };
 };
-const useStyle$2 = genStyleHooks("Spin", (token2) => {
+const useStyle$3 = genStyleHooks("Spin", (token2) => {
   const spinToken = merge(token2, {
     spinDotDefault: token2.colorTextDescription
   });
   return [genSpinStyle(spinToken)];
-}, prepareComponentToken$2);
+}, prepareComponentToken$3);
 const AUTO_INTERVAL = 200;
 const STEP_BUCKETS = [[30, 0.05], [70, 0.03], [96, 0.01]];
 function usePercent(spinning, percent) {
@@ -51335,7 +52210,7 @@ function usePercent(spinning, percent) {
   }, [isAuto, spinning]);
   return isAuto ? mockPercent : percent;
 }
-var __rest$8 = function(s, e2) {
+var __rest$a = function(s, e2) {
   var t2 = {};
   for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p) && e2.indexOf(p) < 0) t2[p] = s[p];
   if (s != null && typeof Object.getOwnPropertySymbols === "function") for (var i = 0, p = Object.getOwnPropertySymbols(s); i < p.length; i++) {
@@ -51363,7 +52238,7 @@ const Spin = (props) => {
     fullscreen = false,
     indicator,
     percent
-  } = props, restProps = __rest$8(props, ["prefixCls", "spinning", "delay", "className", "rootClassName", "size", "tip", "wrapperClassName", "style", "children", "fullscreen", "indicator", "percent"]);
+  } = props, restProps = __rest$a(props, ["prefixCls", "spinning", "delay", "className", "rootClassName", "size", "tip", "wrapperClassName", "style", "children", "fullscreen", "indicator", "percent"]);
   const {
     getPrefixCls,
     direction,
@@ -51372,7 +52247,7 @@ const Spin = (props) => {
     indicator: contextIndicator
   } = useComponentConfig("spin");
   const prefixCls = getPrefixCls("spin", customizePrefixCls);
-  const [wrapCSSVar, hashId, cssVarCls] = useStyle$2(prefixCls);
+  const [wrapCSSVar, hashId, cssVarCls] = useStyle$3(prefixCls);
   const [spinning, setSpinning] = reactExports.useState(() => customSpinning && !shouldDelay(customSpinning, delay));
   const mergedPercent = usePercent(spinning, percent);
   reactExports.useEffect(() => {
@@ -51437,7 +52312,7 @@ Spin.setDefaultIndicator = (indicator) => {
 };
 const ListContext = /* @__PURE__ */ React.createContext({});
 ListContext.Consumer;
-var __rest$7 = function(s, e2) {
+var __rest$9 = function(s, e2) {
   var t2 = {};
   for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p) && e2.indexOf(p) < 0) t2[p] = s[p];
   if (s != null && typeof Object.getOwnPropertySymbols === "function") for (var i = 0, p = Object.getOwnPropertySymbols(s); i < p.length; i++) {
@@ -51452,7 +52327,7 @@ const Meta = (_a) => {
     avatar,
     title,
     description
-  } = _a, others = __rest$7(_a, ["prefixCls", "className", "avatar", "title", "description"]);
+  } = _a, others = __rest$9(_a, ["prefixCls", "className", "avatar", "title", "description"]);
   const {
     getPrefixCls
   } = reactExports.useContext(ConfigContext);
@@ -51481,7 +52356,7 @@ const InternalItem = /* @__PURE__ */ React.forwardRef((props, ref) => {
     className,
     classNames: customizeClassNames,
     colStyle
-  } = props, others = __rest$7(props, ["prefixCls", "children", "actions", "extra", "styles", "className", "classNames", "colStyle"]);
+  } = props, others = __rest$9(props, ["prefixCls", "children", "actions", "extra", "styles", "className", "classNames", "colStyle"]);
   const {
     grid,
     itemLayout
@@ -51634,7 +52509,7 @@ const genResponsiveStyle = (token2) => {
     }
   };
 };
-const genBaseStyle = (token2) => {
+const genBaseStyle$1 = (token2) => {
   const {
     componentCls,
     antCls,
@@ -51849,7 +52724,7 @@ const genBaseStyle = (token2) => {
     }
   };
 };
-const prepareComponentToken$1 = (token2) => ({
+const prepareComponentToken$2 = (token2) => ({
   contentWidth: 220,
   itemPadding: `${unit$1(token2.paddingContentVertical)} 0`,
   itemPaddingSM: `${unit$1(token2.paddingContentVerticalSM)} ${unit$1(token2.paddingContentHorizontal)}`,
@@ -51862,14 +52737,14 @@ const prepareComponentToken$1 = (token2) => ({
   titleMarginBottom: token2.paddingSM,
   descriptionFontSize: token2.fontSize
 });
-const useStyle$1 = genStyleHooks("List", (token2) => {
+const useStyle$2 = genStyleHooks("List", (token2) => {
   const listToken = merge(token2, {
     listBorderedCls: `${token2.componentCls}-bordered`,
     minHeight: token2.controlHeightLG
   });
-  return [genBaseStyle(listToken), genBorderedStyle(listToken), genResponsiveStyle(listToken)];
-}, prepareComponentToken$1);
-var __rest$6 = function(s, e2) {
+  return [genBaseStyle$1(listToken), genBorderedStyle(listToken), genResponsiveStyle(listToken)];
+}, prepareComponentToken$2);
+var __rest$8 = function(s, e2) {
   var t2 = {};
   for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p) && e2.indexOf(p) < 0) t2[p] = s[p];
   if (s != null && typeof Object.getOwnPropertySymbols === "function") for (var i = 0, p = Object.getOwnPropertySymbols(s); i < p.length; i++) {
@@ -51898,7 +52773,7 @@ function InternalList(props, ref) {
     rowKey,
     renderItem,
     locale: locale2
-  } = props, rest = __rest$6(props, ["pagination", "prefixCls", "bordered", "split", "className", "rootClassName", "style", "children", "itemLayout", "loadMore", "grid", "dataSource", "size", "header", "footer", "loading", "rowKey", "renderItem", "locale"]);
+  } = props, rest = __rest$8(props, ["pagination", "prefixCls", "bordered", "split", "className", "rootClassName", "style", "children", "itemLayout", "loadMore", "grid", "dataSource", "size", "header", "footer", "loading", "rowKey", "renderItem", "locale"]);
   const paginationObj = pagination && typeof pagination === "object" ? pagination : {};
   const [paginationCurrent, setPaginationCurrent] = reactExports.useState(paginationObj.defaultCurrent || 1);
   const [paginationSize, setPaginationSize] = reactExports.useState(paginationObj.defaultPageSize || 10);
@@ -51947,7 +52822,7 @@ function InternalList(props, ref) {
   };
   const isSomethingAfterLastItem = !!(loadMore || pagination || footer);
   const prefixCls = getPrefixCls("list", customizePrefixCls);
-  const [wrapCSSVar, hashId, cssVarCls] = useStyle$1(prefixCls);
+  const [wrapCSSVar, hashId, cssVarCls] = useStyle$2(prefixCls);
   let loadingProp = loading;
   if (typeof loadingProp === "boolean") {
     loadingProp = {
@@ -52277,7 +53152,7 @@ const staticMethods = baseStaticMethods;
 methods.forEach((type4) => {
   staticMethods[type4] = (...args) => typeOpen(type4, args);
 });
-var __rest$5 = function(s, e2) {
+var __rest$7 = function(s, e2) {
   var t2 = {};
   for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p) && e2.indexOf(p) < 0) t2[p] = s[p];
   if (s != null && typeof Object.getOwnPropertySymbols === "function") for (var i = 0, p = Object.getOwnPropertySymbols(s); i < p.length; i++) {
@@ -52295,14 +53170,14 @@ const PurePanel = (props) => {
     title,
     children,
     footer
-  } = props, restProps = __rest$5(props, ["prefixCls", "className", "closeIcon", "closable", "type", "title", "children", "footer"]);
+  } = props, restProps = __rest$7(props, ["prefixCls", "className", "closeIcon", "closable", "type", "title", "children", "footer"]);
   const {
     getPrefixCls
   } = reactExports.useContext(ConfigContext);
   const rootPrefixCls = getPrefixCls();
   const prefixCls = customizePrefixCls || getPrefixCls("modal");
   const rootCls = useCSSVarCls(rootPrefixCls);
-  const [wrapCSSVar, hashId, cssVarCls] = useStyle$g(prefixCls, rootCls);
+  const [wrapCSSVar, hashId, cssVarCls] = useStyle$h(prefixCls, rootCls);
   const confirmPrefixCls = `${prefixCls}-confirm`;
   let additionalProps = {};
   if (type4) {
@@ -52325,7 +53200,7 @@ const PurePanel = (props) => {
       children
     };
   }
-  return wrapCSSVar(/* @__PURE__ */ reactExports.createElement(Panel, Object.assign({
+  return wrapCSSVar(/* @__PURE__ */ reactExports.createElement(Panel$1, Object.assign({
     prefixCls,
     className: classNames(hashId, `${prefixCls}-pure-panel`, type4 && confirmPrefixCls, type4 && `${confirmPrefixCls}-${type4}`, className, cssVarCls, rootCls)
   }, restProps, {
@@ -52467,6 +53342,297 @@ var Icon = /* @__PURE__ */ reactExports.forwardRef(function(props, ref) {
   }), renderInnerNode());
 });
 Icon.displayName = "AntdIcon";
+const genBaseStyle = (token2) => {
+  const {
+    paddingXXS,
+    lineWidth,
+    tagPaddingHorizontal,
+    componentCls,
+    calc
+  } = token2;
+  const paddingInline = calc(tagPaddingHorizontal).sub(lineWidth).equal();
+  const iconMarginInline = calc(paddingXXS).sub(lineWidth).equal();
+  return {
+    // Result
+    [componentCls]: Object.assign(Object.assign({}, resetComponent(token2)), {
+      display: "inline-block",
+      height: "auto",
+      // https://github.com/ant-design/ant-design/pull/47504
+      marginInlineEnd: token2.marginXS,
+      paddingInline,
+      fontSize: token2.tagFontSize,
+      lineHeight: token2.tagLineHeight,
+      whiteSpace: "nowrap",
+      background: token2.defaultBg,
+      border: `${unit$1(token2.lineWidth)} ${token2.lineType} ${token2.colorBorder}`,
+      borderRadius: token2.borderRadiusSM,
+      opacity: 1,
+      transition: `all ${token2.motionDurationMid}`,
+      textAlign: "start",
+      position: "relative",
+      // RTL
+      [`&${componentCls}-rtl`]: {
+        direction: "rtl"
+      },
+      "&, a, a:hover": {
+        color: token2.defaultColor
+      },
+      [`${componentCls}-close-icon`]: {
+        marginInlineStart: iconMarginInline,
+        fontSize: token2.tagIconSize,
+        color: token2.colorIcon,
+        cursor: "pointer",
+        transition: `all ${token2.motionDurationMid}`,
+        "&:hover": {
+          color: token2.colorTextHeading
+        }
+      },
+      [`&${componentCls}-has-color`]: {
+        borderColor: "transparent",
+        [`&, a, a:hover, ${token2.iconCls}-close, ${token2.iconCls}-close:hover`]: {
+          color: token2.colorTextLightSolid
+        }
+      },
+      "&-checkable": {
+        backgroundColor: "transparent",
+        borderColor: "transparent",
+        cursor: "pointer",
+        [`&:not(${componentCls}-checkable-checked):hover`]: {
+          color: token2.colorPrimary,
+          backgroundColor: token2.colorFillSecondary
+        },
+        "&:active, &-checked": {
+          color: token2.colorTextLightSolid
+        },
+        "&-checked": {
+          backgroundColor: token2.colorPrimary,
+          "&:hover": {
+            backgroundColor: token2.colorPrimaryHover
+          }
+        },
+        "&:active": {
+          backgroundColor: token2.colorPrimaryActive
+        }
+      },
+      "&-hidden": {
+        display: "none"
+      },
+      // To ensure that a space will be placed between character and `Icon`.
+      [`> ${token2.iconCls} + span, > span + ${token2.iconCls}`]: {
+        marginInlineStart: paddingInline
+      }
+    }),
+    [`${componentCls}-borderless`]: {
+      borderColor: "transparent",
+      background: token2.tagBorderlessBg
+    }
+  };
+};
+const prepareToken = (token2) => {
+  const {
+    lineWidth,
+    fontSizeIcon,
+    calc
+  } = token2;
+  const tagFontSize = token2.fontSizeSM;
+  const tagToken = merge(token2, {
+    tagFontSize,
+    tagLineHeight: unit$1(calc(token2.lineHeightSM).mul(tagFontSize).equal()),
+    tagIconSize: calc(fontSizeIcon).sub(calc(lineWidth).mul(2)).equal(),
+    // Tag icon is much smaller
+    tagPaddingHorizontal: 8,
+    // Fixed padding.
+    tagBorderlessBg: token2.defaultBg
+  });
+  return tagToken;
+};
+const prepareComponentToken$1 = (token2) => ({
+  defaultBg: new FastColor(token2.colorFillQuaternary).onBackground(token2.colorBgContainer).toHexString(),
+  defaultColor: token2.colorText
+});
+const useStyle$1 = genStyleHooks("Tag", (token2) => {
+  const tagToken = prepareToken(token2);
+  return genBaseStyle(tagToken);
+}, prepareComponentToken$1);
+var __rest$6 = function(s, e2) {
+  var t2 = {};
+  for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p) && e2.indexOf(p) < 0) t2[p] = s[p];
+  if (s != null && typeof Object.getOwnPropertySymbols === "function") for (var i = 0, p = Object.getOwnPropertySymbols(s); i < p.length; i++) {
+    if (e2.indexOf(p[i]) < 0 && Object.prototype.propertyIsEnumerable.call(s, p[i])) t2[p[i]] = s[p[i]];
+  }
+  return t2;
+};
+const CheckableTag = /* @__PURE__ */ reactExports.forwardRef((props, ref) => {
+  const {
+    prefixCls: customizePrefixCls,
+    style: style2,
+    className,
+    checked,
+    onChange,
+    onClick
+  } = props, restProps = __rest$6(props, ["prefixCls", "style", "className", "checked", "onChange", "onClick"]);
+  const {
+    getPrefixCls,
+    tag
+  } = reactExports.useContext(ConfigContext);
+  const handleClick = (e2) => {
+    onChange === null || onChange === void 0 ? void 0 : onChange(!checked);
+    onClick === null || onClick === void 0 ? void 0 : onClick(e2);
+  };
+  const prefixCls = getPrefixCls("tag", customizePrefixCls);
+  const [wrapCSSVar, hashId, cssVarCls] = useStyle$1(prefixCls);
+  const cls = classNames(prefixCls, `${prefixCls}-checkable`, {
+    [`${prefixCls}-checkable-checked`]: checked
+  }, tag === null || tag === void 0 ? void 0 : tag.className, className, hashId, cssVarCls);
+  return wrapCSSVar(/* @__PURE__ */ reactExports.createElement("span", Object.assign({}, restProps, {
+    ref,
+    style: Object.assign(Object.assign({}, style2), tag === null || tag === void 0 ? void 0 : tag.style),
+    className: cls,
+    onClick: handleClick
+  })));
+});
+const genPresetStyle = (token2) => genPresetColor(token2, (colorKey, {
+  textColor,
+  lightBorderColor,
+  lightColor,
+  darkColor
+}) => ({
+  [`${token2.componentCls}${token2.componentCls}-${colorKey}`]: {
+    color: textColor,
+    background: lightColor,
+    borderColor: lightBorderColor,
+    // Inverse color
+    "&-inverse": {
+      color: token2.colorTextLightSolid,
+      background: darkColor,
+      borderColor: darkColor
+    },
+    [`&${token2.componentCls}-borderless`]: {
+      borderColor: "transparent"
+    }
+  }
+}));
+const PresetCmp = genSubStyleComponent(["Tag", "preset"], (token2) => {
+  const tagToken = prepareToken(token2);
+  return genPresetStyle(tagToken);
+}, prepareComponentToken$1);
+function capitalize(str) {
+  if (typeof str !== "string") {
+    return str;
+  }
+  const ret = str.charAt(0).toUpperCase() + str.slice(1);
+  return ret;
+}
+const genTagStatusStyle = (token2, status, cssVariableType) => {
+  const capitalizedCssVariableType = capitalize(cssVariableType);
+  return {
+    [`${token2.componentCls}${token2.componentCls}-${status}`]: {
+      color: token2[`color${cssVariableType}`],
+      background: token2[`color${capitalizedCssVariableType}Bg`],
+      borderColor: token2[`color${capitalizedCssVariableType}Border`],
+      [`&${token2.componentCls}-borderless`]: {
+        borderColor: "transparent"
+      }
+    }
+  };
+};
+const StatusCmp = genSubStyleComponent(["Tag", "status"], (token2) => {
+  const tagToken = prepareToken(token2);
+  return [genTagStatusStyle(tagToken, "success", "Success"), genTagStatusStyle(tagToken, "processing", "Info"), genTagStatusStyle(tagToken, "error", "Error"), genTagStatusStyle(tagToken, "warning", "Warning")];
+}, prepareComponentToken$1);
+var __rest$5 = function(s, e2) {
+  var t2 = {};
+  for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p) && e2.indexOf(p) < 0) t2[p] = s[p];
+  if (s != null && typeof Object.getOwnPropertySymbols === "function") for (var i = 0, p = Object.getOwnPropertySymbols(s); i < p.length; i++) {
+    if (e2.indexOf(p[i]) < 0 && Object.prototype.propertyIsEnumerable.call(s, p[i])) t2[p[i]] = s[p[i]];
+  }
+  return t2;
+};
+const InternalTag = /* @__PURE__ */ reactExports.forwardRef((tagProps, ref) => {
+  const {
+    prefixCls: customizePrefixCls,
+    className,
+    rootClassName,
+    style: style2,
+    children,
+    icon,
+    color,
+    onClose,
+    bordered = true,
+    visible: deprecatedVisible
+  } = tagProps, props = __rest$5(tagProps, ["prefixCls", "className", "rootClassName", "style", "children", "icon", "color", "onClose", "bordered", "visible"]);
+  const {
+    getPrefixCls,
+    direction,
+    tag: tagContext
+  } = reactExports.useContext(ConfigContext);
+  const [visible, setVisible] = reactExports.useState(true);
+  const domProps = omit(props, ["closeIcon", "closable"]);
+  reactExports.useEffect(() => {
+    if (deprecatedVisible !== void 0) {
+      setVisible(deprecatedVisible);
+    }
+  }, [deprecatedVisible]);
+  const isPreset = isPresetColor(color);
+  const isStatus = isPresetStatusColor(color);
+  const isInternalColor = isPreset || isStatus;
+  const tagStyle = Object.assign(Object.assign({
+    backgroundColor: color && !isInternalColor ? color : void 0
+  }, tagContext === null || tagContext === void 0 ? void 0 : tagContext.style), style2);
+  const prefixCls = getPrefixCls("tag", customizePrefixCls);
+  const [wrapCSSVar, hashId, cssVarCls] = useStyle$1(prefixCls);
+  const tagClassName = classNames(prefixCls, tagContext === null || tagContext === void 0 ? void 0 : tagContext.className, {
+    [`${prefixCls}-${color}`]: isInternalColor,
+    [`${prefixCls}-has-color`]: color && !isInternalColor,
+    [`${prefixCls}-hidden`]: !visible,
+    [`${prefixCls}-rtl`]: direction === "rtl",
+    [`${prefixCls}-borderless`]: !bordered
+  }, className, rootClassName, hashId, cssVarCls);
+  const handleCloseClick = (e2) => {
+    e2.stopPropagation();
+    onClose === null || onClose === void 0 ? void 0 : onClose(e2);
+    if (e2.defaultPrevented) {
+      return;
+    }
+    setVisible(false);
+  };
+  const [, mergedCloseIcon] = useClosable(pickClosable(tagProps), pickClosable(tagContext), {
+    closable: false,
+    closeIconRender: (iconNode2) => {
+      const replacement = /* @__PURE__ */ reactExports.createElement("span", {
+        className: `${prefixCls}-close-icon`,
+        onClick: handleCloseClick
+      }, iconNode2);
+      return replaceElement(iconNode2, replacement, (originProps) => ({
+        onClick: (e2) => {
+          var _a;
+          (_a = originProps === null || originProps === void 0 ? void 0 : originProps.onClick) === null || _a === void 0 ? void 0 : _a.call(originProps, e2);
+          handleCloseClick(e2);
+        },
+        className: classNames(originProps === null || originProps === void 0 ? void 0 : originProps.className, `${prefixCls}-close-icon`)
+      }));
+    }
+  });
+  const isNeedWave = typeof props.onClick === "function" || children && children.type === "a";
+  const iconNode = icon || null;
+  const kids = iconNode ? /* @__PURE__ */ reactExports.createElement(reactExports.Fragment, null, iconNode, children && /* @__PURE__ */ reactExports.createElement("span", null, children)) : children;
+  const tagNode = /* @__PURE__ */ reactExports.createElement("span", Object.assign({}, domProps, {
+    ref,
+    className: tagClassName,
+    style: tagStyle
+  }), kids, mergedCloseIcon, isPreset && /* @__PURE__ */ reactExports.createElement(PresetCmp, {
+    key: "preset",
+    prefixCls
+  }), isStatus && /* @__PURE__ */ reactExports.createElement(StatusCmp, {
+    key: "status",
+    prefixCls
+  }));
+  return wrapCSSVar(isNeedWave ? /* @__PURE__ */ reactExports.createElement(Wave, {
+    component: "Tag"
+  }, tagNode) : tagNode);
+});
+const Tag = InternalTag;
+Tag.CheckableTag = CheckableTag;
 const getTitleStyle = (fontSize, lineHeight, color, token2) => {
   const {
     titleMarginBottom,
@@ -52857,7 +54023,7 @@ const Editable = (props) => {
   return wrapCSSVar(/* @__PURE__ */ reactExports.createElement("div", {
     className: textAreaClassName,
     style: style2
-  }, /* @__PURE__ */ reactExports.createElement(TextArea$2, {
+  }, /* @__PURE__ */ reactExports.createElement(TextArea$1, {
     ref,
     maxLength,
     value: current,
@@ -53734,7 +54900,7 @@ const Link = /* @__PURE__ */ reactExports.forwardRef((_a, ref) => {
     component: "a"
   }));
 });
-const Paragraph$3 = /* @__PURE__ */ reactExports.forwardRef((props, ref) => /* @__PURE__ */ reactExports.createElement(Base, Object.assign({
+const Paragraph$4 = /* @__PURE__ */ reactExports.forwardRef((props, ref) => /* @__PURE__ */ reactExports.createElement(Base, Object.assign({
   ref
 }, props, {
   component: "div"
@@ -53747,7 +54913,7 @@ var __rest$1 = function(s, e2) {
   }
   return t2;
 };
-const Text = (_a, ref) => {
+const Text$2 = (_a, ref) => {
   var {
     ellipsis
   } = _a, restProps = __rest$1(_a, ["ellipsis"]);
@@ -53764,7 +54930,7 @@ const Text = (_a, ref) => {
     component: "span"
   }));
 };
-const Text$1 = /* @__PURE__ */ reactExports.forwardRef(Text);
+const Text$3 = /* @__PURE__ */ reactExports.forwardRef(Text$2);
 var __rest = function(s, e2) {
   var t2 = {};
   for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p) && e2.indexOf(p) < 0) t2[p] = s[p];
@@ -53774,7 +54940,7 @@ var __rest = function(s, e2) {
   return t2;
 };
 const TITLE_ELE_LIST = [1, 2, 3, 4, 5];
-const Title$7 = /* @__PURE__ */ reactExports.forwardRef((props, ref) => {
+const Title$8 = /* @__PURE__ */ reactExports.forwardRef((props, ref) => {
   const {
     level = 1
   } = props, restProps = __rest(props, ["level"]);
@@ -53786,11 +54952,11 @@ const Title$7 = /* @__PURE__ */ reactExports.forwardRef((props, ref) => {
   }));
 });
 const Typography = Typography$1;
-Typography.Text = Text$1;
+Typography.Text = Text$3;
 Typography.Link = Link;
-Typography.Title = Title$7;
-Typography.Paragraph = Paragraph$3;
-const { Title: Title$6 } = Typography;
+Typography.Title = Title$8;
+Typography.Paragraph = Paragraph$4;
+const { Title: Title$7 } = Typography;
 const Login = () => {
   const navigate = useNavigate();
   const onFinish = async (values) => {
@@ -53818,7 +54984,7 @@ const Login = () => {
   };
   return /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { display: "flex", justifyContent: "center", alignItems: "center", minHeight: "100vh", background: "#f0f2f5" }, children: /* @__PURE__ */ jsxRuntimeExports.jsxs(Card, { style: { width: 400 }, children: [
     /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { textAlign: "center", marginBottom: "24px" }, children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsx(Title$6, { level: 2, children: "AI 小说家" }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx(Title$7, { level: 2, children: "AI 小说家" }),
       /* @__PURE__ */ jsxRuntimeExports.jsx(Typography.Text, { type: "secondary", children: "登录您的帐户" })
     ] }),
     /* @__PURE__ */ jsxRuntimeExports.jsxs(
@@ -53860,7 +55026,7 @@ const Login = () => {
     )
   ] }) });
 };
-const { Title: Title$5 } = Typography;
+const { Title: Title$6 } = Typography;
 const Register = () => {
   const navigate = useNavigate();
   const onFinish = async (values) => {
@@ -53887,7 +55053,7 @@ const Register = () => {
   };
   return /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { display: "flex", justifyContent: "center", alignItems: "center", minHeight: "100vh", background: "#f0f2f5" }, children: /* @__PURE__ */ jsxRuntimeExports.jsxs(Card, { style: { width: 400 }, children: [
     /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { textAlign: "center", marginBottom: "24px" }, children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsx(Title$5, { level: 2, children: "AI 小说家" }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx(Title$6, { level: 2, children: "AI 小说家" }),
       /* @__PURE__ */ jsxRuntimeExports.jsx(Typography.Text, { type: "secondary", children: "创建您的帐户" })
     ] }),
     /* @__PURE__ */ jsxRuntimeExports.jsxs(
@@ -53967,7 +55133,7 @@ const Register = () => {
     )
   ] }) });
 };
-const { Title: Title$4 } = Typography;
+const { Title: Title$5 } = Typography;
 const { Option: Option$4 } = Select;
 const Settings = () => {
   const [form] = Form2.useForm();
@@ -54075,7 +55241,7 @@ const Settings = () => {
     }
   };
   return /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { padding: "24px", background: "#f0f2f5", minHeight: "100vh" }, children: /* @__PURE__ */ jsxRuntimeExports.jsxs(Card, { style: { maxWidth: 600, margin: "auto" }, children: [
-    /* @__PURE__ */ jsxRuntimeExports.jsx(Title$4, { level: 3, children: "AI 模型设置" }),
+    /* @__PURE__ */ jsxRuntimeExports.jsx(Title$5, { level: 3, children: "AI 模型设置" }),
     /* @__PURE__ */ jsxRuntimeExports.jsx(Spin, { spinning: isLoading, children: /* @__PURE__ */ jsxRuntimeExports.jsxs(Form2, { form, layout: "vertical", onFinish, children: [
       /* @__PURE__ */ jsxRuntimeExports.jsx(Form2.Item, { name: "llmProvider", label: "LLM 提供商", rules: [{ required: true }], children: /* @__PURE__ */ jsxRuntimeExports.jsxs(Select, { children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx(Option$4, { value: "openai", children: "OpenAI" }),
@@ -54099,219 +55265,343 @@ const Settings = () => {
     ] }) })
   ] }) });
 };
-const SparklesSvg$1 = () => /* @__PURE__ */ jsxRuntimeExports.jsx("svg", { xmlns: "http://www.w3.org/2000/svg", viewBox: "0 0 1024 1024", fill: "currentColor", width: "1em", height: "1em", children: /* @__PURE__ */ jsxRuntimeExports.jsx("path", { d: "M512 900.7c-26.5 0-48-21.5-48-48V640c0-26.5 21.5-48 48-48s48 21.5 48 48v212.7c0 26.5-21.5 48-48 48zM221.3 550.7c-18.7 18.7-49.1 18.7-67.9 0s-18.7-49.1 0-67.9l150.4-150.4c18.7-18.7 49.1-18.7 67.9 0s18.7 49.1 0 67.9L221.3 550.7zM802.7 550.7L652.3 400.3c-18.7-18.7-18.7-49.1 0-67.9s49.1-18.7 67.9 0l150.4 150.4c18.7 18.7 18.7 49.1 0 67.9s-49.1 18.7-67.9 0zM512 432c-26.5 0-48-21.5-48-48V171.3c0-26.5 21.5-48 48-48s48 21.5 48 48V384c0 26.5-21.5 48-48 48zM123.3 221.3c-18.7-18.7-18.7-49.1 0-67.9s49.1-18.7 67.9 0l150.4 150.4c18.7 18.7 18.7 49.1 0 67.9s-49.1 18.7-67.9 0L123.3 221.3zM868.6 221.3l-150.4-150.4c-18.7-18.7-49.1-18.7-67.9 0s-18.7 49.1 0 67.9l150.4 150.4c18.7 18.7 18.7 49.1 0 67.9s-49.1 18.7-67.9 0z" }) });
-const SparklesIcon$1 = (props) => /* @__PURE__ */ jsxRuntimeExports.jsx(Icon, { component: SparklesSvg$1, ...props });
-const { TextArea: TextArea$1 } = Input;
-const SceneView = ({ scene, onUpdate, onSelect, handleOpenRefineModal }) => {
-  const handleSynopsisChange = (e2) => {
-    onUpdate?.({ ...scene, synopsis: e2.target.value });
+const getAuthHeaders = () => {
+  const token2 = localStorage.getItem("token");
+  const headers = {
+    "Content-Type": "application/json"
   };
-  return /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "ml-8 p-2 border-l-2 cursor-pointer hover:bg-gray-100", onClick: () => onSelect && onSelect(scene), children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { position: "relative" }, children: [
-    /* @__PURE__ */ jsxRuntimeExports.jsxs("p", { children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsxs("strong", { children: [
-        "场景 ",
-        scene.sceneNumber,
-        ":"
-      ] }),
-      " (预期字数: ",
-      scene.expectedWords,
-      ")"
-    ] }),
-    /* @__PURE__ */ jsxRuntimeExports.jsx(
-      TextArea$1,
-      {
-        value: scene.synopsis,
-        onChange: handleSynopsisChange,
-        placeholder: "场景梗概",
-        autoSize: { minRows: 2, maxRows: 6 },
-        className: "text-sm text-gray-600",
-        disabled: !onUpdate
-      }
-    ),
-    onUpdate && handleOpenRefineModal && /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { icon: /* @__PURE__ */ jsxRuntimeExports.jsx(SparklesIcon$1, {}), size: "small", style: { position: "absolute", top: 0, right: 0 }, onClick: (e2) => {
-      e2.stopPropagation();
-      handleOpenRefineModal(scene.synopsis, { cardId: scene.id, endpoint: `/api/v1/outlines/scenes/${scene.id}/refine`, fieldName: "synopsis", onSuccess: (newText) => onUpdate({ ...scene, synopsis: newText }) });
-    } })
-  ] }) });
+  if (token2) {
+    headers["Authorization"] = `Bearer ${token2}`;
+  }
+  return headers;
 };
-const ChapterView = ({ chapter, onUpdate, onSelectScene, handleOpenRefineModal }) => {
-  const [isOpen, setIsOpen] = reactExports.useState(true);
-  const handleTitleChange = (e2) => {
-    onUpdate?.({ ...chapter, title: e2.target.value });
-  };
-  const handleSynopsisChange = (e2) => {
-    onUpdate?.({ ...chapter, synopsis: e2.target.value });
-  };
-  const handleSceneUpdate = (updatedScene) => {
-    const updatedScenes = chapter.scenes.map((s) => s.id === updatedScene.id ? updatedScene : s);
-    onUpdate?.({ ...chapter, scenes: updatedScenes });
-  };
-  return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "mb-2 border rounded", children: [
-    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "p-2 bg-gray-100 cursor-pointer", onClick: () => setIsOpen(!isOpen), children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center", children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "font-semibold mr-2", children: [
-          "第 ",
-          chapter.chapterNumber,
-          " 章:"
+const handleResponse = async (response) => {
+  if (!response.ok) {
+    const errorData = await response.json().catch(() => ({ message: "An unknown error occurred." }));
+    console.error("API request failed:", response.status, errorData);
+    throw new Error(errorData.message || `Request failed with status ${response.status}`);
+  }
+  return response.json();
+};
+const fetchStoryList = () => {
+  return fetch("/api/v1/story-cards", { headers: getAuthHeaders() }).then((res) => handleResponse(res));
+};
+const fetchStoryDetails = async (storyId) => {
+  const storyCard = await fetch(`/api/v1/story-cards/${storyId}`, { headers: getAuthHeaders() }).then((res) => handleResponse(res));
+  const characterCards = await fetch(`/api/v1/story-cards/${storyId}/character-cards`, { headers: getAuthHeaders() }).then((res) => handleResponse(res));
+  return { storyCard, characterCards };
+};
+const createStoryConception = (values) => {
+  return fetch("/api/v1/conception", {
+    method: "POST",
+    headers: getAuthHeaders(),
+    body: JSON.stringify(values)
+  }).then((res) => handleResponse(res));
+};
+const updateStoryCard = (storyCard) => {
+  return fetch(`/api/v1/story-cards/${storyCard.id}`, {
+    method: "PUT",
+    headers: getAuthHeaders(),
+    body: JSON.stringify(storyCard)
+  }).then((res) => handleResponse(res));
+};
+const createCharacterCard = (storyId, characterData) => {
+  return fetch(`/api/v1/story-cards/${storyId}/characters`, {
+    method: "POST",
+    headers: getAuthHeaders(),
+    body: JSON.stringify(characterData)
+  }).then((res) => handleResponse(res));
+};
+const updateCharacterCard = (characterCard) => {
+  return fetch(`/api/v1/character-cards/${characterCard.id}`, {
+    method: "PUT",
+    headers: getAuthHeaders(),
+    body: JSON.stringify(characterCard)
+  }).then((res) => handleResponse(res));
+};
+const deleteCharacterCard = (characterId) => {
+  return fetch(`/api/v1/character-cards/${characterId}`, {
+    method: "DELETE",
+    headers: getAuthHeaders()
+  }).then((res) => handleResponse(res));
+};
+const fetchOutlinesForStory = (storyId) => {
+  return fetch(`/api/v1/story-cards/${storyId}/outlines`, { headers: getAuthHeaders() }).then((res) => handleResponse(res));
+};
+const createEmptyOutlineForStory = (storyId) => {
+  return fetch(`/api/v1/story-cards/${storyId}/outlines`, {
+    method: "POST",
+    headers: getAuthHeaders()
+  }).then((res) => handleResponse(res));
+};
+const generateOutline = (params) => {
+  console.warn("generateOutline is deprecated and will be removed in a future version.");
+  return fetch("/api/v1/outlines", {
+    method: "POST",
+    headers: getAuthHeaders(),
+    body: JSON.stringify(params)
+  }).then((res) => handleResponse(res));
+};
+const generateChapter = (outlineId, params) => {
+  return fetch(`/api/v1/outlines/${outlineId}/chapters`, {
+    method: "POST",
+    headers: getAuthHeaders(),
+    body: JSON.stringify(params)
+  }).then((res) => handleResponse(res));
+};
+const fetchOutlineDetails = (outlineId) => {
+  return fetch(`/api/v1/outlines/${outlineId}`, { headers: getAuthHeaders() }).then((res) => handleResponse(res));
+};
+const updateOutline = (outline) => {
+  return fetch(`/api/v1/outlines/${outline.id}`, {
+    method: "PUT",
+    headers: getAuthHeaders(),
+    body: JSON.stringify(outline)
+  }).then((res) => handleResponse(res));
+};
+const deleteOutline = (outlineId) => {
+  return fetch(`/api/v1/outlines/${outlineId}`, {
+    method: "DELETE",
+    headers: getAuthHeaders()
+  }).then((res) => handleResponse(res));
+};
+const refineText = (endpoint, payload) => {
+  return fetch(endpoint, {
+    method: "POST",
+    headers: getAuthHeaders(),
+    body: JSON.stringify(payload)
+  }).then((res) => handleResponse(res));
+};
+const { Title: Title$4, Text: Text$1, Paragraph: Paragraph$3 } = Typography;
+const { Panel } = Collapse$1;
+const SceneView = ({ scene, onSelect }) => {
+  const characters2 = scene.presentCharacters?.split(/[,，、]/).map((name) => name.trim()).filter(Boolean) || [];
+  return /* @__PURE__ */ jsxRuntimeExports.jsxs(
+    Card,
+    {
+      size: "small",
+      className: "mb-4 shadow-sm hover:shadow-md transition-shadow",
+      onClick: () => onSelect && onSelect(scene),
+      hoverable: !!onSelect,
+      children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex justify-between items-start", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsxs(Title$4, { level: 5, className: "!mb-1", children: [
+            "第 ",
+            scene.sceneNumber,
+            " 节"
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs(Text$1, { type: "secondary", children: [
+            "约 ",
+            scene.expectedWords,
+            " 字"
+          ] })
         ] }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx(
-          Input,
-          {
-            value: chapter.title,
-            onChange: handleTitleChange,
-            placeholder: "章节标题",
-            className: "font-semibold",
-            disabled: !onUpdate
-          }
-        )
-      ] }),
-      /* @__PURE__ */ jsxRuntimeExports.jsx(
-        TextArea$1,
-        {
-          value: chapter.synopsis,
-          onChange: handleSynopsisChange,
-          placeholder: "章节梗概",
-          autoSize: { minRows: 2, maxRows: 4 },
-          className: "mt-2 text-sm text-gray-700",
-          disabled: !onUpdate
-        }
-      )
+        /* @__PURE__ */ jsxRuntimeExports.jsx(Divider, { className: "my-2" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(Paragraph$3, { ellipsis: { rows: 3, expandable: true, symbol: "更多" }, children: scene.synopsis }),
+        characters2.length > 0 && /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx(Divider, { className: "my-2" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "mb-2", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx(Text$1, { strong: true, children: "出场人物: " }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx(Space, { wrap: true, children: characters2.map((char2, index2) => /* @__PURE__ */ jsxRuntimeExports.jsx(Tag, { color: "blue", children: char2 }, index2)) })
+          ] })
+        ] }),
+        scene.characterStates && /* @__PURE__ */ jsxRuntimeExports.jsx(Collapse$1, { ghost: true, size: "small", children: /* @__PURE__ */ jsxRuntimeExports.jsx(Panel, { header: "人物状态与行动", children: /* @__PURE__ */ jsxRuntimeExports.jsx(Paragraph$3, { "pre-wrap": true, className: "text-xs bg-gray-50 p-2 rounded", children: scene.characterStates }) }, "1") })
+      ]
+    }
+  );
+};
+const ChapterView = ({ chapter, onSelectScene }) => {
+  return /* @__PURE__ */ jsxRuntimeExports.jsxs(Card, { className: "mb-4", children: [
+    /* @__PURE__ */ jsxRuntimeExports.jsxs(Title$4, { level: 4, children: [
+      "第 ",
+      chapter.chapterNumber,
+      " 章: ",
+      chapter.title
     ] }),
-    isOpen && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { children: chapter.scenes.map((scene) => /* @__PURE__ */ jsxRuntimeExports.jsx(SceneView, { scene, onUpdate: handleSceneUpdate, onSelect: onSelectScene, handleOpenRefineModal }, scene.id)) })
+    /* @__PURE__ */ jsxRuntimeExports.jsx(Paragraph$3, { type: "secondary", children: chapter.synopsis }),
+    /* @__PURE__ */ jsxRuntimeExports.jsx(Divider, {}),
+    /* @__PURE__ */ jsxRuntimeExports.jsx("div", { children: chapter.scenes.map((scene) => /* @__PURE__ */ jsxRuntimeExports.jsx(SceneView, { scene, onSelect: onSelectScene }, scene.id)) })
   ] });
 };
-const OutlineTreeView = ({ outline, onUpdate, onSelectScene, handleOpenRefineModal }) => {
+const OutlineTreeView = ({ outline, onSelectScene }) => {
   if (!outline) return null;
-  const handleChapterUpdate = (updatedChapter) => {
-    if (!onUpdate) return;
-    const updatedChapters = outline.chapters.map((c) => c.id === updatedChapter.id ? updatedChapter : c);
-    onUpdate({ ...outline, chapters: updatedChapters });
-  };
   return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-    /* @__PURE__ */ jsxRuntimeExports.jsx("h2", { className: "text-xl font-bold mb-4", children: outline.title }),
-    /* @__PURE__ */ jsxRuntimeExports.jsxs("p", { className: "mb-2", children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsx("strong", { children: "视角:" }),
-      " ",
+    /* @__PURE__ */ jsxRuntimeExports.jsx(Title$4, { level: 2, className: "text-center mb-2", children: outline.title }),
+    /* @__PURE__ */ jsxRuntimeExports.jsxs(Text$1, { type: "secondary", className: "block text-center mb-6", children: [
+      "叙事视角: ",
       outline.pointOfView
     ] }),
-    /* @__PURE__ */ jsxRuntimeExports.jsx("div", { children: outline.chapters.map((chapter) => /* @__PURE__ */ jsxRuntimeExports.jsx(ChapterView, { chapter, onUpdate: handleChapterUpdate, onSelectScene, handleOpenRefineModal }, chapter.id)) })
+    /* @__PURE__ */ jsxRuntimeExports.jsx("div", { children: outline.chapters.map((chapter) => /* @__PURE__ */ jsxRuntimeExports.jsx(ChapterView, { chapter, onSelectScene }, chapter.id)) })
   ] });
 };
-const { Title: Title$3 } = Typography;
+const { Title: Title$3, Text } = Typography;
 const { Option: Option$3 } = Select;
 const OutlineDesign = ({
   storyCards,
   selectedStoryId,
   onStoryChange,
-  onGenerate,
   isLoading,
+  setIsLoading,
+  // Assuming this is passed from parent
   outline,
+  setOutline,
   error,
+  setError,
   outlines,
-  onSelectOutline
+  onSelectOutline,
+  fetchOutlines
 }) => {
   const [form] = Form2.useForm();
-  const handleFinish = (values) => {
-    onGenerate(values);
+  const [currentChapter, setCurrentChapter] = reactExports.useState(1);
+  const handleCreateEmptyOutline = async () => {
+    if (!selectedStoryId) {
+      setError("请先选择一个故事。");
+      return;
+    }
+    setIsLoading(true);
+    setError(null);
+    try {
+      const newOutline = await createEmptyOutlineForStory(selectedStoryId);
+      onSelectOutline(newOutline);
+      fetchOutlines(selectedStoryId);
+    } catch (err) {
+      if (err instanceof Error) {
+        setError(err.message);
+      } else {
+        setError("创建新大纲失败。");
+      }
+    } finally {
+      setIsLoading(false);
+    }
   };
-  return /* @__PURE__ */ jsxRuntimeExports.jsx(Spin, { spinning: isLoading, tip: "正在生成大纲...", size: "large", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", flexDirection: "column", gap: "24px" }, children: [
+  reactExports.useEffect(() => {
+    if (outline) {
+      setCurrentChapter(outline.chapters.length + 1);
+    } else {
+      setCurrentChapter(1);
+    }
+  }, [outline]);
+  const handleFinish = async (values) => {
+    if (!outline) {
+      setError("请先选择或创建一个大纲。");
+      return;
+    }
+    setIsLoading(true);
+    setError(null);
+    try {
+      const newChapter = await generateChapter(outline.id, {
+        ...values,
+        chapterNumber: currentChapter
+      });
+      setOutline({
+        ...outline,
+        chapters: [...outline.chapters, newChapter]
+      });
+      setCurrentChapter(currentChapter + 1);
+    } catch (err) {
+      if (err instanceof Error) {
+        setError(err.message);
+      } else {
+        setError("发生未知错误，生成章节失败。");
+      }
+    } finally {
+      setIsLoading(false);
+    }
+  };
+  return /* @__PURE__ */ jsxRuntimeExports.jsx(Spin, { spinning: isLoading, tip: `正在生成第 ${currentChapter} 章...`, size: "large", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", flexDirection: "column", gap: "24px" }, children: [
     /* @__PURE__ */ jsxRuntimeExports.jsxs(Card, { children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsx(Title$3, { level: 4, children: "生成设置" }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx(Title$3, { level: 4, children: "大纲设计" }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx(Form2.Item, { label: "选择故事", children: /* @__PURE__ */ jsxRuntimeExports.jsx(
+        Select,
+        {
+          value: selectedStoryId,
+          onChange: onStoryChange,
+          placeholder: "-- 请选择一个故事以查看或创建大纲 --",
+          showSearch: true,
+          filterOption: (input, option) => (option?.children).toLowerCase().includes(input.toLowerCase()),
+          children: storyCards.map((story) => /* @__PURE__ */ jsxRuntimeExports.jsx(Option$3, { value: story.id.toString(), children: story.title }, story.id))
+        }
+      ) }),
+      selectedStoryId && /* @__PURE__ */ jsxRuntimeExports.jsxs(Card, { children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx(Title$3, { level: 5, children: "历史大纲" }),
+        outlines.length > 0 ? /* @__PURE__ */ jsxRuntimeExports.jsx(
+          List,
+          {
+            itemLayout: "horizontal",
+            dataSource: outlines,
+            renderItem: (item) => /* @__PURE__ */ jsxRuntimeExports.jsx(
+              List.Item,
+              {
+                actions: [/* @__PURE__ */ jsxRuntimeExports.jsx(Button, { type: "link", onClick: () => onSelectOutline(item), children: "选择此大纲" })],
+                children: /* @__PURE__ */ jsxRuntimeExports.jsx(
+                  List.Item.Meta,
+                  {
+                    title: item.title || `大纲 #${item.id}`,
+                    description: `创建于: ${new Date(item.created_at).toLocaleString()}`
+                  }
+                )
+              }
+            )
+          }
+        ) : /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("p", { children: "暂无历史大纲。" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { type: "primary", onClick: handleCreateEmptyOutline, children: "创建新大纲" })
+        ] })
+      ] })
+    ] }),
+    outline && /* @__PURE__ */ jsxRuntimeExports.jsxs(Card, { children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsxs(Title$3, { level: 4, children: [
+        '为 "',
+        outline.title,
+        '" 生成新章节'
+      ] }),
+      /* @__PURE__ */ jsxRuntimeExports.jsxs(Text, { children: [
+        "当前正在生成: ",
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("b", { children: [
+          "第 ",
+          currentChapter,
+          " 章"
+        ] })
+      ] }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx(Divider, {}),
       /* @__PURE__ */ jsxRuntimeExports.jsxs(
         Form2,
         {
           form,
           layout: "vertical",
           onFinish: handleFinish,
-          initialValues: { numberOfChapters: 10, pointOfView: "第三人称" },
+          initialValues: { sectionsPerChapter: 5, wordsPerSection: 800 },
           children: [
             /* @__PURE__ */ jsxRuntimeExports.jsx(
               Form2.Item,
               {
-                label: "选择故事",
-                rules: [{ required: true, message: "请选择一个故事！" }],
-                children: /* @__PURE__ */ jsxRuntimeExports.jsx(
-                  Select,
-                  {
-                    value: selectedStoryId,
-                    onChange: onStoryChange,
-                    placeholder: "-- 请选择一个故事 --",
-                    showSearch: true,
-                    filterOption: (input, option) => (option?.children).toLowerCase().includes(input.toLowerCase()),
-                    children: storyCards.map((story) => /* @__PURE__ */ jsxRuntimeExports.jsx(Option$3, { value: story.id.toString(), children: story.title }, story.id))
-                  }
-                )
+                name: "sectionsPerChapter",
+                label: "本章节数",
+                rules: [{ required: true, message: "请输入本章包含的节数！" }],
+                children: /* @__PURE__ */ jsxRuntimeExports.jsx(TypedInputNumber, { min: 1, max: 20, style: { width: "100%" } })
               }
             ),
             /* @__PURE__ */ jsxRuntimeExports.jsx(
               Form2.Item,
               {
-                name: "numberOfChapters",
-                label: "章节数",
-                rules: [{ required: true, message: "请输入章节数！" }],
-                children: /* @__PURE__ */ jsxRuntimeExports.jsx(TypedInputNumber, { min: 1, max: 100, style: { width: "100%" } })
+                name: "wordsPerSection",
+                label: "每节大概字数",
+                rules: [{ required: true, message: "请输入每节的大概字数！" }],
+                children: /* @__PURE__ */ jsxRuntimeExports.jsx(TypedInputNumber, { min: 100, max: 5e3, step: 100, style: { width: "100%" } })
               }
             ),
-            /* @__PURE__ */ jsxRuntimeExports.jsx(
-              Form2.Item,
-              {
-                name: "pointOfView",
-                label: "视角",
-                rules: [{ required: true, message: "请选择一个视角！" }],
-                children: /* @__PURE__ */ jsxRuntimeExports.jsxs(Select, { children: [
-                  /* @__PURE__ */ jsxRuntimeExports.jsx(Option$3, { value: "第一人称", children: "第一人称" }),
-                  /* @__PURE__ */ jsxRuntimeExports.jsx(Option$3, { value: "第三人称", children: "第三人称" })
-                ] })
-              }
-            ),
-            /* @__PURE__ */ jsxRuntimeExports.jsx(Form2.Item, { children: /* @__PURE__ */ jsxRuntimeExports.jsx(
-              Button,
-              {
-                type: "primary",
-                htmlType: "submit",
-                disabled: !selectedStoryId,
-                style: { width: "100%" },
-                children: "生成大纲"
-              }
-            ) })
+            /* @__PURE__ */ jsxRuntimeExports.jsx(Form2.Item, { children: /* @__PURE__ */ jsxRuntimeExports.jsxs(Button, { type: "primary", htmlType: "submit", style: { width: "100%" }, children: [
+              "生成第 ",
+              currentChapter,
+              " 章"
+            ] }) })
           ]
         }
       )
     ] }),
-    error && /* @__PURE__ */ jsxRuntimeExports.jsx(
-      Alert,
-      {
-        message: "生成失败",
-        description: error,
-        type: "error",
-        showIcon: true
-      }
-    ),
-    selectedStoryId && !isLoading && /* @__PURE__ */ jsxRuntimeExports.jsxs(Card, { children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsx(Title$3, { level: 4, children: "历史大纲" }),
-      outlines.length > 0 ? /* @__PURE__ */ jsxRuntimeExports.jsx(
-        List,
-        {
-          itemLayout: "horizontal",
-          dataSource: outlines,
-          renderItem: (item) => /* @__PURE__ */ jsxRuntimeExports.jsx(
-            List.Item,
-            {
-              actions: [/* @__PURE__ */ jsxRuntimeExports.jsx(Button, { type: "link", onClick: () => onSelectOutline(item), children: "查看" })],
-              children: /* @__PURE__ */ jsxRuntimeExports.jsx(
-                List.Item.Meta,
-                {
-                  title: item.title || `大纲 #${item.id}`,
-                  description: `创建于: ${new Date(item.created_at).toLocaleString()}`
-                }
-              )
-            }
-          )
-        }
-      ) : /* @__PURE__ */ jsxRuntimeExports.jsx("p", { children: "暂无历史大纲，请先生成一个。" })
-    ] }),
+    error && /* @__PURE__ */ jsxRuntimeExports.jsx(Alert, { message: "操作失败", description: error, type: "error", showIcon: true }),
     outline && /* @__PURE__ */ jsxRuntimeExports.jsxs(Card, { children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsx(Title$3, { level: 4, children: outline.title || `大纲 #${outline.id}` }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx(Title$3, { level: 4, children: "当前大纲预览" }),
       /* @__PURE__ */ jsxRuntimeExports.jsx(OutlineTreeView, { outline })
     ] })
   ] }) });
@@ -54575,99 +55865,6 @@ const StoryConception = ({
     ] }) }) })
   ] });
 };
-const getAuthHeaders = () => {
-  const token2 = localStorage.getItem("token");
-  const headers = {
-    "Content-Type": "application/json"
-  };
-  if (token2) {
-    headers["Authorization"] = `Bearer ${token2}`;
-  }
-  return headers;
-};
-const handleResponse = async (response) => {
-  if (!response.ok) {
-    const errorData = await response.json().catch(() => ({ message: "An unknown error occurred." }));
-    console.error("API request failed:", response.status, errorData);
-    throw new Error(errorData.message || `Request failed with status ${response.status}`);
-  }
-  return response.json();
-};
-const fetchStoryList = () => {
-  return fetch("/api/v1/story-cards", { headers: getAuthHeaders() }).then((res) => handleResponse(res));
-};
-const fetchStoryDetails = async (storyId) => {
-  const storyCard = await fetch(`/api/v1/story-cards/${storyId}`, { headers: getAuthHeaders() }).then((res) => handleResponse(res));
-  const characterCards = await fetch(`/api/v1/story-cards/${storyId}/character-cards`, { headers: getAuthHeaders() }).then((res) => handleResponse(res));
-  return { storyCard, characterCards };
-};
-const createStoryConception = (values) => {
-  return fetch("/api/v1/conception", {
-    method: "POST",
-    headers: getAuthHeaders(),
-    body: JSON.stringify(values)
-  }).then((res) => handleResponse(res));
-};
-const updateStoryCard = (storyCard) => {
-  return fetch(`/api/v1/story-cards/${storyCard.id}`, {
-    method: "PUT",
-    headers: getAuthHeaders(),
-    body: JSON.stringify(storyCard)
-  }).then((res) => handleResponse(res));
-};
-const createCharacterCard = (storyId, characterData) => {
-  return fetch(`/api/v1/story-cards/${storyId}/characters`, {
-    method: "POST",
-    headers: getAuthHeaders(),
-    body: JSON.stringify(characterData)
-  }).then((res) => handleResponse(res));
-};
-const updateCharacterCard = (characterCard) => {
-  return fetch(`/api/v1/character-cards/${characterCard.id}`, {
-    method: "PUT",
-    headers: getAuthHeaders(),
-    body: JSON.stringify(characterCard)
-  }).then((res) => handleResponse(res));
-};
-const deleteCharacterCard = (characterId) => {
-  return fetch(`/api/v1/character-cards/${characterId}`, {
-    method: "DELETE",
-    headers: getAuthHeaders()
-  }).then((res) => handleResponse(res));
-};
-const fetchOutlinesForStory = (storyId) => {
-  return fetch(`/api/v1/story-cards/${storyId}/outlines`, { headers: getAuthHeaders() }).then((res) => handleResponse(res));
-};
-const generateOutline = (params) => {
-  return fetch("/api/v1/outlines", {
-    method: "POST",
-    headers: getAuthHeaders(),
-    body: JSON.stringify(params)
-  }).then((res) => handleResponse(res));
-};
-const fetchOutlineDetails = (outlineId) => {
-  return fetch(`/api/v1/outlines/${outlineId}`, { headers: getAuthHeaders() }).then((res) => handleResponse(res));
-};
-const updateOutline = (outline) => {
-  return fetch(`/api/v1/outlines/${outline.id}`, {
-    method: "PUT",
-    headers: getAuthHeaders(),
-    body: JSON.stringify(outline)
-  }).then((res) => handleResponse(res));
-};
-const deleteOutline = (outlineId) => {
-  return fetch(`/api/v1/outlines/${outlineId}`, {
-    method: "DELETE",
-    headers: getAuthHeaders()
-  }).then((res) => handleResponse(res));
-};
-const refineText = (endpoint, payload) => {
-  return fetch(endpoint, {
-    method: "POST",
-    headers: getAuthHeaders(),
-    body: JSON.stringify(payload)
-  }).then((res) => handleResponse(res));
-};
 const useStoryData = () => {
   const [storyList, setStoryList] = reactExports.useState([]);
   const [selectedStory, setSelectedStory] = reactExports.useState(null);
@@ -54806,6 +56003,7 @@ const useOutlineData = (storyId) => {
     }
   }, [storyId]);
   const generateOutline$1 = reactExports.useCallback(async (params) => {
+    console.warn("generateOutline is deprecated");
     if (!storyId) {
       setError("A story must be selected to generate an outline.");
       return;
@@ -54882,7 +56080,11 @@ const useOutlineData = (storyId) => {
     selectOutline,
     getOutlineForWriting,
     setOutlines,
-    setSelectedOutline
+    setSelectedOutline,
+    setIsLoading,
+    // Expose setIsLoading
+    setError
+    // Expose setError
   };
 };
 const useRefineModal = () => {
@@ -55264,16 +56466,17 @@ const Workbench = () => {
   const {
     outlines: outlinesForStory,
     selectedOutline,
-    generatedOutline,
     isLoading: isOutlineLoading,
     error: outlineError,
     loadOutlines,
-    generateOutline: generateOutline2,
     updateOutline: updateOutline2,
     deleteOutline: deleteOutline2,
     selectOutline,
     getOutlineForWriting,
-    setOutlines: setOutlinesForStory
+    setOutlines: setOutlinesForStory,
+    setSelectedOutline,
+    setIsLoading: setOutlineLoading,
+    setError: setOutlineError
   } = useOutlineData(selectedStoryForOutline);
   const {
     isModalVisible: isRefineModalVisible,
@@ -55331,9 +56534,6 @@ const Workbench = () => {
   };
   const handleSelectOutline = (outline) => {
     selectOutline(outline);
-  };
-  const handleGenerateOutline = async (params) => {
-    await generateOutline2(params);
   };
   const handleUpdateOutline = async () => {
     if (!editingOutline) return;
@@ -55499,12 +56699,15 @@ const Workbench = () => {
           storyCards: storyList,
           selectedStoryId: selectedStoryForOutline,
           onStoryChange: handleStoryChangeInOutlineTabs,
-          onGenerate: handleGenerateOutline,
           isLoading: isOutlineLoading,
-          outline: generatedOutline || selectedOutline,
+          setIsLoading: setOutlineLoading,
+          outline: selectedOutline,
+          setOutline: setSelectedOutline,
           error: outlineError,
+          setError: setOutlineError,
           outlines: outlinesForStory,
-          onSelectOutline: handleSelectOutline
+          onSelectOutline: handleSelectOutline,
+          fetchOutlines: loadOutlines
         }
       ) }) }, "outline-design"),
       /* @__PURE__ */ jsxRuntimeExports.jsx(TabPane, { tab: "大纲管理", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { padding: 24, background: "#fff", borderRadius: "8px" }, children: [

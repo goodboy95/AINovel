@@ -42,9 +42,10 @@ export const useOutlineData = (storyId: string | null) => {
 
     /**
      * Generates a new outline for the selected story.
-     * @param {{ numberOfChapters: number; pointOfView: string; }} params - The parameters for outline generation.
+     * @deprecated As of V2, this function is deprecated. Chapter-based generation is used instead.
      */
     const generateOutline = useCallback(async (params: { numberOfChapters: number; pointOfView: string; }) => {
+        console.warn("generateOutline is deprecated");
         if (!storyId) {
             setError('A story must be selected to generate an outline.');
             return;
@@ -145,5 +146,7 @@ export const useOutlineData = (storyId: string | null) => {
         getOutlineForWriting,
         setOutlines,
         setSelectedOutline,
+        setIsLoading, // Expose setIsLoading
+        setError, // Expose setError
     };
 };

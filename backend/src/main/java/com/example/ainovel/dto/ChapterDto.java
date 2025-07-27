@@ -2,6 +2,7 @@ package com.example.ainovel.dto;
 
 import lombok.Data;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Data Transfer Object for chapter data.
@@ -32,4 +33,9 @@ public class ChapterDto {
      * A list of scenes within this chapter.
      */
     private List<SceneDto> scenes;
+
+    /**
+     * User-defined settings for the chapter.
+     */
+    private Map<String, Object> settings;
 }

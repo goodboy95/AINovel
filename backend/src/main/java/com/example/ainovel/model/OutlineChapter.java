@@ -5,7 +5,11 @@ import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.ToString;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
+
 import java.util.List;
+import java.util.Map;
 
 /**
  * Represents a single chapter within a story outline.
@@ -46,7 +50,16 @@ public class OutlineChapter {
      * A synopsis of the events that occur in this chapter.
      */
     @Lob
+    @Column(columnDefinition = "TEXT")
     private String synopsis;
+
+   /**
+    * Stores user-defined settings for the chapter, like sections per chapter or words per section.
+    * Mapped to a JSON column in the database.
+    */
+   @JdbcTypeCode(SqlTypes.JSON)
+   @Column(columnDefinition = "json")
+   private Map<String, Object> settings;
 
     /**
      * The list of scenes within this chapter.

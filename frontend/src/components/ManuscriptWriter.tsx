@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { Card, Input, Button, message, Empty, Layout, Spin, Row, Col } from 'antd';
-import OutlineTreeView, { type RefineHandler } from './OutlineTreeView';
-import type { Outline, ManuscriptSection } from '../types';
+import OutlineTreeView from './OutlineTreeView';
+import type { Outline, ManuscriptSection, RefineHandler } from '../types';
 
 const { Content, Sider } = Layout;
 const { TextArea } = Input;

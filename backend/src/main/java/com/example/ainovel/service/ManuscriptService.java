@@ -81,7 +81,6 @@ public class ManuscriptService {
 
         StoryCard story = getStoryCardFromScene(scene);
         List<CharacterCard> characters = characterCardRepository.findByStoryCardId(story.getId());
-        String prompt = buildGenerationPrompt(scene, story, characters);
 
         String provider = settingsService.getProviderByUserId(userId);
         AiService aiService = aiServices.get(provider);
@@ -90,6 +89,11 @@ public class ManuscriptService {
         }
 
         String apiKey = settingsService.getDecryptedApiKeyByUserId(userId);
+
+        // New context summarization step
+        String contextSummary = summarizeContext(scene, aiService, apiKey);
+
+        String prompt = buildGenerationPrompt(scene, story, characters, contextSummary);
         String generatedContent = aiService.generate(prompt, apiKey);
 
         // Create a new, active section
@@ -119,27 +123,52 @@ public class ManuscriptService {
         return manuscriptSectionRepository.save(section);
     }
 
-    private String buildGenerationPrompt(OutlineScene scene, StoryCard story, List<CharacterCard> characters) {
-        String previousSectionContent = getPreviousSectionContent(scene);
-        String currentChapterPreviousContent = getCurrentChapterPreviousContent(scene);
-
+    private String buildGenerationPrompt(OutlineScene scene, StoryCard story, List<CharacterCard> characters, String contextSummary) {
         return String.format(
             "你是一位才华横溢的小说家。现在请你接续创作故事。\n\n" +
-            "**全局信息:**\n- 故事简介: %s\n- 叙事视角: %s\n\n" +
+            "**全局信息:**\n- 故事类型/基调: %s / %s\n- 故事简介: %s\n\n" +
             "**主要角色设定:**\n%s\n\n" +
-            "**本章梗概:**\n%s\n\n" +
-            "**本节梗概:**\n%s\n\n" +
-            "**上下文:**\n- 上一节内容: \"%s\"\n- 本章前面内容: \"%s\"\n\n" +
-            "请根据以上所有信息，创作本节的详细内容，字数在 %d 字左右。文笔要生动，符合故事基调和人物性格。请直接开始写正文，不要包含任何解释性文字。",
-            story.getSynopsis(),
-            scene.getOutlineChapter().getOutlineCard().getPointOfView(),
+            "**上下文摘要:**\n%s\n\n" +
+            "**本节大纲:**\n- 梗概: %s\n- 出场人物: %s\n- 人物状态与行动: %s\n\n" +
+            "请根据以上所有信息，创作本节的详细内容，字数在 %d 字左右。文笔要生动，符合故事基调和人物性格。请直接开始写正文。",
+            story.getGenre(), story.getTone(), story.getSynopsis(),
             characters.stream().map(c -> "- " + c.getName() + ": " + c.getSynopsis()).collect(Collectors.joining("\n")),
-            scene.getOutlineChapter().getSynopsis(),
+            contextSummary,
             scene.getSynopsis(),
-            previousSectionContent,
-            currentChapterPreviousContent,
+            scene.getPresentCharacters(),
+            scene.getCharacterStates(),
             scene.getExpectedWords()
         );
+    }
+
+    private String summarizeContext(OutlineScene currentScene, AiService aiService, String apiKey) {
+        String previousChapterContent = getPreviousChapterContent(currentScene);
+        String currentChapterPreviousSectionsContent = getCurrentChapterPreviousContent(currentScene);
+
+        String rawContext = previousChapterContent + "\n\n" + currentChapterPreviousSectionsContent;
+        if (rawContext.trim().isEmpty()) {
+            return "无";
+        }
+
+        // Limit context size to avoid excessive token usage for summarization
+        if (rawContext.length() > 4000) {
+            rawContext = rawContext.substring(rawContext.length() - 4000);
+        }
+
+        String prompt = String.format("请用一两句话概括以下小说内容，抓住核心冲突和情节进展。\n内容: \"%s\"", rawContext);
+        return aiService.generate(prompt, apiKey);
+    }
+
+    private String getPreviousChapterContent(OutlineScene currentScene) {
+        OutlineChapter currentChapter = currentScene.getOutlineChapter();
+        if (currentChapter.getChapterNumber() <= 1) {
+            return "";
+        }
+        return outlineService.getChaptersForOutline(currentChapter.getOutlineCard().getId()).stream()
+            .filter(ch -> ch.getChapterNumber() == currentChapter.getChapterNumber() - 1)
+            .findFirst()
+            .map(this::getAllContentForChapter)
+            .orElse("");
     }
 
     private String getPreviousSectionContent(OutlineScene currentScene) {
@@ -153,21 +182,30 @@ public class ManuscriptService {
     private String getCurrentChapterPreviousContent(OutlineScene currentScene) {
         List<OutlineScene> previousScenesInChapter = outlineSceneRepository
                 .findByOutlineChapterIdAndSceneNumberLessThanOrderBySceneNumberAsc(currentScene.getOutlineChapter().getId(), currentScene.getSceneNumber());
-        if (previousScenesInChapter.isEmpty()) {
-            return "无";
+        return getAllContentForScenes(previousScenesInChapter);
+    }
+
+    private String getAllContentForChapter(OutlineChapter chapter) {
+        return getAllContentForScenes(chapter.getScenes());
+    }
+
+    private String getAllContentForScenes(List<OutlineScene> scenes) {
+        if (scenes == null || scenes.isEmpty()) {
+            return "";
         }
-        List<Long> sceneIds = previousScenesInChapter.stream().map(OutlineScene::getId).collect(Collectors.toList());
+        List<Long> sceneIds = scenes.stream().map(OutlineScene::getId).collect(Collectors.toList());
         List<ManuscriptSection> sections = manuscriptSectionRepository.findByScene_IdIn(sceneIds);
         Map<Long, String> sceneContentMap = sections.stream()
-                .filter(s -> s.getIsActive() != null && s.getIsActive())
-                .collect(Collectors.toMap(
-                        ManuscriptSection::getSceneId,
-                        ManuscriptSection::getContent,
-                        (existingContent, newContent) -> newContent
-                ));
-        return previousScenesInChapter.stream()
-                .map(scene -> sceneContentMap.getOrDefault(scene.getId(), ""))
-                .collect(Collectors.joining("\n\n"));
+            .filter(s -> s.getIsActive() != null && s.getIsActive())
+            .collect(Collectors.toMap(
+                ManuscriptSection::getSceneId,
+                ManuscriptSection::getContent,
+                (existingContent, newContent) -> newContent
+            ));
+        return scenes.stream()
+            .map(scene -> sceneContentMap.getOrDefault(scene.getId(), ""))
+            .filter(content -> content != null && !content.isEmpty())
+            .collect(Collectors.joining("\n\n"));
     }
 
     private OutlineScene findSceneById(Long sceneId) {

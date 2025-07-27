@@ -1,4 +1,4 @@
-import type { StoryCard, CharacterCard, Outline, ConceptionFormValues } from '../types';
+import type { StoryCard, CharacterCard, Outline, ConceptionFormValues, Chapter } from '../types';
 
 /**
  * Creates authorization headers for API requests.
@@ -129,16 +129,44 @@ export const fetchOutlinesForStory = (storyId: string): Promise<Outline[]> => {
 };
 
 /**
+ * Creates a new, empty outline for a specific story.
+ * @param {string} storyId - The ID of the story.
+ * @returns {Promise<Outline>} A promise that resolves to the newly created outline.
+ */
+export const createEmptyOutlineForStory = (storyId: string): Promise<Outline> => {
+    return fetch(`/api/v1/story-cards/${storyId}/outlines`, {
+        method: 'POST',
+        headers: getAuthHeaders(),
+    }).then(res => handleResponse<Outline>(res));
+};
+
+/**
+ * @deprecated As of V2, this function is deprecated. Use generateChapter instead.
  * Generates a new outline for a story.
  * @param {{ storyCardId: string; numberOfChapters: number; pointOfView: string; }} params - The parameters for outline generation.
  * @returns {Promise<Outline>} A promise that resolves to the newly generated outline.
  */
 export const generateOutline = (params: { storyCardId: string; numberOfChapters: number; pointOfView: string; }): Promise<Outline> => {
+    console.warn("generateOutline is deprecated and will be removed in a future version.");
     return fetch('/api/v1/outlines', {
         method: 'POST',
         headers: getAuthHeaders(),
         body: JSON.stringify(params),
     }).then(res => handleResponse<Outline>(res));
+};
+
+/**
+ * Generates a single chapter for a given outline.
+ * @param {number} outlineId - The ID of the outline.
+ * @param {{ chapterNumber: number; sectionsPerChapter: number; wordsPerSection: number; }} params - The parameters for chapter generation.
+ * @returns {Promise<Chapter>} A promise that resolves to the newly generated chapter.
+ */
+export const generateChapter = (outlineId: number, params: { chapterNumber: number; sectionsPerChapter: number; wordsPerSection: number; }): Promise<Chapter> => {
+    return fetch(`/api/v1/outlines/${outlineId}/chapters`, {
+        method: 'POST',
+        headers: getAuthHeaders(),
+        body: JSON.stringify(params),
+    }).then(res => handleResponse<Chapter>(res));
 };
 
 /**

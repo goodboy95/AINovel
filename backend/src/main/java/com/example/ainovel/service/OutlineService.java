@@ -46,25 +46,36 @@ public class OutlineService {
      * @return A DTO representing the newly created outline.
      */
     @Transactional
+    @Deprecated
     public OutlineDto createOutline(OutlineRequest outlineRequest, Long userId) {
-        User user = findUserById(userId);
-        StoryCard storyCard = findStoryCardById(outlineRequest.getStoryCardId());
+        throw new UnsupportedOperationException("This method is deprecated in V2.");
+    }
+
+    /**
+     * Creates a new, empty outline for a given story.
+     *
+     * @param storyCardId The ID of the story card.
+     * @param userId      The ID of the user creating the outline.
+     * @return A DTO representing the newly created empty outline.
+     */
+    @Transactional
+    public OutlineDto createEmptyOutline(Long storyCardId, Long userId) {
+        StoryCard storyCard = findStoryCardById(storyCardId);
         validateStoryCardAccess(storyCard, userId);
 
-        AiService aiService = getAiServiceForUser(user);
-        String apiKey = getDecryptedApiKeyForUser(user);
+        User user = findUserById(userId);
 
-        String prompt = buildOutlinePrompt(storyCard, outlineRequest.getNumberOfChapters(), outlineRequest.getPointOfView());
-        String jsonResponse = aiService.generate(prompt, apiKey);
-        logger.info("AI Response JSON for outline generation: {}", jsonResponse);
+        // Get the count of existing outlines for this story to create a default title
+        long existingOutlineCount = outlineCardRepository.countByStoryCardId(storyCardId);
 
-        try {
-            OutlineCard outlineCard = parseAndSaveOutline(jsonResponse, user, storyCard, outlineRequest.getPointOfView());
-            return convertToDto(outlineCard);
-        } catch (JsonProcessingException e) {
-            logger.error("Failed to parse AI response for outline: {}", jsonResponse, e);
-            throw new RuntimeException("Failed to parse AI response", e);
-        }
+        OutlineCard newOutline = new OutlineCard();
+        newOutline.setTitle("新大纲 " + (existingOutlineCount + 1)); // e.g., "新大纲 1"
+        newOutline.setStoryCard(storyCard);
+        newOutline.setUser(user);
+        newOutline.setChapters(new ArrayList<>()); // Initialize with an empty list
+
+        OutlineCard savedOutline = outlineCardRepository.save(newOutline);
+        return convertToDto(savedOutline);
     }
 
     /**
@@ -80,60 +91,6 @@ public class OutlineService {
         return convertToDto(outlineCard);
     }
 
-    private String buildOutlinePrompt(StoryCard storyCard, int numberOfChapters, String pointOfView) {
-        String characterProfiles = storyCard.getCharacters().stream()
-                .map(c -> String.format("- %s: %s", c.getName(), c.getSynopsis()))
-                .collect(Collectors.joining("\n"));
-
-        return String.format(
-            "你是一个专业的小说大纲设计师。请根据以下信息，设计一个详细的故事大纲。\n" +
-            "故事信息:\n- 标题: %s\n- 走向: %s\n" +
-            "主要角色:\n%s\n" +
-            "要求:\n- 总章节数: %d\n- 叙事视角: %s\n\n" +
-            "请以JSON格式返回。根对象包含一个 \"chapters\" 键，其值为一个数组。\n" +
-            "每个章节对象应包含 \"chapterNumber\", \"title\", \"synopsis\" 和一个 \"scenes\" 数组。\n" +
-            "每个场景对象应包含 \"sceneNumber\", \"synopsis\", \"expectedWords\"。\n" +
-            "请确保章节和场景的梗概连贯且符合故事走向和角色设定。",
-            storyCard.getTitle(), storyCard.getStoryArc(), characterProfiles, numberOfChapters, pointOfView
-        );
-    }
-
-    private OutlineCard parseAndSaveOutline(String jsonResponse, User user, StoryCard storyCard, String pointOfView) throws JsonProcessingException {
-        String cleanedJsonResponse = cleanJson(jsonResponse);
-        JsonNode rootNode = objectMapper.readTree(cleanedJsonResponse);
-        JsonNode chaptersNode = rootNode.path("chapters");
-
-        OutlineCard outlineCard = new OutlineCard();
-        outlineCard.setUser(user);
-        outlineCard.setStoryCard(storyCard);
-        outlineCard.setTitle(storyCard.getTitle() + " - 大纲");
-        outlineCard.setPointOfView(pointOfView);
-
-        List<OutlineChapter> chapters = new ArrayList<>();
-        for (JsonNode chapterNode : chaptersNode) {
-            OutlineChapter chapter = new OutlineChapter();
-            chapter.setOutlineCard(outlineCard);
-            chapter.setChapterNumber(chapterNode.path("chapterNumber").asInt());
-            chapter.setTitle(chapterNode.path("title").asText());
-            chapter.setSynopsis(chapterNode.path("synopsis").asText());
-
-            List<OutlineScene> scenes = new ArrayList<>();
-            JsonNode scenesNode = chapterNode.path("scenes");
-            for (JsonNode sceneNode : scenesNode) {
-                OutlineScene scene = new OutlineScene();
-                scene.setOutlineChapter(chapter);
-                scene.setSceneNumber(sceneNode.path("sceneNumber").asInt());
-                scene.setSynopsis(sceneNode.path("synopsis").asText());
-                scene.setExpectedWords(sceneNode.path("expectedWords").asInt(1000)); // Default value
-                scenes.add(scene);
-            }
-            chapter.setScenes(scenes);
-            chapters.add(chapter);
-        }
-        outlineCard.setChapters(chapters);
-
-        return outlineCardRepository.save(outlineCard);
-    }
 
     private String cleanJson(String rawJson) {
         // Find the first '{' and the last '}' to extract the JSON object.
@@ -164,6 +121,7 @@ public class OutlineService {
         dto.setChapterNumber(chapter.getChapterNumber());
         dto.setTitle(chapter.getTitle());
         dto.setSynopsis(chapter.getSynopsis());
+        dto.setSettings(chapter.getSettings()); // Add settings
         dto.setScenes(chapter.getScenes().stream()
                 .map(this::convertSceneToDto)
                 .collect(Collectors.toList()));
@@ -176,6 +134,8 @@ public class OutlineService {
         dto.setSceneNumber(scene.getSceneNumber());
         dto.setSynopsis(scene.getSynopsis());
         dto.setExpectedWords(scene.getExpectedWords());
+        dto.setPresentCharacters(scene.getPresentCharacters()); // Add present characters
+        dto.setCharacterStates(scene.getCharacterStates());   // Add character states
         return dto;
     }
 
@@ -283,6 +243,91 @@ public class OutlineService {
         String refinedText = aiService.refineText(request, apiKey);
         return new RefineResponse(refinedText);
     }
+
+    @Transactional
+    public ChapterDto generateChapterOutline(Long outlineId, GenerateChapterRequest request, User user) {
+        OutlineCard outlineCard = findOutlineCardById(outlineId);
+        validateOutlineAccess(outlineCard, user.getId());
+
+        StoryCard storyCard = outlineCard.getStoryCard();
+        AiService aiService = getAiServiceForUser(user);
+        String apiKey = getDecryptedApiKeyForUser(user);
+
+        String prompt = buildChapterPrompt(storyCard, outlineCard, request);
+        String jsonResponse = aiService.generate(prompt, apiKey);
+        logger.info("AI Response JSON for chapter generation: {}", jsonResponse);
+
+        try {
+            OutlineChapter chapter = parseAndSaveChapter(jsonResponse, outlineCard, request);
+            return convertChapterToDto(chapter);
+        } catch (JsonProcessingException e) {
+            logger.error("Failed to parse AI response for chapter: {}", jsonResponse, e);
+            throw new RuntimeException("Failed to parse AI response for chapter", e);
+        }
+    }
+
+    private String buildChapterPrompt(StoryCard storyCard, OutlineCard outlineCard, GenerateChapterRequest request) {
+        String characterProfiles = storyCard.getCharacters().stream()
+                .map(c -> String.format("- %s: %s", c.getName(), c.getSynopsis()))
+                .collect(Collectors.joining("\n"));
+
+        String previousChapterSynopsis = "";
+        if (request.getChapterNumber() > 1) {
+            previousChapterSynopsis = outlineChapterRepository
+                .findByOutlineCardIdAndChapterNumber(outlineCard.getId(), request.getChapterNumber() - 1)
+                .map(OutlineChapter::getSynopsis)
+                .orElse("");
+        }
+
+        return String.format(
+            "你是一个专业的小说大纲设计师。请根据以下信息，为故事的第 %d 章设计详细大纲。\n\n" +
+            "**全局信息:**\n- 故事简介: %s\n- 故事走向: %s\n\n" +
+            "**主要角色:**\n%s\n\n" +
+            "**上下文 (上一章内容):**\n%s\n\n" +
+            "**本章要求:**\n- 章节序号: %d\n- 包含节数: %d\n- 每节字数: 约 %d 字\n\n" +
+            "请以JSON格式返回。根对象应包含 \"title\", \"synopsis\" 和一个 \"scenes\" 数组。\n" +
+            "每个 scene 对象必须包含:\n" +
+            "- \"sceneNumber\": 序号\n" +
+            "- \"synopsis\": 更充分的故事梗概\n" +
+            "- \"presentCharacters\": 出场人物列表 (字符串)\n" +
+            "- \"characterStates\": 详细描述每个人物在本节的状态、想法和行动",
+            request.getChapterNumber(), storyCard.getSynopsis(), storyCard.getStoryArc(),
+            characterProfiles, previousChapterSynopsis, request.getChapterNumber(),
+            request.getSectionsPerChapter(), request.getWordsPerSection()
+        );
+    }
+
+    private OutlineChapter parseAndSaveChapter(String jsonResponse, OutlineCard outlineCard, GenerateChapterRequest request) throws JsonProcessingException {
+        String cleanedJsonResponse = cleanJson(jsonResponse);
+        JsonNode chapterNode = objectMapper.readTree(cleanedJsonResponse);
+
+        OutlineChapter chapter = new OutlineChapter();
+        chapter.setOutlineCard(outlineCard);
+        chapter.setChapterNumber(request.getChapterNumber());
+        chapter.setTitle(chapterNode.path("title").asText());
+        chapter.setSynopsis(chapterNode.path("synopsis").asText());
+        chapter.setSettings(java.util.Map.of(
+            "sectionsPerChapter", request.getSectionsPerChapter(),
+            "wordsPerSection", request.getWordsPerSection()
+        ));
+
+        List<OutlineScene> scenes = new ArrayList<>();
+        JsonNode scenesNode = chapterNode.path("scenes");
+        for (JsonNode sceneNode : scenesNode) {
+            OutlineScene scene = new OutlineScene();
+            scene.setOutlineChapter(chapter);
+            scene.setSceneNumber(sceneNode.path("sceneNumber").asInt());
+            scene.setSynopsis(sceneNode.path("synopsis").asText());
+            scene.setExpectedWords(sceneNode.path("expectedWords").asInt(request.getWordsPerSection()));
+            scene.setPresentCharacters(sceneNode.path("presentCharacters").asText());
+            scene.setCharacterStates(sceneNode.path("characterStates").asText());
+            scenes.add(scene);
+        }
+        chapter.setScenes(scenes);
+
+        return outlineChapterRepository.save(chapter);
+    }
+
 
     // Helper methods for validation and data retrieval
 

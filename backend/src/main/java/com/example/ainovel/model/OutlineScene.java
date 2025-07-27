@@ -45,4 +45,18 @@ public class OutlineScene {
      */
     @Column(name = "expected_words")
     private Integer expectedWords;
+
+    /**
+     * A list of characters present in this scene.
+     */
+    @Lob
+    @Column(name = "present_characters")
+    private String presentCharacters;
+
+    /**
+     * Detailed description of the characters' states, thoughts, and actions in this scene.
+     */
+    @Lob
+    @Column(name = "character_states")
+    private String characterStates;
 }

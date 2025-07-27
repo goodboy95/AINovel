@@ -72,16 +72,17 @@ const Workbench = () => {
     const {
         outlines: outlinesForStory,
         selectedOutline,
-        generatedOutline,
         isLoading: isOutlineLoading,
         error: outlineError,
         loadOutlines,
-        generateOutline,
         updateOutline,
         deleteOutline,
         selectOutline,
         getOutlineForWriting,
         setOutlines: setOutlinesForStory,
+        setSelectedOutline,
+        setIsLoading: setOutlineLoading,
+        setError: setOutlineError,
     } = useOutlineData(selectedStoryForOutline);
     
     const {
@@ -152,9 +153,10 @@ const Workbench = () => {
         selectOutline(outline);
     };
 
-    const handleGenerateOutline = async (params: { numberOfChapters: number; pointOfView: string; }) => {
-        await generateOutline(params);
-    };
+    // This handler is now obsolete with the new per-chapter generation flow.
+    // const handleGenerateOutline = async (params: { numberOfChapters: number; pointOfView: string; }) => {
+    //     await generateOutline(params);
+    // };
 
 
     const handleUpdateOutline = async () => {
@@ -352,12 +354,15 @@ const Workbench = () => {
                                 storyCards={storyList}
                                 selectedStoryId={selectedStoryForOutline}
                                 onStoryChange={handleStoryChangeInOutlineTabs}
-                                onGenerate={handleGenerateOutline}
                                 isLoading={isOutlineLoading}
-                                outline={generatedOutline || selectedOutline}
+                                setIsLoading={setOutlineLoading}
+                                outline={selectedOutline}
+                                setOutline={setSelectedOutline}
                                 error={outlineError}
+                                setError={setOutlineError}
                                 outlines={outlinesForStory}
                                 onSelectOutline={handleSelectOutline}
+                                fetchOutlines={loadOutlines}
                             />
                         </div>
                     </TabPane>

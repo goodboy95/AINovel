@@ -16,4 +16,11 @@ public interface OutlineCardRepository extends JpaRepository<OutlineCard, Long> 
      * @return A list of outlines.
      */
     List<OutlineCard> findByStoryCardId(Long storyCardId);
+
+    /**
+     * Counts all outlines associated with a specific story card.
+     * @param storyCardId The ID of the story card.
+     * @return The number of outlines.
+     */
+    long countByStoryCardId(Long storyCardId);
 }

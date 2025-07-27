@@ -3,7 +3,9 @@ export interface Scene {
     sceneNumber: number;
     synopsis: string;
     expectedWords: number;
-    chapterSynopsis?: string; // Add optional chapter synopsis
+    presentCharacters?: string; // 新增
+    characterStates?: string;   // 新增
+    content?: string; // 正文内容
 }
 
 export interface Chapter {
@@ -12,6 +14,10 @@ export interface Chapter {
     title: string;
     synopsis: string;
     scenes: Scene[];
+    settings?: { // 新增
+        sectionsPerChapter?: number;
+        wordsPerSection?: number;
+    };
 }
 
 export interface Outline {
@@ -62,3 +68,5 @@ export interface RefineContext {
     fieldName: string;
     onSuccess: (newText: string) => void;
 }
+
+export type RefineHandler = (text: string, context: RefineContext) => void;

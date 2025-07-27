@@ -1,7 +1,8 @@
 package com.example.ainovel.controller;
 
+import com.example.ainovel.dto.ChapterDto;
+import com.example.ainovel.dto.GenerateChapterRequest;
 import com.example.ainovel.dto.OutlineDto;
-import com.example.ainovel.dto.OutlineRequest;
 import com.example.ainovel.dto.RefineRequest;
 import com.example.ainovel.dto.RefineResponse;
 import com.example.ainovel.model.User;
@@ -36,10 +37,30 @@ public class OutlineController {
      * @param user The authenticated user performing the action.
      * @return A ResponseEntity containing the created OutlineDto.
      */
+    /**
+     * [DEPRECATED in V2] This endpoint is no longer used for generating full outlines.
+     * Use POST /outlines/{outlineId}/chapters instead.
+     */
+    @Deprecated
     @PostMapping("/outlines")
-    public ResponseEntity<OutlineDto> createOutline(@RequestBody OutlineRequest outlineRequest, @AuthenticationPrincipal User user) {
-        OutlineDto outline = outlineService.createOutline(outlineRequest, user.getId());
-        return ResponseEntity.ok(outline);
+    public ResponseEntity<OutlineDto> createOutline() {
+        return ResponseEntity.status(410).build(); // 410 Gone
+    }
+
+    /**
+     * Generates a single chapter for a given outline.
+     * @param outlineId The ID of the outline to add the chapter to.
+     * @param request The request object containing chapter generation parameters.
+     * @param user The authenticated user.
+     * @return A ResponseEntity containing the newly created ChapterDto.
+     */
+    @PostMapping("/outlines/{outlineId}/chapters")
+    public ResponseEntity<ChapterDto> generateChapterForOutline(
+            @PathVariable Long outlineId,
+            @RequestBody GenerateChapterRequest request,
+            @AuthenticationPrincipal User user) {
+        ChapterDto newChapter = outlineService.generateChapterOutline(outlineId, request, user);
+        return ResponseEntity.ok(newChapter);
     }
 
     /**
@@ -64,6 +85,20 @@ public class OutlineController {
     public ResponseEntity<List<OutlineDto>> getOutlinesByStoryCardId(@PathVariable Long storyCardId, @AuthenticationPrincipal User user) {
         List<OutlineDto> outlines = outlineService.getOutlinesByStoryCardId(storyCardId, user.getId());
         return ResponseEntity.ok(outlines);
+    }
+
+    /**
+     * Creates a new, empty outline for a specific story card.
+     * @param storyCardId The ID of the story card for which to create the outline.
+     * @param user The authenticated user performing the action.
+     * @return A ResponseEntity containing the newly created OutlineDto.
+     */
+    @PostMapping("/story-cards/{storyCardId}/outlines")
+    public ResponseEntity<OutlineDto> createEmptyOutlineForStory(
+            @PathVariable Long storyCardId,
+            @AuthenticationPrincipal User user) {
+        OutlineDto newOutline = outlineService.createEmptyOutline(storyCardId, user.getId());
+        return ResponseEntity.ok(newOutline);
     }
 
     /**
