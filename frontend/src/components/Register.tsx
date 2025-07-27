@@ -27,11 +27,12 @@ const Register = () => {
                 message.success('注册成功！现在您可以登录了。');
                 navigate('/login');
             } else {
+                console.error('Registration failed: Response not OK', data);
                 message.error(data.message || '注册失败。');
             }
         } catch (error) {
-            console.error('注册错误:', error);
-            message.error('发生了一个错误。');
+            console.error('Failed to register:', error);
+            message.error('注册时发生错误。');
         }
     };
 

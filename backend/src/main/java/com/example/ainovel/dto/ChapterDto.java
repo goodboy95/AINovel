@@ -1,52 +1,35 @@
 package com.example.ainovel.dto;
 
+import lombok.Data;
 import java.util.List;
 
+/**
+ * Data Transfer Object for chapter data.
+ */
+@Data
 public class ChapterDto {
+    /**
+     * The unique identifier for the chapter.
+     */
     private Long id;
+
+    /**
+     * The sequential number of the chapter.
+     */
     private Integer chapterNumber;
+
+    /**
+     * The title of the chapter.
+     */
     private String title;
+
+    /**
+     * A synopsis of the chapter.
+     */
     private String synopsis;
+
+    /**
+     * A list of scenes within this chapter.
+     */
     private List<SceneDto> scenes;
-
-    // Getters and Setters
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public Integer getChapterNumber() {
-        return chapterNumber;
-    }
-
-    public void setChapterNumber(Integer chapterNumber) {
-        this.chapterNumber = chapterNumber;
-    }
-
-    public String getTitle() {
-        return title;
-    }
-
-    public void setTitle(String title) {
-        this.title = title;
-    }
-
-    public String getSynopsis() {
-        return synopsis;
-    }
-
-    public void setSynopsis(String synopsis) {
-        this.synopsis = synopsis;
-    }
-
-    public List<SceneDto> getScenes() {
-        return scenes;
-    }
-
-    public void setScenes(List<SceneDto> scenes) {
-        this.scenes = scenes;
-    }
 }

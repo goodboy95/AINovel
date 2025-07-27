@@ -1,5 +1,5 @@
 import React from 'react';
-import { Form, Select, InputNumber, Button, Spin, Alert, Card, Typography } from 'antd';
+import { Form, Select, InputNumber, Button, Spin, Alert, Card, Typography, List } from 'antd';
 import type { Outline, StoryCard } from '../types';
 import OutlineTreeView from './OutlineTreeView';
 
@@ -19,6 +19,8 @@ interface OutlineDesignProps {
     isLoading: boolean;
     outline: Outline | null;
     error: string | null;
+    outlines: Outline[];
+    onSelectOutline: (outline: Outline) => void;
 }
 
 const OutlineDesign: React.FC<OutlineDesignProps> = ({
@@ -29,6 +31,8 @@ const OutlineDesign: React.FC<OutlineDesignProps> = ({
     isLoading,
     outline,
     error,
+    outlines,
+    onSelectOutline,
 }) => {
     const [form] = Form.useForm();
 
@@ -107,9 +111,33 @@ const OutlineDesign: React.FC<OutlineDesignProps> = ({
                     />
                 )}
 
+                {selectedStoryId && !isLoading && (
+                    <Card>
+                        <Title level={4}>历史大纲</Title>
+                        {outlines.length > 0 ? (
+                            <List
+                                itemLayout="horizontal"
+                                dataSource={outlines}
+                                renderItem={item => (
+                                    <List.Item
+                                        actions={[<Button type="link" onClick={() => onSelectOutline(item)}>查看</Button>]}
+                                    >
+                                        <List.Item.Meta
+                                            title={item.title || `大纲 #${item.id}`}
+                                            description={`创建于: ${new Date(item.created_at).toLocaleString()}`}
+                                        />
+                                    </List.Item>
+                                )}
+                            />
+                        ) : (
+                            <p>暂无历史大纲，请先生成一个。</p>
+                        )}
+                    </Card>
+                )}
+
                 {outline && (
                     <Card>
-                        <Title level={4}>生成的大纲</Title>
+                        <Title level={4}>{outline.title || `大纲 #${outline.id}`}</Title>
                         <OutlineTreeView outline={outline} />
                     </Card>
                 )}

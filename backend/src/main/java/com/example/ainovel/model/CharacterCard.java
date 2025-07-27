@@ -2,127 +2,80 @@ package com.example.ainovel.model;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
+import lombok.Data;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 import java.time.LocalDateTime;
 
+/**
+ * Represents a character card, containing detailed information about a character in a story.
+ */
+@Data
 @Entity
 @Table(name = "character_cards")
 public class CharacterCard {
 
+    /**
+     * The unique identifier for the character card.
+     */
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne
+    /**
+     * The user who owns this character card.
+     */
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
-    @ManyToOne
+    /**
+     * The story card this character belongs to.
+     */
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "story_card_id", nullable = false)
     @JsonBackReference
     private StoryCard storyCard;
 
+    /**
+     * The name of the character.
+     */
     @Column(nullable = false, length = 100)
     private String name;
 
+    /**
+     * A brief synopsis of the character (e.g., age, gender, appearance, personality).
+     */
     @Column(columnDefinition = "TEXT")
     private String synopsis;
 
+    /**
+     * Detailed background story of the character.
+     */
     @Column(columnDefinition = "TEXT")
     private String details;
 
+    /**
+     * The character's relationships with other characters.
+     */
     @Column(columnDefinition = "TEXT")
     private String relationships;
 
+    /**
+     * URL for the character's avatar image.
+     */
     @Column(length = 255)
     private String avatarUrl;
 
+    /**
+     * Timestamp of when the character card was created.
+     */
     @CreationTimestamp
     private LocalDateTime createdAt;
 
+    /**
+     * Timestamp of the last update to the character card.
+     */
     @UpdateTimestamp
     private LocalDateTime updatedAt;
-
-    // Getters and Setters
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public User getUser() {
-        return user;
-    }
-
-    public void setUser(User user) {
-        this.user = user;
-    }
-
-    public StoryCard getStoryCard() {
-        return storyCard;
-    }
-
-    public void setStoryCard(StoryCard storyCard) {
-        this.storyCard = storyCard;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public String getSynopsis() {
-        return synopsis;
-    }
-
-    public void setSynopsis(String synopsis) {
-        this.synopsis = synopsis;
-    }
-
-    public String getDetails() {
-        return details;
-    }
-
-    public void setDetails(String details) {
-        this.details = details;
-    }
-
-    public String getRelationships() {
-        return relationships;
-    }
-
-    public void setRelationships(String relationships) {
-        this.relationships = relationships;
-    }
-
-    public String getAvatarUrl() {
-        return avatarUrl;
-    }
-
-    public void setAvatarUrl(String avatarUrl) {
-        this.avatarUrl = avatarUrl;
-    }
-
-    public LocalDateTime getCreatedAt() {
-        return createdAt;
-    }
-
-    public void setCreatedAt(LocalDateTime createdAt) {
-        this.createdAt = createdAt;
-    }
-
-    public LocalDateTime getUpdatedAt() {
-        return updatedAt;
-    }
-
-    public void setUpdatedAt(LocalDateTime updatedAt) {
-        this.updatedAt = updatedAt;
-    }
 }

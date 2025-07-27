@@ -3,6 +3,7 @@ export interface Scene {
     sceneNumber: number;
     synopsis: string;
     expectedWords: number;
+    chapterSynopsis?: string; // Add optional chapter synopsis
 }
 
 export interface Chapter {
@@ -18,7 +19,9 @@ export interface Outline {
     title: string;
     pointOfView: string;
     chapters: Chapter[];
+    storySynopsis?: string; // Add optional story synopsis
     storyCard?: StoryCard; // Optional because it might not always be loaded
+    created_at: string; // Add created_at for historical view
 }
 
 export interface StoryCard {
@@ -30,6 +33,14 @@ export interface StoryCard {
     tone: string;
 }
 
+export interface CharacterCard {
+    id: number;
+    name: string;
+    synopsis: string;
+    details: string;
+    relationships: string;
+}
+
 export interface ManuscriptSection {
     id: number;
     content: string;
@@ -38,4 +49,16 @@ export interface ManuscriptSection {
     scene: {
         id: number;
     };
+}
+
+export interface ConceptionFormValues {
+    idea: string;
+    genre: string;
+    tone: string;
+}
+
+export interface RefineContext {
+    endpoint: string;
+    fieldName: string;
+    onSuccess: (newText: string) => void;
 }

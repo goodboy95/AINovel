@@ -2,65 +2,86 @@ package com.example.ainovel.service;
 
 import com.example.ainovel.dto.ConceptionRequest;
 import com.example.ainovel.dto.ConceptionResponse;
+import com.example.ainovel.dto.RefineRequest;
+import com.example.ainovel.model.CharacterCard;
+import com.example.ainovel.model.StoryCard;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * Service implementation for interacting with the Anthropic Claude API.
+ */
 @Service("claude")
-public class ClaudeService implements AiService {
+public class ClaudeService extends AbstractAiService {
 
+    private static final Logger log = LoggerFactory.getLogger(ClaudeService.class);
     private final RestTemplate restTemplate;
-    private final ObjectMapper objectMapper;
 
     @Value("${claude.api.url:https://api.anthropic.com/v1}")
     private String claudeApiUrl;
 
+    @Value("${claude.model.default:claude-3-opus-20240229}")
+    private String defaultModel;
+
+    @Value("${claude.model.validation:claude-3-haiku-20240307}")
+    private String validationModel;
+
+    // DTOs for Claude API Response
+    private static class ClaudeResponse {
+        public List<ContentBlock> content;
+    }
+
+    private static class ContentBlock {
+        public String type;
+        public String text;
+    }
+
+    // DTO for the combined conception response from Claude
+    private static class ClaudeConceptionResponse {
+        @JsonProperty("storyCard")
+        public StoryCard storyCard;
+        @JsonProperty("characterCards")
+        public List<CharacterCard> characterCards;
+    }
     public ClaudeService(RestTemplate restTemplate, ObjectMapper objectMapper) {
+        super(objectMapper);
         this.restTemplate = restTemplate;
-        this.objectMapper = objectMapper;
     }
 
     @Override
     public String generate(String prompt, String apiKey) {
-        String url = claudeApiUrl + "/messages";
-
-        HttpHeaders headers = new HttpHeaders();
-        headers.set("x-api-key", apiKey);
-        headers.set("anthropic-version", "2023-06-01");
-        headers.setContentType(MediaType.APPLICATION_JSON);
-
-        Map<String, Object> message = new HashMap<>();
-        message.put("role", "user");
-        message.put("content", prompt);
-
-        Map<String, Object> body = new HashMap<>();
-        body.put("model", "claude-3-opus-20240229");
-        body.put("messages", List.of(message));
-        body.put("max_tokens", 4096);
-
-        HttpEntity<Map<String, Object>> entity = new HttpEntity<>(body, headers);
-
         try {
-            ResponseEntity<String> response = restTemplate.exchange(url, HttpMethod.POST, entity, String.class);
-            String responseBody = response.getBody();
-
-            Map<String, Object> responseMap = objectMapper.readValue(responseBody, Map.class);
-            List<Map<String, Object>> contentBlocks = (List<Map<String, Object>>) responseMap.get("content");
-            return (String) contentBlocks.get(0).get("text");
-        } catch (Exception e) {
-            System.err.println("Error calling Claude API for text generation: " + e.getMessage());
+            return callClaudeApi(prompt, apiKey, defaultModel);
+        } catch (JsonProcessingException e) {
+            log.error("Error calling Claude API for text generation", e);
             throw new RuntimeException("Failed to generate text from Claude.", e);
         }
     }
 
     @Override
-    public ConceptionResponse generateConception(ConceptionRequest request, String apiKey) {
+    protected String callApiForJson(String prompt, String apiKey) throws JsonProcessingException {
+        return callClaudeApi(prompt, apiKey, defaultModel);
+    }
+
+    @Override
+    protected ConceptionResponse parseConceptionResponse(String jsonResponse) throws JsonProcessingException {
+        ClaudeConceptionResponse conception = objectMapper.readValue(jsonResponse, ClaudeConceptionResponse.class);
+        return new ConceptionResponse(conception.storyCard, conception.characterCards);
+    }
+
+    private String callClaudeApi(String prompt, String apiKey, String model) throws JsonProcessingException {
         String url = claudeApiUrl + "/messages";
 
         HttpHeaders headers = new HttpHeaders();
@@ -68,24 +89,12 @@ public class ClaudeService implements AiService {
         headers.set("anthropic-version", "2023-06-01");
         headers.setContentType(MediaType.APPLICATION_JSON);
 
-        String prompt = String.format(
-            "你是一个富有想象力的故事作家。请根据以下信息，为我构思一个故事。请使用简体中文进行创作。\n" +
-            "用户想法: \"%s\"\n" +
-            "故事类型: \"%s\"\n" +
-            "故事基调: \"%s\"\n\n" +
-            "请以JSON格式返回，包含两个键: \"storyCard\" 和 \"characterCards\"。\n" +
-            "\"storyCard\" 的值应包含 \"title\", \"synopsis\", \"storyArc\"。\n" +
-            "\"characterCards\" 的值应为一个数组，包含至少2个主要角色。每个角色对象应包含 \"name\", \"synopsis\" (性别、年龄、外貌、性格), \"details\" (背景故事), \"relationships\"。\n\n" +
-            "请只返回JSON对象，不要包含任何额外的解释或markdown格式。",
-            request.getIdea(), request.getGenre(), request.getTone()
-        );
-
         Map<String, Object> message = new HashMap<>();
         message.put("role", "user");
         message.put("content", prompt);
 
         Map<String, Object> body = new HashMap<>();
-        body.put("model", "claude-3-opus-20240229"); // Or another suitable Claude model
+        body.put("model", model);
         body.put("messages", List.of(message));
         body.put("max_tokens", 4096);
 
@@ -95,38 +104,29 @@ public class ClaudeService implements AiService {
             ResponseEntity<String> response = restTemplate.exchange(url, HttpMethod.POST, entity, String.class);
             String responseBody = response.getBody();
 
-            Map<String, Object> responseMap = objectMapper.readValue(responseBody, Map.class);
-            List<Map<String, Object>> contentBlocks = (List<Map<String, Object>>) responseMap.get("content");
-            String jsonContent = (String) contentBlocks.get(0).get("text");
+            ClaudeResponse claudeResponse = objectMapper.readValue(responseBody, ClaudeResponse.class);
 
-            if (jsonContent == null || jsonContent.trim().isEmpty()) {
+            if (claudeResponse == null || claudeResponse.content == null || claudeResponse.content.isEmpty() ||
+                claudeResponse.content.get(0).text == null) {
+                throw new RuntimeException("Invalid response structure from Claude.");
+            }
+
+            String text = claudeResponse.content.get(0).text;
+            if (text.trim().isEmpty()) {
                 throw new RuntimeException("AI response content is empty.");
             }
-
-            int startIndex = jsonContent.indexOf('{');
-            int endIndex = jsonContent.lastIndexOf('}');
-
-            if (startIndex == -1 || endIndex == -1 || startIndex > endIndex) {
-                throw new RuntimeException("Could not find a valid JSON object in the AI response: " + jsonContent);
+            // Claude might wrap JSON in ```json ... ```, so we need to extract it.
+            if (text.contains("{") && text.contains("}")) {
+                return text.substring(text.indexOf('{'), text.lastIndexOf('}') + 1);
             }
-
-            String extractedJson = jsonContent.substring(startIndex, endIndex + 1);
-
-            ConceptionResponse conceptionResponse = objectMapper.readValue(extractedJson, ConceptionResponse.class);
-
-            if (conceptionResponse.getStoryCard() != null) {
-                conceptionResponse.getStoryCard().setGenre(request.getGenre());
-                conceptionResponse.getStoryCard().setTone(request.getTone());
-            }
-
-            return conceptionResponse;
-
-        } catch (Exception e) {
-            System.err.println("Error calling Claude API: " + e.getMessage());
-            throw new RuntimeException("Failed to generate story from Claude.", e);
+            return text;
+        } catch (RestClientException e) {
+            log.error("Error calling Claude API: " + e.getMessage(), e);
+            throw new RuntimeException("Failed to get a valid response from Claude.", e);
         }
     }
 
+    @Override
     public boolean validateApiKey(String apiKey) {
         if (apiKey == null || apiKey.trim().isEmpty()) {
             return false;

@@ -1,148 +1,210 @@
-import { useState, useEffect } from 'react';
-import { Layout, Tree, Spin, Input, Button, Card, Typography, Empty } from 'antd';
-import { useParams } from 'react-router-dom'; // Assuming you use React Router for navigation
+import React, { useState, useEffect, useMemo } from 'react';
+import { Card, Input, Button, message, Empty, Layout, Spin, Row, Col } from 'antd';
+import OutlineTreeView, { type RefineHandler } from './OutlineTreeView';
 import type { Outline, ManuscriptSection } from '../types';
 
-const { Sider, Content, Header } = Layout;
-const { Title, Paragraph } = Typography;
+const { Content, Sider } = Layout;
+const { TextArea } = Input;
 
-import React from 'react';
+export interface ManuscriptWriterProps {
+    selectedOutline: Outline | null;
+    selectedSceneId: number | null;
+    onSelectScene: (sceneId: number | null) => void;
+    onUpdateOutline: (updatedOutline: Outline) => void;
+    handleOpenRefineModal: RefineHandler;
+}
 
-const ManuscriptWriter = () => {
-    const { outlineId } = useParams<{ outlineId: string }>();
-    const [outline, setOutline] = useState<Outline | null>(null);
-    const [manuscript, setManuscript] = useState<ManuscriptSection[]>([]);
-    const [selectedSceneId, setSelectedSceneId] = useState<number | null>(null);
-    const [currentSection, setCurrentSection] = useState<ManuscriptSection | null>(null);
-    const [isLoading, setIsLoading] = useState(true);
-    const [isGenerating, setIsGenerating] = useState(false);
+const ManuscriptWriter: React.FC<ManuscriptWriterProps> = ({
+    selectedOutline,
+    selectedSceneId,
+    onSelectScene,
+    onUpdateOutline,
+    handleOpenRefineModal,
+}) => {
+    const [manuscriptMap, setManuscriptMap] = useState<Record<number, ManuscriptSection>>({});
+    const [manuscriptContent, setManuscriptContent] = useState('');
+    const [isLoading, setIsLoading] = useState(false);
+    const [isFetchingManuscript, setIsFetchingManuscript] = useState(false);
+
+    const selectedScene = useMemo(() => {
+        if (!selectedOutline || !selectedSceneId) return null;
+        for (const chapter of selectedOutline.chapters) {
+            const scene = chapter.scenes.find(s => s.id === selectedSceneId);
+            if (scene) return scene;
+        }
+        return null;
+    }, [selectedOutline, selectedSceneId]);
 
     useEffect(() => {
-        if (outlineId) {
-            fetchOutlineAndManuscript();
+        if (selectedOutline) {
+            setIsFetchingManuscript(true);
+            const fetchManuscript = async () => {
+                try {
+                    const token = localStorage.getItem('token');
+                    const response = await fetch(`/api/v1/manuscript/outlines/${selectedOutline.id}`, {
+                        headers: { 'Authorization': `Bearer ${token}` }
+                    });
+                    if (!response.ok) {
+                        console.error('Failed to fetch manuscript: Response not OK', response.status);
+                        throw new Error('Failed to fetch manuscript');
+                    }
+                    const data = await response.json();
+                    setManuscriptMap(data);
+                } catch (error) {
+                    console.error("Failed to fetch manuscript:", error);
+                    message.error('获取正文内容失败');
+                } finally {
+                    setIsFetchingManuscript(false);
+                }
+            };
+            fetchManuscript();
         }
-    }, [outlineId]);
+    }, [selectedOutline]);
 
-    const fetchOutlineAndManuscript = async () => {
+    useEffect(() => {
+        if (selectedSceneId && manuscriptMap[selectedSceneId]) {
+            setManuscriptContent(manuscriptMap[selectedSceneId].content);
+        } else {
+            setManuscriptContent('');
+        }
+    }, [selectedSceneId, manuscriptMap]);
+
+
+    const handleGenerateContent = async () => {
+        if (!selectedSceneId) {
+            message.warning('请先从左侧选择一个场景！');
+            return;
+        }
         setIsLoading(true);
-        const token = localStorage.getItem('token');
-        const headers = { 'Authorization': `Bearer ${token}` };
-
         try {
-            // Fetch outline details
-            const outlineResponse = await fetch(`/api/v1/outlines/${outlineId}`, { headers });
-            if (!outlineResponse.ok) throw new Error('Failed to fetch outline');
-            const outlineData = await outlineResponse.json();
-            setOutline(outlineData);
+            const token = localStorage.getItem('token');
+            const response = await fetch(`/api/v1/manuscript/scenes/${selectedSceneId}/generate`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`,
+                },
+            });
 
-            // Fetch manuscript sections for this outline
-            const manuscriptResponse = await fetch(`/api/v1/manuscript/outlines/${outlineId}`, { headers });
-            if (!manuscriptResponse.ok) throw new Error('Failed to fetch manuscript');
-            const manuscriptData = await manuscriptResponse.json();
-            setManuscript(manuscriptData);
+            if (!response.ok) {
+                const errorData = await response.text();
+                console.error('Failed to generate content: Response not OK', errorData);
+                throw new Error(errorData || '生成内容失败。');
+            }
 
+            const newSection = await response.json();
+            setManuscriptMap(prev => ({ ...prev, [newSection.sceneId]: newSection }));
+            setManuscriptContent(newSection.content);
+            message.success('内容已生成！');
         } catch (error) {
-            console.error(error);
+            console.error('Failed to generate content:', error);
+            message.error(error instanceof Error ? error.message : '内容生成失败，请检查后台服务。');
+        } finally {
+            setIsLoading(false);
+        }
+    };
+    
+    const handleSaveContent = async () => {
+        if (!selectedSceneId) return;
+        
+        const sectionToUpdate = manuscriptMap[selectedSceneId];
+        if (!sectionToUpdate) {
+            message.warning("没有可保存的内容。请先生成内容。");
+            return;
+        }
+
+        setIsLoading(true);
+        try {
+            const token = localStorage.getItem('token');
+            const response = await fetch(`/api/v1/manuscript/sections/${sectionToUpdate.id}`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`,
+                },
+                body: JSON.stringify({ content: manuscriptContent }),
+            });
+
+            if (!response.ok) {
+                console.error('Failed to save content: Response not OK', response.status);
+                throw new Error('保存失败');
+            }
+
+            const updatedSection = await response.json();
+            setManuscriptMap(prev => ({ ...prev, [updatedSection.sceneId]: updatedSection }));
+            message.success('内容已保存！');
+        } catch (error) {
+            console.error("Failed to save content:", error);
+            message.error(error instanceof Error ? error.message : '保存失败');
         } finally {
             setIsLoading(false);
         }
     };
 
-    const handleGenerate = async () => {
-        if (!selectedSceneId) return;
-        setIsGenerating(true);
-        const token = localStorage.getItem('token');
-        try {
-            const response = await fetch(`/api/v1/manuscript/scenes/${selectedSceneId}/generate`, {
-                method: 'POST',
-                headers: { 'Authorization': `Bearer ${token}` }
-            });
-            if (!response.ok) throw new Error('Failed to generate content');
-            const newSection = await response.json();
-            setManuscript(prev => [...prev.filter(s => s.scene.id !== selectedSceneId), newSection]);
-            setCurrentSection(newSection);
-        } catch (error) {
-            console.error(error);
-        } finally {
-            setIsGenerating(false);
-        }
-    };
-    
-    const handleSave = async () => {
-        if (!currentSection) return;
-        const token = localStorage.getItem('token');
-        try {
-            await fetch(`/api/v1/manuscript/sections/${currentSection.id}`, {
-                method: 'PUT',
-                headers: { 
-                    'Authorization': `Bearer ${token}`,
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({ content: currentSection.content })
-            });
-        } catch (error) {
-            console.error(error);
-        }
-    };
 
-    const treeData = outline?.chapters.map(chapter => ({
-        title: `Chapter ${chapter.chapterNumber}: ${chapter.title}`,
-        key: `chapter-${chapter.id}`,
-        children: chapter.scenes.map(scene => ({
-            title: `Scene ${scene.sceneNumber}: ${scene.synopsis}`,
-            key: scene.id,
-            isLeaf: true,
-        })),
-    }));
-
-    const onSelectNode = (selectedKeys: React.Key[]) => {
-        const sceneId = selectedKeys[0];
-        if (sceneId && typeof sceneId === 'number') {
-            setSelectedSceneId(sceneId);
-            const section = manuscript.find(s => s.scene.id === sceneId);
-            setCurrentSection(section || { id: 0, scene: { id: sceneId }, content: '', version: 0, active: false });
-        }
-    };
+    if (!selectedOutline) {
+        return (
+            <div className="flex justify-center items-center h-full">
+                <Empty description="请从“大纲管理”页面选择一个大纲开始创作。" />
+            </div>
+        );
+    }
 
     return (
-        <Layout style={{ height: '100vh' }}>
-            <Header>
-                <Title style={{ color: 'white', lineHeight: '64px' }} level={3}>
-                    {outline?.title || 'Writer Mode'}
-                </Title>
-            </Header>
-            <Layout>
-                <Sider width={350} theme="light">
-                    <Spin spinning={isLoading}>
-                        {treeData && <Tree treeData={treeData} onSelect={onSelectNode} />}
-                    </Spin>
-                </Sider>
-                <Content style={{ padding: '24px' }}>
-                    {selectedSceneId ? (
-                        <Spin spinning={isGenerating} tip="AI is writing...">
-                            <Input.TextArea
-                                value={currentSection?.content}
-                                onChange={(e) => setCurrentSection((prev: ManuscriptSection | null) => prev ? { ...prev, content: e.target.value } : null)}
-                                autoSize={{ minRows: 20 }}
-                            />
-                            <Button onClick={handleGenerate} disabled={isGenerating} style={{ marginTop: 16 }}>
-                                Generate
-                            </Button>
-                            <Button onClick={handleSave} style={{ marginLeft: 8 }}>
-                                Save
-                            </Button>
-                        </Spin>
-                    ) : (
-                        <Empty description="Select a scene from the outline to start writing." />
-                    )}
-                </Content>
-                <Sider width={300} theme="light" style={{ padding: '12px' }}>
-                    <Title level={4}>Context</Title>
-                    <Card title="Story Synopsis">
-                        <Paragraph>{outline?.storyCard?.synopsis}</Paragraph>
-                    </Card>
-                </Sider>
-            </Layout>
+        <Layout style={{ height: 'calc(100vh - 150px)', background: '#fff' }}>
+            <Sider width={300} style={{ background: '#fff', padding: '16px', borderRight: '1px solid #f0f0f0', overflow: 'auto' }}>
+                <h2 className="text-lg font-bold mb-4">{selectedOutline.title}</h2>
+                <OutlineTreeView
+                    outline={selectedOutline}
+                    onSelectScene={(scene) => onSelectScene(scene ? scene.id : null)}
+                    onUpdate={onUpdateOutline}
+                    handleOpenRefineModal={handleOpenRefineModal}
+                />
+            </Sider>
+            <Content style={{ padding: '24px' }}>
+                <Spin spinning={isFetchingManuscript} tip="加载正文...">
+                    <Row gutter={24} style={{ height: '100%' }}>
+                        <Col span={24} style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
+                            <Card title="场景内容" style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
+                                <Card.Meta
+                                    title="当前场景概要"
+                                    description={selectedScene?.synopsis || '请从左侧大纲树中选择一个场景。'}
+                                    style={{ marginBottom: '16px' }}
+                                />
+                                <TextArea
+                                    value={manuscriptContent}
+                                    onChange={(e) => setManuscriptContent(e.target.value)}
+                                    placeholder="这里是您创作的故事内容..."
+                                    style={{ flexGrow: 1, resize: 'none' }}
+                                    disabled={!selectedSceneId}
+                                />
+                                <div className="mt-4 flex items-center justify-between">
+                                    <div>
+                                        <Button
+                                            type="primary"
+                                            loading={isLoading}
+                                            onClick={handleGenerateContent}
+                                            disabled={!selectedSceneId}
+                                        >
+                                            ✨ 生成内容
+                                        </Button>
+                                        <Button
+                                            style={{ marginLeft: 8 }}
+                                            onClick={handleSaveContent}
+                                            disabled={!selectedSceneId || isLoading}
+                                        >
+                                            保存
+                                        </Button>
+                                    </div>
+                                    <span className="text-sm text-gray-500">
+                                        预期字数: {selectedScene?.expectedWords || 'N/A'}
+                                    </span>
+                                </div>
+                            </Card>
+                        </Col>
+                    </Row>
+                </Spin>
+            </Content>
         </Layout>
     );
 };

@@ -24,16 +24,30 @@ const Settings = () => {
                     headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
                 });
                 if (response.ok) {
-                    const data = await response.json();
-                    form.setFieldsValue({
-                        llmProvider: data.llmProvider || 'openai',
-                        modelName: data.modelName || '',
-                    });
+                    const text = await response.text();
+                    // Only parse if the response body is not empty
+                    if (text) {
+                        const data = JSON.parse(text);
+                        form.setFieldsValue({
+                            llmProvider: data.llmProvider || 'openai',
+                            modelName: data.modelName || '',
+                        });
+                    } else {
+                        // If body is empty, it means no settings found. Set defaults.
+                        form.setFieldsValue({
+                            llmProvider: 'openai',
+                            modelName: '',
+                        });
+                    }
                 } else {
+                    console.error('Failed to fetch settings: Response not OK', response.status);
                     message.error('获取设置失败。');
                 }
             } catch (error: unknown) {
-                if (error instanceof Error) {
+                console.error('Failed to fetch settings:', error);
+                if (error instanceof SyntaxError) {
+                    message.error('解析设置失败：从服务器返回的数据格式无效。');
+                } else if (error instanceof Error) {
                     message.error(`获取设置时出错： ${error.message}`);
                 } else {
                     message.error('获取设置时发生未知错误。');
@@ -61,9 +75,11 @@ const Settings = () => {
                 form.setFieldsValue({ apiKey: '' }); // Clear API key field after save
             } else {
                 const data = await response.json();
+                console.error('Failed to save settings: Response not OK', data);
                 message.error(data.message || '保存设置失败。');
             }
         } catch (error: unknown) {
+            console.error('Failed to save settings:', error);
             if (error instanceof Error) {
                 message.error(`保存时发生错误： ${error.message}`);
             } else {
@@ -90,9 +106,11 @@ const Settings = () => {
             if (response.ok) {
                 message.success(data.message || '连接成功！');
             } else {
+                console.error('Connection test failed: Response not OK', data);
                 message.error(data.message || '连接测试失败。');
             }
         } catch (error: unknown) {
+            console.error('Failed to test connection:', error);
             if (error instanceof Error) {
                 message.error(`测试期间发生错误： ${error.message}`);
             } else {

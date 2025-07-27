@@ -5,12 +5,19 @@ import com.example.ainovel.model.User;
 import com.example.ainovel.model.UserSetting;
 import com.example.ainovel.repository.UserRepository;
 import com.example.ainovel.repository.UserSettingRepository;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import lombok.RequiredArgsConstructor;
 import org.springframework.util.StringUtils;
 
+/**
+ * Service for managing user settings, including AI provider and API keys.
+ */
 @Service
+@RequiredArgsConstructor
 public class SettingsService {
 
     private final UserRepository userRepository;
@@ -20,34 +27,79 @@ public class SettingsService {
     private final ClaudeService claudeService;
     private final GeminiService geminiService;
 
-    public SettingsService(UserRepository userRepository, UserSettingRepository userSettingRepository, EncryptionService encryptionService, OpenAiService openAiService, ClaudeService claudeService, GeminiService geminiService) {
-        this.userRepository = userRepository;
-        this.userSettingRepository = userSettingRepository;
-        this.encryptionService = encryptionService;
-        this.openAiService = openAiService;
-        this.claudeService = claudeService;
-        this.geminiService = geminiService;
+    /**
+     * Retrieves the decrypted API key for the currently authenticated user.
+     * @return The decrypted API key.
+     */
+    @Transactional(readOnly = true)
+    public String getDecryptedApiKeyForCurrentUser() {
+        User currentUser = getCurrentUser();
+        return getDecryptedApiKeyByUserId(currentUser.getId());
     }
 
+    /**
+     * Retrieves the LLM provider for the currently authenticated user.
+     * @return The name of the LLM provider.
+     */
+    @Transactional(readOnly = true)
+    public String getProviderForCurrentUser() {
+        User currentUser = getCurrentUser();
+        return getProviderByUserId(currentUser.getId());
+    }
+
+    /**
+     * Retrieves the decrypted API key for a specific user by their ID.
+     * @param userId The ID of the user.
+     * @return The decrypted API key.
+     */
+    @Transactional(readOnly = true)
+    public String getDecryptedApiKeyByUserId(Long userId) {
+        UserSetting userSetting = findUserSettingByUserId(userId);
+        if (!StringUtils.hasText(userSetting.getApiKey())) {
+            throw new IllegalStateException("API Key is not configured for user ID: " + userId);
+        }
+        return encryptionService.decrypt(userSetting.getApiKey());
+    }
+
+    /**
+     * Retrieves the LLM provider for a specific user by their ID.
+     * @param userId The ID of the user.
+     * @return The name of the LLM provider.
+     */
+    @Transactional(readOnly = true)
+    public String getProviderByUserId(Long userId) {
+        UserSetting userSetting = findUserSettingByUserId(userId);
+        if (!StringUtils.hasText(userSetting.getLlmProvider())) {
+            throw new IllegalStateException("LLM Provider is not configured for user ID: " + userId);
+        }
+        return userSetting.getLlmProvider();
+    }
+
+    /**
+     * Retrieves the settings for a specific user.
+     * @param username The username of the user.
+     * @return A DTO with the user's settings.
+     */
     @Transactional(readOnly = true)
     public SettingsDto getSettings(String username) {
-        User user = userRepository.findByUsername(username)
-                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
-        UserSetting userSetting = userSettingRepository.findByUserId(user.getId())
-                .orElse(new UserSetting());
+        User user = findUserByUsername(username);
+        UserSetting userSetting = userSettingRepository.findByUserId(user.getId()).orElse(new UserSetting());
 
         SettingsDto dto = new SettingsDto();
         dto.setLlmProvider(userSetting.getLlmProvider());
         dto.setModelName(userSetting.getModelName());
         dto.setCustomPrompt(userSetting.getCustomPrompt());
-        // Do not expose API key
         return dto;
     }
 
+    /**
+     * Updates the settings for a specific user.
+     * @param username The username of the user.
+     * @param settingsDto A DTO containing the new settings.
+     */
     @Transactional
     public void updateSettings(String username, SettingsDto settingsDto) {
-        User user = userRepository.findByUsername(username)
-                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
+        User user = findUserByUsername(username);
         UserSetting userSetting = userSettingRepository.findByUserId(user.getId())
                 .orElseGet(() -> {
                     UserSetting newUserSetting = new UserSetting();
@@ -66,25 +118,41 @@ public class SettingsService {
         userSettingRepository.save(userSetting);
     }
 
+    /**
+     * Tests the connection to the configured AI provider with the given API key.
+     * @param settingsDto A DTO containing the provider and API key.
+     * @return true if the connection is successful, false otherwise.
+     */
     public boolean testConnection(SettingsDto settingsDto) {
-        if (!StringUtils.hasText(settingsDto.getApiKey())) {
+        if (!StringUtils.hasText(settingsDto.getApiKey()) || !StringUtils.hasText(settingsDto.getLlmProvider())) {
             return false;
         }
         try {
-            switch (settingsDto.getLlmProvider().toLowerCase()) {
-                case "openai":
-                    return openAiService.validateApiKey(settingsDto.getApiKey());
-                case "claude":
-                    return claudeService.validateApiKey(settingsDto.getApiKey());
-                case "gemini":
-                    return geminiService.validateApiKey(settingsDto.getApiKey());
-                default:
-                    return false;
-            }
+            return switch (settingsDto.getLlmProvider().toLowerCase()) {
+                case "openai" -> openAiService.validateApiKey(settingsDto.getApiKey());
+                case "claude" -> claudeService.validateApiKey(settingsDto.getApiKey());
+                case "gemini" -> geminiService.validateApiKey(settingsDto.getApiKey());
+                default -> false;
+            };
         } catch (Exception e) {
-            // Log the exception for debugging purposes
-            // logger.error("API key validation failed", e);
+            // It's good practice to log this exception.
             return false;
         }
+    }
+
+    private User getCurrentUser() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String username = authentication.getName();
+        return findUserByUsername(username);
+    }
+
+    private User findUserByUsername(String username) {
+        return userRepository.findByUsername(username)
+                .orElseThrow(() -> new UsernameNotFoundException("User not found with username: " + username));
+    }
+
+    private UserSetting findUserSettingByUserId(Long userId) {
+        return userSettingRepository.findByUserId(userId)
+                .orElseThrow(() -> new IllegalStateException("User settings not found for user ID: " + userId));
     }
 }

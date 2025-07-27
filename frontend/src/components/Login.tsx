@@ -27,11 +27,12 @@ const Login = () => {
                 localStorage.setItem('token', data.token);
                 navigate('/story-conception');
             } else {
+                console.error('Login failed: Response not OK', data);
                 message.error(data.message || '登录失败。');
             }
         } catch (error) {
-            console.error('登录错误:', error);
-            message.error('发生了一个错误。');
+            console.error('Failed to login:', error);
+            message.error('登录时发生错误。');
         }
     };
 

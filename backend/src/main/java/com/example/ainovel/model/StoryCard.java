@@ -44,7 +44,19 @@ public class StoryCard {
     @JsonManagedReference
     private List<CharacterCard> characters;
 
+    @OneToMany(mappedBy = "storyCard", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonManagedReference
+    private List<OutlineCard> outlines;
+
     // Getters and Setters
+
+    public List<OutlineCard> getOutlines() {
+        return outlines;
+    }
+
+    public void setOutlines(List<OutlineCard> outlines) {
+        this.outlines = outlines;
+    }
 
     public List<CharacterCard> getCharacters() {
         return characters;

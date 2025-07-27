@@ -1,78 +1,66 @@
 package com.example.ainovel.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
-import java.sql.Timestamp;
+import lombok.Data;
+import org.hibernate.annotations.CreationTimestamp;
+import java.time.LocalDateTime;
 
+/**
+ * Represents a section of the manuscript, corresponding to a single scene in the outline.
+ */
+@Data
 @Entity
 @Table(name = "manuscript_sections")
 public class ManuscriptSection {
 
+    /**
+     * The unique identifier for the manuscript section.
+     */
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    /**
+     * The outline scene this manuscript section is based on.
+     */
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "scene_id", nullable = false)
     private OutlineScene scene;
 
+    /**
+     * The full text content of the manuscript section.
+     */
     @Lob
     @Column(columnDefinition = "LONGTEXT")
     private String content;
 
-    private Integer version;
+    /**
+     * The version number of this section, for tracking revisions.
+     */
+    private Integer version = 0;
 
+    /**
+     * Indicates if this is the currently active version of the section.
+     */
     @Column(name = "is_active")
-    private Boolean isActive;
+    private Boolean isActive = true;
 
-    @Column(name = "created_at", updatable = false, insertable = false, columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP")
-    private Timestamp createdAt;
+    /**
+     * Timestamp of when the section was created.
+     */
+    @CreationTimestamp
+    private LocalDateTime createdAt;
 
-    // Getters and Setters
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public OutlineScene getScene() {
-        return scene;
-    }
-
-    public void setScene(OutlineScene scene) {
-        this.scene = scene;
-    }
-
-    public String getContent() {
-        return content;
-    }
-
-    public void setContent(String content) {
-        this.content = content;
-    }
-
-    public Integer getVersion() {
-        return version;
-    }
-
-    public void setVersion(Integer version) {
-        this.version = version;
-    }
-
-    public Boolean getActive() {
-        return isActive;
-    }
-
-    public void setActive(Boolean active) {
-        isActive = active;
-    }
-
-    public Timestamp getCreatedAt() {
-        return createdAt;
-    }
-
-    public void setCreatedAt(Timestamp createdAt) {
-        this.createdAt = createdAt;
+    /**
+     * A transient getter to easily access the scene ID without loading the entire scene object.
+     * @return The ID of the associated scene.
+     */
+    @JsonIgnore
+    public Long getSceneId() {
+        if (this.scene != null) {
+            return this.scene.getId();
+        }
+        return null;
     }
 }

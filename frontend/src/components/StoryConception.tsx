@@ -1,32 +1,28 @@
-import { useState, useEffect } from 'react';
+import React from 'react';
 import {
-    Layout,
     Form,
     Input,
     Select,
     Button,
     Spin,
     Card,
-    Row,
-    Col,
     Typography,
-    Alert,
     Divider,
+    Alert,
     Empty,
-    Tabs,
-    List,
-    Modal
+    Row,
+    Col
 } from 'antd';
-import OutlineDesign from './OutlineDesign';
-import { Link } from 'react-router-dom';
-import { PlusOutlined, EditOutlined, DeleteOutlined, EyeOutlined } from '@ant-design/icons';
-import type { Outline } from '../types';
 
-const { Header, Content, Sider } = Layout;
 const { Title, Paragraph } = Typography;
 const { Option } = Select;
-const { TabPane } = Tabs;
-// Define types for the data structures
+
+interface ConceptionFormValues {
+    idea: string;
+    genre: string;
+    tone: string;
+}
+
 interface StoryCard {
     id: number;
     title: string;
@@ -44,625 +40,113 @@ interface CharacterCard {
     relationships: string;
 }
 
-interface ConceptionFormValues {
-    idea: string;
-    genre: string;
-    tone: string;
+interface StoryConceptionProps {
+    onFinish: (values: ConceptionFormValues) => Promise<void>;
+    isLoading: boolean;
+    error: string;
+    storyCard: StoryCard | null;
+    characterCards: CharacterCard[];
+    renderStoryCard: (card: StoryCard) => React.ReactNode;
+    renderCharacterCard: (char: CharacterCard) => React.ReactNode;
+    setIsAddCharacterModalVisible: (visible: boolean) => void;
 }
 
-const StoryConception = () => {
+const StoryConception: React.FC<StoryConceptionProps> = ({
+    onFinish,
+    isLoading,
+    error,
+    storyCard,
+    characterCards,
+    renderStoryCard,
+    renderCharacterCard,
+    setIsAddCharacterModalVisible
+}) => {
     const [form] = Form.useForm();
-    const [storyCard, setStoryCard] = useState<StoryCard | null>(null);
-    const [characterCards, setCharacterCards] = useState<CharacterCard[]>([]);
-    const [isLoading, setIsLoading] = useState(false);
-    const [error, setError] = useState('');
-    const [storyList, setStoryList] = useState<StoryCard[]>([]);
-    const [isListLoading, setIsListLoading] = useState(false);
-    const [editingStory, setEditingStory] = useState<StoryCard | null>(null);
-    const [editingCharacter, setEditingCharacter] = useState<CharacterCard | null>(null);
-    const [isAddCharacterModalVisible, setIsAddCharacterModalVisible] = useState(false);
-    const [newCharacter, setNewCharacter] = useState({ name: '', synopsis: '', details: '', relationships: '' });
-    const [activeTab, setActiveTab] = useState("1");
-
-    // New state for outline generation
-    const [outline, setOutline] = useState<Outline | null>(null);
-    const [outlineError, setOutlineError] = useState<string | null>(null);
-    const [isOutlineLoading, setIsOutlineLoading] = useState(false);
-    const [selectedStoryForOutline, setSelectedStoryForOutline] = useState<string | null>(null);
-    
-    // State for outline management
-    const [outlinesForStory, setOutlinesForStory] = useState<Outline[]>([]);
-    const [isOutlineListLoading, setIsOutlineListLoading] = useState(false);
-    const [editingOutline, setEditingOutline] = useState<Outline | null>(null);
-
-
-    useEffect(() => {
-        fetchStoryList();
-    }, []);
-
-    const fetchStoryList = async () => {
-        setIsListLoading(true);
-        try {
-            const token = localStorage.getItem('token');
-            const headers: HeadersInit = { 'Content-Type': 'application/json' };
-            if (token) headers['Authorization'] = `Bearer ${token}`;
-
-            const response = await fetch('/api/v1/story-cards', { headers });
-            if (!response.ok) throw new Error('获取故事列表失败');
-            
-            const data = await response.json();
-            setStoryList(data);
-        } catch (err) {
-            setError(err instanceof Error ? err.message : '发生未知错误。');
-        } finally {
-            setIsListLoading(false);
-        }
-    };
-
-    const handleViewStory = async (storyId: number) => {
-        setIsLoading(true);
-        setError('');
-        try {
-            const token = localStorage.getItem('token');
-            const headers: HeadersInit = { 'Content-Type': 'application/json' };
-            if (token) headers['Authorization'] = `Bearer ${token}`;
-
-            // Fetch story card details
-            const storyResponse = await fetch(`/api/v1/story-cards/${storyId}`, { headers });
-            if (!storyResponse.ok) throw new Error('获取故事详情失败');
-            const storyData = await storyResponse.json();
-            setStoryCard(storyData);
-            setSelectedStoryForOutline(storyData.id.toString()); // Also set for outline tab
-
-            // Fetch associated character cards
-            const characterResponse = await fetch(`/api/v1/story-cards/${storyId}/character-cards`, { headers });
-            if (!characterResponse.ok) throw new Error('获取角色卡失败');
-            const characterData = await characterResponse.json();
-            setCharacterCards(characterData);
-
-            setActiveTab("1"); // Switch to the "创作" tab
-        } catch (err) {
-            setError(err instanceof Error ? err.message : '发生未知错误。');
-        } finally {
-            setIsLoading(false);
-        }
-    };
-
-    const onFinish = async (values: ConceptionFormValues) => {
-        setIsLoading(true);
-        setError('');
-        setStoryCard(null);
-        setCharacterCards([]);
-
-        try {
-            const token = localStorage.getItem('token');
-            const headers: HeadersInit = {
-                'Content-Type': 'application/json',
-            };
-            if (token) {
-                headers['Authorization'] = `Bearer ${token}`;
-            }
-
-            const response = await fetch('/api/v1/conception', {
-                method: 'POST',
-                headers: headers,
-                body: JSON.stringify(values),
-            });
-
-            if (!response.ok) {
-                const errorData = await response.json();
-                throw new Error(errorData.message || '生成故事失败。');
-            }
-
-            const data = await response.json();
-            setStoryCard(data.storyCard);
-            setCharacterCards(data.characterCards);
-            setSelectedStoryForOutline(data.storyCard.id.toString());
-            await fetchStoryList(); // Refresh the list after generating a new story
-        } catch (err) {
-            setError(err instanceof Error ? err.message : '发生未知错误。');
-        } finally {
-            setIsLoading(false);
-        }
-    };
-
-    const handleUpdateStoryCard = async () => {
-        if (!editingStory) return;
-        setIsLoading(true);
-        try {
-            const token = localStorage.getItem('token');
-            const headers: HeadersInit = { 'Content-Type': 'application/json' };
-            if (token) headers['Authorization'] = `Bearer ${token}`;
-
-            const response = await fetch(`/api/v1/story-cards/${editingStory.id}`, {
-                method: 'PUT',
-                headers,
-                body: JSON.stringify(editingStory),
-            });
-
-            if (!response.ok) throw new Error('更新故事卡失败');
-            
-            setStoryCard(await response.json());
-            setEditingStory(null);
-            await fetchStoryList();
-        } catch (err) {
-            setError(err instanceof Error ? err.message : '发生未知错误。');
-        } finally {
-            setIsLoading(false);
-        }
-    };
-
-    const handleGenerateOutline = async (params: { numberOfChapters: number; pointOfView: string; }) => {
-        if (!selectedStoryForOutline) {
-            setOutlineError('Please select a story to generate an outline for.');
-            return;
-        }
-        setIsOutlineLoading(true);
-        setOutlineError(null);
-        setOutline(null);
-        const token = localStorage.getItem('token');
-
-        try {
-            const response = await fetch('/api/v1/outlines', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}`
-                },
-                body: JSON.stringify({
-                    storyCardId: selectedStoryForOutline,
-                    ...params
-                })
-            });
-
-            if (!response.ok) {
-                const errorData = await response.json();
-                throw new Error(errorData.message || 'Failed to generate outline');
-            }
-
-            const data = await response.json();
-            setOutline(data);
-        } catch (err) {
-            if (err instanceof Error) {
-                setOutlineError(err.message);
-            } else {
-                setOutlineError('An unknown error occurred');
-            }
-        } finally {
-            setIsOutlineLoading(false);
-        }
-    };
-
-    const fetchOutlinesForStory = async (storyId: string) => {
-        setIsOutlineListLoading(true);
-        try {
-            const token = localStorage.getItem('token');
-            const headers: HeadersInit = { 'Content-Type': 'application/json' };
-            if (token) headers['Authorization'] = `Bearer ${token}`;
-
-            const response = await fetch(`/api/v1/story-cards/${storyId}/outlines`, { headers });
-            if (!response.ok) throw new Error('获取大纲列表失败');
-            
-            const data = await response.json();
-            setOutlinesForStory(data);
-        } catch (err) {
-            setError(err instanceof Error ? err.message : '发生未知错误。');
-        } finally {
-            setIsOutlineListLoading(false);
-        }
-    };
-
-    const handleUpdateOutline = async () => {
-        if (!editingOutline) return;
-        setIsLoading(true);
-        try {
-            const token = localStorage.getItem('token');
-            const headers: HeadersInit = { 'Content-Type': 'application/json' };
-            if (token) headers['Authorization'] = `Bearer ${token}`;
-
-            const response = await fetch(`/api/v1/outlines/${editingOutline.id}`, {
-                method: 'PUT',
-                headers,
-                body: JSON.stringify({ title: editingOutline.title, pointOfView: editingOutline.pointOfView }),
-            });
-
-            if (!response.ok) throw new Error('更新大纲失败');
-            
-            const updatedOutline = await response.json();
-            setOutlinesForStory(prev => prev.map(o => o.id === updatedOutline.id ? updatedOutline : o));
-            setEditingOutline(null);
-        } catch (err) {
-            setError(err instanceof Error ? err.message : '发生未知错误。');
-        } finally {
-            setIsLoading(false);
-        }
-    };
-
-    const handleDeleteOutline = async (outlineId: number) => {
-        if (!window.confirm('您确定要删除此大纲吗？这将无法恢复。')) return;
-        setIsLoading(true);
-        try {
-            const token = localStorage.getItem('token');
-            const headers: HeadersInit = { 'Content-Type': 'application/json' };
-            if (token) headers['Authorization'] = `Bearer ${token}`;
-
-            const response = await fetch(`/api/v1/outlines/${outlineId}`, {
-                method: 'DELETE',
-                headers,
-            });
-
-            if (!response.ok) throw new Error('删除大纲失败');
-            
-            setOutlinesForStory(prev => prev.filter(o => o.id !== outlineId));
-        } catch (err) {
-            setError(err instanceof Error ? err.message : '发生未知错误。');
-        } finally {
-            setIsLoading(false);
-        }
-    };
-
-    const handleUpdateCharacterCard = async () => {
-        if (!editingCharacter) return;
-        setIsLoading(true);
-        try {
-            const token = localStorage.getItem('token');
-            const headers: HeadersInit = { 'Content-Type': 'application/json' };
-            if (token) headers['Authorization'] = `Bearer ${token}`;
-
-            const response = await fetch(`/api/v1/character-cards/${editingCharacter.id}`, {
-                method: 'PUT',
-                headers,
-                body: JSON.stringify(editingCharacter),
-            });
-
-            if (!response.ok) throw new Error('更新角色卡失败');
-            
-            const updatedChar = await response.json();
-            setCharacterCards(prev => prev.map(c => c.id === updatedChar.id ? updatedChar : c));
-            setEditingCharacter(null);
-        } catch (err) {
-            setError(err instanceof Error ? err.message : '发生未知错误。');
-        } finally {
-            setIsLoading(false);
-        }
-    };
-
-    const handleCreateCharacter = async () => {
-        if (!storyCard) return;
-        setIsLoading(true);
-        try {
-            const token = localStorage.getItem('token');
-            const headers: HeadersInit = { 'Content-Type': 'application/json' };
-            if (token) headers['Authorization'] = `Bearer ${token}`;
-
-            const response = await fetch(`/api/v1/story-cards/${storyCard.id}/characters`, {
-                method: 'POST',
-                headers,
-                body: JSON.stringify(newCharacter),
-            });
-
-            if (!response.ok) throw new Error('创建新角色失败');
-            
-            const createdChar = await response.json();
-            setCharacterCards(prev => [...prev, createdChar]);
-            setIsAddCharacterModalVisible(false);
-            setNewCharacter({ name: '', synopsis: '', details: '', relationships: '' }); // Reset form
-        } catch (err) {
-            setError(err instanceof Error ? err.message : '发生未知错误。');
-        } finally {
-            setIsLoading(false);
-        }
-    };
-
-    const renderStoryCard = (card: StoryCard) => (
-        <Card 
-            title={<Input value={card.title} onChange={e => setEditingStory({...card, title: e.target.value})} />} 
-            extra={<Button onClick={() => setEditingStory(card)}>编辑</Button>}
-            actions={[
-                <Button type="primary" onClick={() => {
-                    // Ensure the full story card object is available for other tabs if needed
-                    const fullStoryCard = storyList.find(s => s.id === card.id) || card;
-                    setStoryCard(fullStoryCard);
-                    setSelectedStoryForOutline(card.id.toString());
-                    // Fetch characters for the selected story if they aren't already loaded for it
-                    if (storyCard?.id !== card.id) {
-                        handleViewStory(card.id).then(() => setActiveTab("3"));
-                    } else {
-                        setActiveTab("3");
-                    }
-                }}>
-                    设计大纲
-                </Button>
-            ]}
-        >
-            <Title level={5}>概要</Title>
-            <Input.TextArea value={card.synopsis} autoSize onChange={e => setEditingStory({...card, synopsis: e.target.value})} />
-            <Divider />
-            <Title level={5}>故事弧线</Title>
-            <Input.TextArea value={card.storyArc} autoSize onChange={e => setEditingStory({...card, storyArc: e.target.value})} />
-        </Card>
-    );
-
-    const handleDeleteCharacter = async (characterId: number) => {
-        if (!window.confirm('您确定要删除此角色吗？')) return;
-
-        setIsLoading(true);
-        try {
-            const token = localStorage.getItem('token');
-            const headers: HeadersInit = { 'Content-Type': 'application/json' };
-            if (token) headers['Authorization'] = `Bearer ${token}`;
-
-            const response = await fetch(`/api/v1/character-cards/${characterId}`, {
-                method: 'DELETE',
-                headers,
-            });
-
-            if (!response.ok) throw new Error('删除角色卡失败');
-            
-            setCharacterCards(prev => prev.filter(c => c.id !== characterId));
-        } catch (err) {
-            setError(err instanceof Error ? err.message : '发生未知错误。');
-        } finally {
-            setIsLoading(false);
-        }
-    };
-
-    const renderCharacterCard = (char: CharacterCard) => (
-         <Card 
-            title={<Input value={char.name} onChange={e => setEditingCharacter({...char, name: e.target.value})} />} 
-            actions={[
-                <Button type="primary" ghost onClick={() => setEditingCharacter(char)}>编辑</Button>,
-                <Button danger onClick={() => handleDeleteCharacter(char.id)}>删除</Button>
-            ]}
-         >
-            <Title level={5}>概要</Title>
-            <Input.TextArea value={char.synopsis} autoSize onChange={e => setEditingCharacter({...char, synopsis: e.target.value})} />
-            <Divider />
-            <Title level={5}>详情</Title>
-            <Input.TextArea value={char.details} autoSize onChange={e => setEditingCharacter({...char, details: e.target.value})} />
-            <Divider />
-            <Title level={5}>人物关系</Title>
-            <Input.TextArea value={char.relationships} autoSize onChange={e => setEditingCharacter({...char, relationships: e.target.value})} />
-        </Card>
-    );
 
     return (
-        <Layout style={{ minHeight: '100vh' }}>
-            <Sider width={350} theme="light" style={{ padding: '24px', borderRight: '1px solid #f0f0f0' }}>
-                <Title level={4}>故事构思</Title>
-                <Paragraph type="secondary">打造您的下一部杰作。</Paragraph>
-                <Divider />
-                <Form
-                    form={form}
-                    layout="vertical"
-                    onFinish={onFinish}
-                    initialValues={{ genre: 'Sci-Fi', tone: 'Dark' }}
-                >
-                    <Form.Item
-                        name="idea"
-                        label="您的一句话想法"
-                        rules={[{ required: true, message: '请输入您的想法！' }]}
+        <Row gutter={24} style={{ height: '100%' }}>
+            <Col span={8}>
+                <Card style={{ marginBottom: 24 }}>
+                    <Title level={4}>故事构思</Title>
+                    <Paragraph type="secondary">打造您的下一部杰作。</Paragraph>
+                    <Divider />
+                    <Form
+                        form={form}
+                        layout="vertical"
+                        onFinish={onFinish}
+                        initialValues={{ genre: 'Sci-Fi', tone: 'Dark' }}
                     >
-                        <Input.TextArea
-                            rows={4}
-                            placeholder="例如：在一个由梦境驱动的城市里，一名侦探必须侦破一起受害者在睡梦中死亡的谋杀案。"
-                        />
-                    </Form.Item>
-                    <Form.Item name="genre" label="类型">
-                        <Select>
-                            <Option value="Sci-Fi">科幻</Option>
-                            <Option value="Fantasy">奇幻</Option>
-                            <Option value="Mystery">悬疑</Option>
-                            <Option value="Horror">恐怖</Option>
-                            <Option value="Romance">爱情</Option>
-                        </Select>
-                    </Form.Item>
-                    <Form.Item name="tone" label="基调">
-                        <Select>
-                            <Option value="Dark">黑暗</Option>
-                            <Option value="Humorous">幽默</Option>
-                            <Option value="Serious">严肃</Option>
-                            <Option value="Adventurous">冒险</Option>
-                            <Option value="Whimsical">异想天开</Option>
-                        </Select>
-                    </Form.Item>
-                    <Form.Item>
-                        <Button type="primary" htmlType="submit" loading={isLoading} style={{ width: '100%' }}>
-                            {isLoading ? '生成中...' : '生成故事'}
-                        </Button>
-                    </Form.Item>
-                </Form>
-            </Sider>
-            <Layout>
-                <Header style={{ background: '#fff', padding: '0 24px', borderBottom: '1px solid #f0f0f0' }}>
-                    <Title level={3} style={{ margin: '16px 0' }}>AI 小说家工作台</Title>
-                </Header>
-                <Content style={{ padding: '24px', margin: 0, minHeight: 280, background: '#f0f2f5' }}>
-                    <Tabs activeKey={activeTab} onChange={setActiveTab}>
-                        <TabPane tab="创作" key="1">
-                            <Spin spinning={isLoading} tip="正在构想一个新宇宙..." size="large">
-                                <div style={{ padding: 24, background: '#fff', borderRadius: '8px' }}>
-                                    {error && <Alert message="错误" description={error} type="error" showIcon closable onClose={() => setError('')} style={{ marginBottom: 24 }} />}
-                                    
-                                    {!storyCard && !isLoading && (
-                                        <Empty description="您生成的故事将显示在这里。让我们一起创造一些惊人的东西吧！" />
-                                    )}
-
-                                    {storyCard && (
-                                        <Row gutter={[24, 24]}>
-                                            <Col xs={24} lg={8}>
-                                                {renderStoryCard(storyCard)}
-                                            </Col>
-                                            <Col xs={24} lg={16}>
-                                                <Title level={4} style={{ marginBottom: 16 }}>角色</Title>
-                                                <Row gutter={[16, 16]}>
-                                                    {characterCards.map((char) => (
-                                                        <Col key={char.id} xs={24} md={12}>
-                                                            {renderCharacterCard(char)}
-                                                        </Col>
-                                                    ))}
-                                                    <Col xs={24} md={12}>
-                                                        <Button type="dashed" onClick={() => setIsAddCharacterModalVisible(true)} style={{ width: '100%', height: '100%', minHeight: '150px' }}>
-                                                            + 添加新角色
-                                                        </Button>
-                                                    </Col>
-                                                </Row>
-                                            </Col>
-                                        </Row>
-                                    )}
-                                </div>
-                            </Spin>
-                        </TabPane>
-                        <TabPane tab="管理" key="2">
-                            <Spin spinning={isListLoading}>
-                                <List
-                                    itemLayout="horizontal"
-                                    dataSource={storyList}
-                                    renderItem={item => (
-                                        <List.Item
-                                            onClick={() => handleViewStory(item.id)}
-                                            style={{ cursor: 'pointer' }}
-                                            actions={[<Button type="link">查看</Button>]}
-                                        >
-                                            <List.Item.Meta
-                                                title={item.title}
-                                                description={`类型: ${item.genre} | 基调: ${item.tone}`}
-                                            />
-                                        </List.Item>
-                                    )}
-                                />
-                            </Spin>
-                        </TabPane>
-                        <TabPane tab="大纲设计" key="3">
-                            <div style={{ padding: 24, background: '#fff', borderRadius: '8px' }}>
-                                <OutlineDesign
-                                    storyCards={storyList}
-                                    selectedStoryId={selectedStoryForOutline}
-                                    onStoryChange={setSelectedStoryForOutline}
-                                    onGenerate={handleGenerateOutline}
-                                    isLoading={isOutlineLoading}
-                                    outline={outline}
-                                    error={outlineError}
-                                />
-                            </div>
-                        </TabPane>
-                        <TabPane tab="大纲管理" key="4">
-                            <div style={{ padding: 24, background: '#fff', borderRadius: '8px' }}>
-                                <Title level={4}>选择一个故事以管理其大纲</Title>
-                                <Select
-                                    showSearch
-                                    style={{ width: '100%', marginBottom: 24 }}
-                                    placeholder="选择故事"
-                                    value={selectedStoryForOutline}
-                                    onChange={(value) => {
-                                        setSelectedStoryForOutline(value);
-                                        fetchOutlinesForStory(value);
-                                    }}
-                                    filterOption={(input, option) =>
-                                        (option?.children as unknown as string)?.toLowerCase().includes(input.toLowerCase())
-                                    }
-                                >
-                                    {storyList.map(story => (
-                                        <Option key={story.id} value={story.id.toString()}>{story.title}</Option>
-                                    ))}
-                                </Select>
-                                <Button 
-                                    type="primary" 
-                                    icon={<PlusOutlined />} 
-                                    onClick={() => setActiveTab("3")}
-                                    disabled={!selectedStoryForOutline}
-                                    style={{marginBottom: 24}}
-                                >
-                                    为当前故事创建新大纲
-                                </Button>
-                                <Spin spinning={isOutlineListLoading}>
-                                    <List
-                                        grid={{ gutter: 16, xs: 1, sm: 2, md: 3, lg: 4 }}
-                                        dataSource={outlinesForStory}
-                                        renderItem={item => (
-                                            <List.Item>
-                                                <Card
-                                                    title={item.title}
-                                                    actions={[
-                                                        <Link to={`/writer/${item.id}`}><EyeOutlined key="view" /></Link>,
-                                                        <EditOutlined key="edit" onClick={() => setEditingOutline(item)} />,
-                                                        <DeleteOutlined key="delete" onClick={() => handleDeleteOutline(item.id)} />,
-                                                    ]}
-                                                >
-                                                    <Paragraph>视角: {item.pointOfView}</Paragraph>
-                                                    <Paragraph>章节数: {item.chapters.length}</Paragraph>
-                                                </Card>
-                                            </List.Item>
-                                        )}
-                                    />
-                                </Spin>
-                            </div>
-                        </TabPane>
-                    </Tabs>
-                </Content>
-            </Layout>
-            <Modal
-                title="编辑故事卡"
-                open={!!editingStory}
-                onOk={handleUpdateStoryCard}
-                onCancel={() => setEditingStory(null)}
-                confirmLoading={isLoading}
-            >
-                {editingStory && renderStoryCard(editingStory)}
-            </Modal>
-            <Modal
-                title="编辑角色卡"
-                open={!!editingCharacter}
-                onOk={handleUpdateCharacterCard}
-                onCancel={() => setEditingCharacter(null)}
-                confirmLoading={isLoading}
-            >
-                {editingCharacter && renderCharacterCard(editingCharacter)}
-            </Modal>
-            <Modal
-                title="编辑大纲"
-                open={!!editingOutline}
-                onOk={handleUpdateOutline}
-                onCancel={() => setEditingOutline(null)}
-                confirmLoading={isLoading}
-            >
-                {editingOutline && (
-                    <Form layout="vertical">
-                        <Form.Item label="大纲标题">
-                            <Input value={editingOutline.title} onChange={e => setEditingOutline({...editingOutline, title: e.target.value})} />
+                        <Form.Item
+                            name="idea"
+                            label="您的一句话想法"
+                            rules={[{ required: true, message: '请输入您的想法！' }]}
+                        >
+                            <Input.TextArea
+                                rows={4}
+                                placeholder="例如：在一个由梦境驱动的城市里，一名侦探必须侦破一起受害者在睡梦中死亡的谋杀案。"
+                            />
                         </Form.Item>
-                        <Form.Item label="叙事视角">
-                            <Select value={editingOutline.pointOfView} onChange={value => setEditingOutline({...editingOutline, pointOfView: value})}>
-                                <Option value="第一人称">第一人称</Option>
-                                <Option value="第三人称">第三人称</Option>
+                        <Form.Item name="genre" label="类型">
+                            <Select>
+                                <Option value="Sci-Fi">科幻</Option>
+                                <Option value="Fantasy">奇幻</Option>
+                                <Option value="Mystery">悬疑</Option>
+                                <Option value="Horror">恐怖</Option>
+                                <Option value="Romance">爱情</Option>
                             </Select>
                         </Form.Item>
+                        <Form.Item name="tone" label="基调">
+                            <Select>
+                                <Option value="Dark">黑暗</Option>
+                                <Option value="Humorous">幽默</Option>
+                                <Option value="Serious">严肃</Option>
+                                <Option value="Adventurous">冒险</Option>
+                                <Option value="Whimsical">异想天开</Option>
+                            </Select>
+                        </Form.Item>
+                        <Form.Item>
+                            <Button type="primary" htmlType="submit" loading={isLoading} style={{ width: '100%' }}>
+                                {isLoading ? '生成中...' : '生成故事'}
+                            </Button>
+                        </Form.Item>
                     </Form>
-                )}
-            </Modal>
-            <Modal
-                title="添加新角色"
-                open={isAddCharacterModalVisible}
-                onOk={handleCreateCharacter}
-                onCancel={() => setIsAddCharacterModalVisible(false)}
-                confirmLoading={isLoading}
-            >
-                <Form layout="vertical">
-                    <Form.Item label="姓名">
-                        <Input value={newCharacter.name} onChange={e => setNewCharacter({...newCharacter, name: e.target.value})} />
-                    </Form.Item>
-                    <Form.Item label="概要">
-                        <Input.TextArea value={newCharacter.synopsis} autoSize onChange={e => setNewCharacter({...newCharacter, synopsis: e.target.value})} />
-                    </Form.Item>
-                    <Form.Item label="详情">
-                        <Input.TextArea value={newCharacter.details} autoSize onChange={e => setNewCharacter({...newCharacter, details: e.target.value})} />
-                    </Form.Item>
-                    <Form.Item label="人物关系">
-                        <Input.TextArea value={newCharacter.relationships} autoSize onChange={e => setNewCharacter({...newCharacter, relationships: e.target.value})} />
-                    </Form.Item>
-                </Form>
-            </Modal>
-        </Layout>
+                </Card>
+            </Col>
+            <Col span={16}>
+                <Spin spinning={isLoading} tip="正在构想一个新宇宙..." size="large">
+                    <div style={{ padding: 24, background: '#fff', borderRadius: '8px', height: '100%' }}>
+                        {error && <Alert message="错误" description={error} type="error" showIcon closable style={{ marginBottom: 24 }} />}
+                        
+                        {!storyCard && !isLoading && (
+                            <Empty description="从左侧生成或选择一个故事开始。" />
+                        )}
+
+                        {storyCard && (
+                            <Row gutter={[24, 24]}>
+                                <Col xs={24} lg={8}>
+                                    {renderStoryCard(storyCard)}
+                                </Col>
+                                <Col xs={24} lg={16}>
+                                    <Title level={4} style={{ marginBottom: 16 }}>角色</Title>
+                                    <Row gutter={[16, 16]}>
+                                        {characterCards.map((char) => (
+                                            <Col key={char.id} xs={24} md={12}>
+                                                {renderCharacterCard(char)}
+                                            </Col>
+                                        ))}
+                                        <Col xs={24} md={12}>
+                                            <Button type="dashed" onClick={() => setIsAddCharacterModalVisible(true)} style={{ width: '100%', height: '100%', minHeight: '150px' }}>
+                                                + 添加新角色
+                                            </Button>
+                                        </Col>
+                                    </Row>
+                                </Col>
+                            </Row>
+                        )}
+                    </div>
+                </Spin>
+            </Col>
+        </Row>
     );
 };
 
