@@ -1,5 +1,4 @@
 import { useState } from 'react';
-import { ChevronDownIcon, UserGroupIcon, UserIcon } from '@heroicons/react/24/solid';
 import type { Outline, Chapter, Scene, RefineHandler } from '../types';
 
 // Scene Card Component
@@ -31,7 +30,6 @@ const SceneCard = ({ scene, onSelect }: SceneCardProps) => {
                 {/* Present Characters */}
                 {characters.length > 0 && (
                     <div className="flex items-center">
-                        <UserIcon className="h-5 w-5 text-blue-500 mr-2" />
                         <div>
                             <h5 className="text-sm font-semibold text-gray-700">核心人物</h5>
                             <div className="flex flex-wrap gap-2 mt-1">
@@ -45,8 +43,7 @@ const SceneCard = ({ scene, onSelect }: SceneCardProps) => {
 
                 {/* Temporary Characters */}
                 {scene.temporaryCharacters && scene.temporaryCharacters.length > 0 && (
-                    <div className="flex items-start">
-                        <UserGroupIcon className="h-5 w-5 text-purple-500 mr-2 mt-1" />
+                    <div>
                         <div>
                             <h5 className="text-sm font-semibold text-gray-700">临时人物</h5>
                             <ul className="list-disc list-inside mt-1 space-y-1">
@@ -71,7 +68,6 @@ const SceneCard = ({ scene, onSelect }: SceneCardProps) => {
                             className="flex items-center justify-between w-full text-left text-sm font-semibold text-gray-700"
                         >
                             <span>人物状态与行动</span>
-                            <ChevronDownIcon className={`h-5 w-5 text-gray-500 transition-transform ${isStatesExpanded ? 'rotate-180' : ''}`} />
                         </button>
                         {isStatesExpanded && (
                             <div className="mt-2 p-3 bg-gray-50 rounded-md whitespace-pre-wrap text-sm text-gray-800">

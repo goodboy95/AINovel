@@ -54205,74 +54205,6 @@ const refineText = (endpoint, payload) => {
     body: JSON.stringify(payload)
   }).then((res) => handleResponse(res));
 };
-function ChevronDownIcon({
-  title,
-  titleId,
-  ...props
-}, svgRef) {
-  return /* @__PURE__ */ reactExports.createElement("svg", Object.assign({
-    xmlns: "http://www.w3.org/2000/svg",
-    viewBox: "0 0 24 24",
-    fill: "currentColor",
-    "aria-hidden": "true",
-    "data-slot": "icon",
-    ref: svgRef,
-    "aria-labelledby": titleId
-  }, props), title ? /* @__PURE__ */ reactExports.createElement("title", {
-    id: titleId
-  }, title) : null, /* @__PURE__ */ reactExports.createElement("path", {
-    fillRule: "evenodd",
-    d: "M12.53 16.28a.75.75 0 0 1-1.06 0l-7.5-7.5a.75.75 0 0 1 1.06-1.06L12 14.69l6.97-6.97a.75.75 0 1 1 1.06 1.06l-7.5 7.5Z",
-    clipRule: "evenodd"
-  }));
-}
-const ForwardRef$2 = /* @__PURE__ */ reactExports.forwardRef(ChevronDownIcon);
-function UserGroupIcon({
-  title,
-  titleId,
-  ...props
-}, svgRef) {
-  return /* @__PURE__ */ reactExports.createElement("svg", Object.assign({
-    xmlns: "http://www.w3.org/2000/svg",
-    viewBox: "0 0 24 24",
-    fill: "currentColor",
-    "aria-hidden": "true",
-    "data-slot": "icon",
-    ref: svgRef,
-    "aria-labelledby": titleId
-  }, props), title ? /* @__PURE__ */ reactExports.createElement("title", {
-    id: titleId
-  }, title) : null, /* @__PURE__ */ reactExports.createElement("path", {
-    fillRule: "evenodd",
-    d: "M8.25 6.75a3.75 3.75 0 1 1 7.5 0 3.75 3.75 0 0 1-7.5 0ZM15.75 9.75a3 3 0 1 1 6 0 3 3 0 0 1-6 0ZM2.25 9.75a3 3 0 1 1 6 0 3 3 0 0 1-6 0ZM6.31 15.117A6.745 6.745 0 0 1 12 12a6.745 6.745 0 0 1 6.709 7.498.75.75 0 0 1-.372.568A12.696 12.696 0 0 1 12 21.75c-2.305 0-4.47-.612-6.337-1.684a.75.75 0 0 1-.372-.568 6.787 6.787 0 0 1 1.019-4.38Z",
-    clipRule: "evenodd"
-  }), /* @__PURE__ */ reactExports.createElement("path", {
-    d: "M5.082 14.254a8.287 8.287 0 0 0-1.308 5.135 9.687 9.687 0 0 1-1.764-.44l-.115-.04a.563.563 0 0 1-.373-.487l-.01-.121a3.75 3.75 0 0 1 3.57-4.047ZM20.226 19.389a8.287 8.287 0 0 0-1.308-5.135 3.75 3.75 0 0 1 3.57 4.047l-.01.121a.563.563 0 0 1-.373.486l-.115.04c-.567.2-1.156.349-1.764.441Z"
-  }));
-}
-const ForwardRef$1 = /* @__PURE__ */ reactExports.forwardRef(UserGroupIcon);
-function UserIcon({
-  title,
-  titleId,
-  ...props
-}, svgRef) {
-  return /* @__PURE__ */ reactExports.createElement("svg", Object.assign({
-    xmlns: "http://www.w3.org/2000/svg",
-    viewBox: "0 0 24 24",
-    fill: "currentColor",
-    "aria-hidden": "true",
-    "data-slot": "icon",
-    ref: svgRef,
-    "aria-labelledby": titleId
-  }, props), title ? /* @__PURE__ */ reactExports.createElement("title", {
-    id: titleId
-  }, title) : null, /* @__PURE__ */ reactExports.createElement("path", {
-    fillRule: "evenodd",
-    d: "M7.5 6a4.5 4.5 0 1 1 9 0 4.5 4.5 0 0 1-9 0ZM3.751 20.105a8.25 8.25 0 0 1 16.498 0 .75.75 0 0 1-.437.695A18.683 18.683 0 0 1 12 22.5c-2.786 0-5.433-.608-7.812-1.7a.75.75 0 0 1-.437-.695Z",
-    clipRule: "evenodd"
-  }));
-}
-const ForwardRef = /* @__PURE__ */ reactExports.forwardRef(UserIcon);
 const SceneCard = ({ scene, onSelect }) => {
   const [isStatesExpanded, setIsStatesExpanded] = reactExports.useState(false);
   const characters2 = scene.presentCharacters?.split(/[,，、]/).map((name) => name.trim()).filter(Boolean) || [];
@@ -54296,29 +54228,23 @@ const SceneCard = ({ scene, onSelect }) => {
         ] }),
         /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-sm text-gray-600 mb-3", children: scene.synopsis }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-3", children: [
-          characters2.length > 0 && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center", children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx(ForwardRef, { className: "h-5 w-5 text-blue-500 mr-2" }),
-            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsx("h5", { className: "text-sm font-semibold text-gray-700", children: "核心人物" }),
-              /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex flex-wrap gap-2 mt-1", children: characters2.map((char2, index2) => /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "px-2 py-1 text-xs bg-blue-100 text-blue-800 rounded-full", children: char2 }, index2)) })
-            ] })
-          ] }),
-          scene.temporaryCharacters && scene.temporaryCharacters.length > 0 && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-start", children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx(ForwardRef$1, { className: "h-5 w-5 text-purple-500 mr-2 mt-1" }),
-            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsx("h5", { className: "text-sm font-semibold text-gray-700", children: "临时人物" }),
-              /* @__PURE__ */ jsxRuntimeExports.jsx("ul", { className: "list-disc list-inside mt-1 space-y-1", children: scene.temporaryCharacters.map((tc) => /* @__PURE__ */ jsxRuntimeExports.jsxs("li", { className: "text-sm text-gray-600", children: [
-                /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "font-semibold", children: [
-                  tc.name,
-                  ":"
-                ] }),
-                " ",
-                tc.description
-              ] }, tc.id)) })
-            ] })
-          ] }),
+          characters2.length > 0 && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex items-center", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("h5", { className: "text-sm font-semibold text-gray-700", children: "核心人物" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex flex-wrap gap-2 mt-1", children: characters2.map((char2, index2) => /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "px-2 py-1 text-xs bg-blue-100 text-blue-800 rounded-full", children: char2 }, index2)) })
+          ] }) }),
+          scene.temporaryCharacters && scene.temporaryCharacters.length > 0 && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("h5", { className: "text-sm font-semibold text-gray-700", children: "临时人物" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("ul", { className: "list-disc list-inside mt-1 space-y-1", children: scene.temporaryCharacters.map((tc) => /* @__PURE__ */ jsxRuntimeExports.jsxs("li", { className: "text-sm text-gray-600", children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "font-semibold", children: [
+                tc.name,
+                ":"
+              ] }),
+              " ",
+              tc.description
+            ] }, tc.id)) })
+          ] }) }),
           scene.characterStates && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsxs(
+            /* @__PURE__ */ jsxRuntimeExports.jsx(
               "button",
               {
                 onClick: (e2) => {
@@ -54326,10 +54252,7 @@ const SceneCard = ({ scene, onSelect }) => {
                   setIsStatesExpanded(!isStatesExpanded);
                 },
                 className: "flex items-center justify-between w-full text-left text-sm font-semibold text-gray-700",
-                children: [
-                  /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: "人物状态与行动" }),
-                  /* @__PURE__ */ jsxRuntimeExports.jsx(ForwardRef$2, { className: `h-5 w-5 text-gray-500 transition-transform ${isStatesExpanded ? "rotate-180" : ""}` })
-                ]
+                children: /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: "人物状态与行动" })
               }
             ),
             isStatesExpanded && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "mt-2 p-3 bg-gray-50 rounded-md whitespace-pre-wrap text-sm text-gray-800", children: scene.characterStates })

@@ -34,5 +34,6 @@ public class TemporaryCharacter {
     private String name;
 
     @Lob
+    @Column(columnDefinition = "TEXT")
     private String description;
 }

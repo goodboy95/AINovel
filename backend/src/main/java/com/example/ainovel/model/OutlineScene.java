@@ -54,6 +54,7 @@ public class OutlineScene {
      * A synopsis of the events that occur in this scene.
      */
     @Lob
+    @Column(columnDefinition = "TEXT")
     private String synopsis;
 
     /**
@@ -66,14 +67,14 @@ public class OutlineScene {
      * A list of characters present in this scene.
      */
     @Lob
-    @Column(name = "present_characters")
+    @Column(name = "present_characters", columnDefinition = "TEXT")
     private String presentCharacters;
 
     /**
      * Detailed description of the characters' states, thoughts, and actions in this scene.
      */
     @Lob
-    @Column(name = "character_states")
+    @Column(name = "character_states", columnDefinition = "TEXT")
     private String characterStates;
 
     @OneToMany(mappedBy = "scene", cascade = CascadeType.ALL, orphanRemoval = true)
