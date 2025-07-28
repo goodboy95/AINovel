@@ -1,23 +1,46 @@
 package com.example.ainovel.service;
 
-import com.example.ainovel.dto.*;
-import com.example.ainovel.model.*;
-import com.example.ainovel.repository.*;
-import com.example.ainovel.exception.ResourceNotFoundException;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import lombok.RequiredArgsConstructor;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContext;
+import org.springframework.retry.annotation.Backoff;
+import org.springframework.retry.annotation.Retryable;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.stream.Collectors;
+import com.example.ainovel.dto.ChapterDto;
+import com.example.ainovel.dto.GenerateChapterRequest;
+import com.example.ainovel.dto.OutlineDto;
+import com.example.ainovel.dto.OutlineRequest;
+import com.example.ainovel.dto.RefineRequest;
+import com.example.ainovel.dto.RefineResponse;
+import com.example.ainovel.dto.SceneDto;
+import com.example.ainovel.dto.TemporaryCharacterDto;
+import com.example.ainovel.exception.ResourceNotFoundException;
+import com.example.ainovel.model.OutlineCard;
+import com.example.ainovel.model.OutlineChapter;
+import com.example.ainovel.model.OutlineScene;
+import com.example.ainovel.model.StoryCard;
+import com.example.ainovel.model.TemporaryCharacter;
+import com.example.ainovel.model.User;
+import com.example.ainovel.model.UserSetting;
+import com.example.ainovel.repository.OutlineCardRepository;
+import com.example.ainovel.repository.OutlineChapterRepository;
+import com.example.ainovel.repository.OutlineSceneRepository;
+import com.example.ainovel.repository.StoryCardRepository;
+import com.example.ainovel.repository.TemporaryCharacterRepository;
+import com.example.ainovel.repository.UserRepository;
+import com.example.ainovel.repository.UserSettingRepository;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+import lombok.RequiredArgsConstructor;
 
 /**
  * Service for managing story outlines, including AI-powered generation and CRUD operations.
@@ -37,6 +60,8 @@ public class OutlineService {
     private final ObjectMapper objectMapper;
     private final OutlineChapterRepository outlineChapterRepository;
     private final OutlineSceneRepository outlineSceneRepository;
+
+    private final TemporaryCharacterRepository temporaryCharacterRepository;
 
     /**
      * Creates a new story outline using an AI service.
@@ -59,6 +84,7 @@ public class OutlineService {
      * @return A DTO representing the newly created empty outline.
      */
     @Transactional
+    @Retryable(backoff = @Backoff(delay = 1000), maxAttempts = 3)
     public OutlineDto createEmptyOutline(Long storyCardId, Long userId) {
         StoryCard storyCard = findStoryCardById(storyCardId);
         validateStoryCardAccess(storyCard, userId);
@@ -136,6 +162,19 @@ public class OutlineService {
         dto.setExpectedWords(scene.getExpectedWords());
         dto.setPresentCharacters(scene.getPresentCharacters()); // Add present characters
         dto.setCharacterStates(scene.getCharacterStates());   // Add character states
+        if (scene.getTemporaryCharacters() != null) {
+            dto.setTemporaryCharacters(scene.getTemporaryCharacters().stream()
+                .map(this::convertTemporaryCharacterToDto)
+                .collect(Collectors.toList()));
+        }
+        return dto;
+    }
+
+    private TemporaryCharacterDto convertTemporaryCharacterToDto(TemporaryCharacter temporaryCharacter) {
+        TemporaryCharacterDto dto = new TemporaryCharacterDto();
+        dto.setId(temporaryCharacter.getId());
+        dto.setName(temporaryCharacter.getName());
+        dto.setDescription(temporaryCharacter.getDescription());
         return dto;
     }
 
@@ -164,6 +203,7 @@ public class OutlineService {
      * @return The updated outline DTO.
      */
     @Transactional
+    @Retryable(backoff = @Backoff(delay = 1000), maxAttempts = 3)
     public OutlineDto updateOutline(Long outlineId, OutlineDto outlineDto, Long userId) {
         OutlineCard outlineCard = findOutlineCardById(outlineId);
         validateOutlineAccess(outlineCard, userId);
@@ -206,6 +246,7 @@ public class OutlineService {
      * @param userId    The ID of the user making the request.
      */
     @Transactional
+    @Retryable(backoff = @Backoff(delay = 1000), maxAttempts = 3)
     public void deleteOutline(Long outlineId, Long userId) {
         OutlineCard outlineCard = findOutlineCardById(outlineId);
         validateOutlineAccess(outlineCard, userId);
@@ -245,8 +286,10 @@ public class OutlineService {
     }
 
     @Transactional
-    public ChapterDto generateChapterOutline(Long outlineId, GenerateChapterRequest request, User user) {
+    @Retryable(backoff = @Backoff(delay = 1000), maxAttempts = 3)
+    public ChapterDto generateChapterOutline(Long outlineId, GenerateChapterRequest request) {
         OutlineCard outlineCard = findOutlineCardById(outlineId);
+        User user = outlineCard.getUser();
         validateOutlineAccess(outlineCard, user.getId());
 
         StoryCard storyCard = outlineCard.getStoryCard();
@@ -254,6 +297,8 @@ public class OutlineService {
         String apiKey = getDecryptedApiKeyForUser(user);
 
         String prompt = buildChapterPrompt(storyCard, outlineCard, request);
+        logger.debug("Generated Prompt for Chapter {}: {}", request.getChapterNumber(), prompt);
+
         String jsonResponse = aiService.generate(prompt, apiKey);
         logger.info("AI Response JSON for chapter generation: {}", jsonResponse);
 
@@ -271,29 +316,47 @@ public class OutlineService {
                 .map(c -> String.format("- %s: %s", c.getName(), c.getSynopsis()))
                 .collect(Collectors.joining("\n"));
 
-        String previousChapterSynopsis = "";
-        if (request.getChapterNumber() > 1) {
-            previousChapterSynopsis = outlineChapterRepository
-                .findByOutlineCardIdAndChapterNumber(outlineCard.getId(), request.getChapterNumber() - 1)
-                .map(OutlineChapter::getSynopsis)
-                .orElse("");
-        }
+        String previousChapterSynopsis = outlineChapterRepository
+            .findByOutlineCardIdAndChapterNumber(outlineCard.getId(), request.getChapterNumber() - 1)
+            .map(OutlineChapter::getSynopsis)
+            .orElse("无，这是第一章。");
 
         return String.format(
-            "你是一个专业的小说大纲设计师。请根据以下信息，为故事的第 %d 章设计详细大纲。\n\n" +
-            "**全局信息:**\n- 故事简介: %s\n- 故事走向: %s\n\n" +
-            "**主要角色:**\n%s\n\n" +
-            "**上下文 (上一章内容):**\n%s\n\n" +
-            "**本章要求:**\n- 章节序号: %d\n- 包含节数: %d\n- 每节字数: 约 %d 字\n\n" +
-            "请以JSON格式返回。根对象应包含 \"title\", \"synopsis\" 和一个 \"scenes\" 数组。\n" +
-            "每个 scene 对象必须包含:\n" +
-            "- \"sceneNumber\": 序号\n" +
-            "- \"synopsis\": 更充分的故事梗概\n" +
-            "- \"presentCharacters\": 出场人物列表 (字符串)\n" +
-            "- \"characterStates\": 详细描述每个人物在本节的状态、想法和行动",
-            request.getChapterNumber(), storyCard.getSynopsis(), storyCard.getStoryArc(),
-            characterProfiles, previousChapterSynopsis, request.getChapterNumber(),
-            request.getSectionsPerChapter(), request.getWordsPerSection()
+            """
+            你是一个专业的小说大纲设计师。请根据以下信息，为故事的第 %d 章设计详细大纲。
+
+            **全局信息:**
+            - 故事简介: %s
+            - 故事走向: %s
+
+            **主要角色:**
+            %s
+
+            **上下文 (上一章梗概):**
+            %s
+
+            **本章要求:**
+            - 章节序号: %d
+            - 包含节数: %d
+            - 每节字数: 约 %d 字
+
+            **输出要求:**
+            请严格以JSON格式返回。根对象应包含 "title", "synopsis" 和一个 "scenes" 数组。
+            每个 scene 对象必须包含:
+            - "sceneNumber": (number) 序号。
+            - "synopsis": (string) 必须是详细、充实、引人入胜的故事梗概，长度不应少于150字。
+            - "presentCharacters": (string[]) 核心出场人物姓名列表。
+            - "characterStates": (object) 一个对象，键为核心人物姓名，值为该人物在本节中非常详细的状态、内心想法和关键行动的描述。
+            - "temporaryCharacters": (object[]) 一个对象数组，用于描写本节新出现的临时人物。如果不需要，则返回空数组[]。每个对象必须包含 "name" (string) 和 "description" (string) 字段。
+            """,
+            request.getChapterNumber(),
+            storyCard.getSynopsis(),
+            storyCard.getStoryArc(),
+            characterProfiles,
+            previousChapterSynopsis,
+            request.getChapterNumber(),
+            request.getSectionsPerChapter(),
+            request.getWordsPerSection()
         );
     }
 
@@ -304,12 +367,17 @@ public class OutlineService {
         OutlineChapter chapter = new OutlineChapter();
         chapter.setOutlineCard(outlineCard);
         chapter.setChapterNumber(request.getChapterNumber());
-        chapter.setTitle(chapterNode.path("title").asText());
+        chapter.setTitle(chapterNode.path("title").asText("未命名章节"));
         chapter.setSynopsis(chapterNode.path("synopsis").asText());
-        chapter.setSettings(java.util.Map.of(
-            "sectionsPerChapter", request.getSectionsPerChapter(),
-            "wordsPerSection", request.getWordsPerSection()
-        ));
+        try {
+            chapter.setSettings(objectMapper.writeValueAsString(java.util.Map.of(
+                "sectionsPerChapter", request.getSectionsPerChapter(),
+                "wordsPerSection", request.getWordsPerSection()
+            )));
+        } catch (JsonProcessingException e) {
+            logger.warn("Could not serialize chapter settings", e);
+            chapter.setSettings("{}");
+        }
 
         List<OutlineScene> scenes = new ArrayList<>();
         JsonNode scenesNode = chapterNode.path("scenes");
@@ -318,9 +386,28 @@ public class OutlineService {
             scene.setOutlineChapter(chapter);
             scene.setSceneNumber(sceneNode.path("sceneNumber").asInt());
             scene.setSynopsis(sceneNode.path("synopsis").asText());
-            scene.setExpectedWords(sceneNode.path("expectedWords").asInt(request.getWordsPerSection()));
-            scene.setPresentCharacters(sceneNode.path("presentCharacters").asText());
-            scene.setCharacterStates(sceneNode.path("characterStates").asText());
+            scene.setExpectedWords(request.getWordsPerSection());
+
+            // Handle presentCharacters as an array of strings
+            List<String> presentChars = new ArrayList<>();
+            sceneNode.path("presentCharacters").forEach(node -> presentChars.add(node.asText()));
+            scene.setPresentCharacters(String.join(", ", presentChars));
+
+            // Handle characterStates as a JSON object string
+            scene.setCharacterStates(sceneNode.path("characterStates").toString());
+
+            // Handle temporary characters
+            List<TemporaryCharacter> tempChars = new ArrayList<>();
+            JsonNode tempCharsNode = sceneNode.path("temporaryCharacters");
+            for (JsonNode tempCharNode : tempCharsNode) {
+                TemporaryCharacter tempChar = new TemporaryCharacter();
+                tempChar.setName(tempCharNode.path("name").asText());
+                tempChar.setDescription(tempCharNode.path("description").asText());
+                tempChar.setScene(scene); // Set back-reference
+                tempChars.add(tempChar);
+            }
+            scene.setTemporaryCharacters(tempChars);
+
             scenes.add(scene);
         }
         chapter.setScenes(scenes);

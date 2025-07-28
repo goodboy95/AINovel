@@ -1,5 +1,7 @@
 package com.example.ainovel.dto;
 
+import java.util.List;
+
 import lombok.Data;
 
 @Data
@@ -10,4 +12,5 @@ public class SceneDto {
    private Integer expectedWords;
    private String presentCharacters;
    private String characterStates;
+   private List<TemporaryCharacterDto> temporaryCharacters;
 }

@@ -1,87 +1,127 @@
-import { Card, Collapse, Typography, Tag, Divider, Space } from 'antd';
+import { useState } from 'react';
+import { ChevronDownIcon, UserGroupIcon, UserIcon } from '@heroicons/react/24/solid';
 import type { Outline, Chapter, Scene, RefineHandler } from '../types';
 
-const { Title, Text, Paragraph } = Typography;
-const { Panel } = Collapse;
-
-const SceneView = ({ scene, onSelect }: { scene: Scene, onSelect?: (scene: Scene) => void }) => {
-    const characters = scene.presentCharacters?.split(/[,，、]/).map(name => name.trim()).filter(Boolean) || [];
-
-    return (
-        <Card
-            size="small"
-            className="mb-4 shadow-sm hover:shadow-md transition-shadow"
-            onClick={() => onSelect && onSelect(scene)}
-            hoverable={!!onSelect}
-        >
-            <div className="flex justify-between items-start">
-                <Title level={5} className="!mb-1">第 {scene.sceneNumber} 节</Title>
-                <Text type="secondary">约 {scene.expectedWords} 字</Text>
-            </div>
-            <Divider className="my-2" />
-            <Paragraph ellipsis={{ rows: 3, expandable: true, symbol: '更多' }}>
-                {scene.synopsis}
-            </Paragraph>
-            
-            {characters.length > 0 && (
-                <>
-                    <Divider className="my-2" />
-                    <div className="mb-2">
-                        <Text strong>出场人物: </Text>
-                        <Space wrap>
-                            {characters.map((char, index) => <Tag key={index} color="blue">{char}</Tag>)}
-                        </Space>
-                    </div>
-                </>
-            )}
-
-            {scene.characterStates && (
-                <Collapse ghost size="small">
-                    <Panel header="人物状态与行动" key="1">
-                        <Paragraph pre-wrap className="text-xs bg-gray-50 p-2 rounded">
-                            {scene.characterStates}
-                        </Paragraph>
-                    </Panel>
-                </Collapse>
-            )}
-        </Card>
-    );
-};
-
-const ChapterView = ({ chapter, onSelectScene }: { chapter: Chapter, onSelectScene?: (scene: Scene) => void }) => {
-    return (
-        <Card className="mb-4">
-            <Title level={4}>第 {chapter.chapterNumber} 章: {chapter.title}</Title>
-            <Paragraph type="secondary">{chapter.synopsis}</Paragraph>
-            <Divider />
-            <div>
-                {chapter.scenes.map((scene) => (
-                    <SceneView key={scene.id} scene={scene} onSelect={onSelectScene} />
-                ))}
-            </div>
-        </Card>
-    );
-};
-
-interface OutlineTreeViewProps {
-    outline: Outline | null;
-    onSelectScene?: (scene: Scene) => void;
-    onUpdate?: (updatedOutline: Outline) => void;
+// Scene Card Component
+interface SceneCardProps {
+    scene: Scene;
+    onSelect?: (scene: Scene) => void;
     handleOpenRefineModal?: RefineHandler;
 }
 
-const OutlineTreeView = ({ outline, onSelectScene }: OutlineTreeViewProps) => {
+const SceneCard = ({ scene, onSelect }: SceneCardProps) => {
+    const [isStatesExpanded, setIsStatesExpanded] = useState(false);
+    const characters = scene.presentCharacters?.split(/[,，、]/).map(name => name.trim()).filter(Boolean) || [];
+
+    return (
+        <div
+            className="border border-gray-200 rounded-lg p-4 mb-3 bg-white shadow-sm hover:shadow-lg transition-shadow cursor-pointer"
+            onClick={() => onSelect && onSelect(scene)}
+        >
+            {/* Scene Header */}
+            <div className="flex justify-between items-center mb-2">
+                <h4 className="text-md font-bold text-gray-800">第 {scene.sceneNumber} 节</h4>
+                <span className="text-sm text-gray-500">约 {scene.expectedWords} 字</span>
+            </div>
+
+            {/* Synopsis */}
+            <p className="text-sm text-gray-600 mb-3">{scene.synopsis}</p>
+
+            <div className="space-y-3">
+                {/* Present Characters */}
+                {characters.length > 0 && (
+                    <div className="flex items-center">
+                        <UserIcon className="h-5 w-5 text-blue-500 mr-2" />
+                        <div>
+                            <h5 className="text-sm font-semibold text-gray-700">核心人物</h5>
+                            <div className="flex flex-wrap gap-2 mt-1">
+                                {characters.map((char, index) => (
+                                    <span key={index} className="px-2 py-1 text-xs bg-blue-100 text-blue-800 rounded-full">{char}</span>
+                                ))}
+                            </div>
+                        </div>
+                    </div>
+                )}
+
+                {/* Temporary Characters */}
+                {scene.temporaryCharacters && scene.temporaryCharacters.length > 0 && (
+                    <div className="flex items-start">
+                        <UserGroupIcon className="h-5 w-5 text-purple-500 mr-2 mt-1" />
+                        <div>
+                            <h5 className="text-sm font-semibold text-gray-700">临时人物</h5>
+                            <ul className="list-disc list-inside mt-1 space-y-1">
+                                {scene.temporaryCharacters.map(tc => (
+                                    <li key={tc.id} className="text-sm text-gray-600">
+                                        <span className="font-semibold">{tc.name}:</span> {tc.description}
+                                    </li>
+                                ))}
+                            </ul>
+                        </div>
+                    </div>
+                )}
+
+                {/* Character States */}
+                {scene.characterStates && (
+                    <div>
+                        <button
+                            onClick={(e) => {
+                                e.stopPropagation(); // Prevent card click event
+                                setIsStatesExpanded(!isStatesExpanded);
+                            }}
+                            className="flex items-center justify-between w-full text-left text-sm font-semibold text-gray-700"
+                        >
+                            <span>人物状态与行动</span>
+                            <ChevronDownIcon className={`h-5 w-5 text-gray-500 transition-transform ${isStatesExpanded ? 'rotate-180' : ''}`} />
+                        </button>
+                        {isStatesExpanded && (
+                            <div className="mt-2 p-3 bg-gray-50 rounded-md whitespace-pre-wrap text-sm text-gray-800">
+                                {scene.characterStates}
+                            </div>
+                        )}
+                    </div>
+                )}
+            </div>
+        </div>
+    );
+};
+
+// Chapter Card Component
+interface ChapterCardProps {
+    chapter: Chapter;
+    onSelectScene?: (scene: Scene) => void;
+    handleOpenRefineModal?: RefineHandler;
+}
+
+const ChapterCard = ({ chapter, onSelectScene, handleOpenRefineModal }: ChapterCardProps) => {
+    return (
+        <div className="bg-gray-50 rounded-xl p-4 mb-6 shadow">
+            <h3 className="text-xl font-bold text-gray-900 mb-1">第 {chapter.chapterNumber} 章: {chapter.title}</h3>
+            <p className="text-sm text-gray-600 mb-4">{chapter.synopsis}</p>
+            <div>
+                {chapter.scenes.sort((a, b) => a.sceneNumber - b.sceneNumber).map((scene) => (
+                    <SceneCard key={scene.id} scene={scene} onSelect={onSelectScene} handleOpenRefineModal={handleOpenRefineModal} />
+                ))}
+            </div>
+        </div>
+    );
+};
+
+// Main Tree View Component
+interface OutlineTreeViewProps {
+    outline: Outline | null;
+    onSelectScene?: (scene: Scene) => void;
+    onUpdate?: (outline: Outline) => void;
+    handleOpenRefineModal?: RefineHandler;
+}
+
+const OutlineTreeView = ({ outline, onSelectScene, handleOpenRefineModal }: OutlineTreeViewProps) => {
     if (!outline) return null;
 
     return (
-        <div>
-            <Title level={2} className="text-center mb-2">{outline.title}</Title>
-            <Text type="secondary" className="block text-center mb-6">叙事视角: {outline.pointOfView}</Text>
-            <div>
-                {outline.chapters.map((chapter) => (
-                    <ChapterView key={chapter.id} chapter={chapter} onSelectScene={onSelectScene} />
-                ))}
-            </div>
+        <div className="h-full overflow-y-auto">
+            {outline.chapters.sort((a, b) => a.chapterNumber - b.chapterNumber).map((chapter) => (
+                <ChapterCard key={chapter.id} chapter={chapter} onSelectScene={onSelectScene} handleOpenRefineModal={handleOpenRefineModal} />
+            ))}
         </div>
     );
 };

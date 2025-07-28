@@ -125,7 +125,12 @@ const OutlineDesign: React.FC<OutlineDesignProps> = ({
 
                     {selectedStoryId && (
                         <Card>
-                            <Title level={5}>历史大纲</Title>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
+                                <Title level={5} style={{ marginBottom: 0 }}>历史大纲</Title>
+                                <Button type="primary" onClick={handleCreateEmptyOutline}>
+                                    为当前故事创建新大纲
+                                </Button>
+                            </div>
                             {outlines.length > 0 ? (
                                 <List
                                     itemLayout="horizontal"
@@ -142,12 +147,7 @@ const OutlineDesign: React.FC<OutlineDesignProps> = ({
                                     )}
                                 />
                             ) : (
-                                <div>
-                                    <p>暂无历史大纲。</p>
-                                    <Button type="primary" onClick={handleCreateEmptyOutline}>
-                                        创建新大纲
-                                    </Button>
-                                </div>
+                                <p>暂无历史大纲。</p>
                             )}
                         </Card>
                     )}

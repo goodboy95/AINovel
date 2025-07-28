@@ -1,9 +1,20 @@
 package com.example.ainovel.service;
 
+import java.util.List;
+
+import org.springframework.context.ApplicationContext;
+import org.springframework.retry.annotation.Backoff;
+import org.springframework.retry.annotation.Retryable;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import com.example.ainovel.dto.ConceptionRequest;
 import com.example.ainovel.dto.ConceptionResponse;
 import com.example.ainovel.dto.RefineRequest;
 import com.example.ainovel.dto.RefineResponse;
+import com.example.ainovel.exception.ResourceNotFoundException;
 import com.example.ainovel.model.CharacterCard;
 import com.example.ainovel.model.StoryCard;
 import com.example.ainovel.model.User;
@@ -12,18 +23,8 @@ import com.example.ainovel.repository.CharacterCardRepository;
 import com.example.ainovel.repository.StoryCardRepository;
 import com.example.ainovel.repository.UserRepository;
 import com.example.ainovel.repository.UserSettingRepository;
-import org.springframework.context.ApplicationContext;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
-
-import com.example.ainovel.exception.ResourceNotFoundException;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.access.AccessDeniedException;
-
-import java.util.List;
 
 /**
  * Service for handling business logic related to story conception,
@@ -48,6 +49,7 @@ public class ConceptionService {
      * @return A DTO containing the newly created story and character cards.
      */
     @Transactional
+    @Retryable(backoff = @Backoff(delay = 1000), maxAttempts = 3)
     public ConceptionResponse generateAndSaveStory(String username, ConceptionRequest request) {
         User user = findUserByUsername(username);
         AiService aiService = getAiServiceForUser(user);
@@ -120,6 +122,7 @@ public class ConceptionService {
      * @return The updated StoryCard.
      */
     @Transactional
+    @Retryable(backoff = @Backoff(delay = 1000), maxAttempts = 3)
     public StoryCard updateStoryCard(Long cardId, StoryCard storyDetails, Long userId) {
         StoryCard storyCard = findStoryCardById(cardId);
         validateUserPermission(storyCard.getUser(), userId, "story card");
@@ -142,6 +145,7 @@ public class ConceptionService {
      * @return The updated CharacterCard.
      */
     @Transactional
+    @Retryable(backoff = @Backoff(delay = 1000), maxAttempts = 3)
     public CharacterCard updateCharacterCard(Long cardId, CharacterCard characterDetails, Long userId) {
         CharacterCard characterCard = findCharacterCardById(cardId);
         validateUserPermission(characterCard.getUser(), userId, "character card");
@@ -164,6 +168,7 @@ public class ConceptionService {
      * @return The newly saved CharacterCard.
      */
     @Transactional
+    @Retryable(backoff = @Backoff(delay = 1000), maxAttempts = 3)
     public CharacterCard addCharacterToStory(Long storyCardId, CharacterCard characterCard, User user) {
         StoryCard storyCard = findStoryCardById(storyCardId);
         validateUserPermission(storyCard.getUser(), user.getId(), "story card");
@@ -179,6 +184,7 @@ public class ConceptionService {
      * @param userId The ID of the user making the request.
      */
     @Transactional
+    @Retryable(backoff = @Backoff(delay = 1000), maxAttempts = 3)
     public void deleteCharacterCard(Long cardId, Long userId) {
         CharacterCard characterCard = findCharacterCardById(cardId);
         validateUserPermission(characterCard.getUser(), userId, "character card");

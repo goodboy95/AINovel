@@ -1,17 +1,30 @@
 package com.example.ainovel.service;
 
-import com.example.ainovel.model.*;
-import com.example.ainovel.repository.*;
-import com.example.ainovel.exception.ResourceNotFoundException;
-import lombok.RequiredArgsConstructor;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.stream.Collectors;
+
+import org.springframework.retry.annotation.Backoff;
+import org.springframework.retry.annotation.Retryable;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Optional;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
+import com.example.ainovel.exception.ResourceNotFoundException;
+import com.example.ainovel.model.CharacterCard;
+import com.example.ainovel.model.ManuscriptSection;
+import com.example.ainovel.model.OutlineCard;
+import com.example.ainovel.model.OutlineChapter;
+import com.example.ainovel.model.OutlineScene;
+import com.example.ainovel.model.StoryCard;
+import com.example.ainovel.model.TemporaryCharacter;
+import com.example.ainovel.repository.CharacterCardRepository;
+import com.example.ainovel.repository.ManuscriptSectionRepository;
+import com.example.ainovel.repository.OutlineCardRepository;
+import com.example.ainovel.repository.OutlineSceneRepository;
+
+import lombok.RequiredArgsConstructor;
 
 /**
  * Service for managing manuscript content, including generation and updates.
@@ -65,6 +78,7 @@ public class ManuscriptService {
      * @return The newly generated and saved manuscript section.
      */
     @Transactional
+    @Retryable(backoff = @Backoff(delay = 1000), maxAttempts = 3)
     public ManuscriptSection generateSceneContent(Long sceneId, Long userId) {
         OutlineScene scene = findSceneById(sceneId);
         validateSceneAccess(scene, userId);
@@ -81,6 +95,8 @@ public class ManuscriptService {
 
         StoryCard story = getStoryCardFromScene(scene);
         List<CharacterCard> characters = characterCardRepository.findByStoryCardId(story.getId());
+        // Fetch temporary characters associated with the scene
+        List<TemporaryCharacter> temporaryCharacters = scene.getTemporaryCharacters();
 
         String provider = settingsService.getProviderByUserId(userId);
         AiService aiService = aiServices.get(provider);
@@ -93,7 +109,7 @@ public class ManuscriptService {
         // New context summarization step
         String contextSummary = summarizeContext(scene, aiService, apiKey);
 
-        String prompt = buildGenerationPrompt(scene, story, characters, contextSummary);
+        String prompt = buildGenerationPrompt(scene, story, characters, temporaryCharacters, contextSummary);
         String generatedContent = aiService.generate(prompt, apiKey);
 
         // Create a new, active section
@@ -115,6 +131,7 @@ public class ManuscriptService {
      * @return The updated manuscript section.
      */
     @Transactional
+    @Retryable(backoff = @Backoff(delay = 1000), maxAttempts = 3)
     public ManuscriptSection updateSectionContent(Long sectionId, String content, Long userId) {
         ManuscriptSection section = manuscriptSectionRepository.findById(sectionId)
                 .orElseThrow(() -> new ResourceNotFoundException("ManuscriptSection not found with id " + sectionId));
@@ -123,13 +140,24 @@ public class ManuscriptService {
         return manuscriptSectionRepository.save(section);
     }
 
-    private String buildGenerationPrompt(OutlineScene scene, StoryCard story, List<CharacterCard> characters, String contextSummary) {
+    private String buildGenerationPrompt(OutlineScene scene, StoryCard story, List<CharacterCard> characters, List<TemporaryCharacter> temporaryCharacters, String contextSummary) {
+        String temporaryCharactersInfo = temporaryCharacters.stream()
+                .map(tc -> String.format("- %s: %s", tc.getName(), tc.getDescription()))
+                .collect(Collectors.joining("\n"));
+        if (temporaryCharactersInfo.isEmpty()) {
+            temporaryCharactersInfo = "无";
+        }
+
         return String.format(
             "你是一位才华横溢的小说家。现在请你接续创作故事。\n\n" +
             "**全局信息:**\n- 故事类型/基调: %s / %s\n- 故事简介: %s\n\n" +
             "**主要角色设定:**\n%s\n\n" +
             "**上下文摘要:**\n%s\n\n" +
-            "**本节大纲:**\n- 梗概: %s\n- 出场人物: %s\n- 人物状态与行动: %s\n\n" +
+            "**本节大纲:**\n" +
+            "- 梗概: %s\n" +
+            "- 核心出场人物: %s\n" +
+            "- 核心人物状态与行动: %s\n" +
+            "- 临时出场人物:\n%s\n\n" +
             "请根据以上所有信息，创作本节的详细内容，字数在 %d 字左右。文笔要生动，符合故事基调和人物性格。请直接开始写正文。",
             story.getGenre(), story.getTone(), story.getSynopsis(),
             characters.stream().map(c -> "- " + c.getName() + ": " + c.getSynopsis()).collect(Collectors.joining("\n")),
@@ -137,6 +165,7 @@ public class ManuscriptService {
             scene.getSynopsis(),
             scene.getPresentCharacters(),
             scene.getCharacterStates(),
+            temporaryCharactersInfo,
             scene.getExpectedWords()
         );
     }

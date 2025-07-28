@@ -1,10 +1,17 @@
+export interface TemporaryCharacter { // 新增
+  id: number;
+  name: string;
+  description: string;
+}
+
 export interface Scene {
     id: number;
     sceneNumber: number;
     synopsis: string;
     expectedWords: number;
-    presentCharacters?: string; // 新增
-    characterStates?: string;   // 新增
+    presentCharacters?: string;
+    characterStates?: string;
+    temporaryCharacters?: TemporaryCharacter[]; // 新增：临时人物
     content?: string; // 正文内容
 }
 

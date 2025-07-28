@@ -147,7 +147,6 @@ export const createEmptyOutlineForStory = (storyId: string): Promise<Outline> =>
  * @returns {Promise<Outline>} A promise that resolves to the newly generated outline.
  */
 export const generateOutline = (params: { storyCardId: string; numberOfChapters: number; pointOfView: string; }): Promise<Outline> => {
-    console.warn("generateOutline is deprecated and will be removed in a future version.");
     return fetch('/api/v1/outlines', {
         method: 'POST',
         headers: getAuthHeaders(),

@@ -1,25 +1,29 @@
 package com.example.ainovel.service;
 
-import com.example.ainovel.dto.ConceptionRequest;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.retry.annotation.Backoff;
+import org.springframework.retry.annotation.Retryable;
+import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestClientException;
+import org.springframework.web.client.RestTemplate;
+
 import com.example.ainovel.dto.ConceptionResponse;
-import com.example.ainovel.dto.RefineRequest;
 import com.example.ainovel.model.CharacterCard;
 import com.example.ainovel.model.StoryCard;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import lombok.RequiredArgsConstructor;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.*;
-import org.springframework.stereotype.Service;
-import org.springframework.web.client.RestClientException;
-import org.springframework.web.client.RestTemplate;
-
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 /**
  * Service implementation for interacting with the OpenAI API.
@@ -63,6 +67,7 @@ public class OpenAiService extends AbstractAiService {
     }
 
     @Override
+    @Retryable(value = {RestClientException.class, RuntimeException.class}, maxAttempts = 3, backoff = @Backoff(delay = 1000))
     public String generate(String prompt, String apiKey) {
         try {
             return callOpenAi(prompt, apiKey, false);
