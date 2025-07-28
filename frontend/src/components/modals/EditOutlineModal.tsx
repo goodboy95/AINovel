@@ -1,6 +1,6 @@
 import { Modal, Form, Input, Select, Row, Col, Divider } from 'antd';
 import { useEffect, useState } from 'react';
-import type { Outline, RefineContext } from '../../types';
+import type { Outline } from '../../types';
 import OutlineTreeView from '../OutlineTreeView'; // Assuming this component is reusable
 
 const { Option } = Select;
@@ -11,10 +11,9 @@ interface EditOutlineModalProps {
     onCancel: () => void;
     confirmLoading: boolean;
     outline: Outline | null;
-    handleOpenRefineModal: (text: string, context: RefineContext) => void; // Pass through for OutlineTreeView
 }
 
-const EditOutlineModal = ({ open, onOk, onCancel, confirmLoading, outline, handleOpenRefineModal }: EditOutlineModalProps) => {
+const EditOutlineModal = ({ open, onOk, onCancel, confirmLoading, outline }: EditOutlineModalProps) => {
     const [editableOutline, setEditableOutline] = useState<Outline | null>(outline);
 
     useEffect(() => {
@@ -65,8 +64,7 @@ const EditOutlineModal = ({ open, onOk, onCancel, confirmLoading, outline, handl
                 <Divider>内容编辑</Divider>
                 <OutlineTreeView
                     outline={editableOutline}
-                    onUpdate={setEditableOutline}
-                    handleOpenRefineModal={handleOpenRefineModal}
+                    onNodeSelect={() => {}}
                 />
             </Form>
         </Modal>

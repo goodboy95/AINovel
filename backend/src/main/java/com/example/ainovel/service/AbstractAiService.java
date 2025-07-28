@@ -68,28 +68,41 @@ public abstract class AbstractAiService implements AiService {
             "  \"storyCard\": {\n" +
             "    \"title\": \"故事标题\",\n" +
             "    \"synopsis\": \"(要求：详细、丰富的故事梗概，长度不少于400字)\",\n" +
-            "    \"characters\": \"(要求：基于梗概生成3-5个主要角色描述)\",\n" +
             "    \"worldview\": \"(要求：基于梗概生成详细的世界观设定)\"\n" +
-            "  }\n" +
+            "  },\n" +
+            "  \"characterCards\": [\n" +
+            "    {\n" +
+            "      \"name\": \"角色姓名\",\n" +
+            "      \"synopsis\": \"角色简介（年龄、性别、外貌、性格等）\",\n" +
+            "      \"details\": \"角色的详细背景故事和设定\",\n" +
+            "      \"relationships\": \"角色与其他主要角色的关系\",\n" +
+            "      \"avatarUrl\": \"（可选）角色的头像URL\"\n" +
+            "    }\n" +
+            "  ]\n" +
             "}\n" +
-            "只返回JSON对象，不要包含任何额外的解释或markdown格式。",
+            "characterCards要基于梗概生成3-5个主要角色描述。只返回JSON对象，不要包含任何额外的解释或markdown格式。",
             request.getIdea()
         );
     }
 
     private String buildRefinePrompt(RefineRequest request) {
-        if (request.getUserFeedback() != null && !request.getUserFeedback().trim().isEmpty()) {
+        String contextInstruction = "";
+        if (request.getContextType() != null && !request.getContextType().isBlank()) {
+            contextInstruction = String.format("这是一个关于“%s”的文本。\n", request.getContextType());
+        }
+
+        if (request.getInstruction() != null && !request.getInstruction().trim().isEmpty()) {
             return String.format(
-                "你是一个专业的编辑。请根据我的修改意见，优化以下文本。请只返回优化后的文本内容，不要包含任何解释性文字或Markdown格式。\n\n" +
+                "你是一个专业的编辑。请根据我的修改意见，优化以下文本。%s请只返回优化后的文本内容，不要包含任何解释性文字或Markdown格式。\n\n" +
                 "原始文本:\n\"%s\"\n\n" +
                 "我的意见:\n\"%s\"",
-                request.getOriginalText(), request.getUserFeedback()
+                contextInstruction, request.getText(), request.getInstruction()
             );
         } else {
             return String.format(
-                "你是一个专业的编辑。请优化以下文本，使其更生动、更具吸引力。请只返回优化后的文本内容，不要包含任何解释性文字或Markdown格式。\n\n" +
+                "你是一个专业的编辑。请优化以下文本，使其更生动、更具吸引力。%s请只返回优化后的文本内容，不要包含任何解释性文字或Markdown格式。\n\n" +
                 "原始文本:\n\"%s\"",
-                request.getOriginalText()
+                contextInstruction, request.getText()
             );
         }
     }

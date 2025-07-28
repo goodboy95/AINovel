@@ -2,6 +2,7 @@ package com.example.ainovel.service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
@@ -174,7 +175,12 @@ public class OutlineService {
         TemporaryCharacterDto dto = new TemporaryCharacterDto();
         dto.setId(temporaryCharacter.getId());
         dto.setName(temporaryCharacter.getName());
-        dto.setDescription(temporaryCharacter.getDescription());
+        dto.setSummary(temporaryCharacter.getSummary());
+        dto.setDetails(temporaryCharacter.getDetails());
+        dto.setRelationships(temporaryCharacter.getRelationships());
+        dto.setStatusInScene(temporaryCharacter.getStatusInScene());
+        dto.setMoodInScene(temporaryCharacter.getMoodInScene());
+        dto.setActionsInScene(temporaryCharacter.getActionsInScene());
         return dto;
     }
 
@@ -208,32 +214,78 @@ public class OutlineService {
         OutlineCard outlineCard = findOutlineCardById(outlineId);
         validateOutlineAccess(outlineCard, userId);
 
-        // This mapping logic is complex and could be moved to a dedicated mapper class.
         outlineCard.setTitle(outlineDto.getTitle());
         outlineCard.setPointOfView(outlineDto.getPointOfView());
-        outlineCard.getChapters().clear(); // Simple strategy: clear and re-add.
 
-        for (ChapterDto chapterDto : outlineDto.getChapters()) {
-            OutlineChapter chapter = new OutlineChapter();
-            chapter.setId(chapterDto.getId());
-            chapter.setOutlineCard(outlineCard);
-            chapter.setChapterNumber(chapterDto.getChapterNumber());
-            chapter.setTitle(chapterDto.getTitle());
-            chapter.setSynopsis(chapterDto.getSynopsis());
+        // --- Chapter Management ---
+        Map<Long, OutlineChapter> existingChaptersMap = outlineCard.getChapters().stream()
+                .collect(Collectors.toMap(OutlineChapter::getId, c -> c, (c1, c2) -> c1));
+        
+        List<OutlineChapter> chaptersToKeep = new ArrayList<>();
+        if (outlineDto.getChapters() != null) {
+            for (ChapterDto chapterDto : outlineDto.getChapters()) {
+                OutlineChapter chapter = existingChaptersMap.remove(chapterDto.getId());
+                if (chapter == null) { // New chapter
+                    chapter = new OutlineChapter();
+                    chapter.setOutlineCard(outlineCard);
+                }
+                chapter.setChapterNumber(chapterDto.getChapterNumber());
+                chapter.setTitle(chapterDto.getTitle());
+                chapter.setSynopsis(chapterDto.getSynopsis());
+                chapter.setSettings(chapterDto.getSettings());
 
-            List<OutlineScene> scenes = new ArrayList<>();
-            for (SceneDto sceneDto : chapterDto.getScenes()) {
-                OutlineScene scene = new OutlineScene();
-                scene.setId(sceneDto.getId());
-                scene.setOutlineChapter(chapter);
-                scene.setSceneNumber(sceneDto.getSceneNumber());
-                scene.setSynopsis(sceneDto.getSynopsis());
-                scene.setExpectedWords(sceneDto.getExpectedWords());
-                scenes.add(scene);
+                // --- Scene Management ---
+                Map<Long, OutlineScene> existingScenesMap = chapter.getScenes().stream()
+                        .collect(Collectors.toMap(OutlineScene::getId, s -> s, (s1, s2) -> s1));
+                
+                List<OutlineScene> scenesToKeep = new ArrayList<>();
+                if (chapterDto.getScenes() != null) {
+                    for (SceneDto sceneDto : chapterDto.getScenes()) {
+                        OutlineScene scene = existingScenesMap.remove(sceneDto.getId());
+                        if (scene == null) { // New scene
+                            scene = new OutlineScene();
+                            scene.setOutlineChapter(chapter);
+                        }
+                        scene.setSceneNumber(sceneDto.getSceneNumber());
+                        scene.setSynopsis(sceneDto.getSynopsis());
+                        scene.setExpectedWords(sceneDto.getExpectedWords());
+                        scene.setPresentCharacters(sceneDto.getPresentCharacters());
+                        scene.setCharacterStates(sceneDto.getCharacterStates());
+
+                        // --- Temporary Character Management ---
+                        if (sceneDto.getTemporaryCharacters() != null) {
+                            Map<Long, TemporaryCharacter> existingTempCharsMap = scene.getTemporaryCharacters().stream()
+                                    .collect(Collectors.toMap(TemporaryCharacter::getId, tc -> tc, (tc1, tc2) -> tc1));
+                            
+                            List<TemporaryCharacter> tempCharsToKeep = new ArrayList<>();
+                            for (TemporaryCharacterDto tempCharDto : sceneDto.getTemporaryCharacters()) {
+                                TemporaryCharacter tempChar = existingTempCharsMap.remove(tempCharDto.getId());
+                                if (tempChar == null) { // New temp char
+                                    tempChar = new TemporaryCharacter();
+                                    tempChar.setScene(scene);
+                                }
+                                tempChar.setName(tempCharDto.getName());
+                                tempChar.setSummary(tempCharDto.getSummary());
+                                tempChar.setDetails(tempCharDto.getDetails());
+                                tempChar.setRelationships(tempCharDto.getRelationships());
+                                tempChar.setStatusInScene(tempCharDto.getStatusInScene());
+                                tempChar.setMoodInScene(tempCharDto.getMoodInScene());
+                                tempChar.setActionsInScene(tempCharDto.getActionsInScene());
+                                tempCharsToKeep.add(tempChar);
+                            }
+                            scene.getTemporaryCharacters().clear();
+                            scene.getTemporaryCharacters().addAll(tempCharsToKeep);
+                        }
+                        scenesToKeep.add(scene);
+                    }
+                }
+                chapter.getScenes().clear();
+                chapter.getScenes().addAll(scenesToKeep);
+                chaptersToKeep.add(chapter);
             }
-            chapter.setScenes(scenes);
-            outlineCard.getChapters().add(chapter);
         }
+        outlineCard.getChapters().clear();
+        outlineCard.getChapters().addAll(chaptersToKeep);
 
         OutlineCard updatedOutline = outlineCardRepository.save(outlineCard);
         return convertToDto(updatedOutline);
@@ -274,10 +326,25 @@ public class OutlineService {
      * @param user    The authenticated user.
      * @return A response DTO with the refined text.
      */
+    @Deprecated
     public RefineResponse refineSceneSynopsis(Long sceneId, RefineRequest request, User user) {
         OutlineScene scene = findSceneById(sceneId);
         validateSceneAccess(scene, user.getId());
+        // For backward compatibility, we can add a default context type
+        if (request.getContextType() == null || request.getContextType().isBlank()) {
+            request.setContextType("场景梗概");
+        }
+        return refineGenericText(request, user);
+    }
 
+    /**
+     * Provides a generic text refinement service by calling the appropriate AI service.
+     *
+     * @param request The refinement request details.
+     * @param user    The authenticated user.
+     * @return A response DTO with the refined text.
+     */
+    public RefineResponse refineGenericText(RefineRequest request, User user) {
         AiService aiService = getAiServiceForUser(user);
         String apiKey = getDecryptedApiKeyForUser(user);
 
@@ -323,34 +390,41 @@ public class OutlineService {
 
         return String.format(
             """
-            你是一个专业的小说大纲设计师。请根据以下信息，为故事的第 %d 章设计详细大纲。
+            你是一位洞悉读者心理、擅长制造“爽点”与“泪点”的顶尖网络小说家。现在，请你以合作者的身份，为我的故事设计接下来的一章。我希望这一章不仅是情节的推进，更是情感的积累和爆发。
 
-            **全局信息:**
-            - 故事简介: %s
-            - 故事走向: %s
+            # 故事核心信息
+            - **故事简介:** %s
+            - **核心主题与基调:** %s / %s
+            - **故事长期走向:** %s
 
-            **主要角色:**
+            # 主要角色设定
             %s
 
-            **上下文 (上一章梗概):**
-            %s
+            # 上下文回顾
+            - **上一章梗概:** %s
 
-            **本章要求:**
-            - 章节序号: %d
-            - 包含节数: %d
-            - 每节字数: 约 %d 字
+            # 本章创作任务 (第 %d 章)
+            - **预设节数:** %d
+            - **预估每节字数:** %d
 
-            **输出要求:**
+            # 你的创作目标与自由度
+            1.  **情节设计:** 请构思一章充满“钩子”的情节。思考：这一章的结尾，最能让读者好奇地想读下一章的悬念是什么？中间是否可以安排一个小的“情绪爆点”或“情节反转”？
+            2.  **人物弧光:** 思考核心人物在本章的经历，他们的内心会产生怎样的变化？他们的信念是会更坚定，还是会受到挑战？
+            3.  **伏笔与回收:** 如果有机会，可以埋下一些与长线剧情相关的伏笔。如果前文有伏笔，思考本章是否是回收它的好时机。
+            4.  **创作建议 (重要):** 在满足核心要求的前提下，你完全可以提出更有创意的想法。例如，你认为某个临时人物的设定稍微调整一下会更有戏剧性，或者某个情节有更好的表现方式，请大胆地在你的设计中体现出来，并用 `[创作建议]` 标签标注。
+            5.  **拒绝平庸:** 请极力避免机械地推进剧情。每一节都应该有其独特的作用，或是塑造人物，或是铺垫情绪，或是揭示信息。
+
+            # 输出格式
             请严格以JSON格式返回。根对象应包含 "title", "synopsis" 和一个 "scenes" 数组。
             每个 scene 对象必须包含:
             - "sceneNumber": (number) 序号。
-            - "synopsis": (string) 必须是详细、充实、引人入胜的故事梗概，长度不应少于150字。
+            - "synopsis": (string) 详细、生动、充满画面感的故事梗概，字数不少于200字。
             - "presentCharacters": (string[]) 核心出场人物姓名列表。
             - "characterStates": (object) 一个对象，键为核心人物姓名，值为该人物在本节中非常详细的状态、内心想法和关键行动的描述。
-            - "temporaryCharacters": (object[]) 一个对象数组，用于描写本节新出现的临时人物。如果不需要，则返回空数组[]。每个对象必须包含 "name" (string) 和 "description" (string) 字段。
+            - "temporaryCharacters": (object[]) 一个对象数组，用于描写本节新出现的或需要详细刻画的临时人物。如果不需要，则返回空数组[]。每个对象必须包含所有字段: "name", "summary", "details", "relationships", "statusInScene", "moodInScene", "actionsInScene"。
             """,
-            request.getChapterNumber(),
             storyCard.getSynopsis(),
+            storyCard.getGenre(), storyCard.getTone(),
             storyCard.getStoryArc(),
             characterProfiles,
             previousChapterSynopsis,
@@ -402,7 +476,7 @@ public class OutlineService {
             for (JsonNode tempCharNode : tempCharsNode) {
                 TemporaryCharacter tempChar = new TemporaryCharacter();
                 tempChar.setName(tempCharNode.path("name").asText());
-                tempChar.setDescription(tempCharNode.path("description").asText());
+                tempChar.setSummary(tempCharNode.path("description").asText()); // Legacy support for "description" from old prompts
                 tempChar.setScene(scene); // Set back-reference
                 tempChars.add(tempChar);
             }

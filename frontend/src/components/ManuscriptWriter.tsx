@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { Card, Input, Button, message, Empty, Layout, Spin, Row, Col } from 'antd';
 import OutlineTreeView from './OutlineTreeView';
-import type { Outline, ManuscriptSection, RefineHandler } from '../types';
+import type { Outline, ManuscriptSection } from '../types';
 
 const { Content, Sider } = Layout;
 const { TextArea } = Input;
@@ -10,16 +10,12 @@ export interface ManuscriptWriterProps {
     selectedOutline: Outline | null;
     selectedSceneId: number | null;
     onSelectScene: (sceneId: number | null) => void;
-    onUpdateOutline: (updatedOutline: Outline) => void;
-    handleOpenRefineModal: RefineHandler;
 }
 
 const ManuscriptWriter: React.FC<ManuscriptWriterProps> = ({
     selectedOutline,
     selectedSceneId,
     onSelectScene,
-    onUpdateOutline,
-    handleOpenRefineModal,
 }) => {
     const [manuscriptMap, setManuscriptMap] = useState<Record<number, ManuscriptSection>>({});
     const [manuscriptContent, setManuscriptContent] = useState('');
@@ -157,9 +153,7 @@ const ManuscriptWriter: React.FC<ManuscriptWriterProps> = ({
                 <h2 className="text-lg font-bold mb-4">{selectedOutline.title}</h2>
                 <OutlineTreeView
                     outline={selectedOutline}
-                    onSelectScene={(scene) => onSelectScene(scene ? scene.id : null)}
-                    onUpdate={onUpdateOutline}
-                    handleOpenRefineModal={handleOpenRefineModal}
+                    onNodeSelect={(node) => onSelectScene(node && node.type === 'scene' ? node.data.id : null)}
                 />
             </Sider>
             <Content style={{ padding: '24px' }}>

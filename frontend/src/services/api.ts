@@ -210,10 +210,9 @@ export const deleteOutline = (outlineId: number): Promise<void> => {
  * @returns {Promise<{ refinedText: string }>} A promise that resolves to the refined text.
  */
 export const refineText = (
-    endpoint: string,
-    payload: { originalText: string; userFeedback: string; fieldName: string }
+    payload: { text: string; instruction: string; contextType: string }
 ): Promise<{ refinedText: string }> => {
-    return fetch(endpoint, {
+    return fetch('/api/v1/ai/refine-text', {
         method: 'POST',
         headers: getAuthHeaders(),
         body: JSON.stringify(payload),

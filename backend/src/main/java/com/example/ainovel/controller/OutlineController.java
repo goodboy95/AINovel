@@ -149,4 +149,17 @@ public class OutlineController {
         RefineResponse response = outlineService.refineSceneSynopsis(id, request, user);
         return ResponseEntity.ok(response);
     }
+
+    /**
+     * Provides a generic text refinement service.
+     * @param request The request object containing the text to refine and instructions.
+     * @param user The authenticated user performing the action.
+     * @return A ResponseEntity containing the refined text.
+     */
+    @PostMapping("/ai/refine-text")
+    public ResponseEntity<RefineResponse> refineGenericText(
+            @RequestBody RefineRequest request, @AuthenticationPrincipal User user) {
+        RefineResponse response = outlineService.refineGenericText(request, user);
+        return ResponseEntity.ok(response);
+    }
 }

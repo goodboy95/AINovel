@@ -155,3 +155,21 @@ CREATE TABLE `users`  (
 ) ENGINE = InnoDB AUTO_INCREMENT = 2 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci ROW_FORMAT = Dynamic;
 
 SET FOREIGN_KEY_CHECKS = 1;
+
+
+-- ----------------------------
+-- Version 2.2 Changes
+-- ----------------------------
+
+-- Add new fields to temporary_characters table and migrate description to summary
+ALTER TABLE `temporary_characters`
+CHANGE COLUMN `description` `summary` TEXT CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '概要 (原description字段)',
+ADD COLUMN `details` TEXT CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '详情',
+ADD COLUMN `relationships` TEXT CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '与核心人物的关系',
+ADD COLUMN `status_in_scene` TEXT CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '在本节中的状态',
+ADD COLUMN `mood_in_scene` TEXT CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '在本节中的心情',
+ADD COLUMN `actions_in_scene` TEXT CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '在本节中的核心行动';
+
+-- Note: The column names in the SQL script use snake_case (e.g., status_in_scene)
+-- to follow common SQL conventions, which will be automatically mapped by Hibernate
+-- to the camelCase field names in the Java Entity (e.g., statusInScene).

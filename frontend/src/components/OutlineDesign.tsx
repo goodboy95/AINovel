@@ -194,7 +194,7 @@ const OutlineDesign: React.FC<OutlineDesignProps> = ({
                 {outline && (
                     <Card>
                         <Title level={4}>当前大纲预览</Title>
-                        <OutlineTreeView outline={outline} />
+                        <OutlineTreeView outline={outline} onNodeSelect={() => {}} />
                     </Card>
                 )}
             </div>

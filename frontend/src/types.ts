@@ -1,7 +1,12 @@
-export interface TemporaryCharacter { // 新增
+export interface TemporaryCharacter {
   id: number;
   name: string;
-  description: string;
+  summary: string;
+  details: string;
+  relationships: string;
+  statusInScene: string;
+  moodInScene: string;
+  actionsInScene: string;
 }
 
 export interface Scene {

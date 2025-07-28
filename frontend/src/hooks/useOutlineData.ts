@@ -6,7 +6,7 @@ import {
     deleteOutline as apiDeleteOutline,
     fetchOutlineDetails,
 } from '../services/api';
-import type { Outline } from '../types';
+import type { Outline, Chapter, Scene } from '../types';
 
 /**
  * Custom hook for managing outline data for a specific story.
@@ -131,6 +131,35 @@ export const useOutlineData = (storyId: string | null) => {
         }
     }, []);
 
+    /**
+     * Updates the local state of the selected outline without saving to the backend.
+     * This is useful for form updates.
+     * @param {Chapter | Scene} updatedData - The updated chapter or scene data.
+     */
+    const updateLocalOutline = useCallback((updatedData: Chapter | Scene) => {
+        setSelectedOutline(prevOutline => {
+            if (!prevOutline) return null;
+
+            let updatedChapters: Chapter[];
+            const isChapter = 'scenes' in updatedData;
+
+            if (isChapter) {
+                updatedChapters = prevOutline.chapters.map(ch =>
+                    ch.id === updatedData.id ? (updatedData as Chapter) : ch
+                );
+            } else { // It's a Scene
+                updatedChapters = prevOutline.chapters.map(ch => ({
+                    ...ch,
+                    scenes: ch.scenes.map(sc =>
+                        sc.id === updatedData.id ? (updatedData as Scene) : sc
+                    )
+                }));
+            }
+            
+            return { ...prevOutline, chapters: updatedChapters };
+        });
+    }, []);
+
 
     return {
         outlines,
@@ -144,6 +173,7 @@ export const useOutlineData = (storyId: string | null) => {
         deleteOutline,
         selectOutline,
         getOutlineForWriting,
+        updateLocalOutline, // Expose the new local update function
         setOutlines,
         setSelectedOutline,
         setIsLoading, // Expose setIsLoading

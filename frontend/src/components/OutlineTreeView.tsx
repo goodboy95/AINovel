@@ -1,21 +1,25 @@
 import { useState } from 'react';
-import type { Outline, Chapter, Scene, RefineHandler } from '../types';
+import type { Outline, Chapter, Scene } from '../types';
+
+type SelectedNode =
+  | { type: 'chapter'; data: Chapter }
+  | { type: 'scene'; data: Scene }
+  | null;
 
 // Scene Card Component
 interface SceneCardProps {
     scene: Scene;
-    onSelect?: (scene: Scene) => void;
-    handleOpenRefineModal?: RefineHandler;
+    onNodeSelect: (node: SelectedNode) => void;
 }
 
-const SceneCard = ({ scene, onSelect }: SceneCardProps) => {
+const SceneCard = ({ scene, onNodeSelect }: SceneCardProps) => {
     const [isStatesExpanded, setIsStatesExpanded] = useState(false);
     const characters = scene.presentCharacters?.split(/[,，、]/).map(name => name.trim()).filter(Boolean) || [];
 
     return (
         <div
             className="border border-gray-200 rounded-lg p-4 mb-3 bg-white shadow-sm hover:shadow-lg transition-shadow cursor-pointer"
-            onClick={() => onSelect && onSelect(scene)}
+            onClick={() => onNodeSelect({ type: 'scene', data: scene })}
         >
             {/* Scene Header */}
             <div className="flex justify-between items-center mb-2">
@@ -49,7 +53,7 @@ const SceneCard = ({ scene, onSelect }: SceneCardProps) => {
                             <ul className="list-disc list-inside mt-1 space-y-1">
                                 {scene.temporaryCharacters.map(tc => (
                                     <li key={tc.id} className="text-sm text-gray-600">
-                                        <span className="font-semibold">{tc.name}:</span> {tc.description}
+                                        <span className="font-semibold">{tc.name}:</span> {tc.summary}
                                     </li>
                                 ))}
                             </ul>
@@ -84,18 +88,19 @@ const SceneCard = ({ scene, onSelect }: SceneCardProps) => {
 // Chapter Card Component
 interface ChapterCardProps {
     chapter: Chapter;
-    onSelectScene?: (scene: Scene) => void;
-    handleOpenRefineModal?: RefineHandler;
+    onNodeSelect: (node: SelectedNode) => void;
 }
 
-const ChapterCard = ({ chapter, onSelectScene, handleOpenRefineModal }: ChapterCardProps) => {
+const ChapterCard = ({ chapter, onNodeSelect }: ChapterCardProps) => {
     return (
         <div className="bg-gray-50 rounded-xl p-4 mb-6 shadow">
-            <h3 className="text-xl font-bold text-gray-900 mb-1">第 {chapter.chapterNumber} 章: {chapter.title}</h3>
-            <p className="text-sm text-gray-600 mb-4">{chapter.synopsis}</p>
+            <div onClick={() => onNodeSelect({ type: 'chapter', data: chapter })} className="cursor-pointer">
+                <h3 className="text-xl font-bold text-gray-900 mb-1">第 {chapter.chapterNumber} 章: {chapter.title}</h3>
+                <p className="text-sm text-gray-600 mb-4">{chapter.synopsis}</p>
+            </div>
             <div>
                 {chapter.scenes.sort((a, b) => a.sceneNumber - b.sceneNumber).map((scene) => (
-                    <SceneCard key={scene.id} scene={scene} onSelect={onSelectScene} handleOpenRefineModal={handleOpenRefineModal} />
+                    <SceneCard key={scene.id} scene={scene} onNodeSelect={onNodeSelect} />
                 ))}
             </div>
         </div>
@@ -105,18 +110,16 @@ const ChapterCard = ({ chapter, onSelectScene, handleOpenRefineModal }: ChapterC
 // Main Tree View Component
 interface OutlineTreeViewProps {
     outline: Outline | null;
-    onSelectScene?: (scene: Scene) => void;
-    onUpdate?: (outline: Outline) => void;
-    handleOpenRefineModal?: RefineHandler;
+    onNodeSelect: (node: SelectedNode) => void;
 }
 
-const OutlineTreeView = ({ outline, onSelectScene, handleOpenRefineModal }: OutlineTreeViewProps) => {
+const OutlineTreeView = ({ outline, onNodeSelect }: OutlineTreeViewProps) => {
     if (!outline) return null;
 
     return (
         <div className="h-full overflow-y-auto">
             {outline.chapters.sort((a, b) => a.chapterNumber - b.chapterNumber).map((chapter) => (
-                <ChapterCard key={chapter.id} chapter={chapter} onSelectScene={onSelectScene} handleOpenRefineModal={handleOpenRefineModal} />
+                <ChapterCard key={chapter.id} chapter={chapter} onNodeSelect={onNodeSelect} />
             ))}
         </div>
     );

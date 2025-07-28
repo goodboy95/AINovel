@@ -79,7 +79,6 @@ const Workbench = () => {
         deleteOutline,
         selectOutline,
         getOutlineForWriting,
-        setOutlines: setOutlinesForStory,
         setSelectedOutline,
         setIsLoading: setOutlineLoading,
         setError: setOutlineError,
@@ -87,14 +86,11 @@ const Workbench = () => {
     
     const {
         isModalVisible: isRefineModalVisible,
-        isLoading: refineLoading,
-        error: refineError,
         originalText,
-        refinedText,
         openModal: handleOpenRefineModal,
         closeModal: closeRefineModal,
-        handleRefine,
         acceptRefinement: handleAcceptRefinement,
+        context,
     } = useRefineModal();
 
     // Local UI State
@@ -421,13 +417,6 @@ const Workbench = () => {
                                 selectedOutline={outlineForWriting}
                                 selectedSceneId={selectedSceneId}
                                 onSelectScene={setSelectedSceneId}
-                                onUpdateOutline={(updatedOutline) => {
-                                    // Update the specific outline in the list of outlines
-                                    setOutlinesForStory(prev => prev.map(o => o.id === updatedOutline.id ? updatedOutline : o));
-                                    // Also update the outline currently being written
-                                    setOutlineForWriting(updatedOutline);
-                                }}
-                                handleOpenRefineModal={handleOpenRefineModal}
                             />
                         </div>
                     </TabPane>
@@ -453,7 +442,6 @@ const Workbench = () => {
                 onCancel={() => setEditingOutline(null)}
                 confirmLoading={isOutlineLoading}
                 outline={editingOutline}
-                handleOpenRefineModal={handleOpenRefineModal}
             />
             <AddCharacterModal
                 open={isAddCharacterModalVisible}
@@ -464,12 +452,9 @@ const Workbench = () => {
             <RefineModal
                 open={isRefineModalVisible}
                 onCancel={closeRefineModal}
-                onRefine={handleRefine}
-                onAccept={handleAcceptRefinement}
-                loading={refineLoading}
-                error={refineError}
                 originalText={originalText}
-                refinedText={refinedText}
+                contextType={context?.fieldName || ''}
+                onRefined={handleAcceptRefinement}
             />
         </Layout>
     );

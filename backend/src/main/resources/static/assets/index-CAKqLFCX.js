@@ -54198,21 +54198,21 @@ const deleteOutline = (outlineId) => {
     headers: getAuthHeaders()
   }).then((res) => handleResponse(res));
 };
-const refineText = (endpoint, payload) => {
-  return fetch(endpoint, {
+const refineText = (payload) => {
+  return fetch("/api/v1/ai/refine-text", {
     method: "POST",
     headers: getAuthHeaders(),
     body: JSON.stringify(payload)
   }).then((res) => handleResponse(res));
 };
-const SceneCard = ({ scene, onSelect }) => {
+const SceneCard = ({ scene, onNodeSelect }) => {
   const [isStatesExpanded, setIsStatesExpanded] = reactExports.useState(false);
   const characters2 = scene.presentCharacters?.split(/[,，、]/).map((name) => name.trim()).filter(Boolean) || [];
   return /* @__PURE__ */ jsxRuntimeExports.jsxs(
     "div",
     {
       className: "border border-gray-200 rounded-lg p-4 mb-3 bg-white shadow-sm hover:shadow-lg transition-shadow cursor-pointer",
-      onClick: () => onSelect && onSelect(scene),
+      onClick: () => onNodeSelect({ type: "scene", data: scene }),
       children: [
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex justify-between items-center mb-2", children: [
           /* @__PURE__ */ jsxRuntimeExports.jsxs("h4", { className: "text-md font-bold text-gray-800", children: [
@@ -54240,7 +54240,7 @@ const SceneCard = ({ scene, onSelect }) => {
                 ":"
               ] }),
               " ",
-              tc.description
+              tc.summary
             ] }, tc.id)) })
           ] }) }),
           scene.characterStates && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
@@ -54262,21 +54262,23 @@ const SceneCard = ({ scene, onSelect }) => {
     }
   );
 };
-const ChapterCard = ({ chapter, onSelectScene, handleOpenRefineModal }) => {
+const ChapterCard = ({ chapter, onNodeSelect }) => {
   return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "bg-gray-50 rounded-xl p-4 mb-6 shadow", children: [
-    /* @__PURE__ */ jsxRuntimeExports.jsxs("h3", { className: "text-xl font-bold text-gray-900 mb-1", children: [
-      "第 ",
-      chapter.chapterNumber,
-      " 章: ",
-      chapter.title
+    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { onClick: () => onNodeSelect({ type: "chapter", data: chapter }), className: "cursor-pointer", children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("h3", { className: "text-xl font-bold text-gray-900 mb-1", children: [
+        "第 ",
+        chapter.chapterNumber,
+        " 章: ",
+        chapter.title
+      ] }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-sm text-gray-600 mb-4", children: chapter.synopsis })
     ] }),
-    /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-sm text-gray-600 mb-4", children: chapter.synopsis }),
-    /* @__PURE__ */ jsxRuntimeExports.jsx("div", { children: chapter.scenes.sort((a, b) => a.sceneNumber - b.sceneNumber).map((scene) => /* @__PURE__ */ jsxRuntimeExports.jsx(SceneCard, { scene, onSelect: onSelectScene, handleOpenRefineModal }, scene.id)) })
+    /* @__PURE__ */ jsxRuntimeExports.jsx("div", { children: chapter.scenes.sort((a, b) => a.sceneNumber - b.sceneNumber).map((scene) => /* @__PURE__ */ jsxRuntimeExports.jsx(SceneCard, { scene, onNodeSelect }, scene.id)) })
   ] });
 };
-const OutlineTreeView = ({ outline, onSelectScene, handleOpenRefineModal }) => {
+const OutlineTreeView = ({ outline, onNodeSelect }) => {
   if (!outline) return null;
-  return /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "h-full overflow-y-auto", children: outline.chapters.sort((a, b) => a.chapterNumber - b.chapterNumber).map((chapter) => /* @__PURE__ */ jsxRuntimeExports.jsx(ChapterCard, { chapter, onSelectScene, handleOpenRefineModal }, chapter.id)) });
+  return /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "h-full overflow-y-auto", children: outline.chapters.sort((a, b) => a.chapterNumber - b.chapterNumber).map((chapter) => /* @__PURE__ */ jsxRuntimeExports.jsx(ChapterCard, { chapter, onNodeSelect }, chapter.id)) });
 };
 const { Title: Title$3, Text } = Typography;
 const { Option: Option$3 } = Select;
@@ -54446,7 +54448,8 @@ const OutlineDesign = ({
     error && /* @__PURE__ */ jsxRuntimeExports.jsx(Alert, { message: "操作失败", description: error, type: "error", showIcon: true }),
     outline && /* @__PURE__ */ jsxRuntimeExports.jsxs(Card, { children: [
       /* @__PURE__ */ jsxRuntimeExports.jsx(Title$3, { level: 4, children: "当前大纲预览" }),
-      /* @__PURE__ */ jsxRuntimeExports.jsx(OutlineTreeView, { outline })
+      /* @__PURE__ */ jsxRuntimeExports.jsx(OutlineTreeView, { outline, onNodeSelect: () => {
+      } })
     ] })
   ] }) });
 };
@@ -54455,9 +54458,7 @@ const { TextArea } = Input;
 const ManuscriptWriter = ({
   selectedOutline,
   selectedSceneId,
-  onSelectScene,
-  onUpdateOutline,
-  handleOpenRefineModal
+  onSelectScene
 }) => {
   const [manuscriptMap, setManuscriptMap] = reactExports.useState({});
   const [manuscriptContent, setManuscriptContent] = reactExports.useState("");
@@ -54577,9 +54578,7 @@ const ManuscriptWriter = ({
         OutlineTreeView,
         {
           outline: selectedOutline,
-          onSelectScene: (scene) => onSelectScene(scene ? scene.id : null),
-          onUpdate: onUpdateOutline,
-          handleOpenRefineModal
+          onNodeSelect: (node2) => onSelectScene(node2 && node2.type === "scene" ? node2.data.id : null)
         }
       )
     ] }),
@@ -54911,6 +54910,26 @@ const useOutlineData = (storyId) => {
       setIsLoading(false);
     }
   }, []);
+  const updateLocalOutline = reactExports.useCallback((updatedData) => {
+    setSelectedOutline((prevOutline) => {
+      if (!prevOutline) return null;
+      let updatedChapters;
+      const isChapter = "scenes" in updatedData;
+      if (isChapter) {
+        updatedChapters = prevOutline.chapters.map(
+          (ch) => ch.id === updatedData.id ? updatedData : ch
+        );
+      } else {
+        updatedChapters = prevOutline.chapters.map((ch) => ({
+          ...ch,
+          scenes: ch.scenes.map(
+            (sc) => sc.id === updatedData.id ? updatedData : sc
+          )
+        }));
+      }
+      return { ...prevOutline, chapters: updatedChapters };
+    });
+  }, []);
   return {
     outlines,
     selectedOutline,
@@ -54923,6 +54942,8 @@ const useOutlineData = (storyId) => {
     deleteOutline: deleteOutline$1,
     selectOutline,
     getOutlineForWriting,
+    updateLocalOutline,
+    // Expose the new local update function
     setOutlines,
     setSelectedOutline,
     setIsLoading,
@@ -54955,11 +54976,11 @@ const useRefineModal = () => {
     setError(null);
     try {
       const payload = {
-        originalText,
-        userFeedback,
-        fieldName: context.fieldName
+        text: originalText,
+        instruction: userFeedback,
+        contextType: context.fieldName
       };
-      const data = await refineText(context.endpoint, payload);
+      const data = await refineText(payload);
       setRefinedText(data.refinedText);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to refine text.");
@@ -54982,7 +55003,8 @@ const useRefineModal = () => {
     openModal,
     closeModal,
     handleRefine,
-    acceptRefinement
+    acceptRefinement,
+    context
   };
 };
 const AddCharacterModal = ({ open: open2, onOk, onCancel, confirmLoading }) => {
@@ -55177,7 +55199,7 @@ const EditCharacterCardModal = ({ open: open2, onOk, onCancel, confirmLoading, c
   );
 };
 const { Option: Option$1 } = Select;
-const EditOutlineModal = ({ open: open2, onOk, onCancel, confirmLoading, outline, handleOpenRefineModal }) => {
+const EditOutlineModal = ({ open: open2, onOk, onCancel, confirmLoading, outline }) => {
   const [editableOutline, setEditableOutline] = reactExports.useState(outline);
   reactExports.useEffect(() => {
     setEditableOutline(outline);
@@ -55225,8 +55247,8 @@ const EditOutlineModal = ({ open: open2, onOk, onCancel, confirmLoading, outline
           OutlineTreeView,
           {
             outline: editableOutline,
-            onUpdate: setEditableOutline,
-            handleOpenRefineModal
+            onNodeSelect: () => {
+            }
           }
         )
       ] })
@@ -55237,16 +55259,44 @@ const { Title: Title$1, Paragraph: Paragraph$1 } = Typography;
 const RefineModal = ({
   open: open2,
   onCancel,
-  onRefine,
-  onAccept,
-  loading,
-  error,
   originalText,
-  refinedText
+  contextType,
+  onRefined
 }) => {
   const [form] = Form2.useForm();
-  const handleFinish = (values) => {
-    onRefine(values.userFeedback);
+  const [loading, setLoading] = reactExports.useState(false);
+  const [error, setError] = reactExports.useState(null);
+  const [refinedText, setRefinedText] = reactExports.useState("");
+  reactExports.useEffect(() => {
+    if (open2) {
+      setRefinedText("");
+      setError(null);
+      form.resetFields();
+    }
+  }, [open2, form]);
+  const handleFinish = async (values) => {
+    setLoading(true);
+    setError(null);
+    try {
+      const response = await refineText({
+        text: originalText,
+        instruction: values.instruction,
+        contextType
+      });
+      setRefinedText(response.refinedText);
+    } catch (err) {
+      if (err instanceof Error) {
+        setError(err.message);
+      } else {
+        setError("An unknown error occurred.");
+      }
+    } finally {
+      setLoading(false);
+    }
+  };
+  const handleAccept = () => {
+    onRefined(refinedText);
+    onCancel();
   };
   return /* @__PURE__ */ jsxRuntimeExports.jsx(
     Modal,
@@ -55257,23 +55307,27 @@ const RefineModal = ({
       width: "70vw",
       footer: [
         /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { onClick: onCancel, children: "取消" }, "back"),
-        /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { type: "primary", loading, onClick: onAccept, disabled: !refinedText, children: "接受修改" }, "submit")
+        /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { type: "primary", onClick: handleAccept, disabled: !refinedText || loading, children: "应用修改" }, "submit")
       ],
       children: /* @__PURE__ */ jsxRuntimeExports.jsxs(Spin, { spinning: loading, tip: "AI 正在思考...", children: [
         error && /* @__PURE__ */ jsxRuntimeExports.jsx(Alert, { message: "优化出错", description: error, type: "error", showIcon: true, style: { marginBottom: 16 } }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs(Row, { gutter: 16, children: [
           /* @__PURE__ */ jsxRuntimeExports.jsxs(Col, { span: 12, children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx(Title$1, { level: 5, children: "原始文本" }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx(Card, { style: { minHeight: 200, background: "#f5f5f5" }, children: /* @__PURE__ */ jsxRuntimeExports.jsx(Paragraph$1, { children: originalText }) })
+            /* @__PURE__ */ jsxRuntimeExports.jsxs(Title$1, { level: 5, children: [
+              "原始文本 (",
+              contextType,
+              ")"
+            ] }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx(Card, { style: { minHeight: 200, maxHeight: 400, overflowY: "auto", background: "#f5f5f5" }, children: /* @__PURE__ */ jsxRuntimeExports.jsx(Paragraph$1, { children: originalText }) })
           ] }),
           /* @__PURE__ */ jsxRuntimeExports.jsxs(Col, { span: 12, children: [
             /* @__PURE__ */ jsxRuntimeExports.jsx(Title$1, { level: 5, children: "优化结果" }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx(Card, { style: { minHeight: 200 }, children: /* @__PURE__ */ jsxRuntimeExports.jsx(Paragraph$1, { children: refinedText || "点击下方按钮开始优化..." }) })
+            /* @__PURE__ */ jsxRuntimeExports.jsx(Card, { style: { minHeight: 200, maxHeight: 400, overflowY: "auto" }, children: /* @__PURE__ */ jsxRuntimeExports.jsx(Paragraph$1, { children: refinedText || "点击下方按钮开始优化..." }) })
           ] })
         ] }),
         /* @__PURE__ */ jsxRuntimeExports.jsx(Divider, {}),
         /* @__PURE__ */ jsxRuntimeExports.jsxs(Form2, { form, layout: "vertical", onFinish: handleFinish, children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx(Form2.Item, { name: "userFeedback", label: "优化建议 (可选)", children: /* @__PURE__ */ jsxRuntimeExports.jsx(Input.TextArea, { rows: 2, placeholder: "例如：让这段描述更黑暗一点，或者，用更简洁的语言表达。" }) }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(Form2.Item, { name: "instruction", label: "优化方向 (可选)", children: /* @__PURE__ */ jsxRuntimeExports.jsx(Input.TextArea, { rows: 2, placeholder: "例如：让这段描述更黑暗一点，或者，用更简洁的语言表达。" }) }),
           /* @__PURE__ */ jsxRuntimeExports.jsx(Form2.Item, { children: /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { htmlType: "submit", type: "primary", loading, children: "开始优化" }) })
         ] })
       ] })
@@ -55317,21 +55371,17 @@ const Workbench = () => {
     deleteOutline: deleteOutline2,
     selectOutline,
     getOutlineForWriting,
-    setOutlines: setOutlinesForStory,
     setSelectedOutline,
     setIsLoading: setOutlineLoading,
     setError: setOutlineError
   } = useOutlineData(selectedStoryForOutline);
   const {
     isModalVisible: isRefineModalVisible,
-    isLoading: refineLoading,
-    error: refineError,
     originalText,
-    refinedText,
     openModal: handleOpenRefineModal,
     closeModal: closeRefineModal,
-    handleRefine,
-    acceptRefinement: handleAcceptRefinement
+    acceptRefinement: handleAcceptRefinement,
+    context
   } = useRefineModal();
   const [editingStory, setEditingStory] = reactExports.useState(null);
   const [editingCharacter, setEditingCharacter] = reactExports.useState(null);
@@ -55613,12 +55663,7 @@ const Workbench = () => {
         {
           selectedOutline: outlineForWriting,
           selectedSceneId,
-          onSelectScene: setSelectedSceneId,
-          onUpdateOutline: (updatedOutline) => {
-            setOutlinesForStory((prev2) => prev2.map((o2) => o2.id === updatedOutline.id ? updatedOutline : o2));
-            setOutlineForWriting(updatedOutline);
-          },
-          handleOpenRefineModal
+          onSelectScene: setSelectedSceneId
         }
       ) }) }, "manuscript-writer")
     ] }) }),
@@ -55649,8 +55694,7 @@ const Workbench = () => {
         onOk: handleUpdateOutline,
         onCancel: () => setEditingOutline(null),
         confirmLoading: isOutlineLoading,
-        outline: editingOutline,
-        handleOpenRefineModal
+        outline: editingOutline
       }
     ),
     /* @__PURE__ */ jsxRuntimeExports.jsx(
@@ -55667,12 +55711,9 @@ const Workbench = () => {
       {
         open: isRefineModalVisible,
         onCancel: closeRefineModal,
-        onRefine: handleRefine,
-        onAccept: handleAcceptRefinement,
-        loading: refineLoading,
-        error: refineError,
         originalText,
-        refinedText
+        contextType: context?.fieldName || "",
+        onRefined: handleAcceptRefinement
       }
     )
   ] });

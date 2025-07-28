@@ -1,32 +1,62 @@
+import React, { useState, useEffect } from 'react';
 import { Modal, Form, Input, Button, Spin, Alert, Row, Col, Typography, Card, Divider } from 'antd';
+import * as api from '../../services/api';
 
 const { Title, Paragraph } = Typography;
 
 interface RefineModalProps {
     open: boolean;
     onCancel: () => void;
-    onRefine: (userFeedback: string) => void;
-    onAccept: () => void;
-    loading: boolean;
-    error: string | null;
     originalText: string;
-    refinedText: string;
+    contextType: string;
+    onRefined: (newText: string) => void;
 }
 
-const RefineModal = ({
+const RefineModal: React.FC<RefineModalProps> = ({
     open,
     onCancel,
-    onRefine,
-    onAccept,
-    loading,
-    error,
     originalText,
-    refinedText,
-}: RefineModalProps) => {
+    contextType,
+    onRefined,
+}) => {
     const [form] = Form.useForm();
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState<string | null>(null);
+    const [refinedText, setRefinedText] = useState('');
 
-    const handleFinish = (values: { userFeedback: string }) => {
-        onRefine(values.userFeedback);
+    useEffect(() => {
+        if (open) {
+            // Reset state when modal opens
+            setRefinedText('');
+            setError(null);
+            form.resetFields();
+        }
+    }, [open, form]);
+
+    const handleFinish = async (values: { instruction: string }) => {
+        setLoading(true);
+        setError(null);
+        try {
+            const response = await api.refineText({
+                text: originalText,
+                instruction: values.instruction,
+                contextType: contextType,
+            });
+            setRefinedText(response.refinedText);
+        } catch (err) {
+            if (err instanceof Error) {
+                setError(err.message);
+            } else {
+                setError('An unknown error occurred.');
+            }
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const handleAccept = () => {
+        onRefined(refinedText);
+        onCancel(); // Close modal after accepting
     };
 
     return (
@@ -39,8 +69,8 @@ const RefineModal = ({
                 <Button key="back" onClick={onCancel}>
                     取消
                 </Button>,
-                <Button key="submit" type="primary" loading={loading} onClick={onAccept} disabled={!refinedText}>
-                    接受修改
+                <Button key="submit" type="primary" onClick={handleAccept} disabled={!refinedText || loading}>
+                    应用修改
                 </Button>,
             ]}
         >
@@ -48,21 +78,21 @@ const RefineModal = ({
                 {error && <Alert message="优化出错" description={error} type="error" showIcon style={{ marginBottom: 16 }} />}
                 <Row gutter={16}>
                     <Col span={12}>
-                        <Title level={5}>原始文本</Title>
-                        <Card style={{ minHeight: 200, background: '#f5f5f5' }}>
+                        <Title level={5}>原始文本 ({contextType})</Title>
+                        <Card style={{ minHeight: 200, maxHeight: 400, overflowY: 'auto', background: '#f5f5f5' }}>
                             <Paragraph>{originalText}</Paragraph>
                         </Card>
                     </Col>
                     <Col span={12}>
                         <Title level={5}>优化结果</Title>
-                        <Card style={{ minHeight: 200 }}>
+                        <Card style={{ minHeight: 200, maxHeight: 400, overflowY: 'auto' }}>
                             <Paragraph>{refinedText || "点击下方按钮开始优化..."}</Paragraph>
                         </Card>
                     </Col>
                 </Row>
                 <Divider />
                 <Form form={form} layout="vertical" onFinish={handleFinish}>
-                    <Form.Item name="userFeedback" label="优化建议 (可选)">
+                    <Form.Item name="instruction" label="优化方向 (可选)">
                         <Input.TextArea rows={2} placeholder="例如：让这段描述更黑暗一点，或者，用更简洁的语言表达。" />
                     </Form.Item>
                     <Form.Item>

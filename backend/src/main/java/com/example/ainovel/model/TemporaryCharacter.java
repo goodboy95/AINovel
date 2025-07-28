@@ -35,5 +35,25 @@ public class TemporaryCharacter {
 
     @Lob
     @Column(columnDefinition = "TEXT")
-    private String description;
+    private String summary; // 概要 (新字段，替代原description)
+
+    @Lob
+    @Column(columnDefinition = "TEXT")
+    private String details; // 详情 (新字段)
+
+    @Lob
+    @Column(columnDefinition = "TEXT")
+    private String relationships; // 与核心人物的关系 (新字段)
+
+    @Lob
+    @Column(columnDefinition = "TEXT")
+    private String statusInScene; // 在本节中的状态 (新字段)
+
+    @Lob
+    @Column(columnDefinition = "TEXT")
+    private String moodInScene; // 在本节中的心情 (新字段)
+
+    @Lob
+    @Column(columnDefinition = "TEXT")
+    private String actionsInScene; // 在本节中的核心行动 (新字段)
 }

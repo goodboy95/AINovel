@@ -109,7 +109,15 @@ public class ManuscriptService {
         // New context summarization step
         String contextSummary = summarizeContext(scene, aiService, apiKey);
 
-        String prompt = buildGenerationPrompt(scene, story, characters, temporaryCharacters, contextSummary);
+        // Calculate position information
+        OutlineChapter currentChapter = scene.getOutlineChapter();
+        OutlineCard outline = currentChapter.getOutlineCard();
+        int chapterNumber = currentChapter.getChapterNumber();
+        int totalChapters = outline.getChapters().size();
+        int sceneNumber = scene.getSceneNumber();
+        int totalScenesInChapter = currentChapter.getScenes().size();
+
+        String prompt = buildGenerationPrompt(scene, story, characters, temporaryCharacters, contextSummary, chapterNumber, totalChapters, sceneNumber, totalScenesInChapter);
         String generatedContent = aiService.generate(prompt, apiKey);
 
         // Create a new, active section
@@ -140,28 +148,36 @@ public class ManuscriptService {
         return manuscriptSectionRepository.save(section);
     }
 
-    private String buildGenerationPrompt(OutlineScene scene, StoryCard story, List<CharacterCard> characters, List<TemporaryCharacter> temporaryCharacters, String contextSummary) {
+    private String buildGenerationPrompt(OutlineScene scene, StoryCard story, List<CharacterCard> characters, List<TemporaryCharacter> temporaryCharacters, String contextSummary, int chapterNumber, int totalChapters, int sceneNumber, int totalScenesInChapter) {
         String temporaryCharactersInfo = temporaryCharacters.stream()
-                .map(tc -> String.format("- %s: %s", tc.getName(), tc.getDescription()))
+                .map(tc -> String.format("- %s: %s", tc.getName(), tc.getSummary()))
                 .collect(Collectors.joining("\n"));
         if (temporaryCharactersInfo.isEmpty()) {
             temporaryCharactersInfo = "无";
         }
 
         return String.format(
-            "你是一位才华横溢的小说家。现在请你接续创作故事。\n\n" +
-            "**全局信息:**\n- 故事类型/基调: %s / %s\n- 故事简介: %s\n\n" +
+            "你是一位才华横溢、情感细腻的小说家。你的文字拥有直击人心的力量。现在，请你将灵魂注入以下场景，创作出能让读者沉浸其中的精彩故事。\n\n" +
+            "**故事背景:**\n- 故事类型/基调: %s / %s\n- 故事简介: %s\n\n" +
             "**主要角色设定:**\n%s\n\n" +
-            "**上下文摘要:**\n%s\n\n" +
-            "**本节大纲:**\n" +
+            "**上下文回顾:**\n- 前情提要 (AI总结): %s\n" +
+            "- 当前位置: 这是故事的 **第 %d/%d 章** 的 **第 %d/%d 节**。请根据这个位置把握好创作的节奏和情绪的烈度。\n\n" +
+            "**本节创作蓝图 (大纲):**\n" +
             "- 梗概: %s\n" +
             "- 核心出场人物: %s\n" +
             "- 核心人物状态与行动: %s\n" +
-            "- 临时出场人物:\n%s\n\n" +
-            "请根据以上所有信息，创作本节的详细内容，字数在 %d 字左右。文笔要生动，符合故事基调和人物性格。请直接开始写正文。",
+            "- 临时出场人物详情:\n%s\n\n" +
+            "**你的创作要求:**\n" +
+            "1.  **沉浸式写作:** 请勿平铺直叙。运用感官描写、心理活动和精妙的比喻，让读者完全代入。\n" +
+            "2.  **对话与行动:** 对话要符合人物性格，行动要体现人物动机。允许你在大纲基础上，丰富对话和细节，让人物“活”起来。\n" +
+            "3.  **自然地融入主题:** 如果需要传递正向价值，请通过人物的选择和成长来体现，避免任何形式的说教。\n" +
+            "4.  **忠于大纲，但高于大纲:** 你必须遵循大纲的核心情节和人物状态，但你有权进行合理的艺术加工，让故事更精彩。\n" +
+            "5.  **直接输出正文:** 请直接开始创作本节的故事正文，字数在 %d 字左右。不要包含任何前言、标题或总结。\n\n" +
+            "现在，请开始你的创作。",
             story.getGenre(), story.getTone(), story.getSynopsis(),
             characters.stream().map(c -> "- " + c.getName() + ": " + c.getSynopsis()).collect(Collectors.joining("\n")),
             contextSummary,
+            chapterNumber, totalChapters, sceneNumber, totalScenesInChapter,
             scene.getSynopsis(),
             scene.getPresentCharacters(),
             scene.getCharacterStates(),

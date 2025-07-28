@@ -45,11 +45,11 @@ export const useRefineModal = () => {
         setError(null);
         try {
             const payload = {
-                originalText,
-                userFeedback,
-                fieldName: context.fieldName,
+                text: originalText,
+                instruction: userFeedback,
+                contextType: context.fieldName,
             };
-            const data = await refineText(context.endpoint, payload);
+            const data = await refineText(payload);
             setRefinedText(data.refinedText);
         } catch (err) {
             setError(err instanceof Error ? err.message : 'Failed to refine text.');
@@ -78,5 +78,6 @@ export const useRefineModal = () => {
         closeModal,
         handleRefine,
         acceptRefinement,
+        context,
     };
 };

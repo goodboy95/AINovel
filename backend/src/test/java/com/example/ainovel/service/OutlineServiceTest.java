@@ -179,7 +179,7 @@ class OutlineServiceTest {
         assertNotNull(scene1.getCharacterStates());
         assertEquals(1, scene1.getTemporaryCharacters().size());
         assertEquals("信使", scene1.getTemporaryCharacters().get(0).getName());
-        assertEquals("一位年迈但精神矍铄的老人，身负传递重要信息的使命，身份神秘。", scene1.getTemporaryCharacters().get(0).getDescription());
+        assertEquals("一位年迈但精神矍铄的老人，身负传递重要信息的使命，身份神秘。", scene1.getTemporaryCharacters().get(0).getSummary());
         assertEquals(scene1, scene1.getTemporaryCharacters().get(0).getScene()); // Verify back-reference
 
         // Verify second scene

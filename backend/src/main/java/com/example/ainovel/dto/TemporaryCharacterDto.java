@@ -8,5 +8,10 @@ import lombok.NoArgsConstructor;
 public class TemporaryCharacterDto {
     private Long id;
     private String name;
-    private String description;
+    private String summary;
+    private String details;
+    private String relationships;
+    private String statusInScene;
+    private String moodInScene;
+    private String actionsInScene;
 }
