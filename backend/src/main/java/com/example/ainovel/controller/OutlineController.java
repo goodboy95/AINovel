@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -16,6 +17,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.example.ainovel.dto.ChapterDto;
 import com.example.ainovel.dto.GenerateChapterRequest;
 import com.example.ainovel.dto.OutlineDto;
+import com.example.ainovel.dto.SceneDto;
 import com.example.ainovel.dto.RefineRequest;
 import com.example.ainovel.dto.RefineResponse;
 import com.example.ainovel.model.User;
@@ -161,5 +163,31 @@ public class OutlineController {
             @RequestBody RefineRequest request, @AuthenticationPrincipal User user) {
         RefineResponse response = outlineService.refineGenericText(request, user);
         return ResponseEntity.ok(response);
+    }
+
+    /**
+     * Partially updates a Chapter node (title, synopsis, settings, etc.).
+     * PATCH is used to allow partial updates from the "true" edit mode.
+     */
+    @PatchMapping("/chapters/{id}")
+    public ResponseEntity<ChapterDto> patchChapter(
+            @PathVariable Long id,
+            @RequestBody ChapterDto chapterDto,
+            @AuthenticationPrincipal User user) {
+        ChapterDto updated = outlineService.updateChapter(id, chapterDto, user.getId());
+        return ResponseEntity.ok(updated);
+    }
+
+    /**
+     * Partially updates a Scene node (synopsis, expectedWords, presentCharacters, characterStates, temporaryCharacters).
+     * PATCH is used to allow partial updates from the "true" edit mode.
+     */
+    @PatchMapping("/scenes/{id}")
+    public ResponseEntity<SceneDto> patchScene(
+            @PathVariable Long id,
+            @RequestBody SceneDto sceneDto,
+            @AuthenticationPrincipal User user) {
+        SceneDto updated = outlineService.updateScene(id, sceneDto, user.getId());
+        return ResponseEntity.ok(updated);
     }
 }

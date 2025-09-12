@@ -1,27 +1,34 @@
 package com.example.ainovel.service;
 
-import com.example.ainovel.dto.SettingsDto;
-import com.example.ainovel.model.User;
-import com.example.ainovel.model.UserSetting;
-import com.example.ainovel.repository.UserRepository;
-import com.example.ainovel.repository.UserSettingRepository;
+import java.util.Optional;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 
-import java.util.Optional;
-
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.*;
+import com.example.ainovel.dto.SettingsDto;
+import com.example.ainovel.model.User;
+import com.example.ainovel.model.UserSetting;
+import com.example.ainovel.repository.UserRepository;
+import com.example.ainovel.repository.UserSettingRepository;
 
 @ExtendWith(MockitoExtension.class)
 class SettingsServiceTest {
@@ -38,8 +45,6 @@ class SettingsServiceTest {
     @Mock
     private OpenAiService openAiService;
 
-    @Mock
-    private ClaudeService claudeService;
 
     @Mock
     private SecurityContext securityContext;
@@ -64,13 +69,13 @@ class SettingsServiceTest {
         testUserSetting = new UserSetting();
         testUserSetting.setId(1L);
         testUserSetting.setUser(testUser);
-        testUserSetting.setLlmProvider("openai");
+        testUserSetting.setBaseUrl("https://api.example.com/v1");
         testUserSetting.setModelName("gpt-4");
         testUserSetting.setApiKey("encrypted-api-key");
         testUserSetting.setCustomPrompt("Custom prompt");
 
         testSettingsDto = new SettingsDto();
-        testSettingsDto.setLlmProvider("openai");
+        testSettingsDto.setBaseUrl("https://api.example.com/v1");
         testSettingsDto.setModelName("gpt-4");
         testSettingsDto.setApiKey("test-api-key");
         testSettingsDto.setCustomPrompt("Custom prompt");
@@ -91,7 +96,7 @@ class SettingsServiceTest {
 
         // Then
         assertNotNull(result);
-        assertEquals("openai", result.getLlmProvider());
+        assertEquals("https://api.example.com/v1", result.getBaseUrl());
         assertEquals("gpt-4", result.getModelName());
         assertEquals("Custom prompt", result.getCustomPrompt());
         assertNull(result.getApiKey()); // API key should not be exposed
@@ -119,7 +124,7 @@ class SettingsServiceTest {
 
         // Then
         assertNotNull(result);
-        assertNull(result.getLlmProvider());
+        assertNull(result.getBaseUrl());
         assertNull(result.getModelName());
         assertNull(result.getCustomPrompt());
         assertNull(result.getApiKey());
@@ -176,43 +181,17 @@ class SettingsServiceTest {
     @Test
     void testTestConnection_OpenAI_Success() {
         // Given
-        when(openAiService.validateApiKey("test-api-key")).thenReturn(true);
+        when(openAiService.validateApiKey("test-api-key", "https://api.example.com/v1")).thenReturn(true);
 
         // When
         boolean result = settingsService.testConnection(testSettingsDto);
 
         // Then
         assertTrue(result);
-        verify(openAiService).validateApiKey("test-api-key");
+        verify(openAiService).validateApiKey("test-api-key", "https://api.example.com/v1");
     }
 
-    @Test
-    void testTestConnection_Claude_Success() {
-        // Given
-        testSettingsDto.setLlmProvider("claude");
-        when(claudeService.validateApiKey("test-api-key")).thenReturn(true);
 
-        // When
-        boolean result = settingsService.testConnection(testSettingsDto);
-
-        // Then
-        assertTrue(result);
-        verify(claudeService).validateApiKey("test-api-key");
-    }
-
-    @Test
-    void testTestConnection_InvalidProvider() {
-        // Given
-        testSettingsDto.setLlmProvider("unknown");
-
-        // When
-        boolean result = settingsService.testConnection(testSettingsDto);
-
-        // Then
-        assertFalse(result);
-        verify(openAiService, never()).validateApiKey(anyString());
-        verify(claudeService, never()).validateApiKey(anyString());
-    }
 
     @Test
     void testTestConnection_NoApiKey() {
@@ -224,13 +203,13 @@ class SettingsServiceTest {
 
         // Then
         assertFalse(result);
-        verify(openAiService, never()).validateApiKey(anyString());
+        verify(openAiService, never()).validateApiKey(anyString(), anyString());
     }
 
     @Test
     void testTestConnection_Exception() {
         // Given
-        when(openAiService.validateApiKey("test-api-key")).thenThrow(new RuntimeException("API error"));
+        when(openAiService.validateApiKey("test-api-key", "https://api.example.com/v1")).thenThrow(new RuntimeException("API error"));
 
         // When
         boolean result = settingsService.testConnection(testSettingsDto);

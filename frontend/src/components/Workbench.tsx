@@ -3,7 +3,6 @@ import { useParams, useNavigate } from 'react-router-dom';
 import {
     Layout,
     Input,
-    Select,
     Button,
     Spin,
     Card,
@@ -13,13 +12,13 @@ import {
     Alert,
     Divider,
     Empty,
-    Tabs,
-    List
+    Tabs
 } from 'antd';
-import OutlineDesign from './OutlineDesign';
+import OutlinePage from './OutlinePage';
 import ManuscriptWriter from './ManuscriptWriter';
+import StoryList from './StoryList';
+import StoryDetail from './StoryDetail';
 import StoryConception from './StoryConception';
-import { PlusOutlined, EditOutlined, DeleteOutlined, EyeOutlined } from '@ant-design/icons';
 import type { Outline, StoryCard, CharacterCard, ConceptionFormValues } from '../types';
 import Icon from '@ant-design/icons';
 import { useStoryData } from '../hooks/useStoryData';
@@ -39,15 +38,21 @@ const SparklesSvg = () => (
 const SparklesIcon = (props: React.ComponentProps<typeof Icon>) => <Icon component={SparklesSvg} {...props} />;
 
 const { Header, Content } = Layout;
-const { Title, Paragraph } = Typography;
-const { Option } = Select;
+const { Title } = Typography;
 const { TabPane } = Tabs;
 // Type definitions are now in src/types.ts
 
 const Workbench = () => {
     const { tab } = useParams<{ tab: string }>();
     const navigate = useNavigate();
-    const [activeTab, setActiveTab] = useState(tab || "story-conception");
+
+    const normalizeTab = (t?: string) => {
+        if (!t) return "story-conception";
+        if (t === "outline-design" || t === "outline-management") return "outline-workspace";
+        return t;
+    };
+
+    const [activeTab, setActiveTab] = useState(normalizeTab(tab));
     
     // State Management Hooks
     const {
@@ -60,6 +65,7 @@ const Workbench = () => {
         viewStory,
         generateStory,
         updateStory,
+        createStory,
         createCharacter,
         updateCharacter,
         deleteCharacter,
@@ -68,6 +74,7 @@ const Workbench = () => {
     } = useStoryData();
 
     const [selectedStoryForOutline, setSelectedStoryForOutline] = useState<string | null>(null);
+    const [selectedStoryForMgmt, setSelectedStoryForMgmt] = useState<number | 'new' | null>(null);
 
     const {
         outlines: outlinesForStory,
@@ -76,9 +83,8 @@ const Workbench = () => {
         error: outlineError,
         loadOutlines,
         updateOutline,
-        deleteOutline,
         selectOutline,
-        getOutlineForWriting,
+        updateLocalOutline,
         setSelectedOutline,
         setIsLoading: setOutlineLoading,
         setError: setOutlineError,
@@ -98,7 +104,6 @@ const Workbench = () => {
     const [editingCharacter, setEditingCharacter] = useState<CharacterCard | null>(null);
     const [isAddCharacterModalVisible, setIsAddCharacterModalVisible] = useState(false);
     const [editingOutline, setEditingOutline] = useState<Outline | null>(null);
-    const [outlineForWriting, setOutlineForWriting] = useState<Outline | null>(null);
     const [selectedSceneId, setSelectedSceneId] = useState<number | null>(null);
     const [error, setError] = useState(''); // General error, can be deprecated if hooks handle all errors
 
@@ -107,10 +112,14 @@ const Workbench = () => {
     }, [loadStoryList]);
 
     useEffect(() => {
-        if (tab && tab !== activeTab) {
-            setActiveTab(tab);
+        const next = normalizeTab(tab);
+        if (next !== activeTab) {
+            setActiveTab(next);
+            if (tab !== next) {
+                navigate(`/workbench/${next}`, { replace: true });
+            }
         }
-    }, [tab, activeTab]);
+    }, [tab, activeTab, navigate]);
 
     useEffect(() => {
         if (selectedStoryForOutline) {
@@ -118,19 +127,14 @@ const Workbench = () => {
         }
     }, [selectedStoryForOutline, loadOutlines]);
 
-    const handleViewStory = async (storyId: number) => {
-        const story = await viewStory(storyId);
-        if (story) {
-            setSelectedStoryForOutline(story.id.toString());
-            navigate('/workbench/story-details');
-        }
-    };
 
     const onFinish = async (values: ConceptionFormValues) => {
         const newStory = await generateStory(values);
         if (newStory) {
             setSelectedStoryForOutline(newStory.id.toString());
-            setActiveTab("story-details");
+            setSelectedStoryForMgmt(newStory.id);
+            setActiveTab("story-management");
+            navigate('/workbench/story-management', { replace: true });
         }
     };
 
@@ -161,11 +165,6 @@ const Workbench = () => {
         setEditingOutline(null);
     };
 
-    const handleDeleteOutline = async (outlineId: number) => {
-        if (window.confirm('您确定要删除此大纲吗？这将无法恢复。')) {
-            await deleteOutline(outlineId);
-        }
-    };
 
     const handleUpdateCharacterCard = async () => {
         if (!editingCharacter) return;
@@ -186,7 +185,7 @@ const Workbench = () => {
             actions={[
                 <Button type="primary" onClick={() => {
                     setSelectedStoryForOutline(card.id.toString());
-                    navigate('/workbench/outline-design');
+                    navigate('/workbench/outline-workspace');
                 }}>
                     设计大纲
                 </Button>
@@ -212,20 +211,7 @@ const Workbench = () => {
         }
     };
 
-    const handleStartWriting = async (outlineId: number) => {
-        const outline = await getOutlineForWriting(outlineId);
-        if (outline) {
-            setOutlineForWriting(outline);
-            navigate('/workbench/manuscript-writer');
-        }
-    };
 
-    const handleEditOutline = async (outlineId: number) => {
-        const outline = await getOutlineForWriting(outlineId); // Can reuse the same fetch logic
-        if (outline) {
-            setEditingOutline(outline);
-        }
-    };
 
 
 
@@ -262,6 +248,21 @@ const Workbench = () => {
         navigate(`/workbench/${key}`);
     };
 
+    const handleSelectStoryFromList = async (id: number | 'new') => {
+        if (id === 'new') {
+            setSelectedStoryForMgmt('new');
+            setStoryCard(null);
+            return;
+        }
+        setSelectedStoryForMgmt(id);
+        await viewStory(id);
+    };
+
+    const handleAfterCreateStory = (newStory: StoryCard) => {
+        setSelectedStoryForMgmt(newStory.id);
+        setSelectedStoryForOutline(newStory.id.toString());
+    };
+
     return (
         <Layout style={{ minHeight: '100vh' }}>
             <Header style={{ background: '#fff', padding: '0 24px', borderBottom: '1px solid #f0f0f0', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
@@ -281,72 +282,69 @@ const Workbench = () => {
                             setIsAddCharacterModalVisible={setIsAddCharacterModalVisible}
                         />
                     </TabPane>
-                    <TabPane tab="故事列表" key="story-list">
-                        <Card title="故事列表">
-                            <Spin spinning={isStoryLoading}>
-                                    <List
-                                        itemLayout="horizontal"
-                                        dataSource={storyList}
-                                        renderItem={item => (
-                                            <List.Item
-                                                actions={[
-                                                    <Button 
-                                                        type="link" 
-                                                        onClick={() => {
-                                                            handleViewStory(item.id);
-                                                        }}
-                                                    >
-                                                        查看
-                                                    </Button>
-                                                ]}
-                                            >
-                                                <List.Item.Meta
-                                                    title={item.title}
-                                                    description={`类型: ${item.genre} | 基调: ${item.tone}`}
-                                                />
-                                            </List.Item>
-                                        )}
-                                    />
-                            </Spin>
-                        </Card>
-                    </TabPane>
-                    <TabPane tab="故事详情" key="story-details">
-                        <Spin spinning={isStoryLoading} tip="正在加载故事..." size="large">
-                            <div style={{ padding: 24, background: '#fff', borderRadius: '8px', height: '100%' }}>
-                                {storyError && <Alert message="错误" description={storyError} type="error" showIcon closable onClose={() => setError('')} style={{ marginBottom: 24 }} />}
-                                
-                                {!storyCard && !isStoryLoading && (
-                                    <Empty description="请从“故事列表”中选择一个故事查看详情。" />
-                                )}
-
-                                {storyCard && (
-                                    <Row gutter={[24, 24]}>
-                                        <Col xs={24} lg={8}>
-                                            {renderStoryCard(storyCard)}
-                                        </Col>
-                                        <Col xs={24} lg={16}>
-                                            <Title level={4} style={{ marginBottom: 16 }}>角色</Title>
-                                            <Row gutter={[16, 16]}>
-                                                {characterCards.map((char) => (
-                                                    <Col key={char.id} xs={24} md={12}>
-                                                        {renderCharacterCard(char)}
-                                                    </Col>
-                                                ))}
-                                                <Col xs={24} md={12}>
-                                                    <Button type="dashed" onClick={() => setIsAddCharacterModalVisible(true)} style={{ width: '100%', height: '100%', minHeight: '150px' }}>
-                                                        + 添加新角色
-                                                    </Button>
-                                                </Col>
-                                            </Row>
-                                        </Col>
-                                    </Row>
-                                )}
-                            </div>
-                        </Spin>
-                    </TabPane>
-                    <TabPane tab="大纲设计" key="outline-design">
+                    <TabPane tab="故事管理" key="story-management">
                         <div style={{ padding: 24, background: '#fff', borderRadius: '8px' }}>
-                            <OutlineDesign
+                            {storyError && <Alert message="错误" description={storyError} type="error" showIcon closable onClose={() => setError('')} style={{ marginBottom: 24 }} />}
+                            <Row gutter={24}>
+                                <Col xs={24} lg={8}>
+                                    <StoryList
+                                        stories={storyList}
+                                        selectedId={selectedStoryForMgmt}
+                                        onSelect={handleSelectStoryFromList}
+                                        loading={isStoryLoading}
+                                    />
+                                </Col>
+                                <Col xs={24} lg={16}>
+                                    <Spin spinning={isStoryLoading} tip="正在加载..." size="large">
+                                        <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+                                            {selectedStoryForMgmt === 'new' && (
+                                                <StoryDetail
+                                                    mode="create"
+                                                    story={null}
+                                                    loading={isStoryLoading}
+                                                    onCreate={createStory}
+                                                    onUpdate={() => {}}
+                                                    onAfterCreate={handleAfterCreateStory}
+                                                />
+                                            )}
+                                            {selectedStoryForMgmt !== 'new' && storyCard && (
+                                                <>
+                                                    <StoryDetail
+                                                        mode="edit"
+                                                        story={storyCard}
+                                                        loading={isStoryLoading}
+                                                        onCreate={createStory}
+                                                        onUpdate={updateStory}
+                                                    />
+                                                    <Card>
+                                                        <Title level={4} style={{ marginBottom: 16 }}>角色</Title>
+                                                        <Row gutter={[16, 16]}>
+                                                            {characterCards.map((char) => (
+                                                                <Col key={char.id} xs={24} md={12}>
+                                                                    {renderCharacterCard(char)}
+                                                                </Col>
+                                                            ))}
+                                                            <Col xs={24} md={12}>
+                                                                <Button type="dashed" onClick={() => setIsAddCharacterModalVisible(true)} style={{ width: '100%', height: '100%', minHeight: '150px' }}>
+                                                                    + 添加新角色
+                                                                </Button>
+                                                            </Col>
+                                                        </Row>
+                                                    </Card>
+                                                </>
+                                            )}
+                                            {!selectedStoryForMgmt && (
+                                                <Empty description="请选择左侧故事或点击“新建故事”" />
+                                            )}
+                                        </div>
+                                    </Spin>
+                                </Col>
+                            </Row>
+                        </div>
+                    </TabPane>
+                    <TabPane tab="大纲工作台" key="outline-workspace">
+                        <div style={{ padding: 24, background: '#fff', borderRadius: '8px' }}>
+                            <OutlinePage
                                 storyCards={storyList}
                                 selectedStoryId={selectedStoryForOutline}
                                 onStoryChange={handleStoryChangeInOutlineTabs}
@@ -358,63 +356,16 @@ const Workbench = () => {
                                 setError={setOutlineError}
                                 outlines={outlinesForStory}
                                 onSelectOutline={handleSelectOutline}
-                                fetchOutlines={loadOutlines}
+                                loadOutlines={loadOutlines}
+                                updateLocal={updateLocalOutline}
+                                updateOutlineRemote={updateOutline}
                             />
-                        </div>
-                    </TabPane>
-                    <TabPane tab="大纲管理" key="outline-management">
-                        <div style={{ padding: 24, background: '#fff', borderRadius: '8px' }}>
-                            <Title level={4}>选择一个故事以管理其大纲</Title>
-                            <Select
-                                showSearch
-                                style={{ width: '100%', marginBottom: 24 }}
-                                placeholder="选择故事"
-                                value={selectedStoryForOutline}
-                                onChange={handleStoryChangeInOutlineTabs}
-                                filterOption={(input, option) =>
-                                    (option?.children as unknown as string)?.toLowerCase().includes(input.toLowerCase())
-                                }
-                            >
-                                {storyList.map(story => (
-                                    <Option key={story.id} value={story.id.toString()}>{story.title}</Option>
-                                ))}
-                            </Select>
-                            <Button 
-                                type="primary" 
-                                icon={<PlusOutlined />} 
-                                onClick={() => setActiveTab("outline-design")}
-                                disabled={!selectedStoryForOutline}
-                                style={{marginBottom: 24}}
-                            >
-                                为当前故事创建新大纲
-                            </Button>
-                            <Spin spinning={isOutlineLoading}>
-                                <List
-                                    grid={{ gutter: 16, xs: 1, sm: 2, md: 3, lg: 4 }}
-                                    dataSource={outlinesForStory}
-                                    renderItem={item => (
-                                        <List.Item>
-                                            <Card
-                                                title={item.title}
-                                                actions={[
-                                                    <Button type="primary" icon={<EyeOutlined />} onClick={() => handleStartWriting(item.id)}>创作</Button>,
-                                                    <Button icon={<EditOutlined />} onClick={() => handleEditOutline(item.id)}>编辑</Button>,
-                                                    <Button danger icon={<DeleteOutlined />} onClick={() => handleDeleteOutline(item.id)}>删除</Button>,
-                                                ]}
-                                            >
-                                                <Paragraph>视角: {item.pointOfView}</Paragraph>
-                                                <Paragraph>章节数: {item.chapters.length}</Paragraph>
-                                            </Card>
-                                        </List.Item>
-                                    )}
-                                />
-                            </Spin>
                         </div>
                     </TabPane>
                     <TabPane tab="故事创作" key="manuscript-writer">
                         <div style={{ padding: 24, background: '#fff', borderRadius: '8px', height: '100%' }}>
-                            <ManuscriptWriter 
-                                selectedOutline={outlineForWriting}
+                            <ManuscriptWriter
+                                storyId={selectedStoryForOutline}
                                 selectedSceneId={selectedSceneId}
                                 onSelectScene={setSelectedSceneId}
                             />

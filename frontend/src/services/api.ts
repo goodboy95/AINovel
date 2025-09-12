@@ -77,6 +77,20 @@ export const updateStoryCard = (storyCard: StoryCard): Promise<StoryCard> => {
         body: JSON.stringify(storyCard),
     }).then(res => handleResponse<StoryCard>(res));
 };
+// Create a new story (manual creation)
+export const createStory = (payload: { title: string; synopsis: string; genre: string; tone: string; }): Promise<StoryCard> => {
+    return fetch('/api/v1/stories', {
+        method: 'POST',
+        headers: getAuthHeaders(),
+        body: JSON.stringify(payload),
+    }).then(res => handleResponse<StoryCard>(res));
+};
+
+// Fetch characters for a given story (for multi-select options)
+export const fetchCharactersForStory = (storyId: number): Promise<CharacterCard[]> => {
+    return fetch(`/api/v1/story-cards/${storyId}/character-cards`, { headers: getAuthHeaders() })
+        .then(res => handleResponse<CharacterCard[]>(res));
+};
 
 // Character Card APIs
 /**

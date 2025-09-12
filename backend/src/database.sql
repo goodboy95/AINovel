@@ -131,7 +131,7 @@ CREATE TABLE `user_settings`  (
   `id` bigint NOT NULL AUTO_INCREMENT,
   `api_key` varchar(512) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL,
   `custom_prompt` text CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL,
-  `llm_provider` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL,
+  `base_url` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL,
   `model_name` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL,
   `user_id` bigint NOT NULL,
   PRIMARY KEY (`id`) USING BTREE,
@@ -173,3 +173,12 @@ ADD COLUMN `actions_in_scene` TEXT CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai
 -- Note: The column names in the SQL script use snake_case (e.g., status_in_scene)
 -- to follow common SQL conventions, which will be automatically mapped by Hibernate
 -- to the camelCase field names in the Java Entity (e.g., statusInScene).
+
+-- ----------------------------
+-- Version 2.3 Schema Alignment
+-- ----------------------------
+-- Align user_settings with simplified AI settings (OpenAI-only):
+-- 1) Add base_url column
+-- 2) Drop deprecated llm_provider column
+ALTER TABLE `user_settings` ADD COLUMN `base_url` varchar(255) NULL DEFAULT NULL AFTER `custom_prompt`;
+ALTER TABLE `user_settings` DROP COLUMN `llm_provider`;

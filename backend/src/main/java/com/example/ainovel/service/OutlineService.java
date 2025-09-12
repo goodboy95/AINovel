@@ -7,7 +7,6 @@ import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.context.ApplicationContext;
 import org.springframework.retry.annotation.Backoff;
 import org.springframework.retry.annotation.Retryable;
 import org.springframework.security.access.AccessDeniedException;
@@ -57,7 +56,8 @@ public class OutlineService {
     private final UserRepository userRepository;
     private final UserSettingRepository userSettingRepository;
     private final EncryptionService encryptionService;
-    private final ApplicationContext applicationContext;
+    private final SettingsService settingsService;
+    private final OpenAiService openAiService;
     private final ObjectMapper objectMapper;
     private final OutlineChapterRepository outlineChapterRepository;
     private final OutlineSceneRepository outlineSceneRepository;
@@ -161,8 +161,8 @@ public class OutlineService {
         dto.setSceneNumber(scene.getSceneNumber());
         dto.setSynopsis(scene.getSynopsis());
         dto.setExpectedWords(scene.getExpectedWords());
-        dto.setPresentCharacters(scene.getPresentCharacters()); // Add present characters
-        dto.setCharacterStates(scene.getCharacterStates());   // Add character states
+        dto.setPresentCharacterIds(parsePresentCharacterIds(scene.getPresentCharacters()));
+        dto.setCharacterStates(scene.getCharacterStates());
         if (scene.getTemporaryCharacters() != null) {
             dto.setTemporaryCharacters(scene.getTemporaryCharacters().stream()
                 .map(this::convertTemporaryCharacterToDto)
@@ -249,7 +249,14 @@ public class OutlineService {
                         scene.setSceneNumber(sceneDto.getSceneNumber());
                         scene.setSynopsis(sceneDto.getSynopsis());
                         scene.setExpectedWords(sceneDto.getExpectedWords());
-                        scene.setPresentCharacters(sceneDto.getPresentCharacters());
+                        if (sceneDto.getPresentCharacterIds() != null) {
+                            try {
+                                scene.setPresentCharacters(objectMapper.writeValueAsString(sceneDto.getPresentCharacterIds()));
+                            } catch (JsonProcessingException e) {
+                                logger.warn("Failed to serialize presentCharacterIds, storing empty array", e);
+                                scene.setPresentCharacters("[]");
+                            }
+                        }
                         scene.setCharacterStates(sceneDto.getCharacterStates());
 
                         // --- Temporary Character Management ---
@@ -345,10 +352,11 @@ public class OutlineService {
      * @return A response DTO with the refined text.
      */
     public RefineResponse refineGenericText(RefineRequest request, User user) {
-        AiService aiService = getAiServiceForUser(user);
         String apiKey = getDecryptedApiKeyForUser(user);
+        String baseUrl = settingsService.getBaseUrlByUserId(user.getId());
+        String model = settingsService.getModelNameByUserId(user.getId());
 
-        String refinedText = aiService.refineText(request, apiKey);
+        String refinedText = openAiService.refineText(request, apiKey, baseUrl, model);
         return new RefineResponse(refinedText);
     }
 
@@ -360,13 +368,14 @@ public class OutlineService {
         validateOutlineAccess(outlineCard, user.getId());
 
         StoryCard storyCard = outlineCard.getStoryCard();
-        AiService aiService = getAiServiceForUser(user);
         String apiKey = getDecryptedApiKeyForUser(user);
+        String baseUrl = settingsService.getBaseUrlByUserId(user.getId());
+        String model = settingsService.getModelNameByUserId(user.getId());
 
         String prompt = buildChapterPrompt(storyCard, outlineCard, request);
         logger.debug("Generated Prompt for Chapter {}: {}", request.getChapterNumber(), prompt);
 
-        String jsonResponse = aiService.generate(prompt, apiKey);
+        String jsonResponse = openAiService.generate(prompt, apiKey, baseUrl, model);
         logger.info("AI Response JSON for chapter generation: {}", jsonResponse);
 
         try {
@@ -513,9 +522,8 @@ public class OutlineService {
     }
 
     private AiService getAiServiceForUser(User user) {
-        UserSetting settings = userSettingRepository.findByUserId(user.getId())
-                .orElseThrow(() -> new IllegalStateException("User settings not found. Please configure your AI provider first."));
-        return (AiService) applicationContext.getBean(settings.getLlmProvider().toLowerCase());
+        // Deprecated provider-based selection removed; always use OpenAI implementation.
+        return openAiService;
     }
 
     private String getDecryptedApiKeyForUser(User user) {
@@ -544,6 +552,132 @@ public class OutlineService {
         Long ownerId = scene.getOutlineChapter().getOutlineCard().getUser().getId();
         if (!ownerId.equals(userId)) {
             throw new AccessDeniedException("User does not have permission to access this scene.");
+        }
+    }
+
+    /**
+     * Partially updates a Chapter node (title, synopsis, settings, chapterNumber).
+     * Only non-null fields in chapterDto will be applied.
+     */
+    @Transactional
+    @Retryable(backoff = @Backoff(delay = 1000), maxAttempts = 3)
+    public ChapterDto updateChapter(Long chapterId, ChapterDto chapterDto, Long userId) {
+        OutlineChapter chapter = outlineChapterRepository.findById(chapterId)
+                .orElseThrow(() -> new ResourceNotFoundException("OutlineChapter not found with id: " + chapterId));
+
+        validateOutlineAccess(chapter.getOutlineCard(), userId);
+
+        if (chapterDto.getChapterNumber() != null) {
+            chapter.setChapterNumber(chapterDto.getChapterNumber());
+        }
+        if (chapterDto.getTitle() != null) {
+            chapter.setTitle(chapterDto.getTitle());
+        }
+        if (chapterDto.getSynopsis() != null) {
+            chapter.setSynopsis(chapterDto.getSynopsis());
+        }
+        if (chapterDto.getSettings() != null) {
+            chapter.setSettings(chapterDto.getSettings());
+        }
+
+        OutlineChapter saved = outlineChapterRepository.save(chapter);
+        return convertChapterToDto(saved);
+    }
+
+    /**
+     * Partially updates a Scene node (synopsis, expectedWords, presentCharacters, characterStates, sceneNumber, temporaryCharacters).
+     * Only non-null fields in sceneDto will be applied. If temporaryCharacters is present, it replaces the entire collection.
+     */
+    @Transactional
+    @Retryable(backoff = @Backoff(delay = 1000), maxAttempts = 3)
+    public SceneDto updateScene(Long sceneId, SceneDto sceneDto, Long userId) {
+        OutlineScene scene = outlineSceneRepository.findById(sceneId)
+                .orElseThrow(() -> new ResourceNotFoundException("OutlineScene not found with id: " + sceneId));
+
+        validateSceneAccess(scene, userId);
+
+        if (sceneDto.getSceneNumber() != null) {
+            scene.setSceneNumber(sceneDto.getSceneNumber());
+        }
+        if (sceneDto.getSynopsis() != null) {
+            scene.setSynopsis(sceneDto.getSynopsis());
+        }
+        if (sceneDto.getExpectedWords() != null) {
+            scene.setExpectedWords(sceneDto.getExpectedWords());
+        }
+        if (sceneDto.getPresentCharacterIds() != null) {
+            try {
+                scene.setPresentCharacters(objectMapper.writeValueAsString(sceneDto.getPresentCharacterIds()));
+            } catch (JsonProcessingException e) {
+                logger.warn("Failed to serialize presentCharacterIds, storing empty array", e);
+                scene.setPresentCharacters("[]");
+            }
+        }
+        if (sceneDto.getCharacterStates() != null) {
+            scene.setCharacterStates(sceneDto.getCharacterStates());
+        }
+
+        // Replace temporary characters if provided in DTO
+        if (sceneDto.getTemporaryCharacters() != null) {
+            List<TemporaryCharacter> existingList = scene.getTemporaryCharacters() != null
+                    ? scene.getTemporaryCharacters()
+                    : new ArrayList<>();
+
+            Map<Long, TemporaryCharacter> existingTempCharsMap = existingList.stream()
+                    .collect(Collectors.toMap(TemporaryCharacter::getId, tc -> tc, (tc1, tc2) -> tc1));
+
+            List<TemporaryCharacter> tempCharsToKeep = new ArrayList<>();
+            for (TemporaryCharacterDto tempCharDto : sceneDto.getTemporaryCharacters()) {
+                TemporaryCharacter tempChar = tempCharDto.getId() != null
+                        ? existingTempCharsMap.remove(tempCharDto.getId())
+                        : null;
+
+                if (tempChar == null) {
+                    tempChar = new TemporaryCharacter();
+                    tempChar.setScene(scene);
+                }
+
+                tempChar.setName(tempCharDto.getName());
+                tempChar.setSummary(tempCharDto.getSummary());
+                tempChar.setDetails(tempCharDto.getDetails());
+                tempChar.setRelationships(tempCharDto.getRelationships());
+                tempChar.setStatusInScene(tempCharDto.getStatusInScene());
+                tempChar.setMoodInScene(tempCharDto.getMoodInScene());
+                tempChar.setActionsInScene(tempCharDto.getActionsInScene());
+
+                tempCharsToKeep.add(tempChar);
+            }
+            scene.setTemporaryCharacters(tempCharsToKeep);
+        }
+
+        OutlineScene saved = outlineSceneRepository.save(scene);
+        return convertSceneToDto(saved);
+    }
+
+    private List<Long> parsePresentCharacterIds(String presentCharacters) {
+        if (presentCharacters == null || presentCharacters.trim().isEmpty()) {
+            return java.util.Collections.emptyList();
+        }
+        try {
+            JsonNode node = objectMapper.readTree(presentCharacters);
+            List<Long> ids = new ArrayList<>();
+            if (node.isArray()) {
+                for (JsonNode n : node) {
+                    ids.add(n.asLong());
+                }
+            } else {
+                for (String part : presentCharacters.split(",")) {
+                    String t = part.trim();
+                    if (!t.isEmpty()) {
+                        try {
+                            ids.add(Long.parseLong(t));
+                        } catch (NumberFormatException ignored) { }
+                    }
+                }
+            }
+            return ids;
+        } catch (Exception e) {
+            return java.util.Collections.emptyList();
         }
     }
 }

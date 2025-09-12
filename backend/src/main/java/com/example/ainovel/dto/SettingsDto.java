@@ -1,19 +1,19 @@
 package com.example.ainovel.dto;
 
 public class SettingsDto {
-    private String llmProvider;
+    private String baseUrl;
     private String modelName;
     private String apiKey;
     private String customPrompt;
 
     // Getters and Setters
 
-    public String getLlmProvider() {
-        return llmProvider;
+    public String getBaseUrl() {
+        return baseUrl;
     }
 
-    public void setLlmProvider(String llmProvider) {
-        this.llmProvider = llmProvider;
+    public void setBaseUrl(String baseUrl) {
+        this.baseUrl = baseUrl;
     }
 
     public String getModelName() {

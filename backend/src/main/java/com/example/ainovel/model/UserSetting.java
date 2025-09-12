@@ -14,8 +14,8 @@ public class UserSetting {
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
-    @Column(name = "llm_provider", length = 20)
-    private String llmProvider;
+    @Column(name = "base_url", length = 255)
+    private String baseUrl;
 
     @Column(name = "model_name", length = 100)
     private String modelName;
@@ -44,12 +44,12 @@ public class UserSetting {
         this.user = user;
     }
 
-    public String getLlmProvider() {
-        return llmProvider;
+    public String getBaseUrl() {
+        return baseUrl;
     }
 
-    public void setLlmProvider(String llmProvider) {
-        this.llmProvider = llmProvider;
+    public void setBaseUrl(String baseUrl) {
+        this.baseUrl = baseUrl;
     }
 
     public String getModelName() {

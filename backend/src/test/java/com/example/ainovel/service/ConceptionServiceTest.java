@@ -1,9 +1,31 @@
 package com.example.ainovel.service;
 
+import java.util.Arrays;
+import java.util.List;
+import java.util.Optional;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyList;
+import static org.mockito.ArgumentMatchers.anyString;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.security.access.AccessDeniedException;
+
 import com.example.ainovel.dto.ConceptionRequest;
 import com.example.ainovel.dto.ConceptionResponse;
 import com.example.ainovel.dto.RefineRequest;
 import com.example.ainovel.dto.RefineResponse;
+import com.example.ainovel.exception.ResourceNotFoundException;
 import com.example.ainovel.model.CharacterCard;
 import com.example.ainovel.model.StoryCard;
 import com.example.ainovel.model.User;
@@ -12,25 +34,6 @@ import com.example.ainovel.repository.CharacterCardRepository;
 import com.example.ainovel.repository.StoryCardRepository;
 import com.example.ainovel.repository.UserRepository;
 import com.example.ainovel.repository.UserSettingRepository;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.context.ApplicationContext;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
-
-import java.util.Arrays;
-import java.util.List;
-import com.example.ainovel.exception.ResourceNotFoundException;
-import org.springframework.security.access.AccessDeniedException;
-
-import java.util.Optional;
-
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class ConceptionServiceTest {
@@ -51,10 +54,10 @@ class ConceptionServiceTest {
     private EncryptionService encryptionService;
 
     @Mock
-    private ApplicationContext applicationContext;
+    private SettingsService settingsService;
 
     @Mock
-    private AiService aiService;
+    private OpenAiService openAiService;
 
     @InjectMocks
     private ConceptionService conceptionService;
@@ -81,7 +84,6 @@ class ConceptionServiceTest {
         testUserSetting = new UserSetting();
         testUserSetting.setId(1L);
         testUserSetting.setUser(testUser);
-        testUserSetting.setLlmProvider("openai");
         testUserSetting.setApiKey("encrypted-api-key");
 
         testStoryCard = new StoryCard();
@@ -107,8 +109,10 @@ class ConceptionServiceTest {
         when(userRepository.findByUsername("testuser")).thenReturn(Optional.of(testUser));
         when(userSettingRepository.findByUserId(1L)).thenReturn(Optional.of(testUserSetting));
         when(encryptionService.decrypt(anyString())).thenReturn("decrypted-api-key");
-        when(applicationContext.getBean(anyString())).thenReturn(aiService);
-        when(aiService.generateConception(any(ConceptionRequest.class), anyString())).thenReturn(testConceptionResponse);
+        when(settingsService.getBaseUrlByUserId(1L)).thenReturn("https://api.example.com/v1");
+        when(settingsService.getModelNameByUserId(1L)).thenReturn("gpt-4");
+        when(openAiService.generateConception(any(ConceptionRequest.class), anyString(), anyString(), anyString()))
+                .thenReturn(testConceptionResponse);
         when(storyCardRepository.save(any(StoryCard.class))).thenReturn(testStoryCard);
         when(characterCardRepository.saveAll(anyList())).thenReturn(Arrays.asList(testCharacterCard));
 
@@ -314,9 +318,11 @@ class ConceptionServiceTest {
         RefineRequest refineRequest = new RefineRequest();
         when(storyCardRepository.findById(1L)).thenReturn(Optional.of(testStoryCard));
         when(userSettingRepository.findByUserId(1L)).thenReturn(Optional.of(testUserSetting));
-        when(applicationContext.getBean(anyString())).thenReturn(aiService);
         when(encryptionService.decrypt(anyString())).thenReturn("decrypted-api-key");
-        when(aiService.refineText(any(RefineRequest.class), anyString())).thenReturn("Refined text");
+        when(settingsService.getBaseUrlByUserId(1L)).thenReturn("https://api.example.com/v1");
+        when(settingsService.getModelNameByUserId(1L)).thenReturn("gpt-4");
+        when(openAiService.refineText(any(RefineRequest.class), anyString(), anyString(), anyString()))
+                .thenReturn("Refined text");
 
         // When
         RefineResponse result = conceptionService.refineStoryCardField(1L, refineRequest, testUser);

@@ -24,8 +24,6 @@ public class SettingsService {
     private final UserSettingRepository userSettingRepository;
     private final EncryptionService encryptionService;
     private final OpenAiService openAiService;
-    private final ClaudeService claudeService;
-    private final GeminiService geminiService;
 
     /**
      * Retrieves the decrypted API key for the currently authenticated user.
@@ -68,11 +66,8 @@ public class SettingsService {
      */
     @Transactional(readOnly = true)
     public String getProviderByUserId(Long userId) {
-        UserSetting userSetting = findUserSettingByUserId(userId);
-        if (!StringUtils.hasText(userSetting.getLlmProvider())) {
-            throw new IllegalStateException("LLM Provider is not configured for user ID: " + userId);
-        }
-        return userSetting.getLlmProvider();
+        // Backward compatibility: provider is fixed to OpenAI after simplification
+        return "openai";
     }
 
     /**
@@ -86,7 +81,7 @@ public class SettingsService {
         UserSetting userSetting = userSettingRepository.findByUserId(user.getId()).orElse(new UserSetting());
 
         SettingsDto dto = new SettingsDto();
-        dto.setLlmProvider(userSetting.getLlmProvider());
+        dto.setBaseUrl(userSetting.getBaseUrl());
         dto.setModelName(userSetting.getModelName());
         dto.setCustomPrompt(userSetting.getCustomPrompt());
         return dto;
@@ -107,7 +102,7 @@ public class SettingsService {
                     return newUserSetting;
                 });
 
-        userSetting.setLlmProvider(settingsDto.getLlmProvider());
+        userSetting.setBaseUrl(settingsDto.getBaseUrl());
         userSetting.setModelName(settingsDto.getModelName());
         userSetting.setCustomPrompt(settingsDto.getCustomPrompt());
 
@@ -124,20 +119,32 @@ public class SettingsService {
      * @return true if the connection is successful, false otherwise.
      */
     public boolean testConnection(SettingsDto settingsDto) {
-        if (!StringUtils.hasText(settingsDto.getApiKey()) || !StringUtils.hasText(settingsDto.getLlmProvider())) {
+        if (!StringUtils.hasText(settingsDto.getApiKey())) {
             return false;
         }
         try {
-            return switch (settingsDto.getLlmProvider().toLowerCase()) {
-                case "openai" -> openAiService.validateApiKey(settingsDto.getApiKey());
-                case "claude" -> claudeService.validateApiKey(settingsDto.getApiKey());
-                case "gemini" -> geminiService.validateApiKey(settingsDto.getApiKey());
-                default -> false;
-            };
+            return openAiService.validateApiKey(settingsDto.getApiKey(), settingsDto.getBaseUrl());
         } catch (Exception e) {
-            // It's good practice to log this exception.
             return false;
         }
+    }
+
+    @Transactional(readOnly = true)
+    public String getBaseUrlByUserId(Long userId) {
+        UserSetting userSetting = findUserSettingByUserId(userId);
+        if (!StringUtils.hasText(userSetting.getBaseUrl())) {
+            throw new IllegalStateException("Base URL is not configured for user ID: " + userId);
+        }
+        return userSetting.getBaseUrl();
+    }
+
+    @Transactional(readOnly = true)
+    public String getModelNameByUserId(Long userId) {
+        UserSetting userSetting = findUserSettingByUserId(userId);
+        if (!StringUtils.hasText(userSetting.getModelName())) {
+            throw new IllegalStateException("Model name is not configured for user ID: " + userId);
+        }
+        return userSetting.getModelName();
     }
 
     private User getCurrentUser() {

@@ -14,7 +14,8 @@ export interface Scene {
     sceneNumber: number;
     synopsis: string;
     expectedWords: number;
-    presentCharacters?: string;
+    presentCharacterIds?: number[]; // 多选角色ID数组
+    presentCharacters?: string; // 兼容旧数据：以逗号分隔的人名
     characterStates?: string;
     temporaryCharacters?: TemporaryCharacter[]; // 新增：临时人物
     content?: string; // 正文内容
@@ -26,6 +27,7 @@ export interface Chapter {
     title: string;
     synopsis: string;
     scenes: Scene[];
+    wordCount?: number; // 预定字数（可选）
     settings?: { // 新增
         sectionsPerChapter?: number;
         wordsPerSection?: number;

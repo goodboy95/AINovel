@@ -1,13 +1,12 @@
 import { useState, useEffect } from 'react';
-import { Form, Input, Button, Select, Card, Typography, message, Spin } from 'antd';
+import { Form, Input, Button, Card, Typography, message, Spin } from 'antd';
 
 const { Title } = Typography;
-const { Option } = Select;
 
 interface SettingsValues {
-    llmProvider: string;
-    modelName: string;
-    apiKey: string;
+    baseUrl?: string;
+    modelName?: string;
+    apiKey?: string;
 }
 
 const Settings = () => {
@@ -25,17 +24,15 @@ const Settings = () => {
                 });
                 if (response.ok) {
                     const text = await response.text();
-                    // Only parse if the response body is not empty
                     if (text) {
                         const data = JSON.parse(text);
                         form.setFieldsValue({
-                            llmProvider: data.llmProvider || 'openai',
+                            baseUrl: data.baseUrl || '',
                             modelName: data.modelName || '',
                         });
                     } else {
-                        // If body is empty, it means no settings found. Set defaults.
                         form.setFieldsValue({
-                            llmProvider: 'openai',
+                            baseUrl: '',
                             modelName: '',
                         });
                     }
@@ -72,7 +69,7 @@ const Settings = () => {
             });
             if (response.ok) {
                 message.success('设置已成功保存！');
-                form.setFieldsValue({ apiKey: '' }); // Clear API key field after save
+                form.setFieldsValue({ apiKey: '' }); // 保存后清空密钥字段
             } else {
                 const data = await response.json();
                 console.error('Failed to save settings: Response not OK', data);
@@ -127,20 +124,16 @@ const Settings = () => {
                 <Title level={3}>AI 模型设置</Title>
                 <Spin spinning={isLoading}>
                     <Form form={form} layout="vertical" onFinish={onFinish}>
-                        <Form.Item name="llmProvider" label="LLM 提供商" rules={[{ required: true }]}>
-                            <Select>
-                                <Option value="openai">OpenAI</Option>
-                                <Option value="claude">Claude</Option>
-                                <Option value="gemini">Gemini</Option>
-                            </Select>
+                        <Form.Item name="baseUrl" label="Base URL" tooltip="可选：自定义 OpenAI 兼容服务的基础地址">
+                            <Input placeholder="例如：https://api.openai.com/v1 或自建网关地址" />
                         </Form.Item>
-                        <Form.Item name="modelName" label="模型名称" help="例如 gpt-4, claude-3-opus-20240229">
+                        <Form.Item name="modelName" label="模型名称" tooltip="例如 gpt-4o-mini, gpt-4-turbo">
                             <Input placeholder="输入模型名称" />
                         </Form.Item>
                         <Form.Item
                             name="apiKey"
                             label="API 密钥"
-                            help="您的 API 密钥仅用于当前会话，不会存储在服务器上。"
+                            tooltip="您的 API 密钥仅用于当前会话，不会存储在服务器上。"
                         >
                             <Input.Password placeholder="输入您的 API 密钥" />
                         </Form.Item>

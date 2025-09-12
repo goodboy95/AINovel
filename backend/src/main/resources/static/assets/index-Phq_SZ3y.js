@@ -19265,7 +19265,7 @@ function getAlphaColor(frontColor, backgroundColor) {
     a: 1
   }).toRgbString();
 }
-var __rest$K = function(s, e2) {
+var __rest$O = function(s, e2) {
   var t2 = {};
   for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p) && e2.indexOf(p) < 0) t2[p] = s[p];
   if (s != null && typeof Object.getOwnPropertySymbols === "function") for (var i = 0, p = Object.getOwnPropertySymbols(s); i < p.length; i++) {
@@ -19276,7 +19276,7 @@ var __rest$K = function(s, e2) {
 function formatToken(derivativeToken) {
   const {
     override
-  } = derivativeToken, restToken = __rest$K(derivativeToken, ["override"]);
+  } = derivativeToken, restToken = __rest$O(derivativeToken, ["override"]);
   const overrideTokens = Object.assign({}, override);
   Object.keys(seedToken).forEach((token2) => {
     delete overrideTokens[token2];
@@ -19430,7 +19430,7 @@ function formatToken(derivativeToken) {
   }), overrideTokens);
   return aliasToken;
 }
-var __rest$J = function(s, e2) {
+var __rest$N = function(s, e2) {
   var t2 = {};
   for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p) && e2.indexOf(p) < 0) t2[p] = s[p];
   if (s != null && typeof Object.getOwnPropertySymbols === "function") for (var i = 0, p = Object.getOwnPropertySymbols(s); i < p.length; i++) {
@@ -19491,7 +19491,7 @@ const getComputedToken = (originToken, overrideToken, theme) => {
   const derivativeToken = theme.getDerivativeToken(originToken);
   const {
     override
-  } = overrideToken, components = __rest$J(overrideToken, ["override"]);
+  } = overrideToken, components = __rest$N(overrideToken, ["override"]);
   let mergedDerivativeToken = Object.assign(Object.assign({}, derivativeToken), {
     override
   });
@@ -19500,7 +19500,7 @@ const getComputedToken = (originToken, overrideToken, theme) => {
     Object.entries(components).forEach(([key, value]) => {
       const {
         theme: componentTheme
-      } = value, componentTokens = __rest$J(value, ["theme"]);
+      } = value, componentTokens = __rest$N(value, ["theme"]);
       let mergedComponentToken = componentTokens;
       if (componentTheme) {
         mergedComponentToken = getComputedToken(Object.assign(Object.assign({}, mergedDerivativeToken), componentTokens), {
@@ -20437,7 +20437,7 @@ function MotionWrapper(props) {
   return children;
 }
 const PropWarning = () => null;
-var __rest$I = function(s, e2) {
+var __rest$M = function(s, e2) {
   var t2 = {};
   for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p) && e2.indexOf(p) < 0) t2[p] = s[p];
   if (s != null && typeof Object.getOwnPropertySymbols === "function") for (var i = 0, p = Object.getOwnPropertySymbols(s); i < p.length; i++) {
@@ -20738,7 +20738,7 @@ const ProviderChildren = (props) => {
       token: token2,
       components,
       cssVar
-    } = _a, rest = __rest$I(_a, ["algorithm", "token", "components", "cssVar"]);
+    } = _a, rest = __rest$M(_a, ["algorithm", "token", "components", "cssVar"]);
     const themeObj = algorithm && (!Array.isArray(algorithm) || algorithm.length > 0) ? createTheme(algorithm) : defaultTheme;
     const parsedComponents = {};
     Object.entries(components || {}).forEach(([componentName, componentToken]) => {
@@ -20993,7 +20993,7 @@ var CheckCircleFilled = function CheckCircleFilled2(props, ref) {
     icon: CheckCircleFilled$1
   }));
 };
-var RefIcon$q = /* @__PURE__ */ reactExports.forwardRef(CheckCircleFilled);
+var RefIcon$p = /* @__PURE__ */ reactExports.forwardRef(CheckCircleFilled);
 var CloseCircleFilled$1 = { "icon": { "tag": "svg", "attrs": { "fill-rule": "evenodd", "viewBox": "64 64 896 896", "focusable": "false" }, "children": [{ "tag": "path", "attrs": { "d": "M512 64c247.4 0 448 200.6 448 448S759.4 960 512 960 64 759.4 64 512 264.6 64 512 64zm127.98 274.82h-.04l-.08.06L512 466.75 384.14 338.88c-.04-.05-.06-.06-.08-.06a.12.12 0 00-.07 0c-.03 0-.05.01-.09.05l-45.02 45.02a.2.2 0 00-.05.09.12.12 0 000 .07v.02a.27.27 0 00.06.06L466.75 512 338.88 639.86c-.05.04-.06.06-.06.08a.12.12 0 000 .07c0 .03.01.05.05.09l45.02 45.02a.2.2 0 00.09.05.12.12 0 00.07 0c.02 0 .04-.01.08-.05L512 557.25l127.86 127.87c.04.04.06.05.08.05a.12.12 0 00.07 0c.03 0 .05-.01.09-.05l45.02-45.02a.2.2 0 00.05-.09.12.12 0 000-.07v-.02a.27.27 0 00-.05-.06L557.25 512l127.87-127.86c.04-.04.05-.06.05-.08a.12.12 0 000-.07c0-.03-.01-.05-.05-.09l-45.02-45.02a.2.2 0 00-.09-.05.12.12 0 00-.07 0z" } }] }, "name": "close-circle", "theme": "filled" };
 var CloseCircleFilled = function CloseCircleFilled2(props, ref) {
   return /* @__PURE__ */ reactExports.createElement(Icon$2, _extends({}, props, {
@@ -21001,7 +21001,7 @@ var CloseCircleFilled = function CloseCircleFilled2(props, ref) {
     icon: CloseCircleFilled$1
   }));
 };
-var RefIcon$p = /* @__PURE__ */ reactExports.forwardRef(CloseCircleFilled);
+var RefIcon$o = /* @__PURE__ */ reactExports.forwardRef(CloseCircleFilled);
 var CloseOutlined$1 = { "icon": { "tag": "svg", "attrs": { "fill-rule": "evenodd", "viewBox": "64 64 896 896", "focusable": "false" }, "children": [{ "tag": "path", "attrs": { "d": "M799.86 166.31c.02 0 .04.02.08.06l57.69 57.7c.04.03.05.05.06.08a.12.12 0 010 .06c0 .03-.02.05-.06.09L569.93 512l287.7 287.7c.04.04.05.06.06.09a.12.12 0 010 .07c0 .02-.02.04-.06.08l-57.7 57.69c-.03.04-.05.05-.07.06a.12.12 0 01-.07 0c-.03 0-.05-.02-.09-.06L512 569.93l-287.7 287.7c-.04.04-.06.05-.09.06a.12.12 0 01-.07 0c-.02 0-.04-.02-.08-.06l-57.69-57.7c-.04-.03-.05-.05-.06-.07a.12.12 0 010-.07c0-.03.02-.05.06-.09L454.07 512l-287.7-287.7c-.04-.04-.05-.06-.06-.09a.12.12 0 010-.07c0-.02.02-.04.06-.08l57.7-57.69c.03-.04.05-.05.07-.06a.12.12 0 01.07 0c.03 0 .05.02.09.06L512 454.07l287.7-287.7c.04-.04.06-.05.09-.06a.12.12 0 01.07 0z" } }] }, "name": "close", "theme": "outlined" };
 var CloseOutlined = function CloseOutlined2(props, ref) {
   return /* @__PURE__ */ reactExports.createElement(Icon$2, _extends({}, props, {
@@ -21009,7 +21009,7 @@ var CloseOutlined = function CloseOutlined2(props, ref) {
     icon: CloseOutlined$1
   }));
 };
-var RefIcon$o = /* @__PURE__ */ reactExports.forwardRef(CloseOutlined);
+var RefIcon$n = /* @__PURE__ */ reactExports.forwardRef(CloseOutlined);
 var ExclamationCircleFilled$1 = { "icon": { "tag": "svg", "attrs": { "viewBox": "64 64 896 896", "focusable": "false" }, "children": [{ "tag": "path", "attrs": { "d": "M512 64C264.6 64 64 264.6 64 512s200.6 448 448 448 448-200.6 448-448S759.4 64 512 64zm-32 232c0-4.4 3.6-8 8-8h48c4.4 0 8 3.6 8 8v272c0 4.4-3.6 8-8 8h-48c-4.4 0-8-3.6-8-8V296zm32 440a48.01 48.01 0 010-96 48.01 48.01 0 010 96z" } }] }, "name": "exclamation-circle", "theme": "filled" };
 var ExclamationCircleFilled = function ExclamationCircleFilled2(props, ref) {
   return /* @__PURE__ */ reactExports.createElement(Icon$2, _extends({}, props, {
@@ -21017,7 +21017,7 @@ var ExclamationCircleFilled = function ExclamationCircleFilled2(props, ref) {
     icon: ExclamationCircleFilled$1
   }));
 };
-var RefIcon$n = /* @__PURE__ */ reactExports.forwardRef(ExclamationCircleFilled);
+var RefIcon$m = /* @__PURE__ */ reactExports.forwardRef(ExclamationCircleFilled);
 var InfoCircleFilled$1 = { "icon": { "tag": "svg", "attrs": { "viewBox": "64 64 896 896", "focusable": "false" }, "children": [{ "tag": "path", "attrs": { "d": "M512 64C264.6 64 64 264.6 64 512s200.6 448 448 448 448-200.6 448-448S759.4 64 512 64zm32 664c0 4.4-3.6 8-8 8h-48c-4.4 0-8-3.6-8-8V456c0-4.4 3.6-8 8-8h48c4.4 0 8 3.6 8 8v272zm-32-344a48.01 48.01 0 010-96 48.01 48.01 0 010 96z" } }] }, "name": "info-circle", "theme": "filled" };
 var InfoCircleFilled = function InfoCircleFilled2(props, ref) {
   return /* @__PURE__ */ reactExports.createElement(Icon$2, _extends({}, props, {
@@ -21025,7 +21025,7 @@ var InfoCircleFilled = function InfoCircleFilled2(props, ref) {
     icon: InfoCircleFilled$1
   }));
 };
-var RefIcon$m = /* @__PURE__ */ reactExports.forwardRef(InfoCircleFilled);
+var RefIcon$l = /* @__PURE__ */ reactExports.forwardRef(InfoCircleFilled);
 var attributes = "accept acceptCharset accessKey action allowFullScreen allowTransparency\n    alt async autoComplete autoFocus autoPlay capture cellPadding cellSpacing challenge\n    charSet checked classID className colSpan cols content contentEditable contextMenu\n    controls coords crossOrigin data dateTime default defer dir disabled download draggable\n    encType form formAction formEncType formMethod formNoValidate formTarget frameBorder\n    headers height hidden high href hrefLang htmlFor httpEquiv icon id inputMode integrity\n    is keyParams keyType kind label lang list loop low manifest marginHeight marginWidth max maxLength media\n    mediaGroup method min minLength multiple muted name noValidate nonce open\n    optimum pattern placeholder poster preload radioGroup readOnly rel required\n    reversed role rowSpan rows sandbox scope scoped scrolling seamless selected\n    shape size sizes span spellCheck src srcDoc srcLang srcSet start step style\n    summary tabIndex target title type useMap value width wmode wrap";
 var eventsName = "onCopy onCut onPaste onCompositionEnd onCompositionStart onCompositionUpdate onKeyDown\n    onKeyPress onKeyUp onFocus onBlur onChange onInput onSubmit onClick onContextMenu onDoubleClick\n    onDrag onDragEnd onDragEnter onDragExit onDragLeave onDragOver onDragStart onDrop onMouseDown\n    onMouseEnter onMouseLeave onMouseMove onMouseOut onMouseOver onMouseUp onSelect onTouchCancel\n    onTouchEnd onTouchMove onTouchStart onScroll onWheel onAbort onCanPlay onCanPlayThrough\n    onDurationChange onEmptied onEncrypted onEnded onError onLoadedData onLoadedMetadata\n    onLoadStart onPause onPlay onPlaying onProgress onRateChange onSeeked onSeeking onStalled onSuspend onTimeUpdate onVolumeChange onWaiting onLoad onError";
 var propList = "".concat(attributes, " ").concat(eventsName).split(/[\s\n]+/);
@@ -21082,7 +21082,7 @@ const genAlertTypeStyle = (bgColor, borderColor, iconColor, token2, alertCls) =>
     color: iconColor
   }
 });
-const genBaseStyle$3 = (token2) => {
+const genBaseStyle$5 = (token2) => {
   const {
     componentCls,
     motionDurationSlow: duration,
@@ -21240,7 +21240,7 @@ const genActionStyle = (token2) => {
     }
   };
 };
-const prepareComponentToken$g = (token2) => {
+const prepareComponentToken$i = (token2) => {
   const paddingHorizontal = 12;
   return {
     withDescriptionIconSize: token2.fontSizeHeading3,
@@ -21248,8 +21248,8 @@ const prepareComponentToken$g = (token2) => {
     withDescriptionPadding: `${token2.paddingMD}px ${token2.paddingContentHorizontalLG}px`
   };
 };
-const useStyle$l = genStyleHooks("Alert", (token2) => [genBaseStyle$3(token2), genTypeStyle(token2), genActionStyle(token2)], prepareComponentToken$g);
-var __rest$H = function(s, e2) {
+const useStyle$n = genStyleHooks("Alert", (token2) => [genBaseStyle$5(token2), genTypeStyle(token2), genActionStyle(token2)], prepareComponentToken$i);
+var __rest$L = function(s, e2) {
   var t2 = {};
   for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p) && e2.indexOf(p) < 0) t2[p] = s[p];
   if (s != null && typeof Object.getOwnPropertySymbols === "function") for (var i = 0, p = Object.getOwnPropertySymbols(s); i < p.length; i++) {
@@ -21258,10 +21258,10 @@ var __rest$H = function(s, e2) {
   return t2;
 };
 const iconMapFilled = {
-  success: RefIcon$q,
-  info: RefIcon$m,
-  error: RefIcon$p,
-  warning: RefIcon$n
+  success: RefIcon$p,
+  info: RefIcon$l,
+  error: RefIcon$o,
+  warning: RefIcon$m
 };
 const IconNode = (props) => {
   const {
@@ -21289,7 +21289,7 @@ const CloseIconNode = (props) => {
     handleClose,
     ariaProps
   } = props;
-  const mergedCloseIcon = closeIcon === true || closeIcon === void 0 ? /* @__PURE__ */ reactExports.createElement(RefIcon$o, null) : closeIcon;
+  const mergedCloseIcon = closeIcon === true || closeIcon === void 0 ? /* @__PURE__ */ reactExports.createElement(RefIcon$n, null) : closeIcon;
   return isClosable ? /* @__PURE__ */ reactExports.createElement("button", Object.assign({
     type: "button",
     onClick: handleClose,
@@ -21316,7 +21316,7 @@ const Alert$1 = /* @__PURE__ */ reactExports.forwardRef((props, ref) => {
     closeIcon,
     action,
     id
-  } = props, otherProps = __rest$H(props, ["description", "prefixCls", "message", "banner", "className", "rootClassName", "style", "onMouseEnter", "onMouseLeave", "onClick", "afterClose", "showIcon", "closable", "closeText", "closeIcon", "action", "id"]);
+  } = props, otherProps = __rest$L(props, ["description", "prefixCls", "message", "banner", "className", "rootClassName", "style", "onMouseEnter", "onMouseLeave", "onClick", "afterClose", "showIcon", "closable", "closeText", "closeIcon", "action", "id"]);
   const [closed, setClosed] = reactExports.useState(false);
   const internalRef = reactExports.useRef(null);
   reactExports.useImperativeHandle(ref, () => ({
@@ -21331,7 +21331,7 @@ const Alert$1 = /* @__PURE__ */ reactExports.forwardRef((props, ref) => {
     style: contextStyle
   } = useComponentConfig("alert");
   const prefixCls = getPrefixCls("alert", customizePrefixCls);
-  const [wrapCSSVar, hashId, cssVarCls] = useStyle$l(prefixCls);
+  const [wrapCSSVar, hashId, cssVarCls] = useStyle$n(prefixCls);
   const handleClose = (e2) => {
     var _a;
     setClosed(true);
@@ -21387,7 +21387,7 @@ const Alert$1 = /* @__PURE__ */ reactExports.forwardRef((props, ref) => {
     if (typeof merged === "object") {
       const {
         closeIcon: _
-      } = merged, ariaProps = __rest$H(merged, ["closeIcon"]);
+      } = merged, ariaProps = __rest$L(merged, ["closeIcon"]);
       return ariaProps;
     }
     return {};
@@ -22179,7 +22179,7 @@ var LoadingOutlined = function LoadingOutlined2(props, ref) {
     icon: LoadingOutlined$1
   }));
 };
-var RefIcon$l = /* @__PURE__ */ reactExports.forwardRef(LoadingOutlined);
+var RefIcon$k = /* @__PURE__ */ reactExports.forwardRef(LoadingOutlined);
 const zIndexContext = /* @__PURE__ */ React.createContext(void 0);
 const CONTAINER_OFFSET = 100;
 const CONTAINER_OFFSET_MAX_COUNT = 10;
@@ -22363,18 +22363,18 @@ const genMessageStyle = (token2) => {
     }
   ];
 };
-const prepareComponentToken$f = (token2) => ({
+const prepareComponentToken$h = (token2) => ({
   zIndexPopup: token2.zIndexPopupBase + CONTAINER_MAX_OFFSET + 10,
   contentBg: token2.colorBgElevated,
   contentPadding: `${(token2.controlHeightLG - token2.fontSize * token2.lineHeight) / 2}px ${token2.paddingSM}px`
 });
-const useStyle$k = genStyleHooks("Message", (token2) => {
+const useStyle$m = genStyleHooks("Message", (token2) => {
   const combinedToken = merge(token2, {
     height: 150
   });
   return [genMessageStyle(combinedToken)];
-}, prepareComponentToken$f);
-var __rest$G = function(s, e2) {
+}, prepareComponentToken$h);
+var __rest$K = function(s, e2) {
   var t2 = {};
   for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p) && e2.indexOf(p) < 0) t2[p] = s[p];
   if (s != null && typeof Object.getOwnPropertySymbols === "function") for (var i = 0, p = Object.getOwnPropertySymbols(s); i < p.length; i++) {
@@ -22383,11 +22383,11 @@ var __rest$G = function(s, e2) {
   return t2;
 };
 const TypeIcon = {
-  info: /* @__PURE__ */ reactExports.createElement(RefIcon$m, null),
-  success: /* @__PURE__ */ reactExports.createElement(RefIcon$q, null),
-  error: /* @__PURE__ */ reactExports.createElement(RefIcon$p, null),
-  warning: /* @__PURE__ */ reactExports.createElement(RefIcon$n, null),
-  loading: /* @__PURE__ */ reactExports.createElement(RefIcon$l, null)
+  info: /* @__PURE__ */ reactExports.createElement(RefIcon$l, null),
+  success: /* @__PURE__ */ reactExports.createElement(RefIcon$p, null),
+  error: /* @__PURE__ */ reactExports.createElement(RefIcon$o, null),
+  warning: /* @__PURE__ */ reactExports.createElement(RefIcon$m, null),
+  loading: /* @__PURE__ */ reactExports.createElement(RefIcon$k, null)
 };
 const PureContent = ({
   prefixCls,
@@ -22397,20 +22397,20 @@ const PureContent = ({
 }) => /* @__PURE__ */ reactExports.createElement("div", {
   className: classNames(`${prefixCls}-custom-content`, `${prefixCls}-${type4}`)
 }, icon || TypeIcon[type4], /* @__PURE__ */ reactExports.createElement("span", null, children));
-const PurePanel$4 = (props) => {
+const PurePanel$6 = (props) => {
   const {
     prefixCls: staticPrefixCls,
     className,
     type: type4,
     icon,
     content
-  } = props, restProps = __rest$G(props, ["prefixCls", "className", "type", "icon", "content"]);
+  } = props, restProps = __rest$K(props, ["prefixCls", "className", "type", "icon", "content"]);
   const {
     getPrefixCls
   } = reactExports.useContext(ConfigContext);
   const prefixCls = staticPrefixCls || getPrefixCls("message");
   const rootCls = useCSSVarCls(prefixCls);
-  const [wrapCSSVar, hashId, cssVarCls] = useStyle$k(prefixCls, rootCls);
+  const [wrapCSSVar, hashId, cssVarCls] = useStyle$m(prefixCls, rootCls);
   return wrapCSSVar(/* @__PURE__ */ reactExports.createElement(Notify, Object.assign({}, restProps, {
     prefixCls,
     className: classNames(className, hashId, `${prefixCls}-notice-pure-panel`, cssVarCls, rootCls),
@@ -22442,7 +22442,7 @@ function wrapPromiseFn(openFn) {
   result.promise = closePromise;
   return result;
 }
-var __rest$F = function(s, e2) {
+var __rest$J = function(s, e2) {
   var t2 = {};
   for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p) && e2.indexOf(p) < 0) t2[p] = s[p];
   if (s != null && typeof Object.getOwnPropertySymbols === "function") for (var i = 0, p = Object.getOwnPropertySymbols(s); i < p.length; i++) {
@@ -22457,7 +22457,7 @@ const Wrapper = ({
   prefixCls
 }) => {
   const rootCls = useCSSVarCls(prefixCls);
-  const [wrapCSSVar, hashId, cssVarCls] = useStyle$k(prefixCls, rootCls);
+  const [wrapCSSVar, hashId, cssVarCls] = useStyle$m(prefixCls, rootCls);
   return wrapCSSVar(/* @__PURE__ */ reactExports.createElement(NotificationProvider, {
     classNames: {
       list: classNames(hashId, cssVarCls, rootCls)
@@ -22500,7 +22500,7 @@ const Holder = /* @__PURE__ */ reactExports.forwardRef((props, ref) => {
   const getNotificationMotion = () => getMotion$2(prefixCls, transitionName);
   const mergedCloseIcon = /* @__PURE__ */ reactExports.createElement("span", {
     className: `${prefixCls}-close-x`
-  }, /* @__PURE__ */ reactExports.createElement(RefIcon$o, {
+  }, /* @__PURE__ */ reactExports.createElement(RefIcon$n, {
     className: `${prefixCls}-close-icon`
   }));
   const [api, holder] = useNotification({
@@ -22553,7 +22553,7 @@ function useInternalMessage(messageConfig) {
         className,
         style: style2,
         onClose
-      } = config, restConfig = __rest$F(config, ["content", "icon", "type", "key", "className", "style", "onClose"]);
+      } = config, restConfig = __rest$J(config, ["content", "icon", "type", "key", "className", "style", "onClose"]);
       let mergedKey = key;
       if (mergedKey === void 0 || mergedKey === null) {
         keyIndex += 1;
@@ -23081,7 +23081,7 @@ const genWaveStyle = (token2) => {
     }
   };
 };
-const useStyle$j = genComponentStyleHook("Wave", (token2) => [genWaveStyle(token2)]);
+const useStyle$l = genComponentStyleHook("Wave", (token2) => [genWaveStyle(token2)]);
 const TARGET_CLS = `${defaultPrefixCls}-wave-target`;
 function isValidWaveColor(color) {
   return color && color !== "#fff" && color !== "#ffffff" && color !== "rgb(255, 255, 255)" && color !== "rgba(255, 255, 255, 1)" && !/rgba\((?:\d*, ){3}0\)/.test(color) && // any transparent rgba color
@@ -23267,7 +23267,7 @@ const Wave = (props) => {
   } = reactExports.useContext(ConfigContext);
   const containerRef = reactExports.useRef(null);
   const prefixCls = getPrefixCls("wave");
-  const [, hashId] = useStyle$j(prefixCls);
+  const [, hashId] = useStyle$l(prefixCls);
   const showWave = useWave(containerRef, classNames(prefixCls, hashId), component);
   React.useEffect(() => {
     const node2 = containerRef.current;
@@ -23351,7 +23351,7 @@ const NoCompactStyle = (props) => {
     value: null
   }, children);
 };
-var __rest$E = function(s, e2) {
+var __rest$I = function(s, e2) {
   var t2 = {};
   for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p) && e2.indexOf(p) < 0) t2[p] = s[p];
   if (s != null && typeof Object.getOwnPropertySymbols === "function") for (var i = 0, p = Object.getOwnPropertySymbols(s); i < p.length; i++) {
@@ -23369,7 +23369,7 @@ const ButtonGroup = (props) => {
     prefixCls: customizePrefixCls,
     size,
     className
-  } = props, others = __rest$E(props, ["prefixCls", "size", "className"]);
+  } = props, others = __rest$I(props, ["prefixCls", "size", "className"]);
   const prefixCls = getPrefixCls("btn-group", customizePrefixCls);
   const [, , hashId] = useToken();
   const sizeCls = reactExports.useMemo(() => {
@@ -23473,7 +23473,7 @@ const InnerLoadingIcon = /* @__PURE__ */ reactExports.forwardRef((props, ref) =>
     className: mergedIconCls,
     style: style2,
     ref
-  }, /* @__PURE__ */ React.createElement(RefIcon$l, {
+  }, /* @__PURE__ */ React.createElement(RefIcon$k, {
     className: iconClassName
   }));
 });
@@ -23768,7 +23768,7 @@ var RightOutlined = function RightOutlined2(props, ref) {
     icon: RightOutlined$1
   }));
 };
-var RefIcon$k = /* @__PURE__ */ reactExports.forwardRef(RightOutlined);
+var RefIcon$j = /* @__PURE__ */ reactExports.forwardRef(RightOutlined);
 const genCollapseMotion = (token2) => ({
   [token2.componentCls]: {
     // For common/openAnimation
@@ -24339,7 +24339,7 @@ const prepareToken$3 = (token2) => {
   });
   return buttonToken;
 };
-const prepareComponentToken$e = (token2) => {
+const prepareComponentToken$g = (token2) => {
   var _a, _b, _c, _d, _e, _f;
   const contentFontSize = (_a = token2.contentFontSize) !== null && _a !== void 0 ? _a : token2.fontSize;
   const contentFontSizeSM = (_b = token2.contentFontSizeSM) !== null && _b !== void 0 ? _b : token2.fontSize;
@@ -24837,7 +24837,7 @@ const genBlockButtonStyle = (token2) => {
     }
   };
 };
-const useStyle$i = genStyleHooks("Button", (token2) => {
+const useStyle$k = genStyleHooks("Button", (token2) => {
   const buttonToken = prepareToken$3(token2);
   return [
     // Shared
@@ -24855,7 +24855,7 @@ const useStyle$i = genStyleHooks("Button", (token2) => {
     // Button Group
     genGroupStyle$1(buttonToken)
   ];
-}, prepareComponentToken$e, {
+}, prepareComponentToken$g, {
   unitless: {
     fontWeight: true,
     contentLineHeight: true,
@@ -24997,8 +24997,8 @@ const Compact = genSubStyleComponent(["Button", "compact"], (token2) => {
     genCompactItemVerticalStyle(buttonToken),
     genButtonCompactStyle(buttonToken)
   ];
-}, prepareComponentToken$e);
-var __rest$D = function(s, e2) {
+}, prepareComponentToken$g);
+var __rest$H = function(s, e2) {
   var t2 = {};
   for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p) && e2.indexOf(p) < 0) t2[p] = s[p];
   if (s != null && typeof Object.getOwnPropertySymbols === "function") for (var i = 0, p = Object.getOwnPropertySymbols(s); i < p.length; i++) {
@@ -25054,7 +25054,7 @@ const InternalCompoundedButton = /* @__PURE__ */ React.forwardRef((props, ref) =
     style: customStyle = {},
     autoInsertSpace,
     autoFocus
-  } = props, rest = __rest$D(props, ["loading", "prefixCls", "color", "variant", "type", "danger", "shape", "size", "styles", "disabled", "className", "rootClassName", "children", "icon", "iconPosition", "ghost", "block", "htmlType", "classNames", "style", "autoInsertSpace", "autoFocus"]);
+  } = props, rest = __rest$H(props, ["loading", "prefixCls", "color", "variant", "type", "danger", "shape", "size", "styles", "disabled", "className", "rootClassName", "children", "icon", "iconPosition", "ghost", "block", "htmlType", "classNames", "style", "autoInsertSpace", "autoFocus"]);
   const mergedType = type4 || "default";
   const {
     button
@@ -25088,7 +25088,7 @@ const InternalCompoundedButton = /* @__PURE__ */ React.forwardRef((props, ref) =
   } = useComponentConfig("button");
   const mergedInsertSpace = (_a = autoInsertSpace !== null && autoInsertSpace !== void 0 ? autoInsertSpace : contextAutoInsertSpace) !== null && _a !== void 0 ? _a : true;
   const prefixCls = getPrefixCls("btn", customizePrefixCls);
-  const [wrapCSSVar, hashId, cssVarCls] = useStyle$i(prefixCls);
+  const [wrapCSSVar, hashId, cssVarCls] = useStyle$k(prefixCls);
   const disabled = reactExports.useContext(DisabledContext);
   const mergedDisabled = customDisabled !== null && customDisabled !== void 0 ? customDisabled : disabled;
   const groupSize = reactExports.useContext(GroupSizeContext);
@@ -29126,7 +29126,7 @@ function useClosable(propCloseCollection, contextCloseCollection, fallbackCloseC
   const [contextLocale] = useLocale("global", localeValues.global);
   const closeBtnIsDisabled = typeof propCloseConfig !== "boolean" ? !!(propCloseConfig === null || propCloseConfig === void 0 ? void 0 : propCloseConfig.disabled) : false;
   const mergedFallbackCloseCollection = React.useMemo(() => Object.assign({
-    closeIcon: /* @__PURE__ */ React.createElement(RefIcon$o, null)
+    closeIcon: /* @__PURE__ */ React.createElement(RefIcon$n, null)
   }, fallbackCloseCollection), [fallbackCloseCollection]);
   const mergedClosableConfig = React.useMemo(() => {
     if (propCloseConfig === false) {
@@ -29358,7 +29358,7 @@ const genSkeletonElementButton = (token2) => {
     [`${skeletonButtonCls}-sm`]: Object.assign({}, genSkeletonElementButtonSize(controlHeightSM, calc))
   }), genSkeletonElementButtonShape(token2, controlHeightSM, `${skeletonButtonCls}-sm`));
 };
-const genBaseStyle$2 = (token2) => {
+const genBaseStyle$4 = (token2) => {
   const {
     componentCls,
     skeletonAvatarCls,
@@ -29475,7 +29475,7 @@ const genBaseStyle$2 = (token2) => {
     }
   };
 };
-const prepareComponentToken$d = (token2) => {
+const prepareComponentToken$f = (token2) => {
   const {
     colorFillContent,
     colorFill
@@ -29493,7 +29493,7 @@ const prepareComponentToken$d = (token2) => {
     paragraphLiHeight: token2.controlHeight / 2
   };
 };
-const useStyle$h = genStyleHooks("Skeleton", (token2) => {
+const useStyle$j = genStyleHooks("Skeleton", (token2) => {
   const {
     componentCls,
     calc
@@ -29511,8 +29511,8 @@ const useStyle$h = genStyleHooks("Skeleton", (token2) => {
     skeletonLoadingBackground: `linear-gradient(90deg, ${token2.gradientFromColor} 25%, ${token2.gradientToColor} 37%, ${token2.gradientFromColor} 63%)`,
     skeletonLoadingMotionDuration: "1.4s"
   });
-  return [genBaseStyle$2(skeletonToken)];
-}, prepareComponentToken$d, {
+  return [genBaseStyle$4(skeletonToken)];
+}, prepareComponentToken$f, {
   deprecatedTokens: [["color", "gradientFromColor"], ["colorGradientEnd", "gradientToColor"]]
 });
 const SkeletonAvatar = (props) => {
@@ -29528,7 +29528,7 @@ const SkeletonAvatar = (props) => {
     getPrefixCls
   } = reactExports.useContext(ConfigContext);
   const prefixCls = getPrefixCls("skeleton", customizePrefixCls);
-  const [wrapCSSVar, hashId, cssVarCls] = useStyle$h(prefixCls);
+  const [wrapCSSVar, hashId, cssVarCls] = useStyle$j(prefixCls);
   const otherProps = omit(props, ["prefixCls", "className"]);
   const cls = classNames(prefixCls, `${prefixCls}-element`, {
     [`${prefixCls}-active`]: active
@@ -29554,7 +29554,7 @@ const SkeletonButton = (props) => {
     getPrefixCls
   } = reactExports.useContext(ConfigContext);
   const prefixCls = getPrefixCls("skeleton", customizePrefixCls);
-  const [wrapCSSVar, hashId, cssVarCls] = useStyle$h(prefixCls);
+  const [wrapCSSVar, hashId, cssVarCls] = useStyle$j(prefixCls);
   const otherProps = omit(props, ["prefixCls"]);
   const cls = classNames(prefixCls, `${prefixCls}-element`, {
     [`${prefixCls}-active`]: active,
@@ -29580,7 +29580,7 @@ const SkeletonImage = (props) => {
     getPrefixCls
   } = reactExports.useContext(ConfigContext);
   const prefixCls = getPrefixCls("skeleton", customizePrefixCls);
-  const [wrapCSSVar, hashId, cssVarCls] = useStyle$h(prefixCls);
+  const [wrapCSSVar, hashId, cssVarCls] = useStyle$j(prefixCls);
   const cls = classNames(prefixCls, `${prefixCls}-element`, {
     [`${prefixCls}-active`]: active
   }, className, rootClassName, hashId, cssVarCls);
@@ -29611,7 +29611,7 @@ const SkeletonInput = (props) => {
     getPrefixCls
   } = reactExports.useContext(ConfigContext);
   const prefixCls = getPrefixCls("skeleton", customizePrefixCls);
-  const [wrapCSSVar, hashId, cssVarCls] = useStyle$h(prefixCls);
+  const [wrapCSSVar, hashId, cssVarCls] = useStyle$j(prefixCls);
   const otherProps = omit(props, ["prefixCls"]);
   const cls = classNames(prefixCls, `${prefixCls}-element`, {
     [`${prefixCls}-active`]: active,
@@ -29637,7 +29637,7 @@ const SkeletonNode = (props) => {
     getPrefixCls
   } = reactExports.useContext(ConfigContext);
   const prefixCls = getPrefixCls("skeleton", customizePrefixCls);
-  const [wrapCSSVar, hashId, cssVarCls] = useStyle$h(prefixCls);
+  const [wrapCSSVar, hashId, cssVarCls] = useStyle$j(prefixCls);
   const cls = classNames(prefixCls, `${prefixCls}-element`, {
     [`${prefixCls}-active`]: active
   }, hashId, className, rootClassName, cssVarCls);
@@ -29661,7 +29661,7 @@ const getWidth = (index2, props) => {
   }
   return void 0;
 };
-const Paragraph$4 = (props) => {
+const Paragraph$3 = (props) => {
   const {
     prefixCls,
     className,
@@ -29762,7 +29762,7 @@ const Skeleton = (props) => {
     style: contextStyle
   } = useComponentConfig("skeleton");
   const prefixCls = getPrefixCls("skeleton", customizePrefixCls);
-  const [wrapCSSVar, hashId, cssVarCls] = useStyle$h(prefixCls);
+  const [wrapCSSVar, hashId, cssVarCls] = useStyle$j(prefixCls);
   if (loading || !("loading" in props)) {
     const hasAvatar = !!avatar;
     const hasTitle = !!title;
@@ -29790,7 +29790,7 @@ const Skeleton = (props) => {
         const paragraphProps = Object.assign(Object.assign({
           prefixCls: `${prefixCls}-paragraph`
         }, getParagraphBasicProps(hasAvatar, hasTitle)), getComponentProps(paragraph));
-        paragraphNode = /* @__PURE__ */ reactExports.createElement(Paragraph$4, Object.assign({}, paragraphProps));
+        paragraphNode = /* @__PURE__ */ reactExports.createElement(Paragraph$3, Object.assign({}, paragraphProps));
       }
       contentNode = /* @__PURE__ */ reactExports.createElement("div", {
         className: `${prefixCls}-content`
@@ -29860,7 +29860,7 @@ const NormalOkBtn = () => {
 function renderCloseIcon(prefixCls, closeIcon) {
   return /* @__PURE__ */ React.createElement("span", {
     className: `${prefixCls}-close-x`
-  }, closeIcon || /* @__PURE__ */ React.createElement(RefIcon$o, {
+  }, closeIcon || /* @__PURE__ */ React.createElement(RefIcon$n, {
     className: `${prefixCls}-close-icon`
   }));
 }
@@ -30330,7 +30330,7 @@ const prepareToken$2 = (token2) => {
   });
   return modalToken;
 };
-const prepareComponentToken$c = (token2) => ({
+const prepareComponentToken$e = (token2) => ({
   footerBg: "transparent",
   headerBg: token2.colorBgElevated,
   titleLineHeight: token2.lineHeightHeading5,
@@ -30351,15 +30351,15 @@ const prepareComponentToken$c = (token2) => ({
   confirmIconMarginInlineEnd: token2.wireframe ? token2.margin : token2.marginSM,
   confirmBtnsMarginTop: token2.wireframe ? token2.marginLG : token2.marginSM
 });
-const useStyle$g = genStyleHooks("Modal", (token2) => {
+const useStyle$i = genStyleHooks("Modal", (token2) => {
   const modalToken = prepareToken$2(token2);
   return [genModalStyle(modalToken), genRTLStyle(modalToken), genModalMaskStyle(modalToken), initZoomMotion(modalToken, "zoom"), genResponsiveWidthStyle(modalToken)];
-}, prepareComponentToken$c, {
+}, prepareComponentToken$e, {
   unitless: {
     titleLineHeight: true
   }
 });
-var __rest$C = function(s, e2) {
+var __rest$G = function(s, e2) {
   var t2 = {};
   for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p) && e2.indexOf(p) < 0) t2[p] = s[p];
   if (s != null && typeof Object.getOwnPropertySymbols === "function") for (var i = 0, p = Object.getOwnPropertySymbols(s); i < p.length; i++) {
@@ -30406,7 +30406,7 @@ const Modal$1 = (props) => {
     onCancel,
     destroyOnHidden,
     destroyOnClose
-  } = props, restProps = __rest$C(props, ["prefixCls", "className", "rootClassName", "open", "wrapClassName", "centered", "getContainer", "focusTriggerAfterClose", "style", "visible", "width", "footer", "classNames", "styles", "children", "loading", "confirmLoading", "zIndex", "mousePosition", "onOk", "onCancel", "destroyOnHidden", "destroyOnClose"]);
+  } = props, restProps = __rest$G(props, ["prefixCls", "className", "rootClassName", "open", "wrapClassName", "centered", "getContainer", "focusTriggerAfterClose", "style", "visible", "width", "footer", "classNames", "styles", "children", "loading", "confirmLoading", "zIndex", "mousePosition", "onOk", "onCancel", "destroyOnHidden", "destroyOnClose"]);
   const {
     getPopupContainer: getContextPopupContainer,
     getPrefixCls,
@@ -30425,7 +30425,7 @@ const Modal$1 = (props) => {
   const prefixCls = getPrefixCls("modal", customizePrefixCls);
   const rootPrefixCls = getPrefixCls();
   const rootCls = useCSSVarCls(prefixCls);
-  const [wrapCSSVar, hashId, cssVarCls] = useStyle$g(prefixCls, rootCls);
+  const [wrapCSSVar, hashId, cssVarCls] = useStyle$i(prefixCls, rootCls);
   const wrapClassNameExtended = classNames(wrapClassName, {
     [`${prefixCls}-centered`]: centered !== null && centered !== void 0 ? centered : modalContext === null || modalContext === void 0 ? void 0 : modalContext.centered,
     [`${prefixCls}-wrap-rtl`]: direction === "rtl"
@@ -30436,7 +30436,7 @@ const Modal$1 = (props) => {
   })) : null;
   const [mergedClosable, mergedCloseIcon, closeBtnIsDisabled, ariaProps] = useClosable(pickClosable(props), pickClosable(modalContext), {
     closable: true,
-    closeIcon: /* @__PURE__ */ reactExports.createElement(RefIcon$o, {
+    closeIcon: /* @__PURE__ */ reactExports.createElement(RefIcon$n, {
       className: `${prefixCls}-close-icon`
     }),
     closeIconRender: (icon) => renderCloseIcon(prefixCls, icon)
@@ -30594,11 +30594,11 @@ const genModalConfirmStyle = (token2) => {
 const Confirm = genSubStyleComponent(["Modal", "confirm"], (token2) => {
   const modalToken = prepareToken$2(token2);
   return [genModalConfirmStyle(modalToken)];
-}, prepareComponentToken$c, {
+}, prepareComponentToken$e, {
   // confirm is weak than modal since no conflict here
   order: -1e3
 });
-var __rest$B = function(s, e2) {
+var __rest$F = function(s, e2) {
   var t2 = {};
   for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p) && e2.indexOf(p) < 0) t2[p] = s[p];
   if (s != null && typeof Object.getOwnPropertySymbols === "function") for (var i = 0, p = Object.getOwnPropertySymbols(s); i < p.length; i++) {
@@ -30618,21 +30618,21 @@ function ConfirmContent(props) {
     footer,
     // Legacy for static function usage
     locale: staticLocale
-  } = props, resetProps = __rest$B(props, ["prefixCls", "icon", "okText", "cancelText", "confirmPrefixCls", "type", "okCancel", "footer", "locale"]);
+  } = props, resetProps = __rest$F(props, ["prefixCls", "icon", "okText", "cancelText", "confirmPrefixCls", "type", "okCancel", "footer", "locale"]);
   let mergedIcon = icon;
   if (!icon && icon !== null) {
     switch (type4) {
       case "info":
-        mergedIcon = /* @__PURE__ */ reactExports.createElement(RefIcon$m, null);
+        mergedIcon = /* @__PURE__ */ reactExports.createElement(RefIcon$l, null);
         break;
       case "success":
-        mergedIcon = /* @__PURE__ */ reactExports.createElement(RefIcon$q, null);
-        break;
-      case "error":
         mergedIcon = /* @__PURE__ */ reactExports.createElement(RefIcon$p, null);
         break;
+      case "error":
+        mergedIcon = /* @__PURE__ */ reactExports.createElement(RefIcon$o, null);
+        break;
       default:
-        mergedIcon = /* @__PURE__ */ reactExports.createElement(RefIcon$n, null);
+        mergedIcon = /* @__PURE__ */ reactExports.createElement(RefIcon$m, null);
     }
   }
   const mergedOkCancel = okCancel !== null && okCancel !== void 0 ? okCancel : type4 === "confirm";
@@ -30877,7 +30877,7 @@ function modalGlobalConfig({
 }) {
   defaultRootPrefixCls = rootPrefixCls;
 }
-var __rest$A = function(s, e2) {
+var __rest$E = function(s, e2) {
   var t2 = {};
   for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p) && e2.indexOf(p) < 0) t2[p] = s[p];
   if (s != null && typeof Object.getOwnPropertySymbols === "function") for (var i = 0, p = Object.getOwnPropertySymbols(s); i < p.length; i++) {
@@ -30890,7 +30890,7 @@ const HookModal = (_a, ref) => {
   var {
     afterClose: hookAfterClose,
     config
-  } = _a, restProps = __rest$A(_a, ["afterClose", "config"]);
+  } = _a, restProps = __rest$E(_a, ["afterClose", "config"]);
   const [open2, setOpen] = reactExports.useState(true);
   const [innerConfig, setInnerConfig] = reactExports.useState(config);
   const {
@@ -33723,10 +33723,10 @@ var OptGroup = function OptGroup2() {
   return null;
 };
 OptGroup.isSelectOptGroup = true;
-var Option$5 = function Option() {
+var Option$3 = function Option() {
   return null;
 };
-Option$5.isSelectOption = true;
+Option$3.isSelectOption = true;
 var Filler = /* @__PURE__ */ reactExports.forwardRef(function(_ref, ref) {
   var height = _ref.height, offsetY = _ref.offsetY, offsetX = _ref.offsetX, children = _ref.children, prefixCls = _ref.prefixCls, onInnerResize = _ref.onInnerResize, innerProps = _ref.innerProps, rtl = _ref.rtl, extra = _ref.extra;
   var outerStyle = {};
@@ -35708,7 +35708,7 @@ var Select$1 = /* @__PURE__ */ reactExports.forwardRef(function(props, ref) {
   })));
 });
 var TypedSelect = Select$1;
-TypedSelect.Option = Option$5;
+TypedSelect.Option = Option$3;
 TypedSelect.OptGroup = OptGroup;
 function getStatusClassNames(prefixCls, status, hasFeedback) {
   return classNames({
@@ -35872,7 +35872,7 @@ const genSharedEmptyStyle = (token2) => {
     }
   };
 };
-const useStyle$f = genStyleHooks("Empty", (token2) => {
+const useStyle$h = genStyleHooks("Empty", (token2) => {
   const {
     componentCls,
     controlHeightLG,
@@ -35886,7 +35886,7 @@ const useStyle$f = genStyleHooks("Empty", (token2) => {
   });
   return [genSharedEmptyStyle(emptyToken)];
 });
-var __rest$z = function(s, e2) {
+var __rest$D = function(s, e2) {
   var t2 = {};
   for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p) && e2.indexOf(p) < 0) t2[p] = s[p];
   if (s != null && typeof Object.getOwnPropertySymbols === "function") for (var i = 0, p = Object.getOwnPropertySymbols(s); i < p.length; i++) {
@@ -35908,7 +35908,7 @@ const Empty = (props) => {
     style: style2,
     classNames: emptyClassNames,
     styles
-  } = props, restProps = __rest$z(props, ["className", "rootClassName", "prefixCls", "image", "description", "children", "imageStyle", "style", "classNames", "styles"]);
+  } = props, restProps = __rest$D(props, ["className", "rootClassName", "prefixCls", "image", "description", "children", "imageStyle", "style", "classNames", "styles"]);
   const {
     getPrefixCls,
     direction,
@@ -35918,7 +35918,7 @@ const Empty = (props) => {
     styles: contextStyles
   } = useComponentConfig("empty");
   const prefixCls = getPrefixCls("empty", customizePrefixCls);
-  const [wrapCSSVar, hashId, cssVarCls] = useStyle$f(prefixCls);
+  const [wrapCSSVar, hashId, cssVarCls] = useStyle$h(prefixCls);
   const [locale2] = useLocale("Empty");
   const des = typeof description !== "undefined" ? description : locale2 === null || locale2 === void 0 ? void 0 : locale2.description;
   const alt = typeof des === "string" ? des : "empty";
@@ -36607,7 +36607,7 @@ function genSingleStyle(token2) {
     }), "lg")
   ];
 }
-const prepareComponentToken$b = (token2) => {
+const prepareComponentToken$d = (token2) => {
   const {
     fontSize,
     lineHeight,
@@ -36926,7 +36926,7 @@ const getSearchInputWithoutBorderStyle = (token2) => {
     }
   };
 };
-const genBaseStyle$1 = (token2) => {
+const genBaseStyle$3 = (token2) => {
   const {
     antCls,
     componentCls,
@@ -37079,7 +37079,7 @@ const genSelectStyle = (token2) => {
     // ==                       LTR                       ==
     // =====================================================
     // Base
-    genBaseStyle$1(token2),
+    genBaseStyle$3(token2),
     // Single
     genSingleStyle(token2),
     // Multiple
@@ -37113,7 +37113,7 @@ const useSelectStyle = genStyleHooks("Select", (token2, {
     selectHeight: token2.controlHeight
   });
   return [genSelectStyle(selectToken), genVariantsStyle(selectToken)];
-}, prepareComponentToken$b, {
+}, prepareComponentToken$d, {
   unitless: {
     optionLineHeight: true,
     optionSelectedFontWeight: true
@@ -37126,7 +37126,7 @@ var CheckOutlined = function CheckOutlined2(props, ref) {
     icon: CheckOutlined$1
   }));
 };
-var RefIcon$j = /* @__PURE__ */ reactExports.forwardRef(CheckOutlined);
+var RefIcon$i = /* @__PURE__ */ reactExports.forwardRef(CheckOutlined);
 var DownOutlined$1 = { "icon": { "tag": "svg", "attrs": { "viewBox": "64 64 896 896", "focusable": "false" }, "children": [{ "tag": "path", "attrs": { "d": "M884 256h-75c-5.1 0-9.9 2.5-12.9 6.6L512 654.2 227.9 262.6c-3-4.1-7.8-6.6-12.9-6.6h-75c-6.5 0-10.3 7.4-6.5 12.7l352.6 486.1c12.8 17.6 39 17.6 51.7 0l352.6-486.1c3.9-5.3.1-12.7-6.4-12.7z" } }] }, "name": "down", "theme": "outlined" };
 var DownOutlined = function DownOutlined2(props, ref) {
   return /* @__PURE__ */ reactExports.createElement(Icon$2, _extends({}, props, {
@@ -37134,7 +37134,7 @@ var DownOutlined = function DownOutlined2(props, ref) {
     icon: DownOutlined$1
   }));
 };
-var RefIcon$i = /* @__PURE__ */ reactExports.forwardRef(DownOutlined);
+var RefIcon$h = /* @__PURE__ */ reactExports.forwardRef(DownOutlined);
 var SearchOutlined$1 = { "icon": { "tag": "svg", "attrs": { "viewBox": "64 64 896 896", "focusable": "false" }, "children": [{ "tag": "path", "attrs": { "d": "M909.6 854.5L649.9 594.8C690.2 542.7 712 479 712 412c0-80.2-31.3-155.4-87.9-212.1-56.6-56.7-132-87.9-212.1-87.9s-155.5 31.3-212.1 87.9C143.2 256.5 112 331.8 112 412c0 80.1 31.3 155.5 87.9 212.1C256.5 680.8 331.8 712 412 712c67 0 130.6-21.8 182.7-62l259.7 259.6a8.2 8.2 0 0011.6 0l43.6-43.5a8.2 8.2 0 000-11.6zM570.4 570.4C528 612.7 471.8 636 412 636s-116-23.3-158.4-65.6C211.3 528 188 471.8 188 412s23.3-116.1 65.6-158.4C296 211.3 352.2 188 412 188s116.1 23.2 158.4 65.6S636 352.2 636 412s-23.3 116.1-65.6 158.4z" } }] }, "name": "search", "theme": "outlined" };
 var SearchOutlined = function SearchOutlined2(props, ref) {
   return /* @__PURE__ */ reactExports.createElement(Icon$2, _extends({}, props, {
@@ -37142,7 +37142,7 @@ var SearchOutlined = function SearchOutlined2(props, ref) {
     icon: SearchOutlined$1
   }));
 };
-var RefIcon$h = /* @__PURE__ */ reactExports.forwardRef(SearchOutlined);
+var RefIcon$g = /* @__PURE__ */ reactExports.forwardRef(SearchOutlined);
 function useIcons({
   suffixIcon,
   clearIcon,
@@ -37157,7 +37157,7 @@ function useIcons({
   showArrow,
   componentName
 }) {
-  const mergedClearIcon = clearIcon !== null && clearIcon !== void 0 ? clearIcon : /* @__PURE__ */ reactExports.createElement(RefIcon$p, null);
+  const mergedClearIcon = clearIcon !== null && clearIcon !== void 0 ? clearIcon : /* @__PURE__ */ reactExports.createElement(RefIcon$o, null);
   const getSuffixIconNode = (arrowIcon) => {
     if (suffixIcon === null && !hasFeedback && !showArrow) {
       return null;
@@ -37168,7 +37168,7 @@ function useIcons({
   if (suffixIcon !== void 0) {
     mergedSuffixIcon = getSuffixIconNode(suffixIcon);
   } else if (loading) {
-    mergedSuffixIcon = getSuffixIconNode(/* @__PURE__ */ reactExports.createElement(RefIcon$l, {
+    mergedSuffixIcon = getSuffixIconNode(/* @__PURE__ */ reactExports.createElement(RefIcon$k, {
       spin: true
     }));
   } else {
@@ -37178,11 +37178,11 @@ function useIcons({
       showSearch
     }) => {
       if (open2 && showSearch) {
-        return getSuffixIconNode(/* @__PURE__ */ reactExports.createElement(RefIcon$h, {
+        return getSuffixIconNode(/* @__PURE__ */ reactExports.createElement(RefIcon$g, {
           className: iconCls
         }));
       }
-      return getSuffixIconNode(/* @__PURE__ */ reactExports.createElement(RefIcon$i, {
+      return getSuffixIconNode(/* @__PURE__ */ reactExports.createElement(RefIcon$h, {
         className: iconCls
       }));
     };
@@ -37191,7 +37191,7 @@ function useIcons({
   if (menuItemSelectedIcon !== void 0) {
     mergedItemIcon = menuItemSelectedIcon;
   } else if (multiple) {
-    mergedItemIcon = /* @__PURE__ */ reactExports.createElement(RefIcon$j, null);
+    mergedItemIcon = /* @__PURE__ */ reactExports.createElement(RefIcon$i, null);
   } else {
     mergedItemIcon = null;
   }
@@ -37199,7 +37199,7 @@ function useIcons({
   if (removeIcon !== void 0) {
     mergedRemoveIcon = removeIcon;
   } else {
-    mergedRemoveIcon = /* @__PURE__ */ reactExports.createElement(RefIcon$o, null);
+    mergedRemoveIcon = /* @__PURE__ */ reactExports.createElement(RefIcon$n, null);
   }
   return {
     clearIcon: mergedClearIcon,
@@ -37211,7 +37211,7 @@ function useIcons({
 function useShowArrow(suffixIcon, showArrow) {
   return showArrow !== void 0 ? showArrow : suffixIcon !== null;
 }
-var __rest$y = function(s, e2) {
+var __rest$C = function(s, e2) {
   var t2 = {};
   for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p) && e2.indexOf(p) < 0) t2[p] = s[p];
   if (s != null && typeof Object.getOwnPropertySymbols === "function") for (var i = 0, p = Object.getOwnPropertySymbols(s); i < p.length; i++) {
@@ -37255,7 +37255,7 @@ const InternalSelect = (props, ref) => {
     onOpenChange,
     styles,
     classNames: classNames$1
-  } = props, rest = __rest$y(props, ["prefixCls", "bordered", "className", "rootClassName", "getPopupContainer", "popupClassName", "dropdownClassName", "listHeight", "placement", "listItemHeight", "size", "disabled", "notFoundContent", "status", "builtinPlacements", "dropdownMatchSelectWidth", "popupMatchSelectWidth", "direction", "style", "allowClear", "variant", "dropdownStyle", "transitionName", "tagRender", "maxCount", "prefix", "dropdownRender", "popupRender", "onDropdownVisibleChange", "onOpenChange", "styles", "classNames"]);
+  } = props, rest = __rest$C(props, ["prefixCls", "bordered", "className", "rootClassName", "getPopupContainer", "popupClassName", "dropdownClassName", "listHeight", "placement", "listItemHeight", "size", "disabled", "notFoundContent", "status", "builtinPlacements", "dropdownMatchSelectWidth", "popupMatchSelectWidth", "direction", "style", "allowClear", "variant", "dropdownStyle", "transitionName", "tagRender", "maxCount", "prefix", "dropdownRender", "popupRender", "onDropdownVisibleChange", "onOpenChange", "styles", "classNames"]);
   const {
     getPopupContainer: getContextPopupContainer,
     getPrefixCls,
@@ -37394,11 +37394,11 @@ const InternalSelect = (props, ref) => {
   })));
 };
 const Select = /* @__PURE__ */ reactExports.forwardRef(InternalSelect);
-const PurePanel$3 = genPurePanel(Select, "dropdownAlign");
+const PurePanel$5 = genPurePanel(Select, "dropdownAlign");
 Select.SECRET_COMBOBOX_MODE_DO_NOT_USE = SECRET_COMBOBOX_MODE_DO_NOT_USE;
-Select.Option = Option$5;
+Select.Option = Option$3;
 Select.OptGroup = OptGroup;
-Select._InternalPanelDoNotUseOrYouWillBeFired = PurePanel$3;
+Select._InternalPanelDoNotUseOrYouWillBeFired = PurePanel$5;
 const addMediaQueryListener = (mql, handler) => {
   if (typeof (mql === null || mql === void 0 ? void 0 : mql.addEventListener) !== "undefined") {
     mql.addEventListener("change", handler);
@@ -37523,6 +37523,12 @@ function useBreakpoint(refreshOnChange = true, defaultScreens = {}) {
   }, []);
   return screensRef.current;
 }
+const getRenderPropValue = (propValue) => {
+  if (!propValue) {
+    return null;
+  }
+  return typeof propValue === "function" ? propValue() : propValue;
+};
 function Popup(props) {
   var children = props.children, prefixCls = props.prefixCls, id = props.id, innerStyle = props.overlayInnerStyle, bodyClassName = props.bodyClassName, className = props.className, style2 = props.style;
   return /* @__PURE__ */ reactExports.createElement("div", {
@@ -38162,7 +38168,7 @@ const genTooltipStyle = (token2) => {
     }
   ];
 };
-const prepareComponentToken$a = (token2) => Object.assign(Object.assign({
+const prepareComponentToken$c = (token2) => Object.assign(Object.assign({
   zIndexPopup: token2.zIndexPopupBase + 70
 }, getArrowOffsetToken({
   contentRadius: token2.borderRadius,
@@ -38170,7 +38176,7 @@ const prepareComponentToken$a = (token2) => Object.assign(Object.assign({
 })), getArrowToken(merge(token2, {
   borderRadiusOuter: Math.min(token2.borderRadiusOuter, 4)
 })));
-const useStyle$e = (prefixCls, injectStyle = true) => {
+const useStyle$g = (prefixCls, injectStyle = true) => {
   const useStyle2 = genStyleHooks("Tooltip", (token2) => {
     const {
       borderRadius,
@@ -38185,7 +38191,7 @@ const useStyle$e = (prefixCls, injectStyle = true) => {
       tooltipBg: colorBgSpotlight
     });
     return [genTooltipStyle(TooltipToken), initZoomMotion(token2, "zoom-big-fast")];
-  }, prepareComponentToken$a, {
+  }, prepareComponentToken$c, {
     resetStyle: false,
     // Popover use Tooltip as internal component. We do not need to handle this.
     injectStyle
@@ -38216,7 +38222,7 @@ function parseColor(prefixCls, color) {
     arrowStyle
   };
 }
-const PurePanel$2 = (props) => {
+const PurePanel$4 = (props) => {
   const {
     prefixCls: customizePrefixCls,
     className,
@@ -38229,7 +38235,7 @@ const PurePanel$2 = (props) => {
     getPrefixCls
   } = reactExports.useContext(ConfigContext);
   const prefixCls = getPrefixCls("tooltip", customizePrefixCls);
-  const [wrapCSSVar, hashId, cssVarCls] = useStyle$e(prefixCls);
+  const [wrapCSSVar, hashId, cssVarCls] = useStyle$g(prefixCls);
   const colorInfo = parseColor(prefixCls, color);
   const arrowContentStyle = colorInfo.arrowStyle;
   const formattedOverlayInnerStyle = Object.assign(Object.assign({}, overlayInnerStyle), colorInfo.overlayStyle);
@@ -38245,7 +38251,7 @@ const PurePanel$2 = (props) => {
     overlayInnerStyle: formattedOverlayInnerStyle
   }), title)));
 };
-var __rest$x = function(s, e2) {
+var __rest$B = function(s, e2) {
   var t2 = {};
   for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p) && e2.indexOf(p) < 0) t2[p] = s[p];
   if (s != null && typeof Object.getOwnPropertySymbols === "function") for (var i = 0, p = Object.getOwnPropertySymbols(s); i < p.length; i++) {
@@ -38282,7 +38288,7 @@ const InternalTooltip = /* @__PURE__ */ reactExports.forwardRef((props, ref) => 
     overlayClassName,
     styles,
     classNames: tooltipClassNames
-  } = props, restProps = __rest$x(props, ["prefixCls", "openClassName", "getTooltipContainer", "color", "overlayInnerStyle", "children", "afterOpenChange", "afterVisibleChange", "destroyTooltipOnHide", "destroyOnHidden", "arrow", "title", "overlay", "builtinPlacements", "arrowPointAtCenter", "autoAdjustOverflow", "motion", "getPopupContainer", "placement", "mouseEnterDelay", "mouseLeaveDelay", "overlayStyle", "rootClassName", "overlayClassName", "styles", "classNames"]);
+  } = props, restProps = __rest$B(props, ["prefixCls", "openClassName", "getTooltipContainer", "color", "overlayInnerStyle", "children", "afterOpenChange", "afterVisibleChange", "destroyTooltipOnHide", "destroyOnHidden", "arrow", "title", "overlay", "builtinPlacements", "arrowPointAtCenter", "autoAdjustOverflow", "motion", "getPopupContainer", "placement", "mouseEnterDelay", "mouseLeaveDelay", "overlayStyle", "rootClassName", "overlayClassName", "styles", "classNames"]);
   const mergedShowArrow = !!arrow;
   const [, token2] = useToken();
   const {
@@ -38358,7 +38364,7 @@ const InternalTooltip = /* @__PURE__ */ reactExports.forwardRef((props, ref) => 
   const child = /* @__PURE__ */ reactExports.isValidElement(children) && !isFragment(children) ? children : /* @__PURE__ */ reactExports.createElement("span", null, children);
   const childProps = child.props;
   const childCls = !childProps.className || typeof childProps.className === "string" ? classNames(childProps.className, openClassName || `${prefixCls}-open`) : childProps.className;
-  const [wrapCSSVar, hashId, cssVarCls] = useStyle$e(prefixCls, !injectFromPopover);
+  const [wrapCSSVar, hashId, cssVarCls] = useStyle$g(prefixCls, !injectFromPopover);
   const colorInfo = parseColor(prefixCls, color);
   const arrowContentStyle = colorInfo.arrowStyle;
   const rootClassNames = classNames(overlayClassName, {
@@ -38405,7 +38411,319 @@ const InternalTooltip = /* @__PURE__ */ reactExports.forwardRef((props, ref) => 
   }, content));
 });
 const Tooltip2 = InternalTooltip;
-Tooltip2._InternalPanelDoNotUseOrYouWillBeFired = PurePanel$2;
+Tooltip2._InternalPanelDoNotUseOrYouWillBeFired = PurePanel$4;
+const genBaseStyle$2 = (token2) => {
+  const {
+    componentCls,
+    popoverColor,
+    titleMinWidth,
+    fontWeightStrong,
+    innerPadding,
+    boxShadowSecondary,
+    colorTextHeading,
+    borderRadiusLG,
+    zIndexPopup,
+    titleMarginBottom,
+    colorBgElevated,
+    popoverBg,
+    titleBorderBottom,
+    innerContentPadding,
+    titlePadding
+  } = token2;
+  return [
+    {
+      [componentCls]: Object.assign(Object.assign({}, resetComponent(token2)), {
+        position: "absolute",
+        top: 0,
+        // use `left` to fix https://github.com/ant-design/ant-design/issues/39195
+        left: {
+          _skip_check_: true,
+          value: 0
+        },
+        zIndex: zIndexPopup,
+        fontWeight: "normal",
+        whiteSpace: "normal",
+        textAlign: "start",
+        cursor: "auto",
+        userSelect: "text",
+        // When use `autoArrow`, origin will follow the arrow position
+        "--valid-offset-x": "var(--arrow-offset-horizontal, var(--arrow-x))",
+        transformOrigin: [`var(--valid-offset-x, 50%)`, `var(--arrow-y, 50%)`].join(" "),
+        "--antd-arrow-background-color": colorBgElevated,
+        width: "max-content",
+        maxWidth: "100vw",
+        "&-rtl": {
+          direction: "rtl"
+        },
+        "&-hidden": {
+          display: "none"
+        },
+        [`${componentCls}-content`]: {
+          position: "relative"
+        },
+        [`${componentCls}-inner`]: {
+          backgroundColor: popoverBg,
+          backgroundClip: "padding-box",
+          borderRadius: borderRadiusLG,
+          boxShadow: boxShadowSecondary,
+          padding: innerPadding
+        },
+        [`${componentCls}-title`]: {
+          minWidth: titleMinWidth,
+          marginBottom: titleMarginBottom,
+          color: colorTextHeading,
+          fontWeight: fontWeightStrong,
+          borderBottom: titleBorderBottom,
+          padding: titlePadding
+        },
+        [`${componentCls}-inner-content`]: {
+          color: popoverColor,
+          padding: innerContentPadding
+        }
+      })
+    },
+    // Arrow Style
+    getArrowStyle(token2, "var(--antd-arrow-background-color)"),
+    // Pure Render
+    {
+      [`${componentCls}-pure`]: {
+        position: "relative",
+        maxWidth: "none",
+        margin: token2.sizePopupArrow,
+        display: "inline-block",
+        [`${componentCls}-content`]: {
+          display: "inline-block"
+        }
+      }
+    }
+  ];
+};
+const genColorStyle = (token2) => {
+  const {
+    componentCls
+  } = token2;
+  return {
+    [componentCls]: PresetColors.map((colorKey) => {
+      const lightColor = token2[`${colorKey}6`];
+      return {
+        [`&${componentCls}-${colorKey}`]: {
+          "--antd-arrow-background-color": lightColor,
+          [`${componentCls}-inner`]: {
+            backgroundColor: lightColor
+          },
+          [`${componentCls}-arrow`]: {
+            background: "transparent"
+          }
+        }
+      };
+    })
+  };
+};
+const prepareComponentToken$b = (token2) => {
+  const {
+    lineWidth,
+    controlHeight,
+    fontHeight,
+    padding,
+    wireframe,
+    zIndexPopupBase,
+    borderRadiusLG,
+    marginXS,
+    lineType,
+    colorSplit,
+    paddingSM
+  } = token2;
+  const titlePaddingBlockDist = controlHeight - fontHeight;
+  const popoverTitlePaddingBlockTop = titlePaddingBlockDist / 2;
+  const popoverTitlePaddingBlockBottom = titlePaddingBlockDist / 2 - lineWidth;
+  const popoverPaddingHorizontal = padding;
+  return Object.assign(Object.assign(Object.assign({
+    titleMinWidth: 177,
+    zIndexPopup: zIndexPopupBase + 30
+  }, getArrowToken(token2)), getArrowOffsetToken({
+    contentRadius: borderRadiusLG,
+    limitVerticalRadius: true
+  })), {
+    // internal
+    innerPadding: wireframe ? 0 : 12,
+    titleMarginBottom: wireframe ? 0 : marginXS,
+    titlePadding: wireframe ? `${popoverTitlePaddingBlockTop}px ${popoverPaddingHorizontal}px ${popoverTitlePaddingBlockBottom}px` : 0,
+    titleBorderBottom: wireframe ? `${lineWidth}px ${lineType} ${colorSplit}` : "none",
+    innerContentPadding: wireframe ? `${paddingSM}px ${popoverPaddingHorizontal}px` : 0
+  });
+};
+const useStyle$f = genStyleHooks("Popover", (token2) => {
+  const {
+    colorBgElevated,
+    colorText
+  } = token2;
+  const popoverToken = merge(token2, {
+    popoverBg: colorBgElevated,
+    popoverColor: colorText
+  });
+  return [genBaseStyle$2(popoverToken), genColorStyle(popoverToken), initZoomMotion(popoverToken, "zoom-big")];
+}, prepareComponentToken$b, {
+  resetStyle: false,
+  deprecatedTokens: [["width", "titleMinWidth"], ["minWidth", "titleMinWidth"]]
+});
+var __rest$A = function(s, e2) {
+  var t2 = {};
+  for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p) && e2.indexOf(p) < 0) t2[p] = s[p];
+  if (s != null && typeof Object.getOwnPropertySymbols === "function") for (var i = 0, p = Object.getOwnPropertySymbols(s); i < p.length; i++) {
+    if (e2.indexOf(p[i]) < 0 && Object.prototype.propertyIsEnumerable.call(s, p[i])) t2[p[i]] = s[p[i]];
+  }
+  return t2;
+};
+const Overlay$2 = ({
+  title,
+  content,
+  prefixCls
+}) => {
+  if (!title && !content) {
+    return null;
+  }
+  return /* @__PURE__ */ reactExports.createElement(reactExports.Fragment, null, title && /* @__PURE__ */ reactExports.createElement("div", {
+    className: `${prefixCls}-title`
+  }, title), content && /* @__PURE__ */ reactExports.createElement("div", {
+    className: `${prefixCls}-inner-content`
+  }, content));
+};
+const RawPurePanel = (props) => {
+  const {
+    hashId,
+    prefixCls,
+    className,
+    style: style2,
+    placement = "top",
+    title,
+    content,
+    children
+  } = props;
+  const titleNode = getRenderPropValue(title);
+  const contentNode = getRenderPropValue(content);
+  const cls = classNames(hashId, prefixCls, `${prefixCls}-pure`, `${prefixCls}-placement-${placement}`, className);
+  return /* @__PURE__ */ reactExports.createElement("div", {
+    className: cls,
+    style: style2
+  }, /* @__PURE__ */ reactExports.createElement("div", {
+    className: `${prefixCls}-arrow`
+  }), /* @__PURE__ */ reactExports.createElement(Popup, Object.assign({}, props, {
+    className: hashId,
+    prefixCls
+  }), children || /* @__PURE__ */ reactExports.createElement(Overlay$2, {
+    prefixCls,
+    title: titleNode,
+    content: contentNode
+  })));
+};
+const PurePanel$3 = (props) => {
+  const {
+    prefixCls: customizePrefixCls,
+    className
+  } = props, restProps = __rest$A(props, ["prefixCls", "className"]);
+  const {
+    getPrefixCls
+  } = reactExports.useContext(ConfigContext);
+  const prefixCls = getPrefixCls("popover", customizePrefixCls);
+  const [wrapCSSVar, hashId, cssVarCls] = useStyle$f(prefixCls);
+  return wrapCSSVar(/* @__PURE__ */ reactExports.createElement(RawPurePanel, Object.assign({}, restProps, {
+    prefixCls,
+    hashId,
+    className: classNames(className, cssVarCls)
+  })));
+};
+var __rest$z = function(s, e2) {
+  var t2 = {};
+  for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p) && e2.indexOf(p) < 0) t2[p] = s[p];
+  if (s != null && typeof Object.getOwnPropertySymbols === "function") for (var i = 0, p = Object.getOwnPropertySymbols(s); i < p.length; i++) {
+    if (e2.indexOf(p[i]) < 0 && Object.prototype.propertyIsEnumerable.call(s, p[i])) t2[p[i]] = s[p[i]];
+  }
+  return t2;
+};
+const InternalPopover = /* @__PURE__ */ reactExports.forwardRef((props, ref) => {
+  var _a, _b;
+  const {
+    prefixCls: customizePrefixCls,
+    title,
+    content,
+    overlayClassName,
+    placement = "top",
+    trigger = "hover",
+    children,
+    mouseEnterDelay = 0.1,
+    mouseLeaveDelay = 0.1,
+    onOpenChange,
+    overlayStyle = {},
+    styles,
+    classNames: popoverClassNames
+  } = props, otherProps = __rest$z(props, ["prefixCls", "title", "content", "overlayClassName", "placement", "trigger", "children", "mouseEnterDelay", "mouseLeaveDelay", "onOpenChange", "overlayStyle", "styles", "classNames"]);
+  const {
+    getPrefixCls,
+    className: contextClassName,
+    style: contextStyle,
+    classNames: contextClassNames,
+    styles: contextStyles
+  } = useComponentConfig("popover");
+  const prefixCls = getPrefixCls("popover", customizePrefixCls);
+  const [wrapCSSVar, hashId, cssVarCls] = useStyle$f(prefixCls);
+  const rootPrefixCls = getPrefixCls();
+  const rootClassNames = classNames(overlayClassName, hashId, cssVarCls, contextClassName, contextClassNames.root, popoverClassNames === null || popoverClassNames === void 0 ? void 0 : popoverClassNames.root);
+  const bodyClassNames = classNames(contextClassNames.body, popoverClassNames === null || popoverClassNames === void 0 ? void 0 : popoverClassNames.body);
+  const [open2, setOpen] = useMergedState(false, {
+    value: (_a = props.open) !== null && _a !== void 0 ? _a : props.visible,
+    defaultValue: (_b = props.defaultOpen) !== null && _b !== void 0 ? _b : props.defaultVisible
+  });
+  const settingOpen = (value, e2) => {
+    setOpen(value, true);
+    onOpenChange === null || onOpenChange === void 0 ? void 0 : onOpenChange(value, e2);
+  };
+  const onKeyDown = (e2) => {
+    if (e2.keyCode === KeyCode.ESC) {
+      settingOpen(false, e2);
+    }
+  };
+  const onInternalOpenChange = (value) => {
+    settingOpen(value);
+  };
+  const titleNode = getRenderPropValue(title);
+  const contentNode = getRenderPropValue(content);
+  return wrapCSSVar(/* @__PURE__ */ reactExports.createElement(Tooltip2, Object.assign({
+    placement,
+    trigger,
+    mouseEnterDelay,
+    mouseLeaveDelay
+  }, otherProps, {
+    prefixCls,
+    classNames: {
+      root: rootClassNames,
+      body: bodyClassNames
+    },
+    styles: {
+      root: Object.assign(Object.assign(Object.assign(Object.assign({}, contextStyles.root), contextStyle), overlayStyle), styles === null || styles === void 0 ? void 0 : styles.root),
+      body: Object.assign(Object.assign({}, contextStyles.body), styles === null || styles === void 0 ? void 0 : styles.body)
+    },
+    ref,
+    open: open2,
+    onOpenChange: onInternalOpenChange,
+    overlay: titleNode || contentNode ? /* @__PURE__ */ reactExports.createElement(Overlay$2, {
+      prefixCls,
+      title: titleNode,
+      content: contentNode
+    }) : null,
+    transitionName: getTransitionName(rootPrefixCls, "zoom-big", otherProps.transitionName),
+    "data-popover-inject": true
+  }), cloneElement(children, {
+    onKeyDown: (e2) => {
+      var _a2, _b2;
+      if (/* @__PURE__ */ reactExports.isValidElement(children)) {
+        (_b2 = children === null || children === void 0 ? void 0 : (_a2 = children.props).onKeyDown) === null || _b2 === void 0 ? void 0 : _b2.call(_a2, e2);
+      }
+      onKeyDown(e2);
+    }
+  })));
+});
+const Popover = InternalPopover;
+Popover._InternalPanelDoNotUseOrYouWillBeFired = PurePanel$3;
 var LeftOutlined$1 = { "icon": { "tag": "svg", "attrs": { "viewBox": "64 64 896 896", "focusable": "false" }, "children": [{ "tag": "path", "attrs": { "d": "M724 218.3V141c0-6.7-7.7-10.4-12.9-6.3L260.3 486.8a31.86 31.86 0 000 50.3l450.8 352.1c5.3 4.1 12.9.4 12.9-6.3v-77.3c0-4.9-2.3-9.6-6.1-12.6l-360-281 360-281.1c3.8-3 6.1-7.7 6.1-12.6z" } }] }, "name": "left", "theme": "outlined" };
 var LeftOutlined = function LeftOutlined2(props, ref) {
   return /* @__PURE__ */ reactExports.createElement(Icon$2, _extends({}, props, {
@@ -38413,7 +38731,7 @@ var LeftOutlined = function LeftOutlined2(props, ref) {
     icon: LeftOutlined$1
   }));
 };
-var RefIcon$g = /* @__PURE__ */ reactExports.forwardRef(LeftOutlined);
+var RefIcon$f = /* @__PURE__ */ reactExports.forwardRef(LeftOutlined);
 var ESC$1 = KeyCode.ESC, TAB = KeyCode.TAB;
 function useAccessibility$1(_ref) {
   var visible = _ref.visible, triggerRef = _ref.triggerRef, onVisibleChange = _ref.onVisibleChange, autoFocus = _ref.autoFocus, overlayRef = _ref.overlayRef;
@@ -38469,7 +38787,7 @@ function useAccessibility$1(_ref) {
     };
   }, [visible]);
 }
-var Overlay = /* @__PURE__ */ reactExports.forwardRef(function(props, ref) {
+var Overlay$1 = /* @__PURE__ */ reactExports.forwardRef(function(props, ref) {
   var overlay = props.overlay, arrow = props.arrow, prefixCls = props.prefixCls;
   var overlayNode = reactExports.useMemo(function() {
     var overlayElement;
@@ -38561,7 +38879,7 @@ function Dropdown(props, ref) {
     }
   };
   var getMenuElement = function getMenuElement2() {
-    return /* @__PURE__ */ React.createElement(Overlay, {
+    return /* @__PURE__ */ React.createElement(Overlay$1, {
       ref: overlayRef,
       overlay,
       prefixCls,
@@ -39987,7 +40305,7 @@ var BarsOutlined = function BarsOutlined2(props, ref) {
     icon: BarsOutlined$1
   }));
 };
-var RefIcon$f = /* @__PURE__ */ reactExports.forwardRef(BarsOutlined);
+var RefIcon$e = /* @__PURE__ */ reactExports.forwardRef(BarsOutlined);
 const LayoutContext = /* @__PURE__ */ reactExports.createContext({
   siderHook: {
     addSider: () => null,
@@ -40065,7 +40383,7 @@ const genLayoutStyle = (token2) => {
     }
   };
 };
-const prepareComponentToken$9 = (token2) => {
+const prepareComponentToken$a = (token2) => {
   const {
     colorBgLayout,
     controlHeight,
@@ -40101,7 +40419,7 @@ const prepareComponentToken$9 = (token2) => {
   };
 };
 const DEPRECATED_TOKENS = [["colorBgBody", "bodyBg"], ["colorBgHeader", "headerBg"], ["colorBgTrigger", "triggerBg"]];
-const useStyle$d = genStyleHooks("Layout", (token2) => [genLayoutStyle(token2)], prepareComponentToken$9, {
+const useStyle$e = genStyleHooks("Layout", (token2) => [genLayoutStyle(token2)], prepareComponentToken$a, {
   deprecatedTokens: DEPRECATED_TOKENS
 });
 const genSiderStyle = (token2) => {
@@ -40211,10 +40529,10 @@ const genSiderStyle = (token2) => {
     }
   };
 };
-const useStyle$c = genStyleHooks(["Layout", "Sider"], (token2) => [genSiderStyle(token2)], prepareComponentToken$9, {
+const useStyle$d = genStyleHooks(["Layout", "Sider"], (token2) => [genSiderStyle(token2)], prepareComponentToken$a, {
   deprecatedTokens: DEPRECATED_TOKENS
 });
-var __rest$w = function(s, e2) {
+var __rest$y = function(s, e2) {
   var t2 = {};
   for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p) && e2.indexOf(p) < 0) t2[p] = s[p];
   if (s != null && typeof Object.getOwnPropertySymbols === "function") for (var i = 0, p = Object.getOwnPropertySymbols(s); i < p.length; i++) {
@@ -40256,7 +40574,7 @@ const Sider$1 = /* @__PURE__ */ reactExports.forwardRef((props, ref) => {
     breakpoint,
     onCollapse,
     onBreakpoint
-  } = props, otherProps = __rest$w(props, ["prefixCls", "className", "trigger", "children", "defaultCollapsed", "theme", "style", "collapsible", "reverseArrow", "width", "collapsedWidth", "zeroWidthTriggerStyle", "breakpoint", "onCollapse", "onBreakpoint"]);
+  } = props, otherProps = __rest$y(props, ["prefixCls", "className", "trigger", "children", "defaultCollapsed", "theme", "style", "collapsible", "reverseArrow", "width", "collapsedWidth", "zeroWidthTriggerStyle", "breakpoint", "onCollapse", "onBreakpoint"]);
   const {
     siderHook
   } = reactExports.useContext(LayoutContext);
@@ -40278,7 +40596,7 @@ const Sider$1 = /* @__PURE__ */ reactExports.forwardRef((props, ref) => {
     direction
   } = reactExports.useContext(ConfigContext);
   const prefixCls = getPrefixCls("layout-sider", customizePrefixCls);
-  const [wrapCSSVar, hashId, cssVarCls] = useStyle$c(prefixCls);
+  const [wrapCSSVar, hashId, cssVarCls] = useStyle$d(prefixCls);
   const responsiveHandlerRef = reactExports.useRef(null);
   responsiveHandlerRef.current = (mql) => {
     setBelow(mql.matches);
@@ -40317,11 +40635,11 @@ const Sider$1 = /* @__PURE__ */ reactExports.forwardRef((props, ref) => {
     onClick: toggle,
     className: classNames(`${prefixCls}-zero-width-trigger`, `${prefixCls}-zero-width-trigger-${reverseArrow ? "right" : "left"}`),
     style: zeroWidthTriggerStyle
-  }, trigger || /* @__PURE__ */ reactExports.createElement(RefIcon$f, null)) : null;
+  }, trigger || /* @__PURE__ */ reactExports.createElement(RefIcon$e, null)) : null;
   const reverseIcon = direction === "rtl" === !reverseArrow;
   const iconObj = {
-    expanded: reverseIcon ? /* @__PURE__ */ reactExports.createElement(RefIcon$k, null) : /* @__PURE__ */ reactExports.createElement(RefIcon$g, null),
-    collapsed: reverseIcon ? /* @__PURE__ */ reactExports.createElement(RefIcon$g, null) : /* @__PURE__ */ reactExports.createElement(RefIcon$k, null)
+    expanded: reverseIcon ? /* @__PURE__ */ reactExports.createElement(RefIcon$j, null) : /* @__PURE__ */ reactExports.createElement(RefIcon$f, null),
+    collapsed: reverseIcon ? /* @__PURE__ */ reactExports.createElement(RefIcon$f, null) : /* @__PURE__ */ reactExports.createElement(RefIcon$j, null)
   };
   const status = collapsed ? "collapsed" : "expanded";
   const defaultTrigger = iconObj[status];
@@ -40365,7 +40683,7 @@ var EllipsisOutlined = function EllipsisOutlined2(props, ref) {
     icon: EllipsisOutlined$1
   }));
 };
-var RefIcon$e = /* @__PURE__ */ reactExports.forwardRef(EllipsisOutlined);
+var RefIcon$d = /* @__PURE__ */ reactExports.forwardRef(EllipsisOutlined);
 const formItemNameBlackList = ["parentNode"];
 const defaultItemNamePrefixCls = "form_item";
 function toArray(candidate) {
@@ -40398,7 +40716,7 @@ function getStatus(errors, warnings, meta, defaultValidateStatus, hasFeedback, v
   }
   return status;
 }
-var __rest$v = function(s, e2) {
+var __rest$x = function(s, e2) {
   var t2 = {};
   for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p) && e2.indexOf(p) < 0) t2[p] = s[p];
   if (s != null && typeof Object.getOwnPropertySymbols === "function") for (var i = 0, p = Object.getOwnPropertySymbols(s); i < p.length; i++) {
@@ -40438,7 +40756,7 @@ function useForm(form) {
     scrollToField: (name, options = {}) => {
       const {
         focus
-      } = options, restOpt = __rest$v(options, ["focus"]);
+      } = options, restOpt = __rest$x(options, ["focus"]);
       const node2 = getFieldDOMNode(name, wrapForm);
       if (node2) {
         e(node2, Object.assign({
@@ -41451,7 +41769,7 @@ const useSharedStyle = genStyleHooks(["Input", "Shared"], (token2) => {
 }, initComponentToken, {
   resetFont: false
 });
-const useStyle$b = genStyleHooks(["Input", "Component"], (token2) => {
+const useStyle$c = genStyleHooks(["Input", "Component"], (token2) => {
   const inputToken = merge(token2, initInputToken(token2));
   return [
     genGroupStyle(inputToken),
@@ -41472,7 +41790,7 @@ var PlusOutlined = function PlusOutlined2(props, ref) {
     icon: PlusOutlined$1
   }));
 };
-var RefIcon$d = /* @__PURE__ */ reactExports.forwardRef(PlusOutlined);
+var RefIcon$c = /* @__PURE__ */ reactExports.forwardRef(PlusOutlined);
 const TabContext = /* @__PURE__ */ reactExports.createContext(null);
 var useIndicator = function useIndicator2(options) {
   var activeTabOffset = options.activeTabOffset, horizontal = options.horizontal, rtl = options.rtl, _options$indicator = options.indicator, indicator = _options$indicator === void 0 ? {} : _options$indicator;
@@ -42740,7 +43058,7 @@ function useAnimateConfig(prefixCls, animated = {
   }
   return mergedAnimated;
 }
-var __rest$u = function(s, e2) {
+var __rest$w = function(s, e2) {
   var t2 = {};
   for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p) && e2.indexOf(p) < 0) t2[p] = s[p];
   if (s != null && typeof Object.getOwnPropertySymbols === "function") for (var i = 0, p = Object.getOwnPropertySymbols(s); i < p.length; i++) {
@@ -42770,7 +43088,7 @@ function useLegacyItems(items, children) {
       } = node2;
       const _a = props || {}, {
         tab
-      } = _a, restProps = __rest$u(_a, ["tab"]);
+      } = _a, restProps = __rest$w(_a, ["tab"]);
       const item = Object.assign(Object.assign({
         key: String(key)
       }, restProps), {
@@ -43618,7 +43936,7 @@ const genTabsStyle = (token2) => {
     }
   };
 };
-const prepareComponentToken$8 = (token2) => {
+const prepareComponentToken$9 = (token2) => {
   const {
     cardHeight,
     cardHeightSM,
@@ -43663,7 +43981,7 @@ const prepareComponentToken$8 = (token2) => {
     cardGutter: token2.marginXXS / 2
   };
 };
-const useStyle$a = genStyleHooks("Tabs", (token2) => {
+const useStyle$b = genStyleHooks("Tabs", (token2) => {
   const tabsToken = merge(token2, {
     // `cardPadding` is empty by default, so we could calculate with dynamic `cardHeight`
     tabsCardPadding: token2.cardPadding,
@@ -43675,9 +43993,9 @@ const useStyle$a = genStyleHooks("Tabs", (token2) => {
     tabsHorizontalItemMarginRTL: `0 0 0 ${unit$1(token2.horizontalItemGutter)}`
   });
   return [genSizeStyle(tabsToken), genRtlStyle(tabsToken), genPositionStyle(tabsToken), genDropdownStyle(tabsToken), genCardStyle$1(tabsToken), genTabsStyle(tabsToken), genMotionStyle(tabsToken)];
-}, prepareComponentToken$8);
+}, prepareComponentToken$9);
 const TabPane$1 = () => null;
-var __rest$t = function(s, e2) {
+var __rest$v = function(s, e2) {
   var t2 = {};
   for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p) && e2.indexOf(p) < 0) t2[p] = s[p];
   if (s != null && typeof Object.getOwnPropertySymbols === "function") for (var i = 0, p = Object.getOwnPropertySymbols(s); i < p.length; i++) {
@@ -43708,7 +44026,7 @@ const Tabs = (props) => {
     indicator,
     destroyInactiveTabPane,
     destroyOnHidden
-  } = props, otherProps = __rest$t(props, ["type", "className", "rootClassName", "size", "onEdit", "hideAdd", "centered", "addIcon", "removeIcon", "moreIcon", "more", "popupClassName", "children", "items", "animated", "style", "indicatorSize", "indicator", "destroyInactiveTabPane", "destroyOnHidden"]);
+  } = props, otherProps = __rest$v(props, ["type", "className", "rootClassName", "size", "onEdit", "hideAdd", "centered", "addIcon", "removeIcon", "moreIcon", "more", "popupClassName", "children", "items", "animated", "style", "indicatorSize", "indicator", "destroyInactiveTabPane", "destroyOnHidden"]);
   const {
     prefixCls: customizePrefixCls
   } = otherProps;
@@ -43720,7 +44038,7 @@ const Tabs = (props) => {
   } = reactExports.useContext(ConfigContext);
   const prefixCls = getPrefixCls("tabs", customizePrefixCls);
   const rootCls = useCSSVarCls(prefixCls);
-  const [wrapCSSVar, hashId, cssVarCls] = useStyle$a(prefixCls, rootCls);
+  const [wrapCSSVar, hashId, cssVarCls] = useStyle$b(prefixCls, rootCls);
   let editable;
   if (type4 === "editable-card") {
     editable = {
@@ -43730,8 +44048,8 @@ const Tabs = (props) => {
       }) => {
         onEdit === null || onEdit === void 0 ? void 0 : onEdit(editType === "add" ? event : key, editType);
       },
-      removeIcon: (_a = removeIcon !== null && removeIcon !== void 0 ? removeIcon : tabs === null || tabs === void 0 ? void 0 : tabs.removeIcon) !== null && _a !== void 0 ? _a : /* @__PURE__ */ reactExports.createElement(RefIcon$o, null),
-      addIcon: (addIcon !== null && addIcon !== void 0 ? addIcon : tabs === null || tabs === void 0 ? void 0 : tabs.addIcon) || /* @__PURE__ */ reactExports.createElement(RefIcon$d, null),
+      removeIcon: (_a = removeIcon !== null && removeIcon !== void 0 ? removeIcon : tabs === null || tabs === void 0 ? void 0 : tabs.removeIcon) !== null && _a !== void 0 ? _a : /* @__PURE__ */ reactExports.createElement(RefIcon$n, null),
+      addIcon: (addIcon !== null && addIcon !== void 0 ? addIcon : tabs === null || tabs === void 0 ? void 0 : tabs.addIcon) || /* @__PURE__ */ reactExports.createElement(RefIcon$c, null),
       showAdd: hideAdd !== true
     };
   }
@@ -43759,7 +44077,7 @@ const Tabs = (props) => {
     style: mergedStyle,
     editable,
     more: Object.assign({
-      icon: (_l = (_k = (_j = (_h = tabs === null || tabs === void 0 ? void 0 : tabs.more) === null || _h === void 0 ? void 0 : _h.icon) !== null && _j !== void 0 ? _j : tabs === null || tabs === void 0 ? void 0 : tabs.moreIcon) !== null && _k !== void 0 ? _k : moreIcon) !== null && _l !== void 0 ? _l : /* @__PURE__ */ reactExports.createElement(RefIcon$e, null),
+      icon: (_l = (_k = (_j = (_h = tabs === null || tabs === void 0 ? void 0 : tabs.more) === null || _h === void 0 ? void 0 : _h.icon) !== null && _j !== void 0 ? _j : tabs === null || tabs === void 0 ? void 0 : tabs.moreIcon) !== null && _k !== void 0 ? _k : moreIcon) !== null && _l !== void 0 ? _l : /* @__PURE__ */ reactExports.createElement(RefIcon$d, null),
       transitionName: `${rootPrefixCls}-slide-up`
     }, more),
     prefixCls,
@@ -43770,7 +44088,7 @@ const Tabs = (props) => {
   })));
 };
 Tabs.TabPane = TabPane$1;
-var __rest$s = function(s, e2) {
+var __rest$u = function(s, e2) {
   var t2 = {};
   for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p) && e2.indexOf(p) < 0) t2[p] = s[p];
   if (s != null && typeof Object.getOwnPropertySymbols === "function") for (var i = 0, p = Object.getOwnPropertySymbols(s); i < p.length; i++) {
@@ -43783,7 +44101,7 @@ const Grid = (_a) => {
     prefixCls,
     className,
     hoverable = true
-  } = _a, props = __rest$s(_a, ["prefixCls", "className", "hoverable"]);
+  } = _a, props = __rest$u(_a, ["prefixCls", "className", "hoverable"]);
   const {
     getPrefixCls
   } = reactExports.useContext(ConfigContext);
@@ -44101,7 +44419,7 @@ const genCardSizeStyle = (token2) => {
     }
   };
 };
-const prepareComponentToken$7 = (token2) => {
+const prepareComponentToken$8 = (token2) => {
   var _a, _b;
   return {
     headerBg: "transparent",
@@ -44120,7 +44438,7 @@ const prepareComponentToken$7 = (token2) => {
     headerPadding: (_b = token2.headerPadding) !== null && _b !== void 0 ? _b : token2.paddingLG
   };
 };
-const useStyle$9 = genStyleHooks("Card", (token2) => {
+const useStyle$a = genStyleHooks("Card", (token2) => {
   const cardToken = merge(token2, {
     cardShadow: token2.boxShadowCard,
     cardHeadPadding: token2.padding,
@@ -44133,8 +44451,8 @@ const useStyle$9 = genStyleHooks("Card", (token2) => {
     // Size
     genCardSizeStyle(cardToken)
   ];
-}, prepareComponentToken$7);
-var __rest$r = function(s, e2) {
+}, prepareComponentToken$8);
+var __rest$t = function(s, e2) {
   var t2 = {};
   for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p) && e2.indexOf(p) < 0) t2[p] = s[p];
   if (s != null && typeof Object.getOwnPropertySymbols === "function") for (var i = 0, p = Object.getOwnPropertySymbols(s); i < p.length; i++) {
@@ -44187,7 +44505,7 @@ const Card$1 = /* @__PURE__ */ reactExports.forwardRef((props, ref) => {
     tabProps = {},
     classNames: customClassNames,
     styles: customStyles
-  } = props, others = __rest$r(props, ["prefixCls", "className", "rootClassName", "style", "extra", "headStyle", "bodyStyle", "title", "loading", "bordered", "variant", "size", "type", "cover", "actions", "tabList", "children", "activeTabKey", "defaultActiveTabKey", "tabBarExtraContent", "hoverable", "tabProps", "classNames", "styles"]);
+  } = props, others = __rest$t(props, ["prefixCls", "className", "rootClassName", "style", "extra", "headStyle", "bodyStyle", "title", "loading", "bordered", "variant", "size", "type", "cover", "actions", "tabList", "children", "activeTabKey", "defaultActiveTabKey", "tabBarExtraContent", "hoverable", "tabProps", "classNames", "styles"]);
   const {
     getPrefixCls,
     direction,
@@ -44216,7 +44534,7 @@ const Card$1 = /* @__PURE__ */ reactExports.forwardRef((props, ref) => {
     return containGrid;
   }, [children]);
   const prefixCls = getPrefixCls("card", customizePrefixCls);
-  const [wrapCSSVar, hashId, cssVarCls] = useStyle$9(prefixCls);
+  const [wrapCSSVar, hashId, cssVarCls] = useStyle$a(prefixCls);
   const loadingBlock = /* @__PURE__ */ reactExports.createElement(Skeleton, {
     loading: true,
     active: true,
@@ -44241,7 +44559,7 @@ const Card$1 = /* @__PURE__ */ reactExports.forwardRef((props, ref) => {
     items: tabList.map((_a) => {
       var {
         tab
-      } = _a, item = __rest$r(_a, ["tab"]);
+      } = _a, item = __rest$t(_a, ["tab"]);
       return Object.assign({
         label: tab
       }, item);
@@ -44301,7 +44619,7 @@ const Card$1 = /* @__PURE__ */ reactExports.forwardRef((props, ref) => {
     style: mergedStyle
   }), head, coverDom, body, actionDom));
 });
-var __rest$q = function(s, e2) {
+var __rest$s = function(s, e2) {
   var t2 = {};
   for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p) && e2.indexOf(p) < 0) t2[p] = s[p];
   if (s != null && typeof Object.getOwnPropertySymbols === "function") for (var i = 0, p = Object.getOwnPropertySymbols(s); i < p.length; i++) {
@@ -44316,7 +44634,7 @@ const Meta$1 = (props) => {
     avatar,
     title,
     description
-  } = props, others = __rest$q(props, ["prefixCls", "className", "avatar", "title", "description"]);
+  } = props, others = __rest$s(props, ["prefixCls", "className", "avatar", "title", "description"]);
   const {
     getPrefixCls
   } = reactExports.useContext(ConfigContext);
@@ -44399,7 +44717,7 @@ function debounce(delay, callback, options) {
   });
 }
 const RowContext = /* @__PURE__ */ reactExports.createContext({});
-var __rest$p = function(s, e2) {
+var __rest$r = function(s, e2) {
   var t2 = {};
   for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p) && e2.indexOf(p) < 0) t2[p] = s[p];
   if (s != null && typeof Object.getOwnPropertySymbols === "function") for (var i = 0, p = Object.getOwnPropertySymbols(s); i < p.length; i++) {
@@ -44437,7 +44755,7 @@ const Col = /* @__PURE__ */ reactExports.forwardRef((props, ref) => {
     children,
     flex,
     style: style2
-  } = props, others = __rest$p(props, ["prefixCls", "span", "order", "offset", "push", "pull", "className", "children", "flex", "style"]);
+  } = props, others = __rest$r(props, ["prefixCls", "span", "order", "offset", "push", "pull", "className", "children", "flex", "style"]);
   const prefixCls = getPrefixCls("col", customizePrefixCls);
   const [wrapCSSVar, hashId, cssVarCls] = useColStyle(prefixCls);
   const sizeStyle = {};
@@ -44515,7 +44833,7 @@ function useGutter(gutter, screens) {
   });
   return results;
 }
-var __rest$o = function(s, e2) {
+var __rest$q = function(s, e2) {
   var t2 = {};
   for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p) && e2.indexOf(p) < 0) t2[p] = s[p];
   if (s != null && typeof Object.getOwnPropertySymbols === "function") for (var i = 0, p = Object.getOwnPropertySymbols(s); i < p.length; i++) {
@@ -44559,7 +44877,7 @@ const Row = /* @__PURE__ */ reactExports.forwardRef((props, ref) => {
     children,
     gutter = 0,
     wrap
-  } = props, others = __rest$o(props, ["prefixCls", "justify", "align", "className", "style", "children", "gutter", "wrap"]);
+  } = props, others = __rest$q(props, ["prefixCls", "justify", "align", "className", "style", "children", "gutter", "wrap"]);
   const {
     getPrefixCls,
     direction
@@ -44754,23 +45072,23 @@ const genSharedDividerStyle = (token2) => {
     })
   };
 };
-const prepareComponentToken$6 = (token2) => ({
+const prepareComponentToken$7 = (token2) => ({
   textPaddingInline: "1em",
   orientationMargin: 0.05,
   verticalMarginInline: token2.marginXS
 });
-const useStyle$8 = genStyleHooks("Divider", (token2) => {
+const useStyle$9 = genStyleHooks("Divider", (token2) => {
   const dividerToken = merge(token2, {
     dividerHorizontalWithTextGutterMargin: token2.margin,
     sizePaddingEdgeHorizontal: 0
   });
   return [genSharedDividerStyle(dividerToken), genSizeDividerStyle(dividerToken)];
-}, prepareComponentToken$6, {
+}, prepareComponentToken$7, {
   unitless: {
     orientationMargin: true
   }
 });
-var __rest$n = function(s, e2) {
+var __rest$p = function(s, e2) {
   var t2 = {};
   for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p) && e2.indexOf(p) < 0) t2[p] = s[p];
   if (s != null && typeof Object.getOwnPropertySymbols === "function") for (var i = 0, p = Object.getOwnPropertySymbols(s); i < p.length; i++) {
@@ -44802,9 +45120,9 @@ const Divider = (props) => {
     plain,
     style: style2,
     size: customSize
-  } = props, restProps = __rest$n(props, ["prefixCls", "type", "orientation", "orientationMargin", "className", "rootClassName", "children", "dashed", "variant", "plain", "style", "size"]);
+  } = props, restProps = __rest$p(props, ["prefixCls", "type", "orientation", "orientationMargin", "className", "rootClassName", "children", "dashed", "variant", "plain", "style", "size"]);
   const prefixCls = getPrefixCls("divider", customizePrefixCls);
-  const [wrapCSSVar, hashId, cssVarCls] = useStyle$8(prefixCls);
+  const [wrapCSSVar, hashId, cssVarCls] = useStyle$9(prefixCls);
   const sizeFullName = useSize(customSize);
   const sizeCls = sizeClassNameMap[sizeFullName];
   const hasChildren = !!children;
@@ -44860,7 +45178,7 @@ var UpOutlined = function UpOutlined2(props, ref) {
     icon: UpOutlined$1
   }));
 };
-var RefIcon$c = /* @__PURE__ */ reactExports.forwardRef(UpOutlined);
+var RefIcon$b = /* @__PURE__ */ reactExports.forwardRef(UpOutlined);
 function supportBigInt() {
   return typeof BigInt === "function";
 }
@@ -46090,7 +46408,7 @@ var InputNumber$1 = /* @__PURE__ */ reactExports.forwardRef(function(props, ref)
     className: classNames2 === null || classNames2 === void 0 ? void 0 : classNames2.input
   }, rest)));
 });
-const prepareComponentToken$5 = (token2) => {
+const prepareComponentToken$6 = (token2) => {
   var _a;
   const handleVisible = (_a = token2.handleVisible) !== null && _a !== void 0 ? _a : "auto";
   const handleWidth = token2.controlHeightSM - token2.lineWidth * 2;
@@ -46501,7 +46819,7 @@ const genAffixWrapperStyles = (token2) => {
     }
   };
 };
-const useStyle$7 = genStyleHooks("InputNumber", (token2) => {
+const useStyle$8 = genStyleHooks("InputNumber", (token2) => {
   const inputNumberToken = merge(token2, initInputToken(token2));
   return [
     genInputNumberStyles(inputNumberToken),
@@ -46511,12 +46829,12 @@ const useStyle$7 = genStyleHooks("InputNumber", (token2) => {
     // =====================================================
     genCompactItemStyle(inputNumberToken)
   ];
-}, prepareComponentToken$5, {
+}, prepareComponentToken$6, {
   unitless: {
     handleOpacity: true
   }
 });
-var __rest$m = function(s, e2) {
+var __rest$o = function(s, e2) {
   var t2 = {};
   for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p) && e2.indexOf(p) < 0) t2[p] = s[p];
   if (s != null && typeof Object.getOwnPropertySymbols === "function") for (var i = 0, p = Object.getOwnPropertySymbols(s); i < p.length; i++) {
@@ -46546,18 +46864,18 @@ const InputNumber = /* @__PURE__ */ reactExports.forwardRef((props, ref) => {
     status: customStatus,
     controls,
     variant: customVariant
-  } = props, others = __rest$m(props, ["className", "rootClassName", "size", "disabled", "prefixCls", "addonBefore", "addonAfter", "prefix", "suffix", "bordered", "readOnly", "status", "controls", "variant"]);
+  } = props, others = __rest$o(props, ["className", "rootClassName", "size", "disabled", "prefixCls", "addonBefore", "addonAfter", "prefix", "suffix", "bordered", "readOnly", "status", "controls", "variant"]);
   const prefixCls = getPrefixCls("input-number", customizePrefixCls);
   const rootCls = useCSSVarCls(prefixCls);
-  const [wrapCSSVar, hashId, cssVarCls] = useStyle$7(prefixCls, rootCls);
+  const [wrapCSSVar, hashId, cssVarCls] = useStyle$8(prefixCls, rootCls);
   const {
     compactSize,
     compactItemClassnames
   } = useCompactItemContext(prefixCls, direction);
-  let upIcon = /* @__PURE__ */ reactExports.createElement(RefIcon$c, {
+  let upIcon = /* @__PURE__ */ reactExports.createElement(RefIcon$b, {
     className: `${prefixCls}-handler-up-inner`
   });
-  let downIcon = /* @__PURE__ */ reactExports.createElement(RefIcon$i, {
+  let downIcon = /* @__PURE__ */ reactExports.createElement(RefIcon$h, {
     className: `${prefixCls}-handler-down-inner`
   });
   const controlsTemp = typeof controls === "boolean" ? controls : void 0;
@@ -46651,7 +46969,7 @@ const getAllowClear = (allowClear) => {
     mergedAllowClear = allowClear;
   } else if (allowClear) {
     mergedAllowClear = {
-      clearIcon: /* @__PURE__ */ React.createElement(RefIcon$p, null)
+      clearIcon: /* @__PURE__ */ React.createElement(RefIcon$o, null)
     };
   }
   return mergedAllowClear;
@@ -46681,7 +46999,7 @@ function useRemovePasswordTimeout(inputRef, triggerOnMount) {
 function hasPrefixSuffix(props) {
   return !!(props.prefix || props.suffix || props.allowClear || props.showCount);
 }
-var __rest$l = function(s, e2) {
+var __rest$n = function(s, e2) {
   var t2 = {};
   for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p) && e2.indexOf(p) < 0) t2[p] = s[p];
   if (s != null && typeof Object.getOwnPropertySymbols === "function") for (var i = 0, p = Object.getOwnPropertySymbols(s); i < p.length; i++) {
@@ -46709,7 +47027,7 @@ const Input$1 = /* @__PURE__ */ reactExports.forwardRef((props, ref) => {
     onChange,
     classNames: classNames$1,
     variant: customVariant
-  } = props, rest = __rest$l(props, ["prefixCls", "bordered", "status", "size", "disabled", "onBlur", "onFocus", "suffix", "allowClear", "addonAfter", "addonBefore", "className", "style", "styles", "rootClassName", "onChange", "classNames", "variant"]);
+  } = props, rest = __rest$n(props, ["prefixCls", "bordered", "status", "size", "disabled", "onBlur", "onFocus", "suffix", "allowClear", "addonAfter", "addonBefore", "className", "style", "styles", "rootClassName", "onChange", "classNames", "variant"]);
   const {
     getPrefixCls,
     direction,
@@ -46724,7 +47042,7 @@ const Input$1 = /* @__PURE__ */ reactExports.forwardRef((props, ref) => {
   const inputRef = reactExports.useRef(null);
   const rootCls = useCSSVarCls(prefixCls);
   const [wrapSharedCSSVar, hashId, cssVarCls] = useSharedStyle(prefixCls, rootClassName);
-  const [wrapCSSVar] = useStyle$b(prefixCls, rootCls);
+  const [wrapCSSVar] = useStyle$c(prefixCls, rootCls);
   const {
     compactSize,
     compactItemClassnames
@@ -47350,7 +47668,7 @@ const genItemVerticalStyle = (token2) => {
     }
   };
 };
-const prepareComponentToken$4 = (token2) => ({
+const prepareComponentToken$5 = (token2) => ({
   labelRequiredMarkColor: token2.colorError,
   labelColor: token2.colorTextHeading,
   labelFontSize: token2.fontSize,
@@ -47369,12 +47687,12 @@ const prepareToken$1 = (token2, rootPrefixCls) => {
   });
   return formToken;
 };
-const useStyle$6 = genStyleHooks("Form", (token2, {
+const useStyle$7 = genStyleHooks("Form", (token2, {
   rootPrefixCls
 }) => {
   const formToken = prepareToken$1(token2, rootPrefixCls);
   return [genFormStyle(formToken), genFormItemStyle(formToken), genFormValidateMotionStyle(formToken), genHorizontalStyle(formToken, formToken.componentCls), genHorizontalStyle(formToken, formToken.formItemCls), genInlineStyle(formToken), genVerticalStyle(formToken), genItemVerticalStyle(formToken), genCollapseMotion(formToken), zoomIn];
-}, prepareComponentToken$4, {
+}, prepareComponentToken$5, {
   // Let From style before the Grid
   // ref https://github.com/ant-design/ant-design/issues/44386
   order: -1e3
@@ -47401,7 +47719,7 @@ const ErrorList = ({
   } = reactExports.useContext(FormItemPrefixContext);
   const baseClassName = `${prefixCls}-item-explain`;
   const rootCls = useCSSVarCls(prefixCls);
-  const [wrapCSSVar, hashId, cssVarCls] = useStyle$6(prefixCls, rootCls);
+  const [wrapCSSVar, hashId, cssVarCls] = useStyle$7(prefixCls, rootCls);
   const collapseMotion = reactExports.useMemo(() => initCollapseMotion(prefixCls), [prefixCls]);
   const debounceErrors = useDebounce(errors);
   const debounceWarnings = useDebounce(warnings);
@@ -47462,7 +47780,7 @@ const ErrorList = ({
     }));
   }));
 };
-var __rest$k = function(s, e2) {
+var __rest$m = function(s, e2) {
   var t2 = {};
   for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p) && e2.indexOf(p) < 0) t2[p] = s[p];
   if (s != null && typeof Object.getOwnPropertySymbols === "function") for (var i = 0, p = Object.getOwnPropertySymbols(s); i < p.length; i++) {
@@ -47502,7 +47820,7 @@ const InternalForm = (props, ref) => {
     style: style2,
     feedbackIcons,
     variant
-  } = props, restFormProps = __rest$k(props, ["prefixCls", "className", "rootClassName", "size", "disabled", "form", "colon", "labelAlign", "labelWrap", "labelCol", "wrapperCol", "hideRequiredMark", "layout", "scrollToFirstError", "requiredMark", "onFinishFailed", "name", "style", "feedbackIcons", "variant"]);
+  } = props, restFormProps = __rest$m(props, ["prefixCls", "className", "rootClassName", "size", "disabled", "form", "colon", "labelAlign", "labelWrap", "labelCol", "wrapperCol", "hideRequiredMark", "layout", "scrollToFirstError", "requiredMark", "onFinishFailed", "name", "style", "feedbackIcons", "variant"]);
   const mergedSize = useSize(size);
   const contextValidateMessages = reactExports.useContext(ValidateMessagesContext);
   const mergedRequiredMark = reactExports.useMemo(() => {
@@ -47520,7 +47838,7 @@ const InternalForm = (props, ref) => {
   const mergedColon = colon !== null && colon !== void 0 ? colon : contextColon;
   const prefixCls = getPrefixCls("form", customizePrefixCls);
   const rootCls = useCSSVarCls(prefixCls);
-  const [wrapCSSVar, hashId, cssVarCls] = useStyle$6(prefixCls, rootCls);
+  const [wrapCSSVar, hashId, cssVarCls] = useStyle$7(prefixCls, rootCls);
   const formClassName = classNames(prefixCls, `${prefixCls}-${layout}`, {
     [`${prefixCls}-hide-required-mark`]: mergedRequiredMark === false,
     // todo: remove in next major version
@@ -47689,7 +48007,7 @@ const FallbackCmp = genSubStyleComponent(["Form", "item-item"], (token2, {
   const formToken = prepareToken$1(token2, rootPrefixCls);
   return [genFallbackStyle(formToken)];
 });
-var __rest$j = function(s, e2) {
+var __rest$l = function(s, e2) {
   var t2 = {};
   for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p) && e2.indexOf(p) < 0) t2[p] = s[p];
   if (s != null && typeof Object.getOwnPropertySymbols === "function") for (var i = 0, p = Object.getOwnPropertySymbols(s); i < p.length; i++) {
@@ -47739,7 +48057,7 @@ const FormItemInput = (props) => {
     const {
       labelCol: labelCol2,
       wrapperCol: wrapperCol2
-    } = formContext, rest = __rest$j(formContext, ["labelCol", "wrapperCol"]);
+    } = formContext, rest = __rest$l(formContext, ["labelCol", "wrapperCol"]);
     return rest;
   }, [formContext]);
   const extraRef = reactExports.useRef(null);
@@ -47805,8 +48123,8 @@ var QuestionCircleOutlined = function QuestionCircleOutlined2(props, ref) {
     icon: QuestionCircleOutlined$1
   }));
 };
-var RefIcon$b = /* @__PURE__ */ reactExports.forwardRef(QuestionCircleOutlined);
-var __rest$i = function(s, e2) {
+var RefIcon$a = /* @__PURE__ */ reactExports.forwardRef(QuestionCircleOutlined);
+var __rest$k = function(s, e2) {
   var t2 = {};
   for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p) && e2.indexOf(p) < 0) t2[p] = s[p];
   if (s != null && typeof Object.getOwnPropertySymbols === "function") for (var i = 0, p = Object.getOwnPropertySymbols(s); i < p.length; i++) {
@@ -47852,8 +48170,8 @@ const FormItemLabel = ({
   const tooltipProps = convertToTooltipProps(tooltip);
   if (tooltipProps) {
     const {
-      icon = /* @__PURE__ */ reactExports.createElement(RefIcon$b, null)
-    } = tooltipProps, restTooltipProps = __rest$i(tooltipProps, ["icon"]);
+      icon = /* @__PURE__ */ reactExports.createElement(RefIcon$a, null)
+    } = tooltipProps, restTooltipProps = __rest$k(tooltipProps, ["icon"]);
     const tooltipNode = /* @__PURE__ */ reactExports.createElement(Tooltip2, Object.assign({}, restTooltipProps), /* @__PURE__ */ reactExports.cloneElement(icon, {
       className: `${prefixCls}-item-tooltip`,
       title: "",
@@ -47897,10 +48215,10 @@ const FormItemLabel = ({
   }, labelChildren));
 };
 const iconMap = {
-  success: RefIcon$q,
-  warning: RefIcon$n,
-  error: RefIcon$p,
-  validating: RefIcon$l
+  success: RefIcon$p,
+  warning: RefIcon$m,
+  error: RefIcon$o,
+  validating: RefIcon$k
 };
 function StatusProvider({
   children,
@@ -47962,7 +48280,7 @@ function StatusProvider({
     value: formItemStatusContext
   }, children);
 }
-var __rest$h = function(s, e2) {
+var __rest$j = function(s, e2) {
   var t2 = {};
   for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p) && e2.indexOf(p) < 0) t2[p] = s[p];
   if (s != null && typeof Object.getOwnPropertySymbols === "function") for (var i = 0, p = Object.getOwnPropertySymbols(s); i < p.length; i++) {
@@ -47990,7 +48308,7 @@ function ItemHolder(props) {
     onSubItemMetaChange,
     layout,
     name
-  } = props, restProps = __rest$h(props, ["prefixCls", "className", "rootClassName", "style", "help", "errors", "warnings", "validateStatus", "meta", "hasFeedback", "hidden", "children", "fieldId", "required", "isRequired", "onSubItemMetaChange", "layout", "name"]);
+  } = props, restProps = __rest$j(props, ["prefixCls", "className", "rootClassName", "style", "help", "errors", "warnings", "validateStatus", "meta", "hasFeedback", "hidden", "children", "fieldId", "required", "isRequired", "onSubItemMetaChange", "layout", "name"]);
   const itemPrefixCls = `${prefixCls}-item`;
   const {
     requiredMark,
@@ -48162,7 +48480,7 @@ function InternalFormItem(props) {
   const hasName = !(name === void 0 || name === null);
   const prefixCls = getPrefixCls("form", customizePrefixCls);
   const rootCls = useCSSVarCls(prefixCls);
-  const [wrapCSSVar, hashId, cssVarCls] = useStyle$6(prefixCls, rootCls);
+  const [wrapCSSVar, hashId, cssVarCls] = useStyle$7(prefixCls, rootCls);
   devUseWarning();
   const listContext = reactExports.useContext(ListContext$1);
   const fieldKeyPathRef = reactExports.useRef(null);
@@ -48321,7 +48639,7 @@ function InternalFormItem(props) {
 }
 const FormItem = InternalFormItem;
 FormItem.useStatus = useFormItemStatus;
-var __rest$g = function(s, e2) {
+var __rest$i = function(s, e2) {
   var t2 = {};
   for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p) && e2.indexOf(p) < 0) t2[p] = s[p];
   if (s != null && typeof Object.getOwnPropertySymbols === "function") for (var i = 0, p = Object.getOwnPropertySymbols(s); i < p.length; i++) {
@@ -48333,7 +48651,7 @@ const FormList = (_a) => {
   var {
     prefixCls: customizePrefixCls,
     children
-  } = _a, props = __rest$g(_a, ["prefixCls", "children"]);
+  } = _a, props = __rest$i(_a, ["prefixCls", "children"]);
   const {
     getPrefixCls
   } = reactExports.useContext(ConfigContext);
@@ -48374,7 +48692,7 @@ var EyeOutlined = function EyeOutlined2(props, ref) {
     icon: EyeOutlined$1
   }));
 };
-var RefIcon$a = /* @__PURE__ */ reactExports.forwardRef(EyeOutlined);
+var RefIcon$9 = /* @__PURE__ */ reactExports.forwardRef(EyeOutlined);
 const Group = (props) => {
   const {
     getPrefixCls,
@@ -48386,7 +48704,7 @@ const Group = (props) => {
   } = props;
   const prefixCls = getPrefixCls("input-group", customizePrefixCls);
   const inputPrefixCls = getPrefixCls("input");
-  const [wrapCSSVar, hashId, cssVarCls] = useStyle$b(inputPrefixCls);
+  const [wrapCSSVar, hashId, cssVarCls] = useStyle$c(inputPrefixCls);
   const cls = classNames(prefixCls, cssVarCls, {
     [`${prefixCls}-lg`]: props.size === "large",
     [`${prefixCls}-sm`]: props.size === "small",
@@ -48458,11 +48776,11 @@ const genOTPStyle = (token2) => {
     }
   };
 };
-const useStyle$5 = genStyleHooks(["Input", "OTP"], (token2) => {
+const useStyle$6 = genStyleHooks(["Input", "OTP"], (token2) => {
   const inputToken = merge(token2, initInputToken(token2));
   return [genOTPStyle(inputToken)];
 }, initComponentToken);
-var __rest$f = function(s, e2) {
+var __rest$h = function(s, e2) {
   var t2 = {};
   for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p) && e2.indexOf(p) < 0) t2[p] = s[p];
   if (s != null && typeof Object.getOwnPropertySymbols === "function") for (var i = 0, p = Object.getOwnPropertySymbols(s); i < p.length; i++) {
@@ -48478,7 +48796,7 @@ const OTPInput = /* @__PURE__ */ reactExports.forwardRef((props, ref) => {
     onActiveChange,
     index: index2,
     mask
-  } = props, restProps = __rest$f(props, ["className", "value", "onChange", "onActiveChange", "index", "mask"]);
+  } = props, restProps = __rest$h(props, ["className", "value", "onChange", "onActiveChange", "index", "mask"]);
   const {
     getPrefixCls
   } = reactExports.useContext(ConfigContext);
@@ -48542,7 +48860,7 @@ const OTPInput = /* @__PURE__ */ reactExports.forwardRef((props, ref) => {
     })
   })));
 });
-var __rest$e = function(s, e2) {
+var __rest$g = function(s, e2) {
   var t2 = {};
   for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p) && e2.indexOf(p) < 0) t2[p] = s[p];
   if (s != null && typeof Object.getOwnPropertySymbols === "function") for (var i = 0, p = Object.getOwnPropertySymbols(s); i < p.length; i++) {
@@ -48585,7 +48903,7 @@ const OTP = /* @__PURE__ */ reactExports.forwardRef((props, ref) => {
     type: type4,
     onInput,
     inputMode
-  } = props, restProps = __rest$e(props, ["prefixCls", "length", "size", "defaultValue", "value", "onChange", "formatter", "separator", "variant", "disabled", "status", "autoFocus", "mask", "type", "onInput", "inputMode"]);
+  } = props, restProps = __rest$g(props, ["prefixCls", "length", "size", "defaultValue", "value", "onChange", "formatter", "separator", "variant", "disabled", "status", "autoFocus", "mask", "type", "onInput", "inputMode"]);
   const {
     getPrefixCls,
     direction
@@ -48596,7 +48914,7 @@ const OTP = /* @__PURE__ */ reactExports.forwardRef((props, ref) => {
     data: true,
     attr: true
   });
-  const [wrapCSSVar, hashId, cssVarCls] = useStyle$5(prefixCls);
+  const [wrapCSSVar, hashId, cssVarCls] = useStyle$6(prefixCls);
   const mergedSize = useSize((ctx) => customSize !== null && customSize !== void 0 ? customSize : ctx);
   const formContext = reactExports.useContext(FormItemInputContext);
   const mergedStatus = getMergedStatus(formContext.status, customStatus);
@@ -48728,8 +49046,8 @@ var EyeInvisibleOutlined = function EyeInvisibleOutlined2(props, ref) {
     icon: EyeInvisibleOutlined$1
   }));
 };
-var RefIcon$9 = /* @__PURE__ */ reactExports.forwardRef(EyeInvisibleOutlined);
-var __rest$d = function(s, e2) {
+var RefIcon$8 = /* @__PURE__ */ reactExports.forwardRef(EyeInvisibleOutlined);
+var __rest$f = function(s, e2) {
   var t2 = {};
   for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p) && e2.indexOf(p) < 0) t2[p] = s[p];
   if (s != null && typeof Object.getOwnPropertySymbols === "function") for (var i = 0, p = Object.getOwnPropertySymbols(s); i < p.length; i++) {
@@ -48737,7 +49055,7 @@ var __rest$d = function(s, e2) {
   }
   return t2;
 };
-const defaultIconRender = (visible) => visible ? /* @__PURE__ */ reactExports.createElement(RefIcon$a, null) : /* @__PURE__ */ reactExports.createElement(RefIcon$9, null);
+const defaultIconRender = (visible) => visible ? /* @__PURE__ */ reactExports.createElement(RefIcon$9, null) : /* @__PURE__ */ reactExports.createElement(RefIcon$8, null);
 const actionMap = {
   click: "onClick",
   hover: "onMouseOver"
@@ -48795,7 +49113,7 @@ const Password = /* @__PURE__ */ reactExports.forwardRef((props, ref) => {
     prefixCls: customizePrefixCls,
     inputPrefixCls: customizeInputPrefixCls,
     size
-  } = props, restProps = __rest$d(props, ["className", "prefixCls", "inputPrefixCls", "size"]);
+  } = props, restProps = __rest$f(props, ["className", "prefixCls", "inputPrefixCls", "size"]);
   const {
     getPrefixCls
   } = reactExports.useContext(ConfigContext);
@@ -48818,7 +49136,7 @@ const Password = /* @__PURE__ */ reactExports.forwardRef((props, ref) => {
     ref: composeRef(ref, inputRef)
   }, omittedProps));
 });
-var __rest$c = function(s, e2) {
+var __rest$e = function(s, e2) {
   var t2 = {};
   for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p) && e2.indexOf(p) < 0) t2[p] = s[p];
   if (s != null && typeof Object.getOwnPropertySymbols === "function") for (var i = 0, p = Object.getOwnPropertySymbols(s); i < p.length; i++) {
@@ -48843,7 +49161,7 @@ const Search = /* @__PURE__ */ reactExports.forwardRef((props, ref) => {
     onCompositionEnd,
     variant,
     onPressEnter: customOnPressEnter
-  } = props, restProps = __rest$c(props, ["prefixCls", "inputPrefixCls", "className", "size", "suffix", "enterButton", "addonAfter", "loading", "disabled", "onSearch", "onChange", "onCompositionStart", "onCompositionEnd", "variant", "onPressEnter"]);
+  } = props, restProps = __rest$e(props, ["prefixCls", "inputPrefixCls", "className", "size", "suffix", "enterButton", "addonAfter", "loading", "disabled", "onSearch", "onChange", "onCompositionStart", "onCompositionEnd", "variant", "onPressEnter"]);
   const {
     getPrefixCls,
     direction
@@ -48888,7 +49206,7 @@ const Search = /* @__PURE__ */ reactExports.forwardRef((props, ref) => {
     customOnPressEnter === null || customOnPressEnter === void 0 ? void 0 : customOnPressEnter(e2);
     onSearch(e2);
   };
-  const searchIcon = typeof enterButton === "boolean" ? /* @__PURE__ */ reactExports.createElement(RefIcon$h, null) : null;
+  const searchIcon = typeof enterButton === "boolean" ? /* @__PURE__ */ reactExports.createElement(RefIcon$g, null) : null;
   const btnClassName = `${prefixCls}-button`;
   let button;
   const enterButtonAsElement = enterButton || {};
@@ -49143,7 +49461,7 @@ var ResizableTextArea = /* @__PURE__ */ reactExports.forwardRef(function(props, 
   })));
 });
 var _excluded$1 = ["defaultValue", "value", "onFocus", "onBlur", "onChange", "allowClear", "maxLength", "onCompositionStart", "onCompositionEnd", "suffix", "prefixCls", "showCount", "count", "className", "style", "disabled", "hidden", "classNames", "styles", "onResize", "onClear", "onPressEnter", "readOnly", "autoSize", "onKeyDown"];
-var TextArea$2 = /* @__PURE__ */ React.forwardRef(function(_ref, ref) {
+var TextArea$6 = /* @__PURE__ */ React.forwardRef(function(_ref, ref) {
   var _countConfig$max;
   var defaultValue = _ref.defaultValue, customValue = _ref.value, onFocus = _ref.onFocus, onBlur = _ref.onBlur, onChange = _ref.onChange, allowClear = _ref.allowClear, maxLength = _ref.maxLength, onCompositionStart = _ref.onCompositionStart, onCompositionEnd = _ref.onCompositionEnd, suffix = _ref.suffix, _ref$prefixCls = _ref.prefixCls, prefixCls = _ref$prefixCls === void 0 ? "rc-textarea" : _ref$prefixCls, showCount = _ref.showCount, count = _ref.count, className = _ref.className, style2 = _ref.style, disabled = _ref.disabled, hidden = _ref.hidden, classNames$1 = _ref.classNames, styles = _ref.styles, onResize2 = _ref.onResize, onClear = _ref.onClear, onPressEnter = _ref.onPressEnter, readOnly = _ref.readOnly, autoSize = _ref.autoSize, onKeyDown = _ref.onKeyDown, rest = _objectWithoutProperties(_ref, _excluded$1);
   var _useMergedState = useMergedState(defaultValue, {
@@ -49402,13 +49720,13 @@ const genTextAreaStyle = (token2) => {
     }
   };
 };
-const useStyle$4 = genStyleHooks(["Input", "TextArea"], (token2) => {
+const useStyle$5 = genStyleHooks(["Input", "TextArea"], (token2) => {
   const inputToken = merge(token2, initInputToken(token2));
   return [genTextAreaStyle(inputToken)];
 }, initComponentToken, {
   resetFont: false
 });
-var __rest$b = function(s, e2) {
+var __rest$d = function(s, e2) {
   var t2 = {};
   for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p) && e2.indexOf(p) < 0) t2[p] = s[p];
   if (s != null && typeof Object.getOwnPropertySymbols === "function") for (var i = 0, p = Object.getOwnPropertySymbols(s); i < p.length; i++) {
@@ -49416,7 +49734,7 @@ var __rest$b = function(s, e2) {
   }
   return t2;
 };
-const TextArea$1 = /* @__PURE__ */ reactExports.forwardRef((props, ref) => {
+const TextArea$5 = /* @__PURE__ */ reactExports.forwardRef((props, ref) => {
   var _a;
   const {
     prefixCls: customizePrefixCls,
@@ -49434,7 +49752,7 @@ const TextArea$1 = /* @__PURE__ */ reactExports.forwardRef((props, ref) => {
     showCount,
     onMouseDown,
     onResize: onResize2
-  } = props, rest = __rest$b(props, ["prefixCls", "bordered", "size", "disabled", "status", "allowClear", "classNames", "rootClassName", "className", "style", "styles", "variant", "showCount", "onMouseDown", "onResize"]);
+  } = props, rest = __rest$d(props, ["prefixCls", "bordered", "size", "disabled", "status", "allowClear", "classNames", "rootClassName", "className", "style", "styles", "variant", "showCount", "onMouseDown", "onResize"]);
   const {
     getPrefixCls,
     direction,
@@ -49471,7 +49789,7 @@ const TextArea$1 = /* @__PURE__ */ reactExports.forwardRef((props, ref) => {
   const prefixCls = getPrefixCls("input", customizePrefixCls);
   const rootCls = useCSSVarCls(prefixCls);
   const [wrapSharedCSSVar, hashId, cssVarCls] = useSharedStyle(prefixCls, rootClassName);
-  const [wrapCSSVar] = useStyle$4(prefixCls, rootCls);
+  const [wrapCSSVar] = useStyle$5(prefixCls, rootCls);
   const {
     compactSize,
     compactItemClassnames
@@ -49503,7 +49821,7 @@ const TextArea$1 = /* @__PURE__ */ reactExports.forwardRef((props, ref) => {
       }
     }
   };
-  return wrapSharedCSSVar(wrapCSSVar(/* @__PURE__ */ reactExports.createElement(TextArea$2, Object.assign({
+  return wrapSharedCSSVar(wrapCSSVar(/* @__PURE__ */ reactExports.createElement(TextArea$6, Object.assign({
     autoComplete: contextAutoComplete
   }, rest, {
     style: Object.assign(Object.assign({}, contextStyle), style2),
@@ -49548,7 +49866,7 @@ const TextArea$1 = /* @__PURE__ */ reactExports.forwardRef((props, ref) => {
 const Input = Input$1;
 Input.Group = Group;
 Input.Search = Search;
-Input.TextArea = TextArea$1;
+Input.TextArea = TextArea$5;
 Input.Password = Password;
 Input.OTP = OTP;
 function useHasSider(siders, children, hasSider) {
@@ -49561,7 +49879,7 @@ function useHasSider(siders, children, hasSider) {
   const childNodes = toArray$4(children);
   return childNodes.some((node2) => node2.type === Sider$1);
 }
-var __rest$a = function(s, e2) {
+var __rest$c = function(s, e2) {
   var t2 = {};
   for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p) && e2.indexOf(p) < 0) t2[p] = s[p];
   if (s != null && typeof Object.getOwnPropertySymbols === "function") for (var i = 0, p = Object.getOwnPropertySymbols(s); i < p.length; i++) {
@@ -49589,12 +49907,12 @@ const Basic = /* @__PURE__ */ reactExports.forwardRef((props, ref) => {
     suffixCls,
     className,
     tagName: TagName
-  } = props, others = __rest$a(props, ["prefixCls", "suffixCls", "className", "tagName"]);
+  } = props, others = __rest$c(props, ["prefixCls", "suffixCls", "className", "tagName"]);
   const {
     getPrefixCls
   } = reactExports.useContext(ConfigContext);
   const prefixCls = getPrefixCls("layout", customizePrefixCls);
-  const [wrapSSR, hashId, cssVarCls] = useStyle$d(prefixCls);
+  const [wrapSSR, hashId, cssVarCls] = useStyle$e(prefixCls);
   const prefixWithSuffixCls = suffixCls ? `${prefixCls}-${suffixCls}` : prefixCls;
   return wrapSSR(/* @__PURE__ */ reactExports.createElement(TagName, Object.assign({
     className: classNames(customizePrefixCls || prefixWithSuffixCls, className, hashId, cssVarCls),
@@ -49614,7 +49932,7 @@ const BasicLayout = /* @__PURE__ */ reactExports.forwardRef((props, ref) => {
     hasSider,
     tagName: Tag,
     style: style2
-  } = props, others = __rest$a(props, ["prefixCls", "className", "rootClassName", "children", "hasSider", "tagName", "style"]);
+  } = props, others = __rest$c(props, ["prefixCls", "className", "rootClassName", "children", "hasSider", "tagName", "style"]);
   const passedProps = omit(others, ["suffixCls"]);
   const {
     getPrefixCls,
@@ -49623,7 +49941,7 @@ const BasicLayout = /* @__PURE__ */ reactExports.forwardRef((props, ref) => {
   } = useComponentConfig("layout");
   const prefixCls = getPrefixCls("layout", customizePrefixCls);
   const mergedHasSider = useHasSider(siders, children, hasSider);
-  const [wrapCSSVar, hashId, cssVarCls] = useStyle$d(prefixCls);
+  const [wrapCSSVar, hashId, cssVarCls] = useStyle$e(prefixCls);
   const classString = classNames(prefixCls, {
     [`${prefixCls}-has-sider`]: mergedHasSider,
     [`${prefixCls}-rtl`]: direction === "rtl"
@@ -49678,7 +49996,7 @@ var DoubleLeftOutlined = function DoubleLeftOutlined2(props, ref) {
     icon: DoubleLeftOutlined$1
   }));
 };
-var RefIcon$8 = /* @__PURE__ */ reactExports.forwardRef(DoubleLeftOutlined);
+var RefIcon$7 = /* @__PURE__ */ reactExports.forwardRef(DoubleLeftOutlined);
 var DoubleRightOutlined$1 = { "icon": { "tag": "svg", "attrs": { "viewBox": "64 64 896 896", "focusable": "false" }, "children": [{ "tag": "path", "attrs": { "d": "M533.2 492.3L277.9 166.1c-3-3.9-7.7-6.1-12.6-6.1H188c-6.7 0-10.4 7.7-6.3 12.9L447.1 512 181.7 851.1A7.98 7.98 0 00188 864h77.3c4.9 0 9.6-2.3 12.6-6.1l255.3-326.1c9.1-11.7 9.1-27.9 0-39.5zm304 0L581.9 166.1c-3-3.9-7.7-6.1-12.6-6.1H492c-6.7 0-10.4 7.7-6.3 12.9L751.1 512 485.7 851.1A7.98 7.98 0 00492 864h77.3c4.9 0 9.6-2.3 12.6-6.1l255.3-326.1c9.1-11.7 9.1-27.9 0-39.5z" } }] }, "name": "double-right", "theme": "outlined" };
 var DoubleRightOutlined = function DoubleRightOutlined2(props, ref) {
   return /* @__PURE__ */ reactExports.createElement(Icon$2, _extends({}, props, {
@@ -49686,7 +50004,7 @@ var DoubleRightOutlined = function DoubleRightOutlined2(props, ref) {
     icon: DoubleRightOutlined$1
   }));
 };
-var RefIcon$7 = /* @__PURE__ */ reactExports.forwardRef(DoubleRightOutlined);
+var RefIcon$6 = /* @__PURE__ */ reactExports.forwardRef(DoubleRightOutlined);
 var locale = {
   // Options
   items_per_page: "条/页",
@@ -50664,7 +50982,7 @@ const genPaginationFocusStyle = (token2) => {
     }
   };
 };
-const prepareComponentToken$3 = (token2) => Object.assign({
+const prepareComponentToken$4 = (token2) => Object.assign({
   itemBg: token2.colorBgContainer,
   itemSize: token2.controlHeight,
   itemSizeSM: token2.controlHeightSM,
@@ -50686,10 +51004,10 @@ const prepareToken = (token2) => merge(token2, {
   paginationEllipsisTextIndent: "0.13em"
   // magic for ui experience
 }, initInputToken(token2));
-const useStyle$3 = genStyleHooks("Pagination", (token2) => {
+const useStyle$4 = genStyleHooks("Pagination", (token2) => {
   const paginationToken = prepareToken(token2);
   return [genPaginationStyle(paginationToken), genPaginationFocusStyle(paginationToken)];
-}, prepareComponentToken$3);
+}, prepareComponentToken$4);
 const genBorderedStyle$1 = (token2) => {
   const {
     componentCls
@@ -50774,7 +51092,7 @@ const genBorderedStyle$1 = (token2) => {
 const BorderedStyle = genSubStyleComponent(["Pagination", "bordered"], (token2) => {
   const paginationToken = prepareToken(token2);
   return [genBorderedStyle$1(paginationToken)];
-}, prepareComponentToken$3);
+}, prepareComponentToken$4);
 function useShowSizeChanger(showSizeChanger) {
   return reactExports.useMemo(() => {
     if (typeof showSizeChanger === "boolean") {
@@ -50786,7 +51104,7 @@ function useShowSizeChanger(showSizeChanger) {
     return [void 0, void 0];
   }, [showSizeChanger]);
 }
-var __rest$9 = function(s, e2) {
+var __rest$b = function(s, e2) {
   var t2 = {};
   for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p) && e2.indexOf(p) < 0) t2[p] = s[p];
   if (s != null && typeof Object.getOwnPropertySymbols === "function") for (var i = 0, p = Object.getOwnPropertySymbols(s); i < p.length; i++) {
@@ -50808,7 +51126,7 @@ const Pagination = (props) => {
     showSizeChanger,
     selectComponentClass,
     pageSizeOptions
-  } = props, restProps = __rest$9(props, ["align", "prefixCls", "selectPrefixCls", "className", "rootClassName", "style", "size", "locale", "responsive", "showSizeChanger", "selectComponentClass", "pageSizeOptions"]);
+  } = props, restProps = __rest$b(props, ["align", "prefixCls", "selectPrefixCls", "className", "rootClassName", "style", "size", "locale", "responsive", "showSizeChanger", "selectComponentClass", "pageSizeOptions"]);
   const {
     xs
   } = useBreakpoint(responsive);
@@ -50821,7 +51139,7 @@ const Pagination = (props) => {
     style: contextStyle
   } = useComponentConfig("pagination");
   const prefixCls = getPrefixCls("pagination", customizePrefixCls);
-  const [wrapCSSVar, hashId, cssVarCls] = useStyle$3(prefixCls);
+  const [wrapCSSVar, hashId, cssVarCls] = useStyle$4(prefixCls);
   const mergedSize = useSize(customizeSize);
   const isSmall = mergedSize === "small" || !!(xs && !mergedSize && responsive);
   const [contextLocale] = useLocale("Pagination", locale$4);
@@ -50874,21 +51192,21 @@ const Pagination = (props) => {
       className: `${prefixCls}-item-link`,
       type: "button",
       tabIndex: -1
-    }, direction === "rtl" ? /* @__PURE__ */ reactExports.createElement(RefIcon$k, null) : /* @__PURE__ */ reactExports.createElement(RefIcon$g, null));
+    }, direction === "rtl" ? /* @__PURE__ */ reactExports.createElement(RefIcon$j, null) : /* @__PURE__ */ reactExports.createElement(RefIcon$f, null));
     const nextIcon = /* @__PURE__ */ reactExports.createElement("button", {
       className: `${prefixCls}-item-link`,
       type: "button",
       tabIndex: -1
-    }, direction === "rtl" ? /* @__PURE__ */ reactExports.createElement(RefIcon$g, null) : /* @__PURE__ */ reactExports.createElement(RefIcon$k, null));
+    }, direction === "rtl" ? /* @__PURE__ */ reactExports.createElement(RefIcon$f, null) : /* @__PURE__ */ reactExports.createElement(RefIcon$j, null));
     const jumpPrevIcon = (
       // biome-ignore lint/a11y/useValidAnchor: it is hard to refactor
       /* @__PURE__ */ reactExports.createElement("a", {
         className: `${prefixCls}-item-link`
       }, /* @__PURE__ */ reactExports.createElement("div", {
         className: `${prefixCls}-item-container`
-      }, direction === "rtl" ? /* @__PURE__ */ reactExports.createElement(RefIcon$7, {
+      }, direction === "rtl" ? /* @__PURE__ */ reactExports.createElement(RefIcon$6, {
         className: `${prefixCls}-item-link-icon`
-      }) : /* @__PURE__ */ reactExports.createElement(RefIcon$8, {
+      }) : /* @__PURE__ */ reactExports.createElement(RefIcon$7, {
         className: `${prefixCls}-item-link-icon`
       }), ellipsis))
     );
@@ -50898,9 +51216,9 @@ const Pagination = (props) => {
         className: `${prefixCls}-item-link`
       }, /* @__PURE__ */ reactExports.createElement("div", {
         className: `${prefixCls}-item-container`
-      }, direction === "rtl" ? /* @__PURE__ */ reactExports.createElement(RefIcon$8, {
+      }, direction === "rtl" ? /* @__PURE__ */ reactExports.createElement(RefIcon$7, {
         className: `${prefixCls}-item-link-icon`
-      }) : /* @__PURE__ */ reactExports.createElement(RefIcon$7, {
+      }) : /* @__PURE__ */ reactExports.createElement(RefIcon$6, {
         className: `${prefixCls}-item-link-icon`
       }), ellipsis))
     );
@@ -51289,7 +51607,7 @@ const genSpinStyle = (token2) => {
     })
   };
 };
-const prepareComponentToken$2 = (token2) => {
+const prepareComponentToken$3 = (token2) => {
   const {
     controlHeightLG,
     controlHeight
@@ -51301,12 +51619,12 @@ const prepareComponentToken$2 = (token2) => {
     dotSizeLG: controlHeight
   };
 };
-const useStyle$2 = genStyleHooks("Spin", (token2) => {
+const useStyle$3 = genStyleHooks("Spin", (token2) => {
   const spinToken = merge(token2, {
     spinDotDefault: token2.colorTextDescription
   });
   return [genSpinStyle(spinToken)];
-}, prepareComponentToken$2);
+}, prepareComponentToken$3);
 const AUTO_INTERVAL = 200;
 const STEP_BUCKETS = [[30, 0.05], [70, 0.03], [96, 0.01]];
 function usePercent(spinning, percent) {
@@ -51335,7 +51653,7 @@ function usePercent(spinning, percent) {
   }, [isAuto, spinning]);
   return isAuto ? mockPercent : percent;
 }
-var __rest$8 = function(s, e2) {
+var __rest$a = function(s, e2) {
   var t2 = {};
   for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p) && e2.indexOf(p) < 0) t2[p] = s[p];
   if (s != null && typeof Object.getOwnPropertySymbols === "function") for (var i = 0, p = Object.getOwnPropertySymbols(s); i < p.length; i++) {
@@ -51363,7 +51681,7 @@ const Spin = (props) => {
     fullscreen = false,
     indicator,
     percent
-  } = props, restProps = __rest$8(props, ["prefixCls", "spinning", "delay", "className", "rootClassName", "size", "tip", "wrapperClassName", "style", "children", "fullscreen", "indicator", "percent"]);
+  } = props, restProps = __rest$a(props, ["prefixCls", "spinning", "delay", "className", "rootClassName", "size", "tip", "wrapperClassName", "style", "children", "fullscreen", "indicator", "percent"]);
   const {
     getPrefixCls,
     direction,
@@ -51372,7 +51690,7 @@ const Spin = (props) => {
     indicator: contextIndicator
   } = useComponentConfig("spin");
   const prefixCls = getPrefixCls("spin", customizePrefixCls);
-  const [wrapCSSVar, hashId, cssVarCls] = useStyle$2(prefixCls);
+  const [wrapCSSVar, hashId, cssVarCls] = useStyle$3(prefixCls);
   const [spinning, setSpinning] = reactExports.useState(() => customSpinning && !shouldDelay(customSpinning, delay));
   const mergedPercent = usePercent(spinning, percent);
   reactExports.useEffect(() => {
@@ -51437,7 +51755,7 @@ Spin.setDefaultIndicator = (indicator) => {
 };
 const ListContext = /* @__PURE__ */ React.createContext({});
 ListContext.Consumer;
-var __rest$7 = function(s, e2) {
+var __rest$9 = function(s, e2) {
   var t2 = {};
   for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p) && e2.indexOf(p) < 0) t2[p] = s[p];
   if (s != null && typeof Object.getOwnPropertySymbols === "function") for (var i = 0, p = Object.getOwnPropertySymbols(s); i < p.length; i++) {
@@ -51452,7 +51770,7 @@ const Meta = (_a) => {
     avatar,
     title,
     description
-  } = _a, others = __rest$7(_a, ["prefixCls", "className", "avatar", "title", "description"]);
+  } = _a, others = __rest$9(_a, ["prefixCls", "className", "avatar", "title", "description"]);
   const {
     getPrefixCls
   } = reactExports.useContext(ConfigContext);
@@ -51481,7 +51799,7 @@ const InternalItem = /* @__PURE__ */ React.forwardRef((props, ref) => {
     className,
     classNames: customizeClassNames,
     colStyle
-  } = props, others = __rest$7(props, ["prefixCls", "children", "actions", "extra", "styles", "className", "classNames", "colStyle"]);
+  } = props, others = __rest$9(props, ["prefixCls", "children", "actions", "extra", "styles", "className", "classNames", "colStyle"]);
   const {
     grid,
     itemLayout
@@ -51634,7 +51952,7 @@ const genResponsiveStyle = (token2) => {
     }
   };
 };
-const genBaseStyle = (token2) => {
+const genBaseStyle$1 = (token2) => {
   const {
     componentCls,
     antCls,
@@ -51849,7 +52167,7 @@ const genBaseStyle = (token2) => {
     }
   };
 };
-const prepareComponentToken$1 = (token2) => ({
+const prepareComponentToken$2 = (token2) => ({
   contentWidth: 220,
   itemPadding: `${unit$1(token2.paddingContentVertical)} 0`,
   itemPaddingSM: `${unit$1(token2.paddingContentVerticalSM)} ${unit$1(token2.paddingContentHorizontal)}`,
@@ -51862,14 +52180,14 @@ const prepareComponentToken$1 = (token2) => ({
   titleMarginBottom: token2.paddingSM,
   descriptionFontSize: token2.fontSize
 });
-const useStyle$1 = genStyleHooks("List", (token2) => {
+const useStyle$2 = genStyleHooks("List", (token2) => {
   const listToken = merge(token2, {
     listBorderedCls: `${token2.componentCls}-bordered`,
     minHeight: token2.controlHeightLG
   });
-  return [genBaseStyle(listToken), genBorderedStyle(listToken), genResponsiveStyle(listToken)];
-}, prepareComponentToken$1);
-var __rest$6 = function(s, e2) {
+  return [genBaseStyle$1(listToken), genBorderedStyle(listToken), genResponsiveStyle(listToken)];
+}, prepareComponentToken$2);
+var __rest$8 = function(s, e2) {
   var t2 = {};
   for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p) && e2.indexOf(p) < 0) t2[p] = s[p];
   if (s != null && typeof Object.getOwnPropertySymbols === "function") for (var i = 0, p = Object.getOwnPropertySymbols(s); i < p.length; i++) {
@@ -51898,7 +52216,7 @@ function InternalList(props, ref) {
     rowKey,
     renderItem,
     locale: locale2
-  } = props, rest = __rest$6(props, ["pagination", "prefixCls", "bordered", "split", "className", "rootClassName", "style", "children", "itemLayout", "loadMore", "grid", "dataSource", "size", "header", "footer", "loading", "rowKey", "renderItem", "locale"]);
+  } = props, rest = __rest$8(props, ["pagination", "prefixCls", "bordered", "split", "className", "rootClassName", "style", "children", "itemLayout", "loadMore", "grid", "dataSource", "size", "header", "footer", "loading", "rowKey", "renderItem", "locale"]);
   const paginationObj = pagination && typeof pagination === "object" ? pagination : {};
   const [paginationCurrent, setPaginationCurrent] = reactExports.useState(paginationObj.defaultCurrent || 1);
   const [paginationSize, setPaginationSize] = reactExports.useState(paginationObj.defaultPageSize || 10);
@@ -51947,7 +52265,7 @@ function InternalList(props, ref) {
   };
   const isSomethingAfterLastItem = !!(loadMore || pagination || footer);
   const prefixCls = getPrefixCls("list", customizePrefixCls);
-  const [wrapCSSVar, hashId, cssVarCls] = useStyle$1(prefixCls);
+  const [wrapCSSVar, hashId, cssVarCls] = useStyle$2(prefixCls);
   let loadingProp = loading;
   if (typeof loadingProp === "boolean") {
     loadingProp = {
@@ -52271,13 +52589,13 @@ const baseStaticMethods = {
   destroy,
   config: setMessageGlobalConfig,
   useMessage,
-  _InternalPanelDoNotUseOrYouWillBeFired: PurePanel$4
+  _InternalPanelDoNotUseOrYouWillBeFired: PurePanel$6
 };
 const staticMethods = baseStaticMethods;
 methods.forEach((type4) => {
   staticMethods[type4] = (...args) => typeOpen(type4, args);
 });
-var __rest$5 = function(s, e2) {
+var __rest$7 = function(s, e2) {
   var t2 = {};
   for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p) && e2.indexOf(p) < 0) t2[p] = s[p];
   if (s != null && typeof Object.getOwnPropertySymbols === "function") for (var i = 0, p = Object.getOwnPropertySymbols(s); i < p.length; i++) {
@@ -52285,7 +52603,7 @@ var __rest$5 = function(s, e2) {
   }
   return t2;
 };
-const PurePanel = (props) => {
+const PurePanel$1 = (props) => {
   const {
     prefixCls: customizePrefixCls,
     className,
@@ -52295,14 +52613,14 @@ const PurePanel = (props) => {
     title,
     children,
     footer
-  } = props, restProps = __rest$5(props, ["prefixCls", "className", "closeIcon", "closable", "type", "title", "children", "footer"]);
+  } = props, restProps = __rest$7(props, ["prefixCls", "className", "closeIcon", "closable", "type", "title", "children", "footer"]);
   const {
     getPrefixCls
   } = reactExports.useContext(ConfigContext);
   const rootPrefixCls = getPrefixCls();
   const prefixCls = customizePrefixCls || getPrefixCls("modal");
   const rootCls = useCSSVarCls(rootPrefixCls);
-  const [wrapCSSVar, hashId, cssVarCls] = useStyle$g(prefixCls, rootCls);
+  const [wrapCSSVar, hashId, cssVarCls] = useStyle$i(prefixCls, rootCls);
   const confirmPrefixCls = `${prefixCls}-confirm`;
   let additionalProps = {};
   if (type4) {
@@ -52333,7 +52651,7 @@ const PurePanel = (props) => {
     closable
   }, additionalProps)));
 };
-const PurePanel$1 = withPureRenderTheme(PurePanel);
+const PurePanel$2 = withPureRenderTheme(PurePanel$1);
 function modalWarn(props) {
   return confirm(withWarn(props));
 }
@@ -52362,7 +52680,245 @@ Modal.destroyAll = function destroyAllFn() {
   }
 };
 Modal.config = modalGlobalConfig;
-Modal._InternalPanelDoNotUseOrYouWillBeFired = PurePanel$1;
+Modal._InternalPanelDoNotUseOrYouWillBeFired = PurePanel$2;
+const genBaseStyle = (token2) => {
+  const {
+    componentCls,
+    iconCls,
+    antCls,
+    zIndexPopup,
+    colorText,
+    colorWarning,
+    marginXXS,
+    marginXS,
+    fontSize,
+    fontWeightStrong,
+    colorTextHeading
+  } = token2;
+  return {
+    [componentCls]: {
+      zIndex: zIndexPopup,
+      [`&${antCls}-popover`]: {
+        fontSize
+      },
+      [`${componentCls}-message`]: {
+        marginBottom: marginXS,
+        display: "flex",
+        flexWrap: "nowrap",
+        alignItems: "start",
+        [`> ${componentCls}-message-icon ${iconCls}`]: {
+          color: colorWarning,
+          fontSize,
+          lineHeight: 1,
+          marginInlineEnd: marginXS
+        },
+        [`${componentCls}-title`]: {
+          fontWeight: fontWeightStrong,
+          color: colorTextHeading,
+          "&:only-child": {
+            fontWeight: "normal"
+          }
+        },
+        [`${componentCls}-description`]: {
+          marginTop: marginXXS,
+          color: colorText
+        }
+      },
+      [`${componentCls}-buttons`]: {
+        textAlign: "end",
+        whiteSpace: "nowrap",
+        button: {
+          marginInlineStart: marginXS
+        }
+      }
+    }
+  };
+};
+const prepareComponentToken$1 = (token2) => {
+  const {
+    zIndexPopupBase
+  } = token2;
+  return {
+    zIndexPopup: zIndexPopupBase + 60
+  };
+};
+const useStyle$1 = genStyleHooks("Popconfirm", (token2) => genBaseStyle(token2), prepareComponentToken$1, {
+  resetStyle: false
+});
+var __rest$6 = function(s, e2) {
+  var t2 = {};
+  for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p) && e2.indexOf(p) < 0) t2[p] = s[p];
+  if (s != null && typeof Object.getOwnPropertySymbols === "function") for (var i = 0, p = Object.getOwnPropertySymbols(s); i < p.length; i++) {
+    if (e2.indexOf(p[i]) < 0 && Object.prototype.propertyIsEnumerable.call(s, p[i])) t2[p[i]] = s[p[i]];
+  }
+  return t2;
+};
+const Overlay = (props) => {
+  const {
+    prefixCls,
+    okButtonProps,
+    cancelButtonProps,
+    title,
+    description,
+    cancelText,
+    okText,
+    okType = "primary",
+    icon = /* @__PURE__ */ reactExports.createElement(RefIcon$m, null),
+    showCancel = true,
+    close,
+    onConfirm,
+    onCancel,
+    onPopupClick
+  } = props;
+  const {
+    getPrefixCls
+  } = reactExports.useContext(ConfigContext);
+  const [contextLocale] = useLocale("Popconfirm", localeValues.Popconfirm);
+  const titleNode = getRenderPropValue(title);
+  const descriptionNode = getRenderPropValue(description);
+  return /* @__PURE__ */ reactExports.createElement("div", {
+    className: `${prefixCls}-inner-content`,
+    onClick: onPopupClick
+  }, /* @__PURE__ */ reactExports.createElement("div", {
+    className: `${prefixCls}-message`
+  }, icon && /* @__PURE__ */ reactExports.createElement("span", {
+    className: `${prefixCls}-message-icon`
+  }, icon), /* @__PURE__ */ reactExports.createElement("div", {
+    className: `${prefixCls}-message-text`
+  }, titleNode && /* @__PURE__ */ reactExports.createElement("div", {
+    className: `${prefixCls}-title`
+  }, titleNode), descriptionNode && /* @__PURE__ */ reactExports.createElement("div", {
+    className: `${prefixCls}-description`
+  }, descriptionNode))), /* @__PURE__ */ reactExports.createElement("div", {
+    className: `${prefixCls}-buttons`
+  }, showCancel && /* @__PURE__ */ reactExports.createElement(Button, Object.assign({
+    onClick: onCancel,
+    size: "small"
+  }, cancelButtonProps), cancelText || (contextLocale === null || contextLocale === void 0 ? void 0 : contextLocale.cancelText)), /* @__PURE__ */ reactExports.createElement(ActionButton, {
+    buttonProps: Object.assign(Object.assign({
+      size: "small"
+    }, convertLegacyProps(okType)), okButtonProps),
+    actionFn: onConfirm,
+    close,
+    prefixCls: getPrefixCls("btn"),
+    quitOnNullishReturnValue: true,
+    emitEvent: true
+  }, okText || (contextLocale === null || contextLocale === void 0 ? void 0 : contextLocale.okText))));
+};
+const PurePanel = (props) => {
+  const {
+    prefixCls: customizePrefixCls,
+    placement,
+    className,
+    style: style2
+  } = props, restProps = __rest$6(props, ["prefixCls", "placement", "className", "style"]);
+  const {
+    getPrefixCls
+  } = reactExports.useContext(ConfigContext);
+  const prefixCls = getPrefixCls("popconfirm", customizePrefixCls);
+  const [wrapCSSVar] = useStyle$1(prefixCls);
+  return wrapCSSVar(/* @__PURE__ */ reactExports.createElement(PurePanel$3, {
+    placement,
+    className: classNames(prefixCls, className),
+    style: style2,
+    content: /* @__PURE__ */ reactExports.createElement(Overlay, Object.assign({
+      prefixCls
+    }, restProps))
+  }));
+};
+var __rest$5 = function(s, e2) {
+  var t2 = {};
+  for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p) && e2.indexOf(p) < 0) t2[p] = s[p];
+  if (s != null && typeof Object.getOwnPropertySymbols === "function") for (var i = 0, p = Object.getOwnPropertySymbols(s); i < p.length; i++) {
+    if (e2.indexOf(p[i]) < 0 && Object.prototype.propertyIsEnumerable.call(s, p[i])) t2[p[i]] = s[p[i]];
+  }
+  return t2;
+};
+const InternalPopconfirm = /* @__PURE__ */ reactExports.forwardRef((props, ref) => {
+  var _a, _b;
+  const {
+    prefixCls: customizePrefixCls,
+    placement = "top",
+    trigger = "click",
+    okType = "primary",
+    icon = /* @__PURE__ */ reactExports.createElement(RefIcon$m, null),
+    children,
+    overlayClassName,
+    onOpenChange,
+    onVisibleChange,
+    overlayStyle,
+    styles,
+    classNames: popconfirmClassNames
+  } = props, restProps = __rest$5(props, ["prefixCls", "placement", "trigger", "okType", "icon", "children", "overlayClassName", "onOpenChange", "onVisibleChange", "overlayStyle", "styles", "classNames"]);
+  const {
+    getPrefixCls,
+    className: contextClassName,
+    style: contextStyle,
+    classNames: contextClassNames,
+    styles: contextStyles
+  } = useComponentConfig("popconfirm");
+  const [open2, setOpen] = useMergedState(false, {
+    value: (_a = props.open) !== null && _a !== void 0 ? _a : props.visible,
+    defaultValue: (_b = props.defaultOpen) !== null && _b !== void 0 ? _b : props.defaultVisible
+  });
+  const settingOpen = (value, e2) => {
+    setOpen(value, true);
+    onVisibleChange === null || onVisibleChange === void 0 ? void 0 : onVisibleChange(value);
+    onOpenChange === null || onOpenChange === void 0 ? void 0 : onOpenChange(value, e2);
+  };
+  const close = (e2) => {
+    settingOpen(false, e2);
+  };
+  const onConfirm = (e2) => {
+    var _a2;
+    return (_a2 = props.onConfirm) === null || _a2 === void 0 ? void 0 : _a2.call(void 0, e2);
+  };
+  const onCancel = (e2) => {
+    var _a2;
+    settingOpen(false, e2);
+    (_a2 = props.onCancel) === null || _a2 === void 0 ? void 0 : _a2.call(void 0, e2);
+  };
+  const onInternalOpenChange = (value, e2) => {
+    const {
+      disabled = false
+    } = props;
+    if (disabled) {
+      return;
+    }
+    settingOpen(value, e2);
+  };
+  const prefixCls = getPrefixCls("popconfirm", customizePrefixCls);
+  const rootClassNames = classNames(prefixCls, contextClassName, overlayClassName, contextClassNames.root, popconfirmClassNames === null || popconfirmClassNames === void 0 ? void 0 : popconfirmClassNames.root);
+  const bodyClassNames = classNames(contextClassNames.body, popconfirmClassNames === null || popconfirmClassNames === void 0 ? void 0 : popconfirmClassNames.body);
+  const [wrapCSSVar] = useStyle$1(prefixCls);
+  return wrapCSSVar(/* @__PURE__ */ reactExports.createElement(Popover, Object.assign({}, omit(restProps, ["title"]), {
+    trigger,
+    placement,
+    onOpenChange: onInternalOpenChange,
+    open: open2,
+    ref,
+    classNames: {
+      root: rootClassNames,
+      body: bodyClassNames
+    },
+    styles: {
+      root: Object.assign(Object.assign(Object.assign(Object.assign({}, contextStyles.root), contextStyle), overlayStyle), styles === null || styles === void 0 ? void 0 : styles.root),
+      body: Object.assign(Object.assign({}, contextStyles.body), styles === null || styles === void 0 ? void 0 : styles.body)
+    },
+    content: /* @__PURE__ */ reactExports.createElement(Overlay, Object.assign({
+      okType,
+      icon
+    }, props, {
+      prefixCls,
+      close,
+      onConfirm,
+      onCancel
+    })),
+    "data-popover-inject": true
+  }), children));
+});
+const Popconfirm = InternalPopconfirm;
+Popconfirm._InternalPanelDoNotUseOrYouWillBeFired = PurePanel;
 var CopyOutlined$1 = { "icon": { "tag": "svg", "attrs": { "viewBox": "64 64 896 896", "focusable": "false" }, "children": [{ "tag": "path", "attrs": { "d": "M832 64H296c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8h496v688c0 4.4 3.6 8 8 8h56c4.4 0 8-3.6 8-8V96c0-17.7-14.3-32-32-32zM704 192H192c-17.7 0-32 14.3-32 32v530.7c0 8.5 3.4 16.6 9.4 22.6l173.3 173.3c2.2 2.2 4.7 4 7.4 5.5v1.9h4.2c3.5 1.3 7.2 2 11 2H704c17.7 0 32-14.3 32-32V224c0-17.7-14.3-32-32-32zM350 856.2L263.9 770H350v86.2zM664 888H414V746c0-22.1-17.9-40-40-40H232V264h432v624z" } }] }, "name": "copy", "theme": "outlined" };
 var CopyOutlined = function CopyOutlined2(props, ref) {
   return /* @__PURE__ */ reactExports.createElement(Icon$2, _extends({}, props, {
@@ -52370,15 +52926,7 @@ var CopyOutlined = function CopyOutlined2(props, ref) {
     icon: CopyOutlined$1
   }));
 };
-var RefIcon$6 = /* @__PURE__ */ reactExports.forwardRef(CopyOutlined);
-var DeleteOutlined$1 = { "icon": { "tag": "svg", "attrs": { "viewBox": "64 64 896 896", "focusable": "false" }, "children": [{ "tag": "path", "attrs": { "d": "M360 184h-8c4.4 0 8-3.6 8-8v8h304v-8c0 4.4 3.6 8 8 8h-8v72h72v-80c0-35.3-28.7-64-64-64H352c-35.3 0-64 28.7-64 64v80h72v-72zm504 72H160c-17.7 0-32 14.3-32 32v32c0 4.4 3.6 8 8 8h60.4l24.7 523c1.6 34.1 29.8 61 63.9 61h454c34.2 0 62.3-26.8 63.9-61l24.7-523H888c4.4 0 8-3.6 8-8v-32c0-17.7-14.3-32-32-32zM731.3 840H292.7l-24.2-512h487l-24.2 512z" } }] }, "name": "delete", "theme": "outlined" };
-var DeleteOutlined = function DeleteOutlined2(props, ref) {
-  return /* @__PURE__ */ reactExports.createElement(Icon$2, _extends({}, props, {
-    ref,
-    icon: DeleteOutlined$1
-  }));
-};
-var RefIcon$5 = /* @__PURE__ */ reactExports.forwardRef(DeleteOutlined);
+var RefIcon$5 = /* @__PURE__ */ reactExports.forwardRef(CopyOutlined);
 var EditOutlined$1 = { "icon": { "tag": "svg", "attrs": { "viewBox": "64 64 896 896", "focusable": "false" }, "children": [{ "tag": "path", "attrs": { "d": "M257.7 752c2 0 4-.2 6-.5L431.9 722c2-.4 3.9-1.3 5.3-2.8l423.9-423.9a9.96 9.96 0 000-14.1L694.9 114.9c-1.9-1.9-4.4-2.9-7.1-2.9s-5.2 1-7.1 2.9L256.8 538.8c-1.5 1.5-2.4 3.3-2.8 5.3l-29.5 168.2a33.5 33.5 0 009.4 29.8c6.6 6.4 14.9 9.9 23.8 9.9zm67.4-174.4L687.8 215l73.3 73.3-362.7 362.6-88.9 15.7 15.6-89zM880 836H144c-17.7 0-32 14.3-32 32v36c0 4.4 3.6 8 8 8h784c4.4 0 8-3.6 8-8v-36c0-17.7-14.3-32-32-32z" } }] }, "name": "edit", "theme": "outlined" };
 var EditOutlined = function EditOutlined2(props, ref) {
   return /* @__PURE__ */ reactExports.createElement(Icon$2, _extends({}, props, {
@@ -52857,7 +53405,7 @@ const Editable = (props) => {
   return wrapCSSVar(/* @__PURE__ */ reactExports.createElement("div", {
     className: textAreaClassName,
     style: style2
-  }, /* @__PURE__ */ reactExports.createElement(TextArea$1, {
+  }, /* @__PURE__ */ reactExports.createElement(TextArea$5, {
     ref,
     maxLength,
     value: current,
@@ -53213,7 +53761,7 @@ const CopyBtn = ({
     onClick: onCopy,
     "aria-label": ariaLabel,
     tabIndex
-  }, copied ? getNode(iconNodes[1], /* @__PURE__ */ reactExports.createElement(RefIcon$j, null), true) : getNode(iconNodes[0], btnLoading ? /* @__PURE__ */ reactExports.createElement(RefIcon$l, null) : /* @__PURE__ */ reactExports.createElement(RefIcon$6, null), true)));
+  }, copied ? getNode(iconNodes[1], /* @__PURE__ */ reactExports.createElement(RefIcon$i, null), true) : getNode(iconNodes[0], btnLoading ? /* @__PURE__ */ reactExports.createElement(RefIcon$k, null) : /* @__PURE__ */ reactExports.createElement(RefIcon$5, null), true)));
 };
 const MeasureText = /* @__PURE__ */ reactExports.forwardRef(({
   style: style2,
@@ -53734,7 +54282,7 @@ const Link = /* @__PURE__ */ reactExports.forwardRef((_a, ref) => {
     component: "a"
   }));
 });
-const Paragraph$3 = /* @__PURE__ */ reactExports.forwardRef((props, ref) => /* @__PURE__ */ reactExports.createElement(Base, Object.assign({
+const Paragraph$2 = /* @__PURE__ */ reactExports.forwardRef((props, ref) => /* @__PURE__ */ reactExports.createElement(Base, Object.assign({
   ref
 }, props, {
   component: "div"
@@ -53789,7 +54337,7 @@ const Typography = Typography$1;
 Typography.Text = Text$2;
 Typography.Link = Link;
 Typography.Title = Title$7;
-Typography.Paragraph = Paragraph$3;
+Typography.Paragraph = Paragraph$2;
 const { Title: Title$6 } = Typography;
 const Login = () => {
   const navigate = useNavigate();
@@ -53968,7 +54516,6 @@ const Register = () => {
   ] }) });
 };
 const { Title: Title$4 } = Typography;
-const { Option: Option$4 } = Select;
 const Settings = () => {
   const [form] = Form2.useForm();
   const [isLoading, setIsLoading] = reactExports.useState(true);
@@ -53986,12 +54533,12 @@ const Settings = () => {
           if (text) {
             const data = JSON.parse(text);
             form.setFieldsValue({
-              llmProvider: data.llmProvider || "openai",
+              baseUrl: data.baseUrl || "",
               modelName: data.modelName || ""
             });
           } else {
             form.setFieldsValue({
-              llmProvider: "openai",
+              baseUrl: "",
               modelName: ""
             });
           }
@@ -54077,18 +54624,14 @@ const Settings = () => {
   return /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { padding: "24px", background: "#f0f2f5", minHeight: "100vh" }, children: /* @__PURE__ */ jsxRuntimeExports.jsxs(Card, { style: { maxWidth: 600, margin: "auto" }, children: [
     /* @__PURE__ */ jsxRuntimeExports.jsx(Title$4, { level: 3, children: "AI 模型设置" }),
     /* @__PURE__ */ jsxRuntimeExports.jsx(Spin, { spinning: isLoading, children: /* @__PURE__ */ jsxRuntimeExports.jsxs(Form2, { form, layout: "vertical", onFinish, children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsx(Form2.Item, { name: "llmProvider", label: "LLM 提供商", rules: [{ required: true }], children: /* @__PURE__ */ jsxRuntimeExports.jsxs(Select, { children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx(Option$4, { value: "openai", children: "OpenAI" }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx(Option$4, { value: "claude", children: "Claude" }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx(Option$4, { value: "gemini", children: "Gemini" })
-      ] }) }),
-      /* @__PURE__ */ jsxRuntimeExports.jsx(Form2.Item, { name: "modelName", label: "模型名称", help: "例如 gpt-4, claude-3-opus-20240229", children: /* @__PURE__ */ jsxRuntimeExports.jsx(Input, { placeholder: "输入模型名称" }) }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx(Form2.Item, { name: "baseUrl", label: "Base URL", tooltip: "可选：自定义 OpenAI 兼容服务的基础地址", children: /* @__PURE__ */ jsxRuntimeExports.jsx(Input, { placeholder: "例如：https://api.openai.com/v1 或自建网关地址" }) }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx(Form2.Item, { name: "modelName", label: "模型名称", tooltip: "例如 gpt-4o-mini, gpt-4-turbo", children: /* @__PURE__ */ jsxRuntimeExports.jsx(Input, { placeholder: "输入模型名称" }) }),
       /* @__PURE__ */ jsxRuntimeExports.jsx(
         Form2.Item,
         {
           name: "apiKey",
           label: "API 密钥",
-          help: "您的 API 密钥仅用于当前会话，不会存储在服务器上。",
+          tooltip: "您的 API 密钥仅用于当前会话，不会存储在服务器上。",
           children: /* @__PURE__ */ jsxRuntimeExports.jsx(Input.Password, { placeholder: "输入您的 API 密钥" })
         }
       ),
@@ -54138,6 +54681,16 @@ const updateStoryCard = (storyCard) => {
     headers: getAuthHeaders(),
     body: JSON.stringify(storyCard)
   }).then((res) => handleResponse(res));
+};
+const createStory = (payload) => {
+  return fetch("/api/v1/stories", {
+    method: "POST",
+    headers: getAuthHeaders(),
+    body: JSON.stringify(payload)
+  }).then((res) => handleResponse(res));
+};
+const fetchCharactersForStory = (storyId) => {
+  return fetch(`/api/v1/story-cards/${storyId}/character-cards`, { headers: getAuthHeaders() }).then((res) => handleResponse(res));
 };
 const createCharacterCard = (storyId, characterData) => {
   return fetch(`/api/v1/story-cards/${storyId}/characters`, {
@@ -54280,25 +54833,358 @@ const OutlineTreeView = ({ outline, onNodeSelect }) => {
   if (!outline) return null;
   return /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "h-full overflow-y-auto", children: outline.chapters.sort((a, b) => a.chapterNumber - b.chapterNumber).map((chapter) => /* @__PURE__ */ jsxRuntimeExports.jsx(ChapterCard, { chapter, onNodeSelect }, chapter.id)) });
 };
-const { Title: Title$3, Text } = Typography;
-const { Option: Option$3 } = Select;
-const OutlineDesign = ({
+const AiRefineButton = ({ onClick, className }) => {
+  return /* @__PURE__ */ jsxRuntimeExports.jsx(
+    "button",
+    {
+      type: "button",
+      onClick,
+      className: `absolute bottom-2 right-2 text-gray-400 hover:text-blue-500 transition-colors ${className}`,
+      title: "AI 优化",
+      children: /* @__PURE__ */ jsxRuntimeExports.jsxs("svg", { xmlns: "http://www.w3.org/2000/svg", className: "h-5 w-5", viewBox: "0 0 20 20", fill: "currentColor", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx("path", { fillRule: "evenodd", d: "M17.293 2.293a1 1 0 011.414 1.414l-1.414-1.414zM4 10a1 1 0 01-1-1V5a1 1 0 112 0v3h3a1 1 0 110 2H4zm13.707-5.707a1 1 0 00-1.414-1.414L4 14.586V16h1.414l12.293-12.293zM16 4.586L15.414 4 4 15.414V16h.586L16 4.586zM12 10a2 2 0 11-4 0 2 2 0 014 0z", clipRule: "evenodd" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("path", { d: "M12.293 15.707a1 1 0 010-1.414l4-4a1 1 0 011.414 1.414l-4 4a1 1 0 01-1.414 0z" })
+      ] })
+    }
+  );
+};
+const { Title: Title$3, Paragraph: Paragraph$1 } = Typography;
+const RefineModal = ({
+  open: open2,
+  onCancel,
+  originalText,
+  contextType,
+  onRefined
+}) => {
+  const [form] = Form2.useForm();
+  const [loading, setLoading] = reactExports.useState(false);
+  const [error, setError] = reactExports.useState(null);
+  const [refinedText, setRefinedText] = reactExports.useState("");
+  reactExports.useEffect(() => {
+    if (open2) {
+      setRefinedText("");
+      setError(null);
+      form.resetFields();
+    }
+  }, [open2, form]);
+  const handleFinish = async (values) => {
+    setLoading(true);
+    setError(null);
+    try {
+      const response = await refineText({
+        text: originalText,
+        instruction: values.instruction,
+        contextType
+      });
+      setRefinedText(response.refinedText);
+    } catch (err) {
+      if (err instanceof Error) {
+        setError(err.message);
+      } else {
+        setError("An unknown error occurred.");
+      }
+    } finally {
+      setLoading(false);
+    }
+  };
+  const handleAccept = () => {
+    onRefined(refinedText);
+    onCancel();
+  };
+  return /* @__PURE__ */ jsxRuntimeExports.jsx(
+    Modal,
+    {
+      title: "AI 文本优化",
+      open: open2,
+      onCancel,
+      width: "70vw",
+      footer: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { onClick: onCancel, children: "取消" }, "back"),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { type: "primary", onClick: handleAccept, disabled: !refinedText || loading, children: "应用修改" }, "submit")
+      ],
+      children: /* @__PURE__ */ jsxRuntimeExports.jsxs(Spin, { spinning: loading, tip: "AI 正在思考...", children: [
+        error && /* @__PURE__ */ jsxRuntimeExports.jsx(Alert, { message: "优化出错", description: error, type: "error", showIcon: true, style: { marginBottom: 16 } }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs(Row, { gutter: 16, children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsxs(Col, { span: 12, children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsxs(Title$3, { level: 5, children: [
+              "原始文本 (",
+              contextType,
+              ")"
+            ] }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx(Card, { style: { minHeight: 200, maxHeight: 400, overflowY: "auto", background: "#f5f5f5" }, children: /* @__PURE__ */ jsxRuntimeExports.jsx(Paragraph$1, { children: originalText }) })
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs(Col, { span: 12, children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx(Title$3, { level: 5, children: "优化结果" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx(Card, { style: { minHeight: 200, maxHeight: 400, overflowY: "auto" }, children: /* @__PURE__ */ jsxRuntimeExports.jsx(Paragraph$1, { children: refinedText || "点击下方按钮开始优化..." }) })
+          ] })
+        ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(Divider, {}),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs(Form2, { form, layout: "vertical", onFinish: handleFinish, children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx(Form2.Item, { name: "instruction", label: "优化方向 (可选)", children: /* @__PURE__ */ jsxRuntimeExports.jsx(Input.TextArea, { rows: 2, placeholder: "例如：让这段描述更黑暗一点，或者，用更简洁的语言表达。" }) }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(Form2.Item, { children: /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { htmlType: "submit", type: "primary", loading, children: "开始优化" }) })
+        ] })
+      ] })
+    }
+  );
+};
+const { TextArea: TextArea$4 } = Input;
+const ChapterEditForm = ({ chapter, onUpdate }) => {
+  const [form] = Form2.useForm();
+  const [isRefineModalOpen, setIsRefineModalOpen] = reactExports.useState(false);
+  const [refineTarget, setRefineTarget] = reactExports.useState(null);
+  reactExports.useEffect(() => {
+    form.setFieldsValue(chapter);
+  }, [chapter, form]);
+  const handleValuesChange = (_, allValues) => {
+    onUpdate({ ...chapter, ...allValues });
+  };
+  const handleOpenRefineModal = (field, context) => {
+    setRefineTarget({ field, context });
+    setIsRefineModalOpen(true);
+  };
+  const handleRefinedText = (newText) => {
+    if (refineTarget) {
+      form.setFieldsValue({ [refineTarget.field]: newText });
+      onUpdate({ ...chapter, [refineTarget.field]: newText });
+    }
+  };
+  const renderTextAreaWithRefine = (name, label, context) => /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { position: "relative" }, children: [
+    /* @__PURE__ */ jsxRuntimeExports.jsx(Form2.Item, { name, label, children: /* @__PURE__ */ jsxRuntimeExports.jsx(TextArea$4, { rows: 4 }) }),
+    /* @__PURE__ */ jsxRuntimeExports.jsx(AiRefineButton, { onClick: () => handleOpenRefineModal(name, context) })
+  ] });
+  return /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
+    /* @__PURE__ */ jsxRuntimeExports.jsxs(Form2, { form, layout: "vertical", initialValues: chapter, onValuesChange: handleValuesChange, children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsx(Form2.Item, { name: "title", label: "章节标题", children: /* @__PURE__ */ jsxRuntimeExports.jsx(Input, {}) }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx(Form2.Item, { name: "wordCount", label: "预定字数", children: /* @__PURE__ */ jsxRuntimeExports.jsx(TypedInputNumber, { min: 0, step: 100, style: { width: "100%" } }) }),
+      renderTextAreaWithRefine("synopsis", "章节梗概", "章节梗概")
+    ] }),
+    refineTarget && /* @__PURE__ */ jsxRuntimeExports.jsx(
+      RefineModal,
+      {
+        open: isRefineModalOpen,
+        onCancel: () => setIsRefineModalOpen(false),
+        originalText: form.getFieldValue(refineTarget.field) || "",
+        contextType: refineTarget.context,
+        onRefined: handleRefinedText
+      }
+    )
+  ] });
+};
+const { TextArea: TextArea$3 } = Input;
+const TemporaryCharacterEditModal = ({ open: open2, onCancel, onSave, character: character2 }) => {
+  const [form] = Form2.useForm();
+  const [isRefineModalOpen, setIsRefineModalOpen] = reactExports.useState(false);
+  const [refineTarget, setRefineTarget] = reactExports.useState(null);
+  reactExports.useEffect(() => {
+    if (character2) {
+      form.setFieldsValue(character2);
+    } else {
+      form.resetFields();
+    }
+  }, [character2, form, open2]);
+  const handleSave = () => {
+    form.validateFields().then((values) => {
+      const newCharacter = { ...character2, ...values, id: character2?.id || Date.now() };
+      onSave(newCharacter);
+      onCancel();
+    });
+  };
+  const handleOpenRefineModal = (field, context) => {
+    setRefineTarget({ field, context });
+    setIsRefineModalOpen(true);
+  };
+  const handleRefinedText = (newText) => {
+    if (refineTarget) {
+      form.setFieldsValue({ [refineTarget.field]: newText });
+    }
+  };
+  const renderTextAreaWithRefine = (name, label, context) => /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { position: "relative" }, children: [
+    /* @__PURE__ */ jsxRuntimeExports.jsx(Form2.Item, { name, label, rules: [{ required: true, message: `请输入${label}` }], children: /* @__PURE__ */ jsxRuntimeExports.jsx(TextArea$3, { rows: 3 }) }),
+    /* @__PURE__ */ jsxRuntimeExports.jsx(AiRefineButton, { onClick: () => handleOpenRefineModal(name, context) })
+  ] });
+  return /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
+    /* @__PURE__ */ jsxRuntimeExports.jsx(
+      Modal,
+      {
+        title: character2 ? "编辑临时人物" : "新增临时人物",
+        open: open2,
+        onCancel,
+        onOk: handleSave,
+        okText: "保存",
+        cancelText: "取消",
+        destroyOnClose: true,
+        children: /* @__PURE__ */ jsxRuntimeExports.jsxs(Form2, { form, layout: "vertical", name: "temporaryCharacterForm", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx(Form2.Item, { name: "name", label: "姓名", rules: [{ required: true, message: "请输入姓名" }], children: /* @__PURE__ */ jsxRuntimeExports.jsx(Input, {}) }),
+          renderTextAreaWithRefine("summary", "概要", "临时人物概要"),
+          renderTextAreaWithRefine("details", "详情", "临时人物详情"),
+          renderTextAreaWithRefine("relationships", "与核心人物的关系", "临时人物关系"),
+          renderTextAreaWithRefine("statusInScene", "在本节中的状态", "临时人物状态"),
+          renderTextAreaWithRefine("moodInScene", "在本节中的心情", "临时人物心情"),
+          renderTextAreaWithRefine("actionsInScene", "在本节中的核心行动", "临时人物核心行动")
+        ] })
+      }
+    ),
+    refineTarget && /* @__PURE__ */ jsxRuntimeExports.jsx(
+      RefineModal,
+      {
+        open: isRefineModalOpen,
+        onCancel: () => setIsRefineModalOpen(false),
+        originalText: form.getFieldValue(refineTarget.field) || "",
+        contextType: refineTarget.context,
+        onRefined: handleRefinedText
+      }
+    )
+  ] });
+};
+const { TextArea: TextArea$2 } = Input;
+const SceneEditForm = ({ scene, onUpdate, storyId }) => {
+  const [form] = Form2.useForm();
+  const [isRefineModalOpen, setIsRefineModalOpen] = reactExports.useState(false);
+  const [refineTarget, setRefineTarget] = reactExports.useState(null);
+  const [isTempCharModalOpen, setIsTempCharModalOpen] = reactExports.useState(false);
+  const [editingTempChar, setEditingTempChar] = reactExports.useState(null);
+  const [characterOptions, setCharacterOptions] = reactExports.useState([]);
+  reactExports.useEffect(() => {
+    form.setFieldsValue(scene);
+  }, [scene, form]);
+  reactExports.useEffect(() => {
+    const loadCharacters = async () => {
+      if (!storyId) {
+        setCharacterOptions([]);
+        return;
+      }
+      try {
+        const chars = await fetchCharactersForStory(storyId);
+        setCharacterOptions(chars.map((c) => ({ label: c.name, value: c.id })));
+      } catch {
+        setCharacterOptions([]);
+      }
+    };
+    loadCharacters();
+  }, [storyId]);
+  const handleValuesChange = (_, allValues) => {
+    onUpdate({ ...scene, ...allValues });
+  };
+  const handleOpenRefineModal = (field, context) => {
+    setRefineTarget({ field, context });
+    setIsRefineModalOpen(true);
+  };
+  const handleRefinedText = (newText) => {
+    if (refineTarget) {
+      form.setFieldsValue({ [refineTarget.field]: newText });
+      onUpdate({ ...scene, [refineTarget.field]: newText });
+    }
+  };
+  const handleSaveTempChar = (character2) => {
+    const existingIndex = scene.temporaryCharacters?.findIndex((c) => c.id === character2.id);
+    let updatedChars;
+    if (existingIndex !== void 0 && existingIndex > -1) {
+      updatedChars = [...scene.temporaryCharacters || []];
+      updatedChars[existingIndex] = character2;
+    } else {
+      updatedChars = [...scene.temporaryCharacters || [], character2];
+    }
+    onUpdate({ ...scene, temporaryCharacters: updatedChars });
+  };
+  const handleDeleteTempChar = (id) => {
+    const updatedChars = scene.temporaryCharacters?.filter((c) => c.id !== id);
+    onUpdate({ ...scene, temporaryCharacters: updatedChars });
+  };
+  const renderTextAreaWithRefine = (name, label, context) => /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { position: "relative" }, children: [
+    /* @__PURE__ */ jsxRuntimeExports.jsx(Form2.Item, { name, label, children: /* @__PURE__ */ jsxRuntimeExports.jsx(TextArea$2, { rows: 4 }) }),
+    /* @__PURE__ */ jsxRuntimeExports.jsx(AiRefineButton, { onClick: () => handleOpenRefineModal(name, context) })
+  ] });
+  return /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
+    /* @__PURE__ */ jsxRuntimeExports.jsxs(Form2, { form, layout: "vertical", initialValues: scene, onValuesChange: handleValuesChange, children: [
+      renderTextAreaWithRefine("synopsis", "场景梗概", "场景梗概"),
+      /* @__PURE__ */ jsxRuntimeExports.jsx(Form2.Item, { name: "expectedWords", label: "预定字数", children: /* @__PURE__ */ jsxRuntimeExports.jsx(TypedInputNumber, { min: 0, step: 100, style: { width: "100%" } }) }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx(Form2.Item, { name: "presentCharacterIds", label: "核心出场人物", children: /* @__PURE__ */ jsxRuntimeExports.jsx(
+        Select,
+        {
+          mode: "multiple",
+          options: characterOptions,
+          placeholder: "选择出场人物",
+          allowClear: true
+        }
+      ) }),
+      renderTextAreaWithRefine("characterStates", "核心人物状态", "核心人物状态"),
+      /* @__PURE__ */ jsxRuntimeExports.jsx(
+        List,
+        {
+          header: /* @__PURE__ */ jsxRuntimeExports.jsx("div", { children: "临时人物" }),
+          bordered: true,
+          dataSource: scene.temporaryCharacters || [],
+          renderItem: (item) => /* @__PURE__ */ jsxRuntimeExports.jsx(
+            List.Item,
+            {
+              actions: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { type: "link", onClick: () => {
+                  setEditingTempChar(item);
+                  setIsTempCharModalOpen(true);
+                }, children: "编辑" }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx(Popconfirm, { title: "确定删除吗？", onConfirm: () => handleDeleteTempChar(item.id), children: /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { type: "link", danger: true, children: "删除" }) })
+              ],
+              children: item.name
+            }
+          )
+        }
+      ),
+      /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { type: "dashed", onClick: () => {
+        setEditingTempChar(null);
+        setIsTempCharModalOpen(true);
+      }, style: { marginTop: 16 }, children: "+ 新增临时人物" })
+    ] }),
+    refineTarget && /* @__PURE__ */ jsxRuntimeExports.jsx(
+      RefineModal,
+      {
+        open: isRefineModalOpen,
+        onCancel: () => setIsRefineModalOpen(false),
+        originalText: form.getFieldValue(refineTarget.field) || "",
+        contextType: refineTarget.context,
+        onRefined: handleRefinedText
+      }
+    ),
+    /* @__PURE__ */ jsxRuntimeExports.jsx(
+      TemporaryCharacterEditModal,
+      {
+        open: isTempCharModalOpen,
+        onCancel: () => setIsTempCharModalOpen(false),
+        onSave: handleSaveTempChar,
+        character: editingTempChar
+      }
+    )
+  ] });
+};
+const { Title: Title$2, Text } = Typography;
+const { Option: Option$2 } = Select;
+const OutlinePage = ({
   storyCards,
   selectedStoryId,
   onStoryChange,
   isLoading,
   setIsLoading,
-  // Assuming this is passed from parent
   outline,
   setOutline,
   error,
   setError,
   outlines,
   onSelectOutline,
-  fetchOutlines
+  loadOutlines,
+  updateLocal,
+  updateOutlineRemote
 }) => {
   const [form] = Form2.useForm();
+  const [selectedNode, setSelectedNode] = reactExports.useState(null);
+  const [isSaving, setIsSaving] = reactExports.useState(false);
   const [currentChapter, setCurrentChapter] = reactExports.useState(1);
+  const [isEditing, setIsEditing] = reactExports.useState(false);
+  reactExports.useEffect(() => {
+    if (outline) {
+      setCurrentChapter(outline.chapters.length + 1);
+    } else {
+      setCurrentChapter(1);
+    }
+  }, [outline]);
   const handleCreateEmptyOutline = async () => {
     if (!selectedStoryId) {
       setError("请先选择一个故事。");
@@ -54309,7 +55195,7 @@ const OutlineDesign = ({
     try {
       const newOutline = await createEmptyOutlineForStory(selectedStoryId);
       onSelectOutline(newOutline);
-      fetchOutlines(selectedStoryId);
+      await loadOutlines();
     } catch (err) {
       if (err instanceof Error) {
         setError(err.message);
@@ -54320,14 +55206,11 @@ const OutlineDesign = ({
       setIsLoading(false);
     }
   };
-  reactExports.useEffect(() => {
-    if (outline) {
-      setCurrentChapter(outline.chapters.length + 1);
-    } else {
-      setCurrentChapter(1);
-    }
-  }, [outline]);
-  const handleFinish = async (values) => {
+  const handleNodeSelect = (node2) => {
+    setSelectedNode(node2);
+    setIsEditing(!!node2);
+  };
+  const handleGenerateFinish = async (values) => {
     if (!outline) {
       setError("请先选择或创建一个大纲。");
       return;
@@ -54343,7 +55226,7 @@ const OutlineDesign = ({
         ...outline,
         chapters: [...outline.chapters, newChapter]
       });
-      setCurrentChapter(currentChapter + 1);
+      setCurrentChapter((n2) => n2 + 1);
     } catch (err) {
       if (err instanceof Error) {
         setError(err.message);
@@ -54354,474 +55237,177 @@ const OutlineDesign = ({
       setIsLoading(false);
     }
   };
-  return /* @__PURE__ */ jsxRuntimeExports.jsx(Spin, { spinning: isLoading, tip: `正在生成第 ${currentChapter} 章...`, size: "large", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", flexDirection: "column", gap: "24px" }, children: [
-    /* @__PURE__ */ jsxRuntimeExports.jsxs(Card, { children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsx(Title$3, { level: 4, children: "大纲设计" }),
-      /* @__PURE__ */ jsxRuntimeExports.jsx(Form2.Item, { label: "选择故事", children: /* @__PURE__ */ jsxRuntimeExports.jsx(
-        Select,
-        {
-          value: selectedStoryId,
-          onChange: onStoryChange,
-          placeholder: "-- 请选择一个故事以查看或创建大纲 --",
-          showSearch: true,
-          filterOption: (input, option) => (option?.children).toLowerCase().includes(input.toLowerCase()),
-          children: storyCards.map((story) => /* @__PURE__ */ jsxRuntimeExports.jsx(Option$3, { value: story.id.toString(), children: story.title }, story.id))
-        }
-      ) }),
-      selectedStoryId && /* @__PURE__ */ jsxRuntimeExports.jsxs(Card, { children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16 }, children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx(Title$3, { level: 5, style: { marginBottom: 0 }, children: "历史大纲" }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { type: "primary", onClick: handleCreateEmptyOutline, children: "为当前故事创建新大纲" })
+  const handleSaveOutline = async () => {
+    if (!outline) return;
+    setIsSaving(true);
+    try {
+      await updateOutlineRemote(outline);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "保存失败");
+    } finally {
+      setIsSaving(false);
+    }
+  };
+  const renderRightPanel = () => {
+    if (!outline) {
+      return /* @__PURE__ */ jsxRuntimeExports.jsx(Card, { children: /* @__PURE__ */ jsxRuntimeExports.jsx(Empty, { description: "尚未选择大纲。请在左侧选择或创建一个大纲。" }) });
+    }
+    if (!selectedNode) {
+      return /* @__PURE__ */ jsxRuntimeExports.jsxs(Card, { children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsxs(Title$2, { level: 4, children: [
+          '为 "',
+          outline.title,
+          '" 生成新章节'
         ] }),
-        outlines.length > 0 ? /* @__PURE__ */ jsxRuntimeExports.jsx(
-          List,
+        /* @__PURE__ */ jsxRuntimeExports.jsxs(Text, { children: [
+          "当前正在生成: ",
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("b", { children: [
+            "第 ",
+            currentChapter,
+            " 章"
+          ] })
+        ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(Divider, {}),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs(
+          Form2,
           {
-            itemLayout: "horizontal",
-            dataSource: outlines,
-            renderItem: (item) => /* @__PURE__ */ jsxRuntimeExports.jsx(
-              List.Item,
-              {
-                actions: [/* @__PURE__ */ jsxRuntimeExports.jsx(Button, { type: "link", onClick: () => onSelectOutline(item), children: "选择此大纲" })],
-                children: /* @__PURE__ */ jsxRuntimeExports.jsx(
-                  List.Item.Meta,
-                  {
-                    title: item.title || `大纲 #${item.id}`,
-                    description: `创建于: ${new Date(item.created_at).toLocaleString()}`
-                  }
-                )
-              }
-            )
+            form,
+            layout: "vertical",
+            onFinish: handleGenerateFinish,
+            initialValues: { sectionsPerChapter: 5, wordsPerSection: 800 },
+            children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx(
+                Form2.Item,
+                {
+                  name: "sectionsPerChapter",
+                  label: "本章小节数",
+                  rules: [{ required: true, message: "请输入本章包含的小节数！" }],
+                  children: /* @__PURE__ */ jsxRuntimeExports.jsx(TypedInputNumber, { min: 1, max: 20, style: { width: "100%" } })
+                }
+              ),
+              /* @__PURE__ */ jsxRuntimeExports.jsx(
+                Form2.Item,
+                {
+                  name: "wordsPerSection",
+                  label: "每节大概字数",
+                  rules: [{ required: true, message: "请输入每节的大概字数！" }],
+                  children: /* @__PURE__ */ jsxRuntimeExports.jsx(TypedInputNumber, { min: 100, max: 5e3, step: 100, style: { width: "100%" } })
+                }
+              ),
+              /* @__PURE__ */ jsxRuntimeExports.jsx(Form2.Item, { children: /* @__PURE__ */ jsxRuntimeExports.jsxs(Button, { type: "primary", htmlType: "submit", style: { width: "100%" }, children: [
+                "生成第 ",
+                currentChapter,
+                " 章"
+              ] }) })
+            ]
           }
-        ) : /* @__PURE__ */ jsxRuntimeExports.jsx("p", { children: "暂无历史大纲。" })
-      ] })
-    ] }),
-    outline && /* @__PURE__ */ jsxRuntimeExports.jsxs(Card, { children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsxs(Title$3, { level: 4, children: [
-        '为 "',
-        outline.title,
-        '" 生成新章节'
-      ] }),
-      /* @__PURE__ */ jsxRuntimeExports.jsxs(Text, { children: [
-        "当前正在生成: ",
-        /* @__PURE__ */ jsxRuntimeExports.jsxs("b", { children: [
-          "第 ",
-          currentChapter,
-          " 章"
-        ] })
-      ] }),
-      /* @__PURE__ */ jsxRuntimeExports.jsx(Divider, {}),
-      /* @__PURE__ */ jsxRuntimeExports.jsxs(
-        Form2,
-        {
-          form,
-          layout: "vertical",
-          onFinish: handleFinish,
-          initialValues: { sectionsPerChapter: 5, wordsPerSection: 800 },
-          children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx(
-              Form2.Item,
-              {
-                name: "sectionsPerChapter",
-                label: "本章节数",
-                rules: [{ required: true, message: "请输入本章包含的节数！" }],
-                children: /* @__PURE__ */ jsxRuntimeExports.jsx(TypedInputNumber, { min: 1, max: 20, style: { width: "100%" } })
-              }
-            ),
-            /* @__PURE__ */ jsxRuntimeExports.jsx(
-              Form2.Item,
-              {
-                name: "wordsPerSection",
-                label: "每节大概字数",
-                rules: [{ required: true, message: "请输入每节的大概字数！" }],
-                children: /* @__PURE__ */ jsxRuntimeExports.jsx(TypedInputNumber, { min: 100, max: 5e3, step: 100, style: { width: "100%" } })
-              }
-            ),
-            /* @__PURE__ */ jsxRuntimeExports.jsx(Form2.Item, { children: /* @__PURE__ */ jsxRuntimeExports.jsxs(Button, { type: "primary", htmlType: "submit", style: { width: "100%" }, children: [
-              "生成第 ",
-              currentChapter,
-              " 章"
-            ] }) })
-          ]
-        }
-      )
-    ] }),
-    error && /* @__PURE__ */ jsxRuntimeExports.jsx(Alert, { message: "操作失败", description: error, type: "error", showIcon: true }),
-    outline && /* @__PURE__ */ jsxRuntimeExports.jsxs(Card, { children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsx(Title$3, { level: 4, children: "当前大纲预览" }),
-      /* @__PURE__ */ jsxRuntimeExports.jsx(OutlineTreeView, { outline, onNodeSelect: () => {
-      } })
-    ] })
-  ] }) });
-};
-const { Content: Content$1, Sider } = Layout;
-const { TextArea } = Input;
-const ManuscriptWriter = ({
-  selectedOutline,
-  selectedSceneId,
-  onSelectScene
-}) => {
-  const [manuscriptMap, setManuscriptMap] = reactExports.useState({});
-  const [manuscriptContent, setManuscriptContent] = reactExports.useState("");
-  const [isLoading, setIsLoading] = reactExports.useState(false);
-  const [isFetchingManuscript, setIsFetchingManuscript] = reactExports.useState(false);
-  const selectedScene = reactExports.useMemo(() => {
-    if (!selectedOutline || !selectedSceneId) return null;
-    for (const chapter of selectedOutline.chapters) {
-      const scene = chapter.scenes.find((s) => s.id === selectedSceneId);
-      if (scene) return scene;
+        )
+      ] });
     }
-    return null;
-  }, [selectedOutline, selectedSceneId]);
-  reactExports.useEffect(() => {
-    if (selectedOutline) {
-      setIsFetchingManuscript(true);
-      const fetchManuscript = async () => {
-        try {
-          const token2 = localStorage.getItem("token");
-          const response = await fetch(`/api/v1/manuscript/outlines/${selectedOutline.id}`, {
-            headers: { "Authorization": `Bearer ${token2}` }
-          });
-          if (!response.ok) {
-            console.error("Failed to fetch manuscript: Response not OK", response.status);
-            throw new Error("Failed to fetch manuscript");
+    switch (selectedNode.type) {
+      case "chapter":
+        return /* @__PURE__ */ jsxRuntimeExports.jsx(Card, { title: "编辑章节", children: /* @__PURE__ */ jsxRuntimeExports.jsx(ChapterEditForm, { chapter: selectedNode.data, onUpdate: updateLocal }) });
+      case "scene":
+        return /* @__PURE__ */ jsxRuntimeExports.jsx(Card, { title: "编辑场景", children: /* @__PURE__ */ jsxRuntimeExports.jsx(
+          SceneEditForm,
+          {
+            scene: selectedNode.data,
+            onUpdate: updateLocal,
+            storyId: selectedStoryId ? parseInt(selectedStoryId) : void 0
           }
-          const data = await response.json();
-          setManuscriptMap(data);
-        } catch (error) {
-          console.error("Failed to fetch manuscript:", error);
-          staticMethods.error("获取正文内容失败");
-        } finally {
-          setIsFetchingManuscript(false);
-        }
-      };
-      fetchManuscript();
-    }
-  }, [selectedOutline]);
-  reactExports.useEffect(() => {
-    if (selectedSceneId && manuscriptMap[selectedSceneId]) {
-      const newContent = manuscriptMap[selectedSceneId].content;
-      setManuscriptContent(newContent);
-    } else {
-      setManuscriptContent("");
-    }
-  }, [selectedSceneId, manuscriptMap]);
-  const handleGenerateContent = async () => {
-    if (!selectedSceneId) {
-      staticMethods.warning("请先从左侧选择一个场景！");
-      return;
-    }
-    setIsLoading(true);
-    try {
-      const token2 = localStorage.getItem("token");
-      const response = await fetch(`/api/v1/manuscript/scenes/${selectedSceneId}/generate`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "Authorization": `Bearer ${token2}`
-        }
-      });
-      if (!response.ok) {
-        const errorData = await response.text();
-        throw new Error(errorData || "生成内容失败。");
-      }
-      const newSection = await response.json();
-      setManuscriptMap((prev2) => {
-        const newMap = { ...prev2, [newSection.scene.id]: newSection };
-        return newMap;
-      });
-      staticMethods.success("内容已生成！现在您可以继续编辑。");
-    } catch (error) {
-      staticMethods.error(error instanceof Error ? error.message : "内容生成失败，请检查后台服务。");
-    } finally {
-      setIsLoading(false);
+        ) });
+      default:
+        return null;
     }
   };
-  const handleSaveContent = async () => {
-    if (!selectedSceneId) return;
-    const sectionToUpdate = manuscriptMap[selectedSceneId];
-    if (!sectionToUpdate) {
-      staticMethods.warning("没有可保存的内容。请先生成内容。");
-      return;
-    }
-    setIsLoading(true);
-    try {
-      const token2 = localStorage.getItem("token");
-      const response = await fetch(`/api/v1/manuscript/sections/${sectionToUpdate.id}`, {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-          "Authorization": `Bearer ${token2}`
-        },
-        body: JSON.stringify({ content: manuscriptContent })
-      });
-      if (!response.ok) {
-        console.error("Failed to save content: Response not OK", response.status);
-        throw new Error("保存失败");
+  return /* @__PURE__ */ jsxRuntimeExports.jsx(Spin, { spinning: isLoading || isSaving, tip: "处理中...", size: "large", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", flexDirection: "column", gap: 24 }, children: [
+    error && /* @__PURE__ */ jsxRuntimeExports.jsx(
+      Alert,
+      {
+        message: "操作失败",
+        description: error,
+        type: "error",
+        showIcon: true,
+        style: { marginBottom: 16 }
       }
-      const updatedSection = await response.json();
-      setManuscriptMap((prev2) => ({ ...prev2, [updatedSection.sceneId]: updatedSection }));
-      staticMethods.success("内容已保存！");
-    } catch (error) {
-      console.error("Failed to save content:", error);
-      staticMethods.error(error instanceof Error ? error.message : "保存失败");
-    } finally {
-      setIsLoading(false);
-    }
-  };
-  if (!selectedOutline) {
-    return /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex justify-center items-center h-full", children: /* @__PURE__ */ jsxRuntimeExports.jsx(Empty, { description: "请从“大纲管理”页面选择一个大纲开始创作。" }) });
-  }
-  return /* @__PURE__ */ jsxRuntimeExports.jsxs(Layout, { style: { height: "calc(100vh - 150px)", background: "#fff" }, children: [
-    /* @__PURE__ */ jsxRuntimeExports.jsxs(Sider, { width: 300, style: { background: "#fff", padding: "16px", borderRight: "1px solid #f0f0f0", overflow: "auto" }, children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsx("h2", { className: "text-lg font-bold mb-4", children: selectedOutline.title }),
-      /* @__PURE__ */ jsxRuntimeExports.jsx(
-        OutlineTreeView,
-        {
-          outline: selectedOutline,
-          onNodeSelect: (node2) => onSelectScene(node2 && node2.type === "scene" ? node2.data.id : null)
-        }
-      )
-    ] }),
-    /* @__PURE__ */ jsxRuntimeExports.jsx(Content$1, { style: { padding: "24px" }, children: /* @__PURE__ */ jsxRuntimeExports.jsx(Spin, { spinning: isFetchingManuscript, tip: "加载正文...", children: /* @__PURE__ */ jsxRuntimeExports.jsx(Row, { gutter: 24, style: { height: "100%" }, children: /* @__PURE__ */ jsxRuntimeExports.jsx(Col, { span: 24, style: { display: "flex", flexDirection: "column", height: "100%" }, children: /* @__PURE__ */ jsxRuntimeExports.jsxs(Card, { title: "场景内容", style: { flex: 1, display: "flex", flexDirection: "column" }, children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsx(
-        Card.Meta,
-        {
-          title: "当前场景概要",
-          description: selectedScene?.synopsis || "请从左侧大纲树中选择一个场景。",
-          style: { marginBottom: "16px" }
-        }
-      ),
-      /* @__PURE__ */ jsxRuntimeExports.jsx(
-        TextArea,
-        {
-          value: manuscriptContent,
-          onChange: (e2) => setManuscriptContent(e2.target.value),
-          placeholder: "这里是您创作的故事内容...",
-          rows: 20,
-          style: { resize: "none" },
-          disabled: !selectedSceneId
-        }
-      ),
-      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "mt-4 flex items-center justify-between", children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx(
-            Button,
+    ),
+    isEditing && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { marginBottom: 16, display: "flex", justifyContent: "flex-end" }, children: /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { onClick: () => {
+      setSelectedNode(null);
+      setIsEditing(false);
+    }, children: "返回" }) }),
+    /* @__PURE__ */ jsxRuntimeExports.jsxs(Row, { gutter: 16, children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsx(Col, { span: 6, children: /* @__PURE__ */ jsxRuntimeExports.jsxs(Card, { title: "故事与大纲", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx(Form2, { layout: "vertical", children: /* @__PURE__ */ jsxRuntimeExports.jsx(Form2.Item, { label: "选择故事", children: /* @__PURE__ */ jsxRuntimeExports.jsx(
+          Select,
+          {
+            value: selectedStoryId,
+            onChange: onStoryChange,
+            placeholder: "-- 请选择一个故事以查看或创建大纲 --",
+            showSearch: true,
+            filterOption: (input, option) => (option?.children).toLowerCase().includes(input.toLowerCase()),
+            children: storyCards.map((story) => /* @__PURE__ */ jsxRuntimeExports.jsx(Option$2, { value: story.id.toString(), children: story.title }, story.id))
+          }
+        ) }) }),
+        selectedStoryId && /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsxs(
+            "div",
             {
-              type: "primary",
-              loading: isLoading,
-              onClick: handleGenerateContent,
-              disabled: !selectedSceneId,
-              children: "✨ 生成内容"
+              style: {
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "center",
+                marginBottom: 16
+              },
+              children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx(Title$2, { level: 5, style: { marginBottom: 0 }, children: "历史大纲" }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { type: "primary", onClick: handleCreateEmptyOutline, children: "为当前故事创建新大纲" })
+              ]
             }
           ),
-          /* @__PURE__ */ jsxRuntimeExports.jsx(
-            Button,
+          outlines.length > 0 ? /* @__PURE__ */ jsxRuntimeExports.jsx(
+            List,
             {
-              style: { marginLeft: 8 },
-              onClick: handleSaveContent,
-              disabled: !selectedSceneId || isLoading,
-              children: "保存"
+              itemLayout: "horizontal",
+              dataSource: outlines,
+              renderItem: (item) => /* @__PURE__ */ jsxRuntimeExports.jsx(
+                List.Item,
+                {
+                  actions: [
+                    /* @__PURE__ */ jsxRuntimeExports.jsx(
+                      Button,
+                      {
+                        type: "link",
+                        onClick: () => onSelectOutline(item),
+                        children: "选择此大纲"
+                      }
+                    )
+                  ],
+                  children: /* @__PURE__ */ jsxRuntimeExports.jsx(
+                    List.Item.Meta,
+                    {
+                      title: item.title || `大纲 #${item.id}`,
+                      description: `创建于: ${new Date(
+                        item.created_at
+                      ).toLocaleString()}`
+                    }
+                  )
+                }
+              )
             }
-          )
-        ] }),
-        /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "text-sm text-gray-500", children: [
-          "预期字数: ",
-          selectedScene?.expectedWords || "N/A"
+          ) : /* @__PURE__ */ jsxRuntimeExports.jsx(Empty, { description: "暂无历史大纲" })
         ] })
-      ] })
-    ] }) }) }) }) })
-  ] });
-};
-const { Title: Title$2, Paragraph: Paragraph$2 } = Typography;
-const { Option: Option$2 } = Select;
-const StoryConception = ({
-  onFinish,
-  isLoading,
-  error,
-  storyCard,
-  characterCards,
-  renderStoryCard,
-  renderCharacterCard,
-  setIsAddCharacterModalVisible
-}) => {
-  const [form] = Form2.useForm();
-  return /* @__PURE__ */ jsxRuntimeExports.jsxs(Row, { gutter: 24, style: { height: "100%" }, children: [
-    /* @__PURE__ */ jsxRuntimeExports.jsx(Col, { span: 8, children: /* @__PURE__ */ jsxRuntimeExports.jsxs(Card, { style: { marginBottom: 24 }, children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsx(Title$2, { level: 4, children: "故事构思" }),
-      /* @__PURE__ */ jsxRuntimeExports.jsx(Paragraph$2, { type: "secondary", children: "打造您的下一部杰作。" }),
-      /* @__PURE__ */ jsxRuntimeExports.jsx(Divider, {}),
-      /* @__PURE__ */ jsxRuntimeExports.jsxs(
-        Form2,
+      ] }) }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx(Col, { span: 10, children: /* @__PURE__ */ jsxRuntimeExports.jsx(
+        Card,
         {
-          form,
-          layout: "vertical",
-          onFinish,
-          initialValues: { genre: "Sci-Fi", tone: "Dark" },
-          children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx(
-              Form2.Item,
-              {
-                name: "idea",
-                label: "您的一句话想法",
-                rules: [{ required: true, message: "请输入您的想法！" }],
-                children: /* @__PURE__ */ jsxRuntimeExports.jsx(
-                  Input.TextArea,
-                  {
-                    rows: 4,
-                    placeholder: "例如：在一个由梦境驱动的城市里，一名侦探必须侦破一起受害者在睡梦中死亡的谋杀案。"
-                  }
-                )
-              }
-            ),
-            /* @__PURE__ */ jsxRuntimeExports.jsx(Form2.Item, { name: "genre", label: "类型", children: /* @__PURE__ */ jsxRuntimeExports.jsxs(Select, { children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsx(Option$2, { value: "Sci-Fi", children: "科幻" }),
-              /* @__PURE__ */ jsxRuntimeExports.jsx(Option$2, { value: "Fantasy", children: "奇幻" }),
-              /* @__PURE__ */ jsxRuntimeExports.jsx(Option$2, { value: "Mystery", children: "悬疑" }),
-              /* @__PURE__ */ jsxRuntimeExports.jsx(Option$2, { value: "Horror", children: "恐怖" }),
-              /* @__PURE__ */ jsxRuntimeExports.jsx(Option$2, { value: "Romance", children: "爱情" })
-            ] }) }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx(Form2.Item, { name: "tone", label: "基调", children: /* @__PURE__ */ jsxRuntimeExports.jsxs(Select, { children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsx(Option$2, { value: "Dark", children: "黑暗" }),
-              /* @__PURE__ */ jsxRuntimeExports.jsx(Option$2, { value: "Humorous", children: "幽默" }),
-              /* @__PURE__ */ jsxRuntimeExports.jsx(Option$2, { value: "Serious", children: "严肃" }),
-              /* @__PURE__ */ jsxRuntimeExports.jsx(Option$2, { value: "Adventurous", children: "冒险" }),
-              /* @__PURE__ */ jsxRuntimeExports.jsx(Option$2, { value: "Whimsical", children: "异想天开" })
-            ] }) }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx(Form2.Item, { children: /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { type: "primary", htmlType: "submit", loading: isLoading, style: { width: "100%" }, children: isLoading ? "生成中..." : "生成故事" }) })
-          ]
+          title: "大纲结构",
+          extra: /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { type: "primary", onClick: handleSaveOutline, children: "保存大纲" }),
+          children: /* @__PURE__ */ jsxRuntimeExports.jsx(OutlineTreeView, { outline, onNodeSelect: handleNodeSelect })
         }
-      )
-    ] }) }),
-    /* @__PURE__ */ jsxRuntimeExports.jsx(Col, { span: 16, children: /* @__PURE__ */ jsxRuntimeExports.jsx(Spin, { spinning: isLoading, tip: "正在构想一个新宇宙...", size: "large", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { padding: 24, background: "#fff", borderRadius: "8px", height: "100%" }, children: [
-      error && /* @__PURE__ */ jsxRuntimeExports.jsx(Alert, { message: "错误", description: error, type: "error", showIcon: true, closable: true, style: { marginBottom: 24 } }),
-      !storyCard && !isLoading && /* @__PURE__ */ jsxRuntimeExports.jsx(Empty, { description: "从左侧生成或选择一个故事开始。" }),
-      storyCard && /* @__PURE__ */ jsxRuntimeExports.jsxs(Row, { gutter: [24, 24], children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx(Col, { xs: 24, lg: 8, children: renderStoryCard(storyCard) }),
-        /* @__PURE__ */ jsxRuntimeExports.jsxs(Col, { xs: 24, lg: 16, children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx(Title$2, { level: 4, style: { marginBottom: 16 }, children: "角色" }),
-          /* @__PURE__ */ jsxRuntimeExports.jsxs(Row, { gutter: [16, 16], children: [
-            characterCards.map((char2) => /* @__PURE__ */ jsxRuntimeExports.jsx(Col, { xs: 24, md: 12, children: renderCharacterCard(char2) }, char2.id)),
-            /* @__PURE__ */ jsxRuntimeExports.jsx(Col, { xs: 24, md: 12, children: /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { type: "dashed", onClick: () => setIsAddCharacterModalVisible(true), style: { width: "100%", height: "100%", minHeight: "150px" }, children: "+ 添加新角色" }) })
-          ] })
-        ] })
-      ] })
-    ] }) }) })
-  ] });
-};
-const useStoryData = () => {
-  const [storyList, setStoryList] = reactExports.useState([]);
-  const [selectedStory, setSelectedStory] = reactExports.useState(null);
-  const [characterCards, setCharacterCards] = reactExports.useState([]);
-  const [isLoading, setIsLoading] = reactExports.useState(false);
-  const [error, setError] = reactExports.useState(null);
-  const loadStoryList = reactExports.useCallback(async () => {
-    setIsLoading(true);
-    setError(null);
-    try {
-      const data = await fetchStoryList();
-      setStoryList(data);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to fetch story list.");
-    } finally {
-      setIsLoading(false);
-    }
-  }, []);
-  const viewStory = reactExports.useCallback(async (storyId) => {
-    setIsLoading(true);
-    setError(null);
-    try {
-      const { storyCard, characterCards: characterCards2 } = await fetchStoryDetails(storyId);
-      setSelectedStory(storyCard);
-      setCharacterCards(characterCards2);
-      return storyCard;
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to fetch story details.");
-      return null;
-    } finally {
-      setIsLoading(false);
-    }
-  }, []);
-  const generateStory = reactExports.useCallback(async (values) => {
-    setIsLoading(true);
-    setError(null);
-    try {
-      const { storyCard, characterCards: characterCards2 } = await createStoryConception(values);
-      setSelectedStory(storyCard);
-      setCharacterCards(characterCards2);
-      await loadStoryList();
-      return storyCard;
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to generate story.");
-      return null;
-    } finally {
-      setIsLoading(false);
-    }
-  }, [loadStoryList]);
-  const updateStory = reactExports.useCallback(async (storyData) => {
-    setIsLoading(true);
-    setError(null);
-    try {
-      const updatedStory = await updateStoryCard(storyData);
-      setSelectedStory(updatedStory);
-      await loadStoryList();
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to update story.");
-    } finally {
-      setIsLoading(false);
-    }
-  }, [loadStoryList]);
-  const createCharacter = reactExports.useCallback(async (storyId, characterData) => {
-    setIsLoading(true);
-    setError(null);
-    try {
-      const newCharacter = await createCharacterCard(storyId, characterData);
-      setCharacterCards((prev2) => [...prev2, newCharacter]);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to create character.");
-    } finally {
-      setIsLoading(false);
-    }
-  }, []);
-  const updateCharacter = reactExports.useCallback(async (characterData) => {
-    setIsLoading(true);
-    setError(null);
-    try {
-      const updatedCharacter = await updateCharacterCard(characterData);
-      setCharacterCards((prev2) => prev2.map((c) => c.id === updatedCharacter.id ? updatedCharacter : c));
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to update character.");
-    } finally {
-      setIsLoading(false);
-    }
-  }, []);
-  const deleteCharacter = reactExports.useCallback(async (characterId) => {
-    setIsLoading(true);
-    setError(null);
-    try {
-      await deleteCharacterCard(characterId);
-      setCharacterCards((prev2) => prev2.filter((c) => c.id !== characterId));
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to delete character.");
-    } finally {
-      setIsLoading(false);
-    }
-  }, []);
-  return {
-    storyList,
-    selectedStory,
-    characterCards,
-    isLoading,
-    error,
-    loadStoryList,
-    viewStory,
-    generateStory,
-    updateStory,
-    createCharacter,
-    updateCharacter,
-    deleteCharacter,
-    setSelectedStory,
-    setCharacterCards
-  };
+      ) }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx(Col, { span: 8, children: renderRightPanel() })
+    ] })
+  ] }) });
 };
 const useOutlineData = (storyId) => {
   const [outlines, setOutlines] = reactExports.useState([]);
@@ -54950,6 +55536,554 @@ const useOutlineData = (storyId) => {
     // Expose setIsLoading
     setError
     // Expose setError
+  };
+};
+const { Content: Content$1, Sider } = Layout;
+const { TextArea: TextArea$1 } = Input;
+const ManuscriptWriter = ({
+  storyId,
+  selectedSceneId,
+  onSelectScene
+}) => {
+  const {
+    outlines,
+    selectedOutline,
+    selectOutline,
+    getOutlineForWriting,
+    loadOutlines
+  } = useOutlineData(storyId);
+  const [selectedOutlineDetail, setSelectedOutlineDetail] = reactExports.useState(null);
+  const [manuscriptMap, setManuscriptMap] = reactExports.useState({});
+  const [manuscriptContent, setManuscriptContent] = reactExports.useState("");
+  const [isLoading, setIsLoading] = reactExports.useState(false);
+  const [isFetchingManuscript, setIsFetchingManuscript] = reactExports.useState(false);
+  const [isLoadingOutlineDetail, setIsLoadingOutlineDetail] = reactExports.useState(false);
+  reactExports.useEffect(() => {
+    if (storyId) {
+      loadOutlines();
+    } else {
+      setSelectedOutlineDetail(null);
+      setManuscriptMap({});
+      setManuscriptContent("");
+    }
+  }, [storyId, loadOutlines]);
+  const loadSelectedOutlineDetail = reactExports.useCallback(async (outlineId) => {
+    setIsLoadingOutlineDetail(true);
+    try {
+      const full = await getOutlineForWriting(outlineId);
+      setSelectedOutlineDetail(full);
+    } finally {
+      setIsLoadingOutlineDetail(false);
+    }
+  }, [getOutlineForWriting]);
+  reactExports.useEffect(() => {
+    if (selectedOutline) {
+      loadSelectedOutlineDetail(selectedOutline.id);
+    } else {
+      setSelectedOutlineDetail(null);
+    }
+  }, [selectedOutline, loadSelectedOutlineDetail]);
+  const selectedScene = reactExports.useMemo(() => {
+    if (!selectedOutlineDetail || !selectedSceneId) return null;
+    for (const chapter of selectedOutlineDetail.chapters) {
+      const scene = chapter.scenes.find((s) => s.id === selectedSceneId);
+      if (scene) return scene;
+    }
+    return null;
+  }, [selectedOutlineDetail, selectedSceneId]);
+  reactExports.useEffect(() => {
+    if (selectedOutlineDetail) {
+      setIsFetchingManuscript(true);
+      const fetchManuscript = async () => {
+        try {
+          const token2 = localStorage.getItem("token");
+          const response = await fetch(`/api/v1/manuscript/outlines/${selectedOutlineDetail.id}`, {
+            headers: { "Authorization": `Bearer ${token2}` }
+          });
+          if (!response.ok) {
+            console.error("Failed to fetch manuscript: Response not OK", response.status);
+            throw new Error("Failed to fetch manuscript");
+          }
+          const data = await response.json();
+          setManuscriptMap(data);
+        } catch (error) {
+          console.error("Failed to fetch manuscript:", error);
+          staticMethods.error("获取正文内容失败");
+        } finally {
+          setIsFetchingManuscript(false);
+        }
+      };
+      fetchManuscript();
+    } else {
+      setManuscriptMap({});
+    }
+  }, [selectedOutlineDetail]);
+  reactExports.useEffect(() => {
+    if (selectedSceneId && manuscriptMap[selectedSceneId]) {
+      const newContent = manuscriptMap[selectedSceneId].content;
+      setManuscriptContent(newContent);
+    } else {
+      setManuscriptContent("");
+    }
+  }, [selectedSceneId, manuscriptMap]);
+  const handleGenerateContent = async () => {
+    if (!selectedSceneId) {
+      staticMethods.warning("请先在右侧大纲树中选择一个场景！");
+      return;
+    }
+    setIsLoading(true);
+    try {
+      const token2 = localStorage.getItem("token");
+      const response = await fetch(`/api/v1/manuscript/scenes/${selectedSceneId}/generate`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${token2}`
+        }
+      });
+      if (!response.ok) {
+        const errorData = await response.text();
+        throw new Error(errorData || "生成内容失败。");
+      }
+      const newSection = await response.json();
+      setManuscriptMap((prev2) => {
+        const newMap = { ...prev2, [newSection.scene.id]: newSection };
+        return newMap;
+      });
+      setManuscriptContent(newSection.content || "");
+      staticMethods.success("内容已生成！现在您可以继续编辑。");
+    } catch (error) {
+      staticMethods.error(error instanceof Error ? error.message : "内容生成失败，请检查后台服务。");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+  const handleSaveContent = async () => {
+    if (!selectedSceneId) return;
+    const sectionToUpdate = manuscriptMap[selectedSceneId];
+    if (!sectionToUpdate) {
+      staticMethods.warning("没有可保存的内容。请先生成内容。");
+      return;
+    }
+    setIsLoading(true);
+    try {
+      const token2 = localStorage.getItem("token");
+      const response = await fetch(`/api/v1/manuscript/sections/${sectionToUpdate.id}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${token2}`
+        },
+        body: JSON.stringify({ content: manuscriptContent })
+      });
+      if (!response.ok) {
+        console.error("Failed to save content: Response not OK", response.status);
+        throw new Error("保存失败");
+      }
+      const updatedSection = await response.json();
+      setManuscriptMap((prev2) => ({ ...prev2, [updatedSection.sceneId]: updatedSection }));
+      staticMethods.success("内容已保存！");
+    } catch (error) {
+      console.error("Failed to save content:", error);
+      staticMethods.error(error instanceof Error ? error.message : "保存失败");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+  if (!storyId) {
+    return /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex justify-center items-center h-full", children: /* @__PURE__ */ jsxRuntimeExports.jsx(Empty, { description: "请选择一个故事后开始创作。" }) });
+  }
+  return /* @__PURE__ */ jsxRuntimeExports.jsxs(Layout, { style: { height: "calc(100vh - 150px)", background: "#fff" }, children: [
+    /* @__PURE__ */ jsxRuntimeExports.jsx(Sider, { width: 280, style: { background: "#fff", padding: "16px", borderRight: "1px solid #f0f0f0", overflow: "auto" }, children: /* @__PURE__ */ jsxRuntimeExports.jsx(Card, { title: "大纲列表", extra: /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { size: "small", onClick: loadOutlines, children: "刷新" }), children: /* @__PURE__ */ jsxRuntimeExports.jsx(
+      List,
+      {
+        dataSource: outlines,
+        locale: { emptyText: /* @__PURE__ */ jsxRuntimeExports.jsx(Empty, { description: "暂无大纲" }) },
+        renderItem: (item) => /* @__PURE__ */ jsxRuntimeExports.jsx(
+          List.Item,
+          {
+            onClick: () => selectOutline(item),
+            style: {
+              cursor: "pointer",
+              background: selectedOutline?.id === item.id ? "#e6f7ff" : "transparent",
+              borderRadius: 6,
+              paddingLeft: 8,
+              paddingRight: 8
+            },
+            children: /* @__PURE__ */ jsxRuntimeExports.jsx(
+              List.Item.Meta,
+              {
+                title: item.title || `大纲 #${item.id}`,
+                description: `创建于: ${new Date(item.created_at).toLocaleString()}`
+              }
+            )
+          }
+        )
+      }
+    ) }) }),
+    /* @__PURE__ */ jsxRuntimeExports.jsx(Content$1, { style: { padding: "24px" }, children: /* @__PURE__ */ jsxRuntimeExports.jsx(Spin, { spinning: isFetchingManuscript || isLoadingOutlineDetail, tip: "加载中...", children: !selectedOutlineDetail ? /* @__PURE__ */ jsxRuntimeExports.jsx(Empty, { description: "请从左侧选择一个大纲开始创作。" }) : /* @__PURE__ */ jsxRuntimeExports.jsxs(Row, { gutter: 24, style: { height: "100%" }, children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsx(Col, { span: 8, style: { display: "flex", flexDirection: "column", height: "100%" }, children: /* @__PURE__ */ jsxRuntimeExports.jsx(Card, { title: selectedOutlineDetail.title, style: { height: "100%", overflow: "auto" }, children: /* @__PURE__ */ jsxRuntimeExports.jsx(
+        OutlineTreeView,
+        {
+          outline: selectedOutlineDetail,
+          onNodeSelect: (node2) => onSelectScene(node2 && node2.type === "scene" ? node2.data.id : null)
+        }
+      ) }) }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx(Col, { span: 16, style: { display: "flex", flexDirection: "column", height: "100%" }, children: /* @__PURE__ */ jsxRuntimeExports.jsxs(Card, { title: "场景内容", style: { flex: 1, display: "flex", flexDirection: "column" }, children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx(
+          Card.Meta,
+          {
+            title: "当前场景概要",
+            description: selectedScene?.synopsis || "请先在左侧大纲树中选择一个场景。",
+            style: { marginBottom: "16px" }
+          }
+        ),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(
+          TextArea$1,
+          {
+            value: manuscriptContent,
+            onChange: (e2) => setManuscriptContent(e2.target.value),
+            placeholder: "这里是您创作的故事内容...",
+            rows: 20,
+            style: { resize: "none" },
+            disabled: !selectedSceneId
+          }
+        ),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "mt-4 flex items-center justify-between", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx(
+              Button,
+              {
+                type: "primary",
+                loading: isLoading,
+                onClick: handleGenerateContent,
+                disabled: !selectedSceneId,
+                children: "✨ 生成内容"
+              }
+            ),
+            /* @__PURE__ */ jsxRuntimeExports.jsx(
+              Button,
+              {
+                style: { marginLeft: 8 },
+                onClick: handleSaveContent,
+                disabled: !selectedSceneId || isLoading,
+                children: "保存"
+              }
+            )
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "text-sm text-gray-500", children: [
+            "预期字数: ",
+            selectedScene?.expectedWords || "N/A"
+          ] })
+        ] })
+      ] }) })
+    ] }) }) })
+  ] });
+};
+const StoryList = ({ stories, selectedId, onSelect, loading }) => {
+  return /* @__PURE__ */ jsxRuntimeExports.jsx(
+    Card,
+    {
+      title: "故事列表",
+      extra: /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { type: "primary", onClick: () => onSelect("new"), children: "新建故事" }),
+      children: /* @__PURE__ */ jsxRuntimeExports.jsx(
+        List,
+        {
+          loading,
+          itemLayout: "horizontal",
+          dataSource: stories,
+          renderItem: (item) => /* @__PURE__ */ jsxRuntimeExports.jsx(
+            List.Item,
+            {
+              onClick: () => onSelect(item.id),
+              style: {
+                cursor: "pointer",
+                background: selectedId === item.id ? "#e6f7ff" : "transparent",
+                borderRadius: 6,
+                paddingLeft: 12,
+                paddingRight: 12
+              },
+              children: /* @__PURE__ */ jsxRuntimeExports.jsx(
+                List.Item.Meta,
+                {
+                  title: item.title,
+                  description: `类型: ${item.genre} | 基调: ${item.tone}`
+                }
+              )
+            }
+          )
+        }
+      )
+    }
+  );
+};
+const { TextArea } = Input;
+const StoryDetail = ({
+  mode,
+  story,
+  loading = false,
+  onCreate,
+  onUpdate,
+  onAfterCreate
+}) => {
+  const [form] = Form2.useForm();
+  reactExports.useEffect(() => {
+    if (mode === "edit" && story) {
+      form.setFieldsValue(story);
+    } else if (mode === "create") {
+      form.resetFields();
+    }
+  }, [mode, story, form]);
+  const handleSubmit = async () => {
+    try {
+      const values = await form.validateFields();
+      if (mode === "create") {
+        const payload = {
+          title: values.title,
+          synopsis: values.synopsis || "",
+          genre: values.genre || "",
+          tone: values.tone || ""
+        };
+        const created = await onCreate(payload);
+        if (created) {
+          staticMethods.success("新故事创建成功");
+          onAfterCreate?.(created);
+        }
+      } else if (mode === "edit" && story) {
+        const updated = {
+          ...story,
+          title: values.title,
+          synopsis: values.synopsis || "",
+          storyArc: values.storyArc || "",
+          genre: values.genre || "",
+          tone: values.tone || ""
+        };
+        await onUpdate(updated);
+        staticMethods.success("故事已保存");
+      }
+    } catch {
+    }
+  };
+  return /* @__PURE__ */ jsxRuntimeExports.jsx(
+    Card,
+    {
+      title: mode === "create" ? "新建故事" : "故事详情",
+      extra: /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { type: "primary", onClick: handleSubmit, loading, children: mode === "create" ? "创建" : "保存" }),
+      children: /* @__PURE__ */ jsxRuntimeExports.jsxs(Form2, { form, layout: "vertical", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx(Form2.Item, { name: "title", label: "标题", rules: [{ required: true, message: "请输入标题" }], children: /* @__PURE__ */ jsxRuntimeExports.jsx(Input, { placeholder: "请输入故事标题" }) }),
+        mode === "edit" && /* @__PURE__ */ jsxRuntimeExports.jsx(Form2.Item, { name: "storyArc", label: "故事弧线", children: /* @__PURE__ */ jsxRuntimeExports.jsx(TextArea, { rows: 3, placeholder: "故事主线与发展轨迹" }) }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(Form2.Item, { name: "synopsis", label: "简介", children: /* @__PURE__ */ jsxRuntimeExports.jsx(TextArea, { rows: 4, placeholder: "故事的初步梗概..." }) }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(Form2.Item, { name: "genre", label: "类型", children: /* @__PURE__ */ jsxRuntimeExports.jsx(Input, { placeholder: "如：奇幻、科幻、悬疑" }) }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(Form2.Item, { name: "tone", label: "基调", children: /* @__PURE__ */ jsxRuntimeExports.jsx(Input, { placeholder: "如：轻松、黑暗、史诗" }) })
+      ] })
+    }
+  );
+};
+const { Title: Title$1, Paragraph } = Typography;
+const { Option: Option$1 } = Select;
+const StoryConception = ({
+  onFinish,
+  isLoading,
+  error,
+  storyCard,
+  characterCards,
+  renderStoryCard,
+  renderCharacterCard,
+  setIsAddCharacterModalVisible
+}) => {
+  const [form] = Form2.useForm();
+  return /* @__PURE__ */ jsxRuntimeExports.jsxs(Row, { gutter: 24, style: { height: "100%" }, children: [
+    /* @__PURE__ */ jsxRuntimeExports.jsx(Col, { span: 8, children: /* @__PURE__ */ jsxRuntimeExports.jsxs(Card, { style: { marginBottom: 24 }, children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsx(Title$1, { level: 4, children: "故事构思" }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx(Paragraph, { type: "secondary", children: "打造您的下一部杰作。" }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx(Divider, {}),
+      /* @__PURE__ */ jsxRuntimeExports.jsxs(
+        Form2,
+        {
+          form,
+          layout: "vertical",
+          onFinish,
+          initialValues: { genre: "Sci-Fi", tone: "Dark" },
+          children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx(
+              Form2.Item,
+              {
+                name: "idea",
+                label: "您的一句话想法",
+                rules: [{ required: true, message: "请输入您的想法！" }],
+                children: /* @__PURE__ */ jsxRuntimeExports.jsx(
+                  Input.TextArea,
+                  {
+                    rows: 4,
+                    placeholder: "例如：在一个由梦境驱动的城市里，一名侦探必须侦破一起受害者在睡梦中死亡的谋杀案。"
+                  }
+                )
+              }
+            ),
+            /* @__PURE__ */ jsxRuntimeExports.jsx(Form2.Item, { name: "genre", label: "类型", children: /* @__PURE__ */ jsxRuntimeExports.jsxs(Select, { children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx(Option$1, { value: "Sci-Fi", children: "科幻" }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx(Option$1, { value: "Fantasy", children: "奇幻" }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx(Option$1, { value: "Mystery", children: "悬疑" }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx(Option$1, { value: "Horror", children: "恐怖" }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx(Option$1, { value: "Romance", children: "爱情" })
+            ] }) }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx(Form2.Item, { name: "tone", label: "基调", children: /* @__PURE__ */ jsxRuntimeExports.jsxs(Select, { children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx(Option$1, { value: "Dark", children: "黑暗" }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx(Option$1, { value: "Humorous", children: "幽默" }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx(Option$1, { value: "Serious", children: "严肃" }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx(Option$1, { value: "Adventurous", children: "冒险" }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx(Option$1, { value: "Whimsical", children: "异想天开" })
+            ] }) }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx(Form2.Item, { children: /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { type: "primary", htmlType: "submit", loading: isLoading, style: { width: "100%" }, children: isLoading ? "生成中..." : "生成故事" }) })
+          ]
+        }
+      )
+    ] }) }),
+    /* @__PURE__ */ jsxRuntimeExports.jsx(Col, { span: 16, children: /* @__PURE__ */ jsxRuntimeExports.jsx(Spin, { spinning: isLoading, tip: "正在构想一个新宇宙...", size: "large", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { padding: 24, background: "#fff", borderRadius: "8px", height: "100%" }, children: [
+      error && /* @__PURE__ */ jsxRuntimeExports.jsx(Alert, { message: "错误", description: error, type: "error", showIcon: true, closable: true, style: { marginBottom: 24 } }),
+      !storyCard && !isLoading && /* @__PURE__ */ jsxRuntimeExports.jsx(Empty, { description: "从左侧生成或选择一个故事开始。" }),
+      storyCard && /* @__PURE__ */ jsxRuntimeExports.jsxs(Row, { gutter: [24, 24], children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx(Col, { xs: 24, lg: 8, children: renderStoryCard(storyCard) }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs(Col, { xs: 24, lg: 16, children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx(Title$1, { level: 4, style: { marginBottom: 16 }, children: "角色" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs(Row, { gutter: [16, 16], children: [
+            characterCards.map((char2) => /* @__PURE__ */ jsxRuntimeExports.jsx(Col, { xs: 24, md: 12, children: renderCharacterCard(char2) }, char2.id)),
+            /* @__PURE__ */ jsxRuntimeExports.jsx(Col, { xs: 24, md: 12, children: /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { type: "dashed", onClick: () => setIsAddCharacterModalVisible(true), style: { width: "100%", height: "100%", minHeight: "150px" }, children: "+ 添加新角色" }) })
+          ] })
+        ] })
+      ] })
+    ] }) }) })
+  ] });
+};
+const useStoryData = () => {
+  const [storyList, setStoryList] = reactExports.useState([]);
+  const [selectedStory, setSelectedStory] = reactExports.useState(null);
+  const [characterCards, setCharacterCards] = reactExports.useState([]);
+  const [isLoading, setIsLoading] = reactExports.useState(false);
+  const [error, setError] = reactExports.useState(null);
+  const loadStoryList = reactExports.useCallback(async () => {
+    setIsLoading(true);
+    setError(null);
+    try {
+      const data = await fetchStoryList();
+      setStoryList(data);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Failed to fetch story list.");
+    } finally {
+      setIsLoading(false);
+    }
+  }, []);
+  const viewStory = reactExports.useCallback(async (storyId) => {
+    setIsLoading(true);
+    setError(null);
+    try {
+      const { storyCard, characterCards: characterCards2 } = await fetchStoryDetails(storyId);
+      setSelectedStory(storyCard);
+      setCharacterCards(characterCards2);
+      return storyCard;
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Failed to fetch story details.");
+      return null;
+    } finally {
+      setIsLoading(false);
+    }
+  }, []);
+  const generateStory = reactExports.useCallback(async (values) => {
+    setIsLoading(true);
+    setError(null);
+    try {
+      const { storyCard, characterCards: characterCards2 } = await createStoryConception(values);
+      setSelectedStory(storyCard);
+      setCharacterCards(characterCards2);
+      await loadStoryList();
+      return storyCard;
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Failed to generate story.");
+      return null;
+    } finally {
+      setIsLoading(false);
+    }
+  }, [loadStoryList]);
+  const updateStory = reactExports.useCallback(async (storyData) => {
+    setIsLoading(true);
+    setError(null);
+    try {
+      const updatedStory = await updateStoryCard(storyData);
+      setSelectedStory(updatedStory);
+      await loadStoryList();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Failed to update story.");
+    } finally {
+      setIsLoading(false);
+    }
+  }, [loadStoryList]);
+  const createStory$1 = reactExports.useCallback(async (payload) => {
+    setIsLoading(true);
+    setError(null);
+    try {
+      const newStory = await createStory(payload);
+      setSelectedStory(newStory);
+      await loadStoryList();
+      return newStory;
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Failed to create story.");
+      return null;
+    } finally {
+      setIsLoading(false);
+    }
+  }, [loadStoryList]);
+  const createCharacter = reactExports.useCallback(async (storyId, characterData) => {
+    setIsLoading(true);
+    setError(null);
+    try {
+      const newCharacter = await createCharacterCard(storyId, characterData);
+      setCharacterCards((prev2) => [...prev2, newCharacter]);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Failed to create character.");
+    } finally {
+      setIsLoading(false);
+    }
+  }, []);
+  const updateCharacter = reactExports.useCallback(async (characterData) => {
+    setIsLoading(true);
+    setError(null);
+    try {
+      const updatedCharacter = await updateCharacterCard(characterData);
+      setCharacterCards((prev2) => prev2.map((c) => c.id === updatedCharacter.id ? updatedCharacter : c));
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Failed to update character.");
+    } finally {
+      setIsLoading(false);
+    }
+  }, []);
+  const deleteCharacter = reactExports.useCallback(async (characterId) => {
+    setIsLoading(true);
+    setError(null);
+    try {
+      await deleteCharacterCard(characterId);
+      setCharacterCards((prev2) => prev2.filter((c) => c.id !== characterId));
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Failed to delete character.");
+    } finally {
+      setIsLoading(false);
+    }
+  }, []);
+  return {
+    storyList,
+    selectedStory,
+    characterCards,
+    isLoading,
+    error,
+    loadStoryList,
+    viewStory,
+    generateStory,
+    updateStory,
+    createStory: createStory$1,
+    createCharacter,
+    updateCharacter,
+    deleteCharacter,
+    setSelectedStory,
+    setCharacterCards
   };
 };
 const useRefineModal = () => {
@@ -55198,7 +56332,7 @@ const EditCharacterCardModal = ({ open: open2, onOk, onCancel, confirmLoading, c
     }
   );
 };
-const { Option: Option$1 } = Select;
+const { Option: Option2 } = Select;
 const EditOutlineModal = ({ open: open2, onOk, onCancel, confirmLoading, outline }) => {
   const [editableOutline, setEditableOutline] = reactExports.useState(outline);
   reactExports.useEffect(() => {
@@ -55236,8 +56370,8 @@ const EditOutlineModal = ({ open: open2, onOk, onCancel, confirmLoading, outline
               value: editableOutline.pointOfView,
               onChange: (value) => setEditableOutline({ ...editableOutline, pointOfView: value }),
               children: [
-                /* @__PURE__ */ jsxRuntimeExports.jsx(Option$1, { value: "第一人称", children: "第一人称" }),
-                /* @__PURE__ */ jsxRuntimeExports.jsx(Option$1, { value: "第三人称", children: "第三人称" })
+                /* @__PURE__ */ jsxRuntimeExports.jsx(Option2, { value: "第一人称", children: "第一人称" }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx(Option2, { value: "第三人称", children: "第三人称" })
               ]
             }
           ) }) })
@@ -55255,95 +56389,20 @@ const EditOutlineModal = ({ open: open2, onOk, onCancel, confirmLoading, outline
     }
   );
 };
-const { Title: Title$1, Paragraph: Paragraph$1 } = Typography;
-const RefineModal = ({
-  open: open2,
-  onCancel,
-  originalText,
-  contextType,
-  onRefined
-}) => {
-  const [form] = Form2.useForm();
-  const [loading, setLoading] = reactExports.useState(false);
-  const [error, setError] = reactExports.useState(null);
-  const [refinedText, setRefinedText] = reactExports.useState("");
-  reactExports.useEffect(() => {
-    if (open2) {
-      setRefinedText("");
-      setError(null);
-      form.resetFields();
-    }
-  }, [open2, form]);
-  const handleFinish = async (values) => {
-    setLoading(true);
-    setError(null);
-    try {
-      const response = await refineText({
-        text: originalText,
-        instruction: values.instruction,
-        contextType
-      });
-      setRefinedText(response.refinedText);
-    } catch (err) {
-      if (err instanceof Error) {
-        setError(err.message);
-      } else {
-        setError("An unknown error occurred.");
-      }
-    } finally {
-      setLoading(false);
-    }
-  };
-  const handleAccept = () => {
-    onRefined(refinedText);
-    onCancel();
-  };
-  return /* @__PURE__ */ jsxRuntimeExports.jsx(
-    Modal,
-    {
-      title: "AI 文本优化",
-      open: open2,
-      onCancel,
-      width: "70vw",
-      footer: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { onClick: onCancel, children: "取消" }, "back"),
-        /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { type: "primary", onClick: handleAccept, disabled: !refinedText || loading, children: "应用修改" }, "submit")
-      ],
-      children: /* @__PURE__ */ jsxRuntimeExports.jsxs(Spin, { spinning: loading, tip: "AI 正在思考...", children: [
-        error && /* @__PURE__ */ jsxRuntimeExports.jsx(Alert, { message: "优化出错", description: error, type: "error", showIcon: true, style: { marginBottom: 16 } }),
-        /* @__PURE__ */ jsxRuntimeExports.jsxs(Row, { gutter: 16, children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsxs(Col, { span: 12, children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsxs(Title$1, { level: 5, children: [
-              "原始文本 (",
-              contextType,
-              ")"
-            ] }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx(Card, { style: { minHeight: 200, maxHeight: 400, overflowY: "auto", background: "#f5f5f5" }, children: /* @__PURE__ */ jsxRuntimeExports.jsx(Paragraph$1, { children: originalText }) })
-          ] }),
-          /* @__PURE__ */ jsxRuntimeExports.jsxs(Col, { span: 12, children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx(Title$1, { level: 5, children: "优化结果" }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx(Card, { style: { minHeight: 200, maxHeight: 400, overflowY: "auto" }, children: /* @__PURE__ */ jsxRuntimeExports.jsx(Paragraph$1, { children: refinedText || "点击下方按钮开始优化..." }) })
-          ] })
-        ] }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx(Divider, {}),
-        /* @__PURE__ */ jsxRuntimeExports.jsxs(Form2, { form, layout: "vertical", onFinish: handleFinish, children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx(Form2.Item, { name: "instruction", label: "优化方向 (可选)", children: /* @__PURE__ */ jsxRuntimeExports.jsx(Input.TextArea, { rows: 2, placeholder: "例如：让这段描述更黑暗一点，或者，用更简洁的语言表达。" }) }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx(Form2.Item, { children: /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { htmlType: "submit", type: "primary", loading, children: "开始优化" }) })
-        ] })
-      ] })
-    }
-  );
-};
 const SparklesSvg = () => /* @__PURE__ */ jsxRuntimeExports.jsx("svg", { xmlns: "http://www.w3.org/2000/svg", viewBox: "0 0 1024 1024", fill: "currentColor", width: "1em", height: "1em", children: /* @__PURE__ */ jsxRuntimeExports.jsx("path", { d: "M512 900.7c-26.5 0-48-21.5-48-48V640c0-26.5 21.5-48 48-48s48 21.5 48 48v212.7c0 26.5-21.5 48-48 48zM221.3 550.7c-18.7 18.7-49.1 18.7-67.9 0s-18.7-49.1 0-67.9l150.4-150.4c18.7-18.7 49.1-18.7 67.9 0s18.7 49.1 0 67.9L221.3 550.7zM802.7 550.7L652.3 400.3c-18.7-18.7-18.7-49.1 0-67.9s49.1-18.7 67.9 0l150.4 150.4c18.7 18.7 18.7 49.1 0 67.9s-49.1 18.7-67.9 0zM512 432c-26.5 0-48-21.5-48-48V171.3c0-26.5 21.5-48 48-48s48 21.5 48 48V384c0 26.5-21.5 48-48 48zM123.3 221.3c-18.7-18.7-18.7-49.1 0-67.9s49.1-18.7 67.9 0l150.4 150.4c18.7 18.7 18.7 49.1 0 67.9s-49.1 18.7-67.9 0L123.3 221.3zM868.6 221.3l-150.4-150.4c-18.7-18.7-49.1-18.7-67.9 0s-18.7 49.1 0 67.9l150.4 150.4c18.7 18.7 18.7 49.1 0 67.9s-49.1 18.7-67.9 0z" }) });
 const SparklesIcon = (props) => /* @__PURE__ */ jsxRuntimeExports.jsx(Icon, { component: SparklesSvg, ...props });
 const { Header, Content } = Layout;
-const { Title, Paragraph } = Typography;
-const { Option: Option2 } = Select;
+const { Title } = Typography;
 const { TabPane } = Tabs;
 const Workbench = () => {
   const { tab } = useParams();
   const navigate = useNavigate();
-  const [activeTab, setActiveTab] = reactExports.useState(tab || "story-conception");
+  const normalizeTab = (t2) => {
+    if (!t2) return "story-conception";
+    if (t2 === "outline-design" || t2 === "outline-management") return "outline-workspace";
+    return t2;
+  };
+  const [activeTab, setActiveTab] = reactExports.useState(normalizeTab(tab));
   const {
     storyList,
     selectedStory: storyCard,
@@ -55354,6 +56413,7 @@ const Workbench = () => {
     viewStory,
     generateStory,
     updateStory,
+    createStory: createStory2,
     createCharacter,
     updateCharacter,
     deleteCharacter,
@@ -55361,6 +56421,7 @@ const Workbench = () => {
     setCharacterCards
   } = useStoryData();
   const [selectedStoryForOutline, setSelectedStoryForOutline] = reactExports.useState(null);
+  const [selectedStoryForMgmt, setSelectedStoryForMgmt] = reactExports.useState(null);
   const {
     outlines: outlinesForStory,
     selectedOutline,
@@ -55368,9 +56429,8 @@ const Workbench = () => {
     error: outlineError,
     loadOutlines,
     updateOutline: updateOutline2,
-    deleteOutline: deleteOutline2,
     selectOutline,
-    getOutlineForWriting,
+    updateLocalOutline,
     setSelectedOutline,
     setIsLoading: setOutlineLoading,
     setError: setOutlineError
@@ -55387,34 +56447,32 @@ const Workbench = () => {
   const [editingCharacter, setEditingCharacter] = reactExports.useState(null);
   const [isAddCharacterModalVisible, setIsAddCharacterModalVisible] = reactExports.useState(false);
   const [editingOutline, setEditingOutline] = reactExports.useState(null);
-  const [outlineForWriting, setOutlineForWriting] = reactExports.useState(null);
   const [selectedSceneId, setSelectedSceneId] = reactExports.useState(null);
   const [error, setError] = reactExports.useState("");
   reactExports.useEffect(() => {
     loadStoryList();
   }, [loadStoryList]);
   reactExports.useEffect(() => {
-    if (tab && tab !== activeTab) {
-      setActiveTab(tab);
+    const next2 = normalizeTab(tab);
+    if (next2 !== activeTab) {
+      setActiveTab(next2);
+      if (tab !== next2) {
+        navigate(`/workbench/${next2}`, { replace: true });
+      }
     }
-  }, [tab, activeTab]);
+  }, [tab, activeTab, navigate]);
   reactExports.useEffect(() => {
     if (selectedStoryForOutline) {
       loadOutlines();
     }
   }, [selectedStoryForOutline, loadOutlines]);
-  const handleViewStory = async (storyId) => {
-    const story = await viewStory(storyId);
-    if (story) {
-      setSelectedStoryForOutline(story.id.toString());
-      navigate("/workbench/story-details");
-    }
-  };
   const onFinish = async (values) => {
     const newStory = await generateStory(values);
     if (newStory) {
       setSelectedStoryForOutline(newStory.id.toString());
-      setActiveTab("story-details");
+      setSelectedStoryForMgmt(newStory.id);
+      setActiveTab("story-management");
+      navigate("/workbench/story-management", { replace: true });
     }
   };
   const handleUpdateStoryCard = async () => {
@@ -55434,11 +56492,6 @@ const Workbench = () => {
     await updateOutline2(editingOutline);
     setEditingOutline(null);
   };
-  const handleDeleteOutline = async (outlineId) => {
-    if (window.confirm("您确定要删除此大纲吗？这将无法恢复。")) {
-      await deleteOutline2(outlineId);
-    }
-  };
   const handleUpdateCharacterCard = async () => {
     if (!editingCharacter) return;
     await updateCharacter(editingCharacter);
@@ -55457,7 +56510,7 @@ const Workbench = () => {
       actions: [
         /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { type: "primary", onClick: () => {
           setSelectedStoryForOutline(card.id.toString());
-          navigate("/workbench/outline-design");
+          navigate("/workbench/outline-workspace");
         }, children: "设计大纲" })
       ],
       children: [
@@ -55478,19 +56531,6 @@ const Workbench = () => {
   const handleDeleteCharacter = async (characterId) => {
     if (window.confirm("您确定要删除此角色吗？")) {
       await deleteCharacter(characterId);
-    }
-  };
-  const handleStartWriting = async (outlineId) => {
-    const outline = await getOutlineForWriting(outlineId);
-    if (outline) {
-      setOutlineForWriting(outline);
-      navigate("/workbench/manuscript-writer");
-    }
-  };
-  const handleEditOutline = async (outlineId) => {
-    const outline = await getOutlineForWriting(outlineId);
-    if (outline) {
-      setEditingOutline(outline);
     }
   };
   const renderCharacterCard = (char2) => /* @__PURE__ */ jsxRuntimeExports.jsxs(
@@ -55526,6 +56566,19 @@ const Workbench = () => {
     setActiveTab(key);
     navigate(`/workbench/${key}`);
   };
+  const handleSelectStoryFromList = async (id) => {
+    if (id === "new") {
+      setSelectedStoryForMgmt("new");
+      setStoryCard(null);
+      return;
+    }
+    setSelectedStoryForMgmt(id);
+    await viewStory(id);
+  };
+  const handleAfterCreateStory = (newStory) => {
+    setSelectedStoryForMgmt(newStory.id);
+    setSelectedStoryForOutline(newStory.id.toString());
+  };
   return /* @__PURE__ */ jsxRuntimeExports.jsxs(Layout, { style: { minHeight: "100vh" }, children: [
     /* @__PURE__ */ jsxRuntimeExports.jsx(Header, { style: { background: "#fff", padding: "0 24px", borderBottom: "1px solid #f0f0f0", display: "flex", justifyContent: "space-between", alignItems: "center" }, children: /* @__PURE__ */ jsxRuntimeExports.jsx(Title, { level: 3, style: { margin: 0 }, children: "AI 小说家工作台" }) }),
     /* @__PURE__ */ jsxRuntimeExports.jsx(Content, { style: { padding: "24px", margin: 0, background: "#f0f2f5" }, children: /* @__PURE__ */ jsxRuntimeExports.jsxs(Tabs, { activeKey: activeTab, onChange: handleTabChange, type: "card", style: { height: "100%" }, children: [
@@ -55542,53 +56595,56 @@ const Workbench = () => {
           setIsAddCharacterModalVisible
         }
       ) }, "story-conception"),
-      /* @__PURE__ */ jsxRuntimeExports.jsx(TabPane, { tab: "故事列表", children: /* @__PURE__ */ jsxRuntimeExports.jsx(Card, { title: "故事列表", children: /* @__PURE__ */ jsxRuntimeExports.jsx(Spin, { spinning: isStoryLoading, children: /* @__PURE__ */ jsxRuntimeExports.jsx(
-        List,
-        {
-          itemLayout: "horizontal",
-          dataSource: storyList,
-          renderItem: (item) => /* @__PURE__ */ jsxRuntimeExports.jsx(
-            List.Item,
-            {
-              actions: [
-                /* @__PURE__ */ jsxRuntimeExports.jsx(
-                  Button,
-                  {
-                    type: "link",
-                    onClick: () => {
-                      handleViewStory(item.id);
-                    },
-                    children: "查看"
-                  }
-                )
-              ],
-              children: /* @__PURE__ */ jsxRuntimeExports.jsx(
-                List.Item.Meta,
-                {
-                  title: item.title,
-                  description: `类型: ${item.genre} | 基调: ${item.tone}`
-                }
-              )
-            }
-          )
-        }
-      ) }) }) }, "story-list"),
-      /* @__PURE__ */ jsxRuntimeExports.jsx(TabPane, { tab: "故事详情", children: /* @__PURE__ */ jsxRuntimeExports.jsx(Spin, { spinning: isStoryLoading, tip: "正在加载故事...", size: "large", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { padding: 24, background: "#fff", borderRadius: "8px", height: "100%" }, children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsx(TabPane, { tab: "故事管理", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { padding: 24, background: "#fff", borderRadius: "8px" }, children: [
         storyError && /* @__PURE__ */ jsxRuntimeExports.jsx(Alert, { message: "错误", description: storyError, type: "error", showIcon: true, closable: true, onClose: () => setError(""), style: { marginBottom: 24 } }),
-        !storyCard && !isStoryLoading && /* @__PURE__ */ jsxRuntimeExports.jsx(Empty, { description: "请从“故事列表”中选择一个故事查看详情。" }),
-        storyCard && /* @__PURE__ */ jsxRuntimeExports.jsxs(Row, { gutter: [24, 24], children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx(Col, { xs: 24, lg: 8, children: renderStoryCard(storyCard) }),
-          /* @__PURE__ */ jsxRuntimeExports.jsxs(Col, { xs: 24, lg: 16, children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx(Title, { level: 4, style: { marginBottom: 16 }, children: "角色" }),
-            /* @__PURE__ */ jsxRuntimeExports.jsxs(Row, { gutter: [16, 16], children: [
-              characterCards.map((char2) => /* @__PURE__ */ jsxRuntimeExports.jsx(Col, { xs: 24, md: 12, children: renderCharacterCard(char2) }, char2.id)),
-              /* @__PURE__ */ jsxRuntimeExports.jsx(Col, { xs: 24, md: 12, children: /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { type: "dashed", onClick: () => setIsAddCharacterModalVisible(true), style: { width: "100%", height: "100%", minHeight: "150px" }, children: "+ 添加新角色" }) })
-            ] })
-          ] })
+        /* @__PURE__ */ jsxRuntimeExports.jsxs(Row, { gutter: 24, children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx(Col, { xs: 24, lg: 8, children: /* @__PURE__ */ jsxRuntimeExports.jsx(
+            StoryList,
+            {
+              stories: storyList,
+              selectedId: selectedStoryForMgmt,
+              onSelect: handleSelectStoryFromList,
+              loading: isStoryLoading
+            }
+          ) }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(Col, { xs: 24, lg: 16, children: /* @__PURE__ */ jsxRuntimeExports.jsx(Spin, { spinning: isStoryLoading, tip: "正在加载...", size: "large", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", flexDirection: "column", gap: 16 }, children: [
+            selectedStoryForMgmt === "new" && /* @__PURE__ */ jsxRuntimeExports.jsx(
+              StoryDetail,
+              {
+                mode: "create",
+                story: null,
+                loading: isStoryLoading,
+                onCreate: createStory2,
+                onUpdate: () => {
+                },
+                onAfterCreate: handleAfterCreateStory
+              }
+            ),
+            selectedStoryForMgmt !== "new" && storyCard && /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx(
+                StoryDetail,
+                {
+                  mode: "edit",
+                  story: storyCard,
+                  loading: isStoryLoading,
+                  onCreate: createStory2,
+                  onUpdate: updateStory
+                }
+              ),
+              /* @__PURE__ */ jsxRuntimeExports.jsxs(Card, { children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx(Title, { level: 4, style: { marginBottom: 16 }, children: "角色" }),
+                /* @__PURE__ */ jsxRuntimeExports.jsxs(Row, { gutter: [16, 16], children: [
+                  characterCards.map((char2) => /* @__PURE__ */ jsxRuntimeExports.jsx(Col, { xs: 24, md: 12, children: renderCharacterCard(char2) }, char2.id)),
+                  /* @__PURE__ */ jsxRuntimeExports.jsx(Col, { xs: 24, md: 12, children: /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { type: "dashed", onClick: () => setIsAddCharacterModalVisible(true), style: { width: "100%", height: "100%", minHeight: "150px" }, children: "+ 添加新角色" }) })
+                ] })
+              ] })
+            ] }),
+            !selectedStoryForMgmt && /* @__PURE__ */ jsxRuntimeExports.jsx(Empty, { description: "请选择左侧故事或点击“新建故事”" })
+          ] }) }) })
         ] })
-      ] }) }) }, "story-details"),
-      /* @__PURE__ */ jsxRuntimeExports.jsx(TabPane, { tab: "大纲设计", children: /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { padding: 24, background: "#fff", borderRadius: "8px" }, children: /* @__PURE__ */ jsxRuntimeExports.jsx(
-        OutlineDesign,
+      ] }) }, "story-management"),
+      /* @__PURE__ */ jsxRuntimeExports.jsx(TabPane, { tab: "大纲工作台", children: /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { padding: 24, background: "#fff", borderRadius: "8px" }, children: /* @__PURE__ */ jsxRuntimeExports.jsx(
+        OutlinePage,
         {
           storyCards: storyList,
           selectedStoryId: selectedStoryForOutline,
@@ -55601,67 +56657,15 @@ const Workbench = () => {
           setError: setOutlineError,
           outlines: outlinesForStory,
           onSelectOutline: handleSelectOutline,
-          fetchOutlines: loadOutlines
+          loadOutlines,
+          updateLocal: updateLocalOutline,
+          updateOutlineRemote: updateOutline2
         }
-      ) }) }, "outline-design"),
-      /* @__PURE__ */ jsxRuntimeExports.jsx(TabPane, { tab: "大纲管理", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { padding: 24, background: "#fff", borderRadius: "8px" }, children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx(Title, { level: 4, children: "选择一个故事以管理其大纲" }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx(
-          Select,
-          {
-            showSearch: true,
-            style: { width: "100%", marginBottom: 24 },
-            placeholder: "选择故事",
-            value: selectedStoryForOutline,
-            onChange: handleStoryChangeInOutlineTabs,
-            filterOption: (input, option) => option?.children?.toLowerCase().includes(input.toLowerCase()),
-            children: storyList.map((story) => /* @__PURE__ */ jsxRuntimeExports.jsx(Option2, { value: story.id.toString(), children: story.title }, story.id))
-          }
-        ),
-        /* @__PURE__ */ jsxRuntimeExports.jsx(
-          Button,
-          {
-            type: "primary",
-            icon: /* @__PURE__ */ jsxRuntimeExports.jsx(RefIcon$d, {}),
-            onClick: () => setActiveTab("outline-design"),
-            disabled: !selectedStoryForOutline,
-            style: { marginBottom: 24 },
-            children: "为当前故事创建新大纲"
-          }
-        ),
-        /* @__PURE__ */ jsxRuntimeExports.jsx(Spin, { spinning: isOutlineLoading, children: /* @__PURE__ */ jsxRuntimeExports.jsx(
-          List,
-          {
-            grid: { gutter: 16, xs: 1, sm: 2, md: 3, lg: 4 },
-            dataSource: outlinesForStory,
-            renderItem: (item) => /* @__PURE__ */ jsxRuntimeExports.jsx(List.Item, { children: /* @__PURE__ */ jsxRuntimeExports.jsxs(
-              Card,
-              {
-                title: item.title,
-                actions: [
-                  /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { type: "primary", icon: /* @__PURE__ */ jsxRuntimeExports.jsx(RefIcon$a, {}), onClick: () => handleStartWriting(item.id), children: "创作" }),
-                  /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { icon: /* @__PURE__ */ jsxRuntimeExports.jsx(RefIcon$4, {}), onClick: () => handleEditOutline(item.id), children: "编辑" }),
-                  /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { danger: true, icon: /* @__PURE__ */ jsxRuntimeExports.jsx(RefIcon$5, {}), onClick: () => handleDeleteOutline(item.id), children: "删除" })
-                ],
-                children: [
-                  /* @__PURE__ */ jsxRuntimeExports.jsxs(Paragraph, { children: [
-                    "视角: ",
-                    item.pointOfView
-                  ] }),
-                  /* @__PURE__ */ jsxRuntimeExports.jsxs(Paragraph, { children: [
-                    "章节数: ",
-                    item.chapters.length
-                  ] })
-                ]
-              }
-            ) })
-          }
-        ) })
-      ] }) }, "outline-management"),
+      ) }) }, "outline-workspace"),
       /* @__PURE__ */ jsxRuntimeExports.jsx(TabPane, { tab: "故事创作", children: /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { padding: 24, background: "#fff", borderRadius: "8px", height: "100%" }, children: /* @__PURE__ */ jsxRuntimeExports.jsx(
         ManuscriptWriter,
         {
-          selectedOutline: outlineForWriting,
+          storyId: selectedStoryForOutline,
           selectedSceneId,
           onSelectScene: setSelectedSceneId
         }
@@ -55737,6 +56741,8 @@ function App() {
     /* @__PURE__ */ jsxRuntimeExports.jsx(Route, { path: "/register", element: /* @__PURE__ */ jsxRuntimeExports.jsx(Register, {}) }),
     /* @__PURE__ */ jsxRuntimeExports.jsx(Route, { path: "/settings", element: /* @__PURE__ */ jsxRuntimeExports.jsx(Settings, {}) }),
     /* @__PURE__ */ jsxRuntimeExports.jsx(Route, { path: "/workbench", element: /* @__PURE__ */ jsxRuntimeExports.jsx(Workbench, {}) }),
+    /* @__PURE__ */ jsxRuntimeExports.jsx(Route, { path: "/workbench/outline-design", element: /* @__PURE__ */ jsxRuntimeExports.jsx(Navigate, { to: "/workbench/outline-workspace", replace: true }) }),
+    /* @__PURE__ */ jsxRuntimeExports.jsx(Route, { path: "/workbench/outline-management", element: /* @__PURE__ */ jsxRuntimeExports.jsx(Navigate, { to: "/workbench/outline-workspace", replace: true }) }),
     /* @__PURE__ */ jsxRuntimeExports.jsx(Route, { path: "/workbench/:tab", element: /* @__PURE__ */ jsxRuntimeExports.jsx(Workbench, {}) }),
     /* @__PURE__ */ jsxRuntimeExports.jsx(Route, { path: "/story-conception", element: /* @__PURE__ */ jsxRuntimeExports.jsx(Navigate, { to: "/workbench/story-conception", replace: true }) })
   ] }) });

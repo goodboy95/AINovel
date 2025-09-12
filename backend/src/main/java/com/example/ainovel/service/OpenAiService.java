@@ -68,9 +68,21 @@ public class OpenAiService extends AbstractAiService {
 
     @Override
     @Retryable(value = {RestClientException.class, RuntimeException.class}, maxAttempts = 3, backoff = @Backoff(delay = 1000))
+    public String generate(String prompt, String apiKey, String baseUrl, String model) {
+        try {
+            return callOpenAi(prompt, apiKey, baseUrl, model, false);
+        } catch (JsonProcessingException e) {
+            log.error("Error processing JSON for OpenAI text generation", e);
+            throw new RuntimeException("Failed to process JSON for OpenAI text generation.", e);
+        }
+    }
+
+    // Legacy two-arg variant for backward compatibility
+    @Override
+    @Retryable(value = {RestClientException.class, RuntimeException.class}, maxAttempts = 3, backoff = @Backoff(delay = 1000))
     public String generate(String prompt, String apiKey) {
         try {
-            return callOpenAi(prompt, apiKey, false);
+            return callOpenAi(prompt, apiKey, null, null, false);
         } catch (JsonProcessingException e) {
             log.error("Error processing JSON for OpenAI text generation", e);
             throw new RuntimeException("Failed to process JSON for OpenAI text generation.", e);
@@ -78,8 +90,14 @@ public class OpenAiService extends AbstractAiService {
     }
 
     @Override
+    protected String callApiForJson(String prompt, String apiKey, String baseUrl, String model) throws JsonProcessingException {
+        return callOpenAi(prompt, apiKey, baseUrl, model, true);
+    }
+
+    // Legacy two-arg variants for backward compatibility with existing callers
+    @Override
     protected String callApiForJson(String prompt, String apiKey) throws JsonProcessingException {
-        return callOpenAi(prompt, apiKey, true);
+        return callOpenAi(prompt, apiKey, null, null, true);
     }
 
     @Override
@@ -88,8 +106,9 @@ public class OpenAiService extends AbstractAiService {
         return new ConceptionResponse(conception.storyCard, conception.characterCards);
     }
 
-    private String callOpenAi(String prompt, String apiKey, boolean jsonMode) throws JsonProcessingException {
-        String url = openaiApiUrl + "/chat/completions";
+    private String callOpenAi(String prompt, String apiKey, String baseUrl, String model, boolean jsonMode) throws JsonProcessingException {
+        String resolvedBaseUrl = (baseUrl != null && !baseUrl.trim().isEmpty()) ? baseUrl.trim() : openaiApiUrl;
+        String url = resolvedBaseUrl + "/chat/completions";
         HttpHeaders headers = new HttpHeaders();
         headers.setBearerAuth(apiKey);
         headers.setContentType(MediaType.APPLICATION_JSON);
@@ -99,7 +118,7 @@ public class OpenAiService extends AbstractAiService {
         message.put("content", prompt);
 
         Map<String, Object> body = new HashMap<>();
-        body.put("model", defaultModel);
+        body.put("model", (model != null && !model.trim().isEmpty()) ? model.trim() : defaultModel);
         body.put("messages", List.of(message));
         if (jsonMode) {
             body.put("response_format", Map.of("type", "json_object"));
@@ -133,12 +152,13 @@ public class OpenAiService extends AbstractAiService {
     }
 
     @Override
-    public boolean validateApiKey(String apiKey) {
+    public boolean validateApiKey(String apiKey, String baseUrl) {
         if (apiKey == null || apiKey.trim().isEmpty()) {
             return false;
         }
 
-        String url = openaiApiUrl + "/models";
+        String resolvedBaseUrl = (baseUrl != null && !baseUrl.trim().isEmpty()) ? baseUrl.trim() : openaiApiUrl;
+        String url = resolvedBaseUrl + "/models";
         HttpHeaders headers = new HttpHeaders();
         headers.setBearerAuth(apiKey);
         HttpEntity<String> entity = new HttpEntity<>(headers);
@@ -150,5 +170,10 @@ public class OpenAiService extends AbstractAiService {
             // Any exception (e.g., 401 Unauthorized) means the key is invalid or the service is unreachable.
             return false;
         }
+    }
+
+    // Backward-compatible overload to keep existing tests working
+    public boolean validateApiKey(String apiKey) {
+        return validateApiKey(apiKey, null);
     }
 }

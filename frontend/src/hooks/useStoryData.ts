@@ -7,6 +7,7 @@ import {
     createCharacterCard as apiCreateCharacter,
     updateCharacterCard as apiUpdateCharacter,
     deleteCharacterCard as apiDeleteCharacter,
+    createStory as apiCreateStory,
 } from '../services/api';
 import type { StoryCard, CharacterCard, ConceptionFormValues } from '../types';
 
@@ -100,6 +101,27 @@ export const useStoryData = () => {
     }, [loadStoryList]);
 
     /**
+     * Manually create a new story.
+     * @param payload - Basic fields for a new story.
+     * @returns The created StoryCard or null on failure.
+     */
+    const createStory = useCallback(async (payload: { title: string; synopsis: string; genre: string; tone: string; }): Promise<StoryCard | null> => {
+        setIsLoading(true);
+        setError(null);
+        try {
+            const newStory = await apiCreateStory(payload);
+            setSelectedStory(newStory);
+            await loadStoryList();
+            return newStory;
+        } catch (err) {
+            setError(err instanceof Error ? err.message : 'Failed to create story.');
+            return null;
+        } finally {
+            setIsLoading(false);
+        }
+    }, [loadStoryList]);
+
+    /**
      * Creates a new character for a given story.
      * @param {number} storyId - The ID of the story to associate the character with.
      * @param {Omit<CharacterCard, 'id'>} characterData - The data for the new character.
@@ -162,6 +184,7 @@ export const useStoryData = () => {
         viewStory,
         generateStory,
         updateStory,
+        createStory,
         createCharacter,
         updateCharacter,
         deleteCharacter,

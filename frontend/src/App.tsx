@@ -28,6 +28,8 @@ function App() {
         <Route path="/register" element={<Register />} />
         <Route path="/settings" element={<Settings />} />
         <Route path="/workbench" element={<Workbench />} />
+        <Route path="/workbench/outline-design" element={<Navigate to="/workbench/outline-workspace" replace />} />
+        <Route path="/workbench/outline-management" element={<Navigate to="/workbench/outline-workspace" replace />} />
         <Route path="/workbench/:tab" element={<Workbench />} />
         <Route path="/story-conception" element={<Navigate to="/workbench/story-conception" replace />} />
       </Routes>

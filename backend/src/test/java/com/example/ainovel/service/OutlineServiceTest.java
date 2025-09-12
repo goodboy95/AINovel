@@ -22,7 +22,6 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.context.ApplicationContext;
 
 import com.example.ainovel.dto.ChapterDto;
 import com.example.ainovel.dto.GenerateChapterRequest;
@@ -34,6 +33,10 @@ import com.example.ainovel.model.User;
 import com.example.ainovel.model.UserSetting;
 import com.example.ainovel.repository.OutlineCardRepository;
 import com.example.ainovel.repository.OutlineChapterRepository;
+import com.example.ainovel.repository.OutlineSceneRepository;
+import com.example.ainovel.repository.StoryCardRepository;
+import com.example.ainovel.repository.TemporaryCharacterRepository;
+import com.example.ainovel.repository.UserRepository;
 import com.example.ainovel.repository.UserSettingRepository;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -44,15 +47,25 @@ class OutlineServiceTest {
     @Mock
     private OutlineCardRepository outlineCardRepository;
     @Mock
-    private OutlineChapterRepository outlineChapterRepository;
+    private StoryCardRepository storyCardRepository;
+    @Mock
+    private UserRepository userRepository;
     @Mock
     private UserSettingRepository userSettingRepository;
     @Mock
     private EncryptionService encryptionService;
     @Mock
-    private ApplicationContext applicationContext;
+    private SettingsService settingsService;
     @Mock
-    private AiService aiService;
+    private OpenAiService openAiService;
+
+    @Mock
+    private OutlineChapterRepository outlineChapterRepository;
+    @Mock
+    private OutlineSceneRepository outlineSceneRepository;
+
+    @Mock
+    private TemporaryCharacterRepository temporaryCharacterRepository;
 
     @Spy
     private ObjectMapper objectMapper = new ObjectMapper();
@@ -133,15 +146,15 @@ class OutlineServiceTest {
     void testGenerateChapterOutline_Success() throws JsonProcessingException {
         // Arrange
         UserSetting userSetting = new UserSetting();
-        userSetting.setLlmProvider("gemini");
         String mockApiKey = "decrypted-api-key";
         String mockJsonResponse = getMockAiResponse();
 
         when(outlineCardRepository.findById(OUTLINE_ID)).thenReturn(Optional.of(outlineCard));
         when(userSettingRepository.findByUserId(USER_ID)).thenReturn(Optional.of(userSetting));
         when(encryptionService.decrypt(any())).thenReturn(mockApiKey);
-        when(applicationContext.getBean("gemini", AiService.class)).thenReturn(aiService);
-        when(aiService.generate(anyString(), eq(mockApiKey))).thenReturn(mockJsonResponse);
+        when(settingsService.getBaseUrlByUserId(USER_ID)).thenReturn("https://api.example.com/v1");
+        when(settingsService.getModelNameByUserId(USER_ID)).thenReturn("gpt-4");
+        when(openAiService.generate(anyString(), eq(mockApiKey), eq("https://api.example.com/v1"), eq("gpt-4"))).thenReturn(mockJsonResponse);
         when(outlineChapterRepository.findByOutlineCardIdAndChapterNumber(anyLong(), anyInt())).thenReturn(Optional.empty());
         // 让 save 直接返回传入的实体，以便后续断言
         when(outlineChapterRepository.save(any(OutlineChapter.class))).thenAnswer(invocation -> invocation.getArgument(0));
@@ -156,7 +169,7 @@ class OutlineServiceTest {
 
         // Verify interactions
         verify(outlineCardRepository, times(1)).findById(OUTLINE_ID);
-        verify(aiService, times(1)).generate(anyString(), eq(mockApiKey));
+        verify(openAiService, times(1)).generate(anyString(), eq(mockApiKey), eq("https://api.example.com/v1"), eq("gpt-4"));
         verify(outlineChapterRepository, times(1)).save(any(OutlineChapter.class));
 
         // Capture the saved chapter and verify its contents

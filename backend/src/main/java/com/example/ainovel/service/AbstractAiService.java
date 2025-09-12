@@ -106,4 +106,43 @@ public abstract class AbstractAiService implements AiService {
             );
         }
     }
+    // Extended variants to support per-user baseUrl and model
+    @Override
+    @Retryable(value = {RestClientException.class, IOException.class, RuntimeException.class}, maxAttempts = 3, backoff = @Backoff(delay = 1000))
+    public ConceptionResponse generateConception(ConceptionRequest request, String apiKey, String baseUrl, String model) {
+        String prompt = buildConceptionPrompt(request);
+        try {
+            log.info("Attempting to generate conception with prompt: {}", prompt);
+            String jsonContent = callApiForJson(prompt, apiKey, baseUrl, model);
+            ConceptionResponse conception = parseConceptionResponse(jsonContent);
+
+            if (conception == null || conception.getStoryCard() == null || conception.getCharacterCards() == null) {
+                throw new RuntimeException("AI response is missing required fields for conception.");
+            }
+
+            conception.getStoryCard().setGenre(request.getGenre());
+            conception.getStoryCard().setTone(request.getTone());
+
+            return conception;
+        } catch (JsonProcessingException e) {
+            log.error("Error processing JSON for conception generation", e);
+            throw new RuntimeException("Failed to process JSON for conception generation.", e);
+        } catch (Exception e) {
+            log.error("Error during conception generation process", e);
+            throw new RuntimeException("Failed to generate full story conception.", e);
+        }
+    }
+
+    @Override
+    @Retryable(value = {RestClientException.class, IOException.class, RuntimeException.class}, maxAttempts = 3, backoff = @Backoff(delay = 1000))
+    public String refineText(RefineRequest request, String apiKey, String baseUrl, String model) {
+        String prompt = buildRefinePrompt(request);
+        log.info("Attempting to refine text with prompt: {}", prompt);
+        return generate(prompt, apiKey, baseUrl, model);
+    }
+
+    // Overload for subclasses that support baseUrl/model (defaults to legacy two-arg behavior)
+    protected String callApiForJson(String prompt, String apiKey, String baseUrl, String model) throws JsonProcessingException {
+        return callApiForJson(prompt, apiKey);
+    }
 }

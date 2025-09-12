@@ -2,7 +2,6 @@ package com.example.ainovel.service;
 
 import java.util.List;
 
-import org.springframework.context.ApplicationContext;
 import org.springframework.retry.annotation.Backoff;
 import org.springframework.retry.annotation.Retryable;
 import org.springframework.security.access.AccessDeniedException;
@@ -39,7 +38,8 @@ public class ConceptionService {
     private final StoryCardRepository storyCardRepository;
     private final CharacterCardRepository characterCardRepository;
     private final EncryptionService encryptionService;
-    private final ApplicationContext applicationContext;
+    private final SettingsService settingsService;
+    private final OpenAiService openAiService;
 
     /**
      * Generates and saves a new story and associated character cards based on a user's prompt.
@@ -52,10 +52,11 @@ public class ConceptionService {
     @Retryable(backoff = @Backoff(delay = 1000), maxAttempts = 3)
     public ConceptionResponse generateAndSaveStory(String username, ConceptionRequest request) {
         User user = findUserByUsername(username);
-        AiService aiService = getAiServiceForUser(user);
         String apiKey = getApiKeyForUser(user);
+        String baseUrl = settingsService.getBaseUrlByUserId(user.getId());
+        String model = settingsService.getModelNameByUserId(user.getId());
 
-        ConceptionResponse responseFromAi = aiService.generateConception(request, apiKey);
+        ConceptionResponse responseFromAi = openAiService.generateConception(request, apiKey, baseUrl, model);
 
         StoryCard storyCard = responseFromAi.getStoryCard();
         if (storyCard == null) {
@@ -222,9 +223,10 @@ public class ConceptionService {
     // Helper methods
 
     private RefineResponse refineTextWithAi(RefineRequest request, User user) {
-        AiService aiService = getAiServiceForUser(user);
         String apiKey = getApiKeyForUser(user);
-        String refinedText = aiService.refineText(request, apiKey);
+        String baseUrl = settingsService.getBaseUrlByUserId(user.getId());
+        String model = settingsService.getModelNameByUserId(user.getId());
+        String refinedText = openAiService.refineText(request, apiKey, baseUrl, model);
         return new RefineResponse(refinedText);
     }
 
@@ -244,9 +246,8 @@ public class ConceptionService {
     }
 
     private AiService getAiServiceForUser(User user) {
-        UserSetting settings = userSettingRepository.findByUserId(user.getId())
-                .orElseThrow(() -> new IllegalStateException("User settings not found. Please configure your AI provider first."));
-        return (AiService) applicationContext.getBean(settings.getLlmProvider().toLowerCase());
+        // Deprecated provider selection removed. Always use OpenAI implementation.
+        return openAiService;
     }
 
     private String getApiKeyForUser(User user) {
