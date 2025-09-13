@@ -33,7 +33,6 @@ import com.example.ainovel.repository.OutlineCardRepository;
 import com.example.ainovel.repository.OutlineChapterRepository;
 import com.example.ainovel.repository.OutlineSceneRepository;
 import com.example.ainovel.repository.StoryCardRepository;
-import com.example.ainovel.repository.TemporaryCharacterRepository;
 import com.example.ainovel.repository.UserRepository;
 import com.example.ainovel.repository.UserSettingRepository;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -61,8 +60,6 @@ public class OutlineService {
     private final ObjectMapper objectMapper;
     private final OutlineChapterRepository outlineChapterRepository;
     private final OutlineSceneRepository outlineSceneRepository;
-
-    private final TemporaryCharacterRepository temporaryCharacterRepository;
 
     /**
      * Creates a new story outline using an AI service.
@@ -519,11 +516,6 @@ public class OutlineService {
     private OutlineScene findSceneById(Long sceneId) {
         return outlineSceneRepository.findById(sceneId)
                 .orElseThrow(() -> new ResourceNotFoundException("OutlineScene not found with id: " + sceneId));
-    }
-
-    private AiService getAiServiceForUser(User user) {
-        // Deprecated provider-based selection removed; always use OpenAI implementation.
-        return openAiService;
     }
 
     private String getDecryptedApiKeyForUser(User user) {

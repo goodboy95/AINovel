@@ -44,7 +44,6 @@ public class OpenAiService extends AbstractAiService {
     }
 
     private static class Message {
-        public String role;
         public String content;
     }
 

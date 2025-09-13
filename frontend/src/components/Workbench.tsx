@@ -29,6 +29,9 @@ import EditStoryCardModal from './modals/EditStoryCardModal';
 import EditCharacterCardModal from './modals/EditCharacterCardModal';
 import EditOutlineModal from './modals/EditOutlineModal';
 import RefineModal from './modals/RefineModal';
+import WorkbenchHeader from './WorkbenchHeader';
+import UserSettingsModal from './modals/UserSettingsModal';
+import { useAuth } from '../contexts/AuthContext';
 
 const SparklesSvg = () => (
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" fill="currentColor" width="1em" height="1em">
@@ -37,7 +40,7 @@ const SparklesSvg = () => (
 );
 const SparklesIcon = (props: React.ComponentProps<typeof Icon>) => <Icon component={SparklesSvg} {...props} />;
 
-const { Header, Content } = Layout;
+const { Content } = Layout;
 const { Title } = Typography;
 const { TabPane } = Tabs;
 // Type definitions are now in src/types.ts
@@ -45,6 +48,8 @@ const { TabPane } = Tabs;
 const Workbench = () => {
     const { tab } = useParams<{ tab: string }>();
     const navigate = useNavigate();
+    const { user, logout } = useAuth();
+    const [isSettingsOpen, setIsSettingsOpen] = useState(false);
 
     const normalizeTab = (t?: string) => {
         if (!t) return "story-conception";
@@ -265,9 +270,11 @@ const Workbench = () => {
 
     return (
         <Layout style={{ minHeight: '100vh' }}>
-            <Header style={{ background: '#fff', padding: '0 24px', borderBottom: '1px solid #f0f0f0', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <Title level={3} style={{ margin: 0 }}>AI 小说家工作台</Title>
-            </Header>
+            <WorkbenchHeader
+                username={user?.username}
+                onOpenSettings={() => setIsSettingsOpen(true)}
+                onLogout={() => { logout(); navigate('/'); }}
+            />
             <Content style={{ padding: '24px', margin: 0, background: '#f0f2f5' }}>
                 <Tabs activeKey={activeTab} onChange={handleTabChange} type="card" style={{ height: '100%' }}>
                     <TabPane tab="故事构思" key="story-conception">
@@ -362,7 +369,7 @@ const Workbench = () => {
                             />
                         </div>
                     </TabPane>
-                    <TabPane tab="故事创作" key="manuscript-writer">
+                    <TabPane tab="小说创作" key="manuscript-writer">
                         <div style={{ padding: 24, background: '#fff', borderRadius: '8px', height: '100%' }}>
                             <ManuscriptWriter
                                 storyId={selectedStoryForOutline}
@@ -406,6 +413,10 @@ const Workbench = () => {
                 originalText={originalText}
                 contextType={context?.fieldName || ''}
                 onRefined={handleAcceptRefinement}
+            />
+            <UserSettingsModal
+                open={isSettingsOpen}
+                onClose={() => setIsSettingsOpen(false)}
             />
         </Layout>
     );

@@ -245,11 +245,6 @@ public class ConceptionService {
                 .orElseThrow(() -> new ResourceNotFoundException("CharacterCard not found with id " + id));
     }
 
-    private AiService getAiServiceForUser(User user) {
-        // Deprecated provider selection removed. Always use OpenAI implementation.
-        return openAiService;
-    }
-
     private String getApiKeyForUser(User user) {
         UserSetting settings = userSettingRepository.findByUserId(user.getId())
                 .orElseThrow(() -> new IllegalStateException("User settings not found. Please configure your AI provider first."));

@@ -232,3 +232,11 @@ export const refineText = (
         body: JSON.stringify(payload),
     }).then(res => handleResponse<{ refinedText: string }>(res));
 };
+
+// Auth APIs
+export const validateToken = (): Promise<{ username: string }> => {
+    return fetch('/api/auth/validate', {
+        method: 'GET',
+        headers: getAuthHeaders(),
+    }).then(res => handleResponse<{ username: string }>(res));
+};

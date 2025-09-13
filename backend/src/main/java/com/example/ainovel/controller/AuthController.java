@@ -2,12 +2,16 @@ package com.example.ainovel.controller;
 
 import com.example.ainovel.dto.LoginRequest;
 import com.example.ainovel.dto.RegisterRequest;
-import com.example.ainovel.model.User;
 import com.example.ainovel.service.AuthService;
+import com.example.ainovel.utils.JwtUtil;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -17,17 +21,21 @@ import java.util.Map;
  * Controller for handling user authentication operations, such as registration and login.
  */
 @RestController
-@RequestMapping("/api/v1/auth")
+@RequestMapping({"/api/v1/auth", "/api/auth"})
 public class AuthController {
 
     private final AuthService authService;
+    private final UserDetailsService userDetailsService;
+    private final JwtUtil jwtUtil;
 
     /**
      * Constructs an AuthController with the necessary AuthService.
      * @param authService The service for handling authentication logic.
      */
-    public AuthController(AuthService authService) {
+    public AuthController(AuthService authService, UserDetailsService userDetailsService, JwtUtil jwtUtil) {
         this.authService = authService;
+        this.userDetailsService = userDetailsService;
+        this.jwtUtil = jwtUtil;
     }
 
     /**
@@ -58,6 +66,35 @@ public class AuthController {
         } catch (Exception e) {
             // It's generally better to return a more generic error message for security reasons.
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("message", "Invalid username or password"));
+        }
+    }
+
+    /**
+     * 验证 JWT Token 的有效性。
+     * 路径: GET /api/auth/validate
+     * 请求头: Authorization: Bearer <token>
+     * 成功时返回 200，并包含用户名；失败返回 401。
+     */
+    @GetMapping("/validate")
+    public ResponseEntity<?> validateToken(@RequestHeader(value = "Authorization", required = false) String authorizationHeader) {
+        if (authorizationHeader == null || !authorizationHeader.startsWith("Bearer ")) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+        String token = authorizationHeader.substring(7);
+        String username = jwtUtil.extractUsername(token);
+        if (username == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+        try {
+            UserDetails userDetails = userDetailsService.loadUserByUsername(username);
+            Boolean valid = jwtUtil.validateToken(token, userDetails);
+            if (Boolean.TRUE.equals(valid)) {
+                return ResponseEntity.ok(Map.of("username", username));
+            } else {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+            }
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
     }
 }

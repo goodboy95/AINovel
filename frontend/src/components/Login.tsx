@@ -1,6 +1,8 @@
+import { useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Form, Input, Button, Card, Typography, message } from 'antd';
 import { UserOutlined, LockOutlined } from '@ant-design/icons';
+import { useAuth } from '../contexts/AuthContext';
 
 const { Title } = Typography;
 
@@ -11,6 +13,13 @@ interface LoginValues {
 
 const Login = () => {
     const navigate = useNavigate();
+    const { login, isAuthenticated } = useAuth();
+
+    useEffect(() => {
+        if (isAuthenticated) {
+            navigate('/workbench', { replace: true });
+        }
+    }, [isAuthenticated, navigate]);
 
     const onFinish = async (values: LoginValues) => {
         try {
@@ -24,8 +33,8 @@ const Login = () => {
             const data = await response.json();
             if (response.ok) {
                 message.success('登录成功！');
-                localStorage.setItem('token', data.token);
-                navigate('/story-conception');
+                await login(data.token);
+                navigate('/workbench', { replace: true });
             } else {
                 console.error('Login failed: Response not OK', data);
                 message.error(data.message || '登录失败。');

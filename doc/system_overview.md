@@ -25,8 +25,10 @@ AINovel 采用前后端分离的架构。
 *   **框架**: 使用 React 作为核心 UI 框架，并采用 TypeScript 进行开发，以增强代码的健壮性。
 *   **UI 库**: 结合使用 Ant Design 组件库和 Tailwind CSS，快速构建美观且一致的用户界面。
 *   **路由**: 使用 React Router 管理应用的页面导航。
-*   **核心页面**: 系统的核心操作界面，如工作台、大纲编辑和故事创作，均采用了双栏布局设计，将列表/导航与内容编辑区整合在同一页面，以简化操作流程。
+*   **核心页面**: 系统的核心操作界面，如工作台、大纲编辑和小说创作，均采用了双栏布局设计，将列表/导航与内容编辑区整合在同一页面，以简化操作流程。
 *   **构建工具**: 采用 Vite 作为构建工具，提供快速的开发服务器和高效的打包性能。
+*   **状态管理**: 新增了基于 React Context API 的 `AuthContext`，用于全局管理用户的认证状态、用户信息和 Token。这使得在应用的任何组件中都能方便地访问和更新用户登录信息。
+*   **访问控制**: 引入了 `ProtectedRoute` 组件，作为一个高阶组件（HOC），它包裹了所有需要用户登录才能访问的路由（如工作台）。在渲染前，它会检查 `AuthContext` 中的认证状态，若用户未登录，则自动将其重定向到首页，从而实现前端的路由保护。
 
 ### 3.2. 后端
 
@@ -111,3 +113,41 @@ erDiagram
         String name
         String summary
     }
+
+## 5. 认证流程
+
+为了提升用户体验并实现自动登录，系统引入了基于 JWT Token 的无缝认证流程。
+
+```mermaid
+sequenceDiagram
+   participant User as 用户
+   participant Browser as 浏览器 (前端)
+   participant Server as 服务器 (后端)
+
+   User->>Browser: 访问网站
+   Browser->>Browser: App 加载, AuthProvider 初始化
+   Browser->>Browser: 检查 localStorage 中是否存在 Token
+   
+   alt Token 存在
+       Browser->>Server: 发送请求 GET /api/auth/validate (携带 Token)
+       Server->>Server: 验证 Token 有效性
+       alt Token 有效
+           Server-->>Browser: 返回用户信息 (HTTP 200 OK)
+           Browser->>Browser: 更新 AuthContext (标记为已登录)
+           Browser->>Browser: 自动跳转到 /workbench
+       else Token 无效
+           Server-->>Browser: 返回错误 (HTTP 401 Unauthorized)
+           Browser->>Browser: 清除无效 Token, 保持未登录状态
+           Browser->>Browser: 显示首页 /
+       end
+   else Token 不存在
+       Browser->>Browser: 保持未登录状态
+       Browser->>Browser: 显示首页 /
+   end
+
+   User->>Browser: 点击“登录”并提交凭证
+   Browser->>Server: 发送请求 POST /api/v1/auth/login
+   Server-->>Browser: 返回 JWT Token
+   Browser->>Browser: 存储 Token 到 localStorage, 更新 AuthContext
+   Browser->>Browser: 跳转到 /workbench
+```

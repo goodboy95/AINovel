@@ -169,6 +169,20 @@ AINovel/
   - [frontend/src/hooks/useStoryData.ts](frontend/src/hooks/useStoryData.ts)
   - [frontend/src/hooks/useRefineModal.ts](frontend/src/hooks/useRefineModal.ts)
 
+- 上下文（Context）：
+  - [frontend/src/contexts/AuthContext.tsx](frontend/src/contexts/AuthContext.tsx)
+  - 用于提供全局认证状态。
+
+### 2.3 前端核心概念
+
+*   **`AuthContext`**:
+    *   **作用**: 提供了一个全局的认证状态容器。通过 `AuthProvider` 包裹整个应用，它利用 React Context API 来存储和分发用户认证信息（如用户对象、Token）和加载状态。
+    *   **使用**: 组件可以通过 `useAuth` 自定义 Hook 方便地访问认证状态（`user`, `loading`）和操作方法（`login`, `logout`），从而避免了通过 props 逐层传递状态。
+
+*   **`ProtectedRoute`**:
+    *   **作用**: 这是一个路由保护组件，用于限制只有登录用户才能访问的页面。
+    *   **原理**: 它包裹在需要保护的路由上（例如 `/workbench`）。在渲染子组件之前，它会检查 `AuthContext` 中的 `user` 状态。如果用户未登录（`user` 为 `null`），它会使用 React Router 的 `Navigate` 组件将用户重定向到首页 (`/`)。
+
 ---
 
 ## 3. 核心 API 变更参考
@@ -190,6 +204,13 @@ AINovel/
     *   **Endpoint**: `PATCH /api/v1/scenes/{id}`
     *   **说明**: 更新大纲中的某个场景。
     *   **请求体**: `SceneDto` 中新增了 `expectedWords` 字段，并将 `presentCharacters` 修改为 `presentCharacterIds` (一个 `Long` 型数组)。
+
+*   **新增 Token 验证接口**
+    *   **Endpoint**: `GET /api/auth/validate`
+    *   **说明**: 用于验证客户端 `localStorage` 中存储的 JWT Token 是否有效，以实现自动登录。
+    *   **请求头**: `Authorization: Bearer <token>`
+    *   **成功响应 (200 OK)**: Token 有效，返回包含用户基本信息的 JSON 对象，例如：`{ "username": "current_user" }`。
+    *   **失败响应 (401 Unauthorized)**: Token 无效、过期或不存在。
 
 ## 4. 开发流程指南（示例：为“故事卡”增加“标签 tags”字段）
 

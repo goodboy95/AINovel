@@ -54,6 +54,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/api/v1/auth/**", "/login", "/register", "/").permitAll()
                         .requestMatchers("/index.html", "/vite.svg", "/assets/**").permitAll()
+                        .requestMatchers("/api/auth/validate").permitAll()
                         .requestMatchers("/api/v1/**").authenticated()
                         .anyRequest().permitAll()
                 )

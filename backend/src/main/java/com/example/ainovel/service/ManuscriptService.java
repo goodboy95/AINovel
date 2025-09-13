@@ -306,53 +306,12 @@ public class ManuscriptService {
         return (s == null || s.trim().isEmpty()) ? "无" : s.trim();
     }
 
-    private String getPreviousChapterContent(OutlineScene currentScene) {
-        OutlineChapter currentChapter = currentScene.getOutlineChapter();
-        if (currentChapter.getChapterNumber() <= 1) {
-            return "";
-        }
-        return outlineService.getChaptersForOutline(currentChapter.getOutlineCard().getId()).stream()
-            .filter(ch -> ch.getChapterNumber() == currentChapter.getChapterNumber() - 1)
-            .findFirst()
-            .map(this::getAllContentForChapter)
-            .orElse("");
-    }
-
     private String getPreviousSectionContent(OutlineScene currentScene) {
         return outlineSceneRepository.findFirstByOutlineChapterIdAndSceneNumberLessThanOrderBySceneNumberDesc(
                         currentScene.getOutlineChapter().getId(), currentScene.getSceneNumber())
                 .flatMap(previousScene -> manuscriptSectionRepository.findFirstByScene_IdAndIsActiveTrueOrderByVersionDesc(previousScene.getId()))
                 .map(ManuscriptSection::getContent)
                 .orElse("无");
-    }
-
-    private String getCurrentChapterPreviousContent(OutlineScene currentScene) {
-        List<OutlineScene> previousScenesInChapter = outlineSceneRepository
-                .findByOutlineChapterIdAndSceneNumberLessThanOrderBySceneNumberAsc(currentScene.getOutlineChapter().getId(), currentScene.getSceneNumber());
-        return getAllContentForScenes(previousScenesInChapter);
-    }
-
-    private String getAllContentForChapter(OutlineChapter chapter) {
-        return getAllContentForScenes(chapter.getScenes());
-    }
-
-    private String getAllContentForScenes(List<OutlineScene> scenes) {
-        if (scenes == null || scenes.isEmpty()) {
-            return "";
-        }
-        List<Long> sceneIds = scenes.stream().map(OutlineScene::getId).collect(Collectors.toList());
-        List<ManuscriptSection> sections = manuscriptSectionRepository.findByScene_IdIn(sceneIds);
-        Map<Long, String> sceneContentMap = sections.stream()
-            .filter(s -> s.getIsActive() != null && s.getIsActive())
-            .collect(Collectors.toMap(
-                ManuscriptSection::getSceneId,
-                ManuscriptSection::getContent,
-                (existingContent, newContent) -> newContent
-            ));
-        return scenes.stream()
-            .map(scene -> sceneContentMap.getOrDefault(scene.getId(), ""))
-            .filter(content -> content != null && !content.isEmpty())
-            .collect(Collectors.joining("\n\n"));
     }
 
     private OutlineScene findSceneById(Long sceneId) {
