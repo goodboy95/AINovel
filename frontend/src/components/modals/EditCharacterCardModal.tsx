@@ -38,7 +38,7 @@ const EditCharacterCardModal = ({ open, onOk, onCancel, confirmLoading, characte
             onOk={handleOk}
             onCancel={onCancel}
             confirmLoading={confirmLoading}
-            destroyOnClose
+            destroyOnHidden
         >
             <Form form={form} layout="vertical" name="edit_character_card_form">
                 <Form.Item

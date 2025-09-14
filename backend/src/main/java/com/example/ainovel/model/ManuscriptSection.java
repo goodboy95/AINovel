@@ -1,13 +1,14 @@
 package com.example.ainovel.model;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.Data;
 import org.hibernate.annotations.CreationTimestamp;
+
 import java.time.LocalDateTime;
 
 /**
- * Represents a section of the manuscript, corresponding to a single scene in the outline.
+ * Represents a section of a Manuscript. Each section corresponds to a single OutlineScene,
+ * but is now associated to a Manuscript entity (many sections belong to one manuscript).
  */
 @Data
 @Entity
@@ -15,52 +16,57 @@ import java.time.LocalDateTime;
 public class ManuscriptSection {
 
     /**
-     * The unique identifier for the manuscript section.
+     * Primary key.
      */
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     /**
-     * The outline scene this manuscript section is based on.
+     * Belongs-to Manuscript.
      */
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "scene_id", nullable = false)
-    private OutlineScene scene;
+    @JoinColumn(name = "manuscript_id", nullable = false)
+    private Manuscript manuscript;
 
     /**
-     * The full text content of the manuscript section.
+     * Keep a direct foreign key to the OutlineScene for convenient querying and to preserve linkage.
+     */
+    @Column(name = "scene_id", nullable = false)
+    private Long sceneId;
+
+    /**
+     * Full text content of this section.
      */
     @Lob
     @Column(columnDefinition = "LONGTEXT")
     private String content;
 
     /**
-     * The version number of this section, for tracking revisions.
+     * Revision number.
      */
     private Integer version = 0;
 
     /**
-     * Indicates if this is the currently active version of the section.
+     * Whether this section is the active version for the scene.
      */
     @Column(name = "is_active")
     private Boolean isActive = true;
 
     /**
-     * Timestamp of when the section was created.
+     * Creation timestamp.
      */
     @CreationTimestamp
     private LocalDateTime createdAt;
 
     /**
-     * A transient getter to easily access the scene ID without loading the entire scene object.
-     * @return The ID of the associated scene.
+     * Backward-compatibility for old frontend code: expose a synthetic "scene" object with only id.
      */
-    @JsonIgnore
-    public Long getSceneId() {
-        if (this.scene != null) {
-            return this.scene.getId();
-        }
-        return null;
+    @Transient
+    public OutlineScene getScene() {
+        if (sceneId == null) return null;
+        OutlineScene s = new OutlineScene();
+        s.setId(sceneId);
+        return s;
     }
 }

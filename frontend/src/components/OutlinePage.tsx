@@ -13,6 +13,7 @@ import {
   Row,
   Col,
   Empty,
+  Modal,
 } from 'antd';
 import type { Outline, StoryCard, Chapter, Scene } from '../types';
 import { generateChapter, createEmptyOutlineForStory } from '../services/api';
@@ -53,6 +54,7 @@ interface OutlinePageProps {
 
   updateLocal: (updatedData: Chapter | Scene) => void;
   updateOutlineRemote: (outline: Outline) => Promise<void>;
+  onDeleteOutline: (outlineId: number) => void;
 }
 
 const OutlinePage: React.FC<OutlinePageProps> = ({
@@ -75,6 +77,7 @@ const OutlinePage: React.FC<OutlinePageProps> = ({
 
   updateLocal,
   updateOutlineRemote,
+  onDeleteOutline,
 }) => {
   const [form] = Form.useForm();
   const [selectedNode, setSelectedNode] = useState<SelectedNode>(null);
@@ -298,10 +301,27 @@ const OutlinePage: React.FC<OutlinePageProps> = ({
                         <List.Item
                           actions={[
                             <Button
+                              key="select"
                               type="link"
                               onClick={() => onSelectOutline(item)}
                             >
                               选择此大纲
+                            </Button>,
+                            <Button
+                              key="delete"
+                              type="link"
+                              danger
+                              onClick={() => Modal.confirm({
+                                  title: '删除大纲确认',
+                                  content: `确定删除大纲《${item.title || `#${item.id}`}》吗？此操作不可恢复。`,
+                                  okText: '删除',
+                                  okButtonProps: { danger: true },
+                                  cancelText: '取消',
+                                  onOk: () => onDeleteOutline(item.id),
+                                })
+                              }
+                            >
+                              删除
                             </Button>,
                           ]}
                         >

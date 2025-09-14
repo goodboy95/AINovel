@@ -138,7 +138,7 @@ const UserSettingsModal: React.FC<UserSettingsModalProps> = ({ open, onClose }) 
           <Button type="primary" onClick={handleSave} loading={isSaving}>保存设置</Button>
         </div>
       }
-      destroyOnClose
+      destroyOnHidden
       maskClosable={false}
     >
       <Spin spinning={isLoading}>

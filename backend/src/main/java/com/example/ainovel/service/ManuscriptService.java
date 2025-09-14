@@ -15,15 +15,20 @@ import org.springframework.transaction.annotation.Transactional;
 import com.example.ainovel.exception.ResourceNotFoundException;
 import com.example.ainovel.model.CharacterCard;
 import com.example.ainovel.model.ManuscriptSection;
+import com.example.ainovel.model.Manuscript;
 import com.example.ainovel.model.OutlineCard;
 import com.example.ainovel.model.OutlineChapter;
 import com.example.ainovel.model.OutlineScene;
 import com.example.ainovel.model.StoryCard;
 import com.example.ainovel.model.TemporaryCharacter;
+import com.example.ainovel.model.User;
 import com.example.ainovel.repository.CharacterCardRepository;
 import com.example.ainovel.repository.ManuscriptSectionRepository;
+import com.example.ainovel.repository.ManuscriptRepository;
 import com.example.ainovel.repository.OutlineCardRepository;
 import com.example.ainovel.repository.OutlineSceneRepository;
+import com.example.ainovel.dto.ManuscriptDto;
+import com.example.ainovel.dto.ManuscriptWithSectionsDto;
 
 import lombok.RequiredArgsConstructor;
 
@@ -41,6 +46,7 @@ public class ManuscriptService {
     private final OpenAiService openAiService;
     private final SettingsService settingsService;
     private final OutlineCardRepository outlineCardRepository;
+    private final ManuscriptRepository manuscriptRepository;
 
     /**
      * Retrieves the manuscript for a given outline, verifying user access.
@@ -55,7 +61,7 @@ public class ManuscriptService {
         List<Long> chapterIds = chapters.stream().map(OutlineChapter::getId).collect(Collectors.toList());
         List<OutlineScene> scenes = outlineService.getScenesForChapters(chapterIds);
         List<Long> sceneIds = scenes.stream().map(OutlineScene::getId).collect(Collectors.toList());
-        List<ManuscriptSection> sections = manuscriptSectionRepository.findByScene_IdIn(sceneIds);
+        List<ManuscriptSection> sections = manuscriptSectionRepository.findBySceneIdIn(sceneIds);
         return sections.stream()
             .filter(section -> section.getIsActive() != null && section.getIsActive())
             .collect(Collectors.toMap(
@@ -85,7 +91,7 @@ public class ManuscriptService {
         validateSceneAccess(scene, userId);
 
         // Deactivate old sections and find the latest version number
-        List<ManuscriptSection> oldSections = manuscriptSectionRepository.findByScene_Id(sceneId);
+        List<ManuscriptSection> oldSections = manuscriptSectionRepository.findBySceneId(sceneId);
         int maxVersion = 0;
         for (ManuscriptSection oldSection : oldSections) {
             if (oldSection.getVersion() != null && oldSection.getVersion() > maxVersion) {
@@ -93,6 +99,8 @@ public class ManuscriptService {
             }
             oldSection.setIsActive(false);
         }
+        // persist deactivation to ensure consistency
+        manuscriptSectionRepository.saveAll(oldSections);
 
         StoryCard story = getStoryCardFromScene(scene);
         // 获取全部角色的“完整信息”实体对象
@@ -107,6 +115,17 @@ public class ManuscriptService {
         // 计算位置相关信息
         OutlineChapter currentChapter = scene.getOutlineChapter();
         OutlineCard outline = currentChapter.getOutlineCard();
+
+        // Determine target Manuscript (use latest for this outline or create default)
+        Manuscript manuscript = manuscriptRepository.findFirstByOutlineCardIdOrderByCreatedAtDesc(outline.getId())
+                .orElseGet(() -> {
+                    Manuscript m = new Manuscript();
+                    m.setOutlineCard(outline);
+                    m.setUser(story.getUser());
+                    m.setTitle("默认稿件");
+                    return manuscriptRepository.save(m);
+                });
+
         int chapterNumber = currentChapter.getChapterNumber();
         int totalChapters = outline.getChapters().size();
         int sceneNumber = scene.getSceneNumber();
@@ -136,7 +155,8 @@ public class ManuscriptService {
 
         // Create a new, active section
         ManuscriptSection newSection = new ManuscriptSection();
-        newSection.setScene(scene);
+        newSection.setManuscript(manuscript);
+        newSection.setSceneId(sceneId);
         newSection.setContent(generatedContent);
         newSection.setVersion(maxVersion + 1);
         newSection.setIsActive(true);
@@ -157,7 +177,8 @@ public class ManuscriptService {
     public ManuscriptSection updateSectionContent(Long sectionId, String content, Long userId) {
         ManuscriptSection section = manuscriptSectionRepository.findById(sectionId)
                 .orElseThrow(() -> new ResourceNotFoundException("ManuscriptSection not found with id " + sectionId));
-        validateSceneAccess(section.getScene(), userId);
+        OutlineScene sc = findSceneById(section.getSceneId());
+        validateSceneAccess(sc, userId);
         section.setContent(content);
         return manuscriptSectionRepository.save(section);
     }
@@ -309,7 +330,7 @@ public class ManuscriptService {
     private String getPreviousSectionContent(OutlineScene currentScene) {
         return outlineSceneRepository.findFirstByOutlineChapterIdAndSceneNumberLessThanOrderBySceneNumberDesc(
                         currentScene.getOutlineChapter().getId(), currentScene.getSceneNumber())
-                .flatMap(previousScene -> manuscriptSectionRepository.findFirstByScene_IdAndIsActiveTrueOrderByVersionDesc(previousScene.getId()))
+                .flatMap(previousScene -> manuscriptSectionRepository.findFirstBySceneIdAndIsActiveTrueOrderByVersionDesc(previousScene.getId()))
                 .map(ManuscriptSection::getContent)
                 .orElse("无");
     }
@@ -339,5 +360,97 @@ public class ManuscriptService {
         if (!story.getUser().getId().equals(userId)) {
             throw new AccessDeniedException("User does not have permission to access this scene.");
         }
+    }
+
+    private void validateManuscriptAccess(Manuscript manuscript, Long userId) {
+        Long ownerFromManuscript = manuscript.getUser() != null ? manuscript.getUser().getId() : null;
+        Long ownerFromOutline = (manuscript.getOutlineCard() != null && manuscript.getOutlineCard().getUser() != null)
+                ? manuscript.getOutlineCard().getUser().getId() : null;
+        Long owner = ownerFromManuscript != null ? ownerFromManuscript : ownerFromOutline;
+        if (owner == null || !owner.equals(userId)) {
+            throw new AccessDeniedException("User does not have permission to access this manuscript.");
+        }
+    }
+
+    private ManuscriptDto toDto(Manuscript m) {
+        return new ManuscriptDto()
+                .setId(m.getId())
+                .setTitle(m.getTitle())
+                .setOutlineId(m.getOutlineCard() != null ? m.getOutlineCard().getId() : null)
+                .setCreatedAt(m.getCreatedAt())
+                .setUpdatedAt(m.getUpdatedAt());
+    }
+
+    /**
+     * Lists manuscripts under an outline, after permission validation.
+     */
+    public List<ManuscriptDto> getManuscriptsForOutline(Long outlineId, Long userId) {
+        validateOutlineAccess(outlineId, userId);
+        List<Manuscript> list = manuscriptRepository.findByOutlineCardId(outlineId);
+        return list.stream().map(this::toDto).collect(Collectors.toList());
+    }
+
+    /**
+     * Creates a manuscript under an outline.
+     */
+    @Transactional
+    public ManuscriptDto createManuscript(Long outlineId, ManuscriptDto request, Long userId) {
+        OutlineCard outline = outlineCardRepository.findById(outlineId)
+                .orElseThrow(() -> new ResourceNotFoundException("Outline not found with id: " + outlineId));
+        validateOutlineAccess(outline.getId(), userId);
+
+        Manuscript m = new Manuscript();
+        m.setOutlineCard(outline);
+        // prefer outline.getUser() if present; fallback to story's user
+        User owner = outline.getUser() != null ? outline.getUser() : outline.getStoryCard().getUser();
+        m.setUser(owner);
+        String title = (request != null && request.getTitle() != null && !request.getTitle().trim().isEmpty())
+                ? request.getTitle().trim()
+                : "新小说稿件";
+        m.setTitle(title);
+
+        Manuscript saved = manuscriptRepository.save(m);
+        return toDto(saved);
+    }
+
+    /**
+     * Retrieves a manuscript with its active sections keyed by sceneId.
+     */
+    @Transactional(readOnly = true)
+    public ManuscriptWithSectionsDto getManuscriptWithSections(Long manuscriptId, Long userId) {
+        Manuscript manuscript = manuscriptRepository.findById(manuscriptId)
+                .orElseThrow(() -> new ResourceNotFoundException("Manuscript not found with id: " + manuscriptId));
+        validateManuscriptAccess(manuscript, userId);
+
+        List<ManuscriptSection> sections = manuscriptSectionRepository.findByManuscript_Id(manuscriptId);
+        Map<Long, ManuscriptSection> activeByScene = sections.stream()
+                .filter(s -> Boolean.TRUE.equals(s.getIsActive()))
+                .collect(Collectors.toMap(
+                        ManuscriptSection::getSceneId,
+                        s -> s,
+                        (a, b) -> {
+                            // prefer higher version; fallback to newer createdAt
+                            int av = a.getVersion() != null ? a.getVersion() : 0;
+                            int bv = b.getVersion() != null ? b.getVersion() : 0;
+                            if (av != bv) return av > bv ? a : b;
+                            if (a.getCreatedAt() != null && b.getCreatedAt() != null) {
+                                return a.getCreatedAt().isAfter(b.getCreatedAt()) ? a : b;
+                            }
+                            return b;
+                        }
+                ));
+
+        return new ManuscriptWithSectionsDto(toDto(manuscript), activeByScene);
+    }
+
+    /**
+     * Deletes a manuscript (cascade will remove its sections).
+     */
+    @Transactional
+    public void deleteManuscript(Long manuscriptId, Long userId) {
+        Manuscript manuscript = manuscriptRepository.findById(manuscriptId)
+                .orElseThrow(() -> new ResourceNotFoundException("Manuscript not found with id: " + manuscriptId));
+        validateManuscriptAccess(manuscript, userId);
+        manuscriptRepository.delete(manuscript);
     }
 }

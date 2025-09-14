@@ -1,4 +1,4 @@
-import type { StoryCard, CharacterCard, Outline, ConceptionFormValues, Chapter } from '../types';
+import type { StoryCard, CharacterCard, Outline, ConceptionFormValues, Chapter, Manuscript, ManuscriptSection } from '../types';
 
 /**
  * Creates authorization headers for API requests.
@@ -25,11 +25,40 @@ const getAuthHeaders = (): HeadersInit => {
  */
 const handleResponse = async <T>(response: Response): Promise<T> => {
     if (!response.ok) {
-        const errorData = await response.json().catch(() => ({ message: 'An unknown error occurred.' }));
-        console.error('API request failed:', response.status, errorData);
-        throw new Error(errorData.message || `Request failed with status ${response.status}`);
+        // Try parse error as JSON; fall back to text
+        let message = `Request failed with status ${response.status}`;
+        try {
+            const errorData = await response.json();
+            if (errorData && (errorData.message || errorData.error)) {
+                message = errorData.message || errorData.error;
+            }
+            console.error('API request failed:', response.status, errorData);
+        } catch (_) {
+            try {
+                const text = await response.text();
+                if (text) message = text;
+            } catch { /* ignore */ }
+        }
+        throw new Error(message);
     }
-    return response.json() as Promise<T>;
+
+    // Handle no-content responses gracefully (e.g., 204 DELETE)
+    if (response.status === 204 || response.status === 205) {
+        return undefined as unknown as T;
+    }
+
+    // Some servers may omit content-length but still return empty body
+    // Read as text first, then JSON-parse if present
+    const text = await response.text();
+    if (!text) {
+        return undefined as unknown as T;
+    }
+    try {
+        return JSON.parse(text) as T;
+    } catch {
+        // If not JSON, return as-is (typed as any)
+        return (text as unknown) as T;
+    }
 };
 
 // Story Card APIs
@@ -239,4 +268,49 @@ export const validateToken = (): Promise<{ username: string }> => {
         method: 'GET',
         headers: getAuthHeaders(),
     }).then(res => handleResponse<{ username: string }>(res));
+};
+
+/**
+ * New APIs for stories, manuscripts, and settings per design document
+ */
+
+// Stories (for selection in ManuscriptWriter)
+export const fetchStories = (): Promise<StoryCard[]> => {
+    return fetch('/api/v1/stories', { headers: getAuthHeaders() })
+        .then(res => handleResponse<StoryCard[]>(res));
+};
+
+export const deleteStory = (storyId: number): Promise<void> => {
+    return fetch(`/api/v1/stories/${storyId}`, {
+        method: 'DELETE',
+        headers: getAuthHeaders(),
+    }).then(res => handleResponse<void>(res));
+};
+
+// Manuscripts under an outline
+export const fetchManuscriptsForOutline = (outlineId: number): Promise<Manuscript[]> => {
+    return fetch(`/api/v1/outlines/${outlineId}/manuscripts`, {
+        headers: getAuthHeaders(),
+    }).then(res => handleResponse<Manuscript[]>(res));
+};
+
+export const fetchManuscriptWithSections = (manuscriptId: number): Promise<{ manuscript: Manuscript; sections: Record<number, ManuscriptSection> }> => {
+    return fetch(`/api/v1/manuscripts/${manuscriptId}`, {
+        headers: getAuthHeaders(),
+    }).then(res => handleResponse<{ manuscript: Manuscript; sections: Record<number, ManuscriptSection> }>(res));
+};
+
+export const createManuscript = (outlineId: number, data: { title: string }): Promise<Manuscript> => {
+    return fetch(`/api/v1/outlines/${outlineId}/manuscripts`, {
+        method: 'POST',
+        headers: getAuthHeaders(),
+        body: JSON.stringify(data),
+    }).then(res => handleResponse<Manuscript>(res));
+};
+
+export const deleteManuscript = (manuscriptId: number): Promise<void> => {
+    return fetch(`/api/v1/manuscripts/${manuscriptId}`, {
+        method: 'DELETE',
+        headers: getAuthHeaders(),
+    }).then(res => handleResponse<void>(res));
 };

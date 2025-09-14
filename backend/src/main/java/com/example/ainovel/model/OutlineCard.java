@@ -62,6 +62,14 @@ public class OutlineCard {
     private List<OutlineChapter> chapters;
 
     /**
+     * The list of manuscripts created under this outline.
+     * Cascade and orphanRemoval ensure manuscripts are deleted with the outline.
+     */
+    @OneToMany(mappedBy = "outlineCard", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    @ToString.Exclude
+    private List<Manuscript> manuscripts;
+
+    /**
      * Timestamp of when the outline was created.
      */
     @CreationTimestamp

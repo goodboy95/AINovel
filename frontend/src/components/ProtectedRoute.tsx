@@ -12,8 +12,17 @@ const ProtectedRoute: React.FC<Props> = ({ children }) => {
 
   if (loading) {
     return (
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100vh' }}>
-        <Spin tip="正在验证登录状态..." size="large" />
+      <div
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          height: '100vh',
+          flexDirection: 'column',
+        }}
+      >
+        <Spin size="large" />
+        <div style={{ marginTop: 12, color: '#8c8c8c' }}>正在验证登录状态...</div>
       </div>
     );
   }
@@ -26,3 +35,4 @@ const ProtectedRoute: React.FC<Props> = ({ children }) => {
 };
 
 export default ProtectedRoute;
+

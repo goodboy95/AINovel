@@ -16,19 +16,29 @@ public interface ManuscriptSectionRepository extends JpaRepository<ManuscriptSec
      * @param sceneIds The list of scene IDs.
      * @return A list of manuscript sections.
      */
-    List<ManuscriptSection> findByScene_IdIn(List<Long> sceneIds);
+    List<ManuscriptSection> findBySceneIdIn(List<Long> sceneIds);
 
     /**
      * Finds all manuscript sections for a specific scene.
      * @param sceneId The ID of the scene.
      * @return A list of manuscript sections.
      */
-    List<ManuscriptSection> findByScene_Id(Long sceneId);
+    List<ManuscriptSection> findBySceneId(Long sceneId);
+
+    /**
+     * Finds all sections by manuscript id.
+     */
+    List<ManuscriptSection> findByManuscript_Id(Long manuscriptId);
 
     /**
      * Finds the most recent, active manuscript section for a specific scene.
      * @param sceneId The ID of the scene.
      * @return An optional containing the latest active manuscript section if found.
      */
-    Optional<ManuscriptSection> findFirstByScene_IdAndIsActiveTrueOrderByVersionDesc(Long sceneId);
+    Optional<ManuscriptSection> findFirstBySceneIdAndIsActiveTrueOrderByVersionDesc(Long sceneId);
+
+    /**
+     * Finds the most recent, active manuscript section for a specific scene within a given manuscript.
+     */
+    Optional<ManuscriptSection> findFirstByManuscript_IdAndSceneIdAndIsActiveTrueOrderByVersionDesc(Long manuscriptId, Long sceneId);
 }

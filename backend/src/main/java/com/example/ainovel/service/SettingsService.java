@@ -72,6 +72,7 @@ public class SettingsService {
 
     /**
      * Retrieves the settings for a specific user.
+     * According to the design, do NOT return the API key. Only a boolean flag indicating whether it is set.
      * @param username The username of the user.
      * @return A DTO with the user's settings.
      */
@@ -84,6 +85,8 @@ public class SettingsService {
         dto.setBaseUrl(userSetting.getBaseUrl());
         dto.setModelName(userSetting.getModelName());
         dto.setCustomPrompt(userSetting.getCustomPrompt());
+        dto.setApiKeyIsSet(StringUtils.hasText(userSetting.getApiKey()));
+        // Do NOT set apiKey on response
         return dto;
     }
 

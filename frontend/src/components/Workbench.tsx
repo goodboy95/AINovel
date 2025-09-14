@@ -23,6 +23,7 @@ import type { Outline, StoryCard, CharacterCard, ConceptionFormValues } from '..
 import Icon from '@ant-design/icons';
 import { useStoryData } from '../hooks/useStoryData';
 import { useOutlineData } from '../hooks/useOutlineData';
+import { deleteStory as apiDeleteStory } from '../services/api';
 import { useRefineModal } from '../hooks/useRefineModal';
 import AddCharacterModal from './modals/AddCharacterModal';
 import EditStoryCardModal from './modals/EditStoryCardModal';
@@ -93,6 +94,7 @@ const Workbench = () => {
         setSelectedOutline,
         setIsLoading: setOutlineLoading,
         setError: setOutlineError,
+        deleteOutline,
     } = useOutlineData(selectedStoryForOutline);
     
     const {
@@ -262,6 +264,27 @@ const Workbench = () => {
         setSelectedStoryForMgmt(id);
         await viewStory(id);
     };
+    
+    /**
+     * 删除故事（含确认与刷新）
+     */
+    const handleDeleteStory = async (id: number) => {
+        try {
+            await apiDeleteStory(id);
+            // 如果当前选中的是被删除的故事，清空右侧详情与选中态
+            if (selectedStoryForMgmt === id) {
+                setSelectedStoryForMgmt(null);
+                setStoryCard(null);
+            }
+            if (selectedStoryForOutline === id.toString()) {
+                setSelectedStoryForOutline(null);
+            }
+            await loadStoryList();
+        } catch (e) {
+            // 错误已在 api 层抛出，控制台打印即可
+            console.error(e);
+        }
+    };
 
     const handleAfterCreateStory = (newStory: StoryCard) => {
         setSelectedStoryForMgmt(newStory.id);
@@ -299,6 +322,7 @@ const Workbench = () => {
                                         selectedId={selectedStoryForMgmt}
                                         onSelect={handleSelectStoryFromList}
                                         loading={isStoryLoading}
+                                        onDelete={handleDeleteStory}
                                     />
                                 </Col>
                                 <Col xs={24} lg={16}>
@@ -366,6 +390,7 @@ const Workbench = () => {
                                 loadOutlines={loadOutlines}
                                 updateLocal={updateLocalOutline}
                                 updateOutlineRemote={updateOutline}
+                                onDeleteOutline={deleteOutline}
                             />
                         </div>
                     </TabPane>

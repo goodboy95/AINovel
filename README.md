@@ -59,3 +59,11 @@ npm install
 npm run dev
 ```
 前端应用将启动在 `http://localhost:5173`，并会自动在浏览器中打开。
+
+### 前后端独立启动说明
+
+- 访问入口：用户始终访问前端服务（如 `http://localhost:5173`）。
+- 前端到后端：开发环境通过 Vite 代理将以 `/api` 开头的请求转发到后端 `http://localhost:8080`。
+- 跨域设置：后端已在 `application-dev.properties` 中放行 `http://localhost:5173` 源，确保独立启动时可正常联调。
+- 构建产物：前端构建输出到 `frontend/dist`，不再拷贝到后端 `resources/static`。
+- 生产部署建议：前端静态资源与后端 API 独立部署；用反向代理将 `/api` 指向后端，或在前端配置绝对的 API 基础地址。

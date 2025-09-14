@@ -10,6 +10,9 @@ import com.example.ainovel.repository.StoryCardRepository;
 
 import lombok.RequiredArgsConstructor;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
 @Service
 @RequiredArgsConstructor
 public class StoryService {
@@ -32,6 +35,36 @@ public class StoryService {
         story.setTone(safeTrim(dto.getTone()));
         // storyArc 由 AI 构思流程生成，这里留空
         return storyCardRepository.save(story);
+    }
+
+    /**
+     * 获取当前用户的故事列表（精简 DTO）
+     */
+    @Transactional(readOnly = true)
+    public List<StoryCardDto> getUserStories(Long userId) {
+        List<StoryCard> list = storyCardRepository.findByUserId(userId);
+        return list.stream().map(this::toDto).collect(Collectors.toList());
+    }
+
+    /**
+     * 删除指定故事（级联删除其下大纲与角色）
+     */
+    @Transactional
+    public void deleteStory(Long storyId, Long userId) {
+        if (!storyCardRepository.existsByIdAndUserId(storyId, userId)) {
+            throw new org.springframework.security.access.AccessDeniedException("Unauthorized access or StoryCard not found");
+        }
+        storyCardRepository.deleteById(storyId);
+    }
+
+    private StoryCardDto toDto(StoryCard s) {
+        StoryCardDto dto = new StoryCardDto();
+        dto.setId(s.getId());
+        dto.setTitle(s.getTitle());
+        dto.setSynopsis(s.getSynopsis());
+        dto.setGenre(s.getGenre());
+        dto.setTone(s.getTone());
+        return dto;
     }
 
     private String normalizeTitle(String title) {

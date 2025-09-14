@@ -97,6 +97,17 @@ public class OutlineController {
     }
 
     /**
+     * Alias endpoint per new design: GET /api/v1/stories/{storyId}/outlines
+     * Delegates to the same service as story-cards route.
+     */
+    @GetMapping("/stories/{storyId}/outlines")
+    public ResponseEntity<List<OutlineDto>> getOutlinesByStoryIdAlias(@PathVariable("storyId") Long storyId,
+                                                                      @AuthenticationPrincipal User user) {
+        List<OutlineDto> outlines = outlineService.getOutlinesByStoryCardId(storyId, user.getId());
+        return ResponseEntity.ok(outlines);
+    }
+
+    /**
      * Creates a new, empty outline for a specific story card.
      * @param storyCardId The ID of the story card for which to create the outline.
      * @param user The authenticated user performing the action.

@@ -6,6 +6,7 @@ export default defineConfig({
   plugins: [react()],
   server: {
     proxy: {
+      // Proxy API calls to the backend service during development
       '/api': {
         target: 'http://localhost:8080',
         changeOrigin: true,
@@ -17,7 +18,8 @@ export default defineConfig({
     },
   },
   build: {
-    outDir: '../backend/src/main/resources/static',
+    // Decouple from backend: emit to local dist folder
+    outDir: 'dist',
     emptyOutDir: true,
     minify: false,
   },

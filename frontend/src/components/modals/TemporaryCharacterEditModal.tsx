@@ -68,7 +68,7 @@ const TemporaryCharacterEditModal: React.FC<TemporaryCharacterEditModalProps> = 
         onOk={handleSave}
         okText="保存"
         cancelText="取消"
-        destroyOnClose
+        destroyOnHidden
       >
         <Form form={form} layout="vertical" name="temporaryCharacterForm">
           <Form.Item name="name" label="姓名" rules={[{ required: true, message: '请输入姓名' }]}>

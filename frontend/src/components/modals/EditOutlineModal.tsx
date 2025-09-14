@@ -37,7 +37,7 @@ const EditOutlineModal = ({ open, onOk, onCancel, confirmLoading, outline }: Edi
             confirmLoading={confirmLoading}
             width="80vw"
             style={{ top: 20 }}
-            destroyOnClose
+            destroyOnHidden
         >
             <Form layout="vertical">
                 <Row gutter={16}>

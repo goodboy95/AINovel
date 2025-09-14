@@ -29,7 +29,7 @@ const AddCharacterModal = ({ open, onOk, onCancel, confirmLoading }: AddCharacte
             onOk={handleOk}
             onCancel={onCancel}
             confirmLoading={confirmLoading}
-            destroyOnClose
+            destroyOnHidden
         >
             <Form form={form} layout="vertical" name="add_character_form">
                 <Form.Item

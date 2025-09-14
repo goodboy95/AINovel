@@ -3,8 +3,18 @@ package com.example.ainovel.dto;
 public class SettingsDto {
     private String baseUrl;
     private String modelName;
+    /**
+     * Deprecated for response: do not populate from server responses.
+     * Kept for update requests only.
+     */
     private String apiKey;
     private String customPrompt;
+
+    /**
+     * Indicates whether an API key has been configured for the user.
+     * The server MUST NOT return the decrypted or raw API key; only this flag.
+     */
+    private boolean apiKeyIsSet;
 
     // Getters and Setters
 
@@ -38,5 +48,13 @@ public class SettingsDto {
 
     public void setCustomPrompt(String customPrompt) {
         this.customPrompt = customPrompt;
+    }
+
+    public boolean isApiKeyIsSet() {
+        return apiKeyIsSet;
+    }
+
+    public void setApiKeyIsSet(boolean apiKeyIsSet) {
+        this.apiKeyIsSet = apiKeyIsSet;
     }
 }

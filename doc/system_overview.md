@@ -37,78 +37,85 @@ AINovel 采用前后端分离的架构。
 *   **数据库**: 使用 MySQL 作为主数据库，通过 Spring Data JPA 和 Hibernate 进行数据持久化操作。
 *   **认证与安全**: 采用 Spring Security 进行安全管理，并使用 JSON Web Tokens (JWT) 实现无状态的用户认证。
 *   **AI 服务集成**: 系统当前统一使用 OpenAI 作为后端 AI 服务。通过 `OpenAiService` 直接提供服务。
-*   **控制器**: 新增了 `StoryController`，专门用于处理故事（StoryCard）相关的 CRUD 操作，实现了更清晰的职责分离。
+*   **控制器**: `StoryController`, `OutlineController`, 和 `ManuscriptController` 得到了增强，加入了处理删除和列表查询的端点，以支持更全面的资源管理。
 
 ## 4. 数据模型关系图 (Mermaid)
 
 ```mermaid
 erDiagram
-    USER ||--o{ STORY_CARD : "has"
-    USER ||--o{ USER_SETTING : "has"
-    STORY_CARD ||--o{ CHARACTER_CARD : "has"
-    STORY_CARD ||--o{ OUTLINE_CARD : "has"
-    OUTLINE_CARD ||--o{ OUTLINE_CHAPTER : "has"
-    OUTLINE_CHAPTER ||--o{ OUTLINE_SCENE : "has"
-    OUTLINE_SCENE ||--o{ MANUSCRIPT_SECTION : "corresponds to"
-    OUTLINE_SCENE ||--o{ TEMPORARY_CHARACTER : "has"
+USER ||--o{ STORY_CARD : "has"
+USER ||--o{ USER_SETTING : "has"
+STORY_CARD ||--o{ CHARACTER_CARD : "has"
+STORY_CARD ||--o{ OUTLINE_CARD : "has"
+OUTLINE_CARD ||--o{ MANUSCRIPT : "has"
+OUTLINE_CARD ||--o{ OUTLINE_CHAPTER : "has"
+OUTLINE_CHAPTER ||--o{ OUTLINE_SCENE : "has"
+MANUSCRIPT ||--o{ MANUSCRIPT_SECTION : "has"
+OUTLINE_SCENE ||--o{ TEMPORARY_CHARACTER : "has"
 
-    USER {
-        Long id PK
-        String username
-        String password
-        String email
-    }
-    USER_SETTING {
-        Long id PK
-        Long user_id FK
-        String base_url
-        String model_name
-        String api_key
-    }
-    STORY_CARD {
-        Long id PK
-        Long user_id FK
-        String title
-        String genre
-        String tone
-        String synopsis
-    }
-    CHARACTER_CARD {
-        Long id PK
-        Long story_card_id FK
-        String name
-        String synopsis
-        String details
-    }
-    OUTLINE_CARD {
-        Long id PK
-        Long story_card_id FK
-        String title
-        String point_of_view
-    }
-    OUTLINE_CHAPTER {
-        Long id PK
-        Long outline_card_id FK
-        Integer chapter_number
-        String title
-        String synopsis
-    }
-    OUTLINE_SCENE {
-        Long id PK
-        Long chapter_id FK
-        Integer scene_number
-        String synopsis
-        Integer expected_words
-        String present_characters "存储角色ID的JSON数组字符串"
-    }
-    MANUSCRIPT_SECTION {
-        Long id PK
-        Long scene_id FK
-        String content
-        Integer version
-    }
-    TEMPORARY_CHARACTER {
-        Long id PK
+USER {
+    Long id PK
+    String username
+    String password
+    String email
+}
+USER_SETTING {
+    Long id PK
+    Long user_id FK
+    String base_url
+    String model_name
+    String api_key
+}
+STORY_CARD {
+    Long id PK
+    Long user_id FK
+    String title
+    String genre
+    String tone
+    String synopsis
+}
+CHARACTER_CARD {
+    Long id PK
+    Long story_card_id FK
+    String name
+    String synopsis
+    String details
+}
+OUTLINE_CARD {
+    Long id PK
+    Long story_card_id FK
+    String title
+    String point_of_view
+}
+MANUSCRIPT {
+    Long id PK
+    Long outline_id FK
+    String title
+}
+OUTLINE_CHAPTER {
+    Long id PK
+    Long outline_card_id FK
+    Integer chapter_number
+    String title
+    String synopsis
+}
+OUTLINE_SCENE {
+    Long id PK
+    Long chapter_id FK
+    Integer scene_number
+    String synopsis
+    Integer expected_words
+    String present_characters "存储角色ID的JSON数组字符串"
+}
+MANUSCRIPT_SECTION {
+    Long id PK
+    Long manuscript_id FK
+    String content
+    Integer version
+    Long scene_id "关联的场景ID"
+}
+TEMPORARY_CHARACTER {
+    Long id PK
         Long scene_id FK
         String name
         String summary

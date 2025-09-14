@@ -197,8 +197,34 @@ AINovel/
 
 *   **更新用户设置接口**
     *   **Endpoint**: `PUT /api/v1/settings`
-    *   **说明**: 更新用户的 AI 配置。
+    *   **说明**: 更新用户的 AI 配置。`getSettings` 接口不再返回完整的 API 密钥，而是返回一个布尔值 `apiKeyIsSet` 来指示密钥是否已设置。
     *   **请求体**: `SettingsDto` 中不再包含 `llmProvider` 字段，新增了 `baseUrl` 字段。
+
+*   **新增资源管理与查询接口**
+    *   **删除故事**:
+        *   **Endpoint**: `DELETE /api/v1/stories/{storyId}`
+        *   **说明**: 删除一个完整的故事及其所有相关数据（大纲、稿件等）。
+        *   **成功响应**: `204 No Content`
+    *   **删除稿件**:
+        *   **Endpoint**: `DELETE /api/v1/manuscripts/{manuscriptId}`
+        *   **说明**: 删除指定的一篇稿件。
+        *   **成功响应**: `204 No Content`
+    *   **获取故事下的大纲列表**:
+        *   **Endpoint**: `GET /api/v1/stories/{storyId}/outlines`
+        *   **说明**: 获取指定故事下的所有大纲。
+        *   **成功响应**: `200 OK`，返回 `OutlineDto` 列表。
+    *   **获取大纲下的稿件列表**:
+        *   **Endpoint**: `GET /api/v1/outlines/{outlineId}/manuscripts`
+        *   **说明**: 获取指定大纲下的所有稿件。
+        *   **成功响应**: `200 OK`，返回 `ManuscriptDto` 列表。
+    *   **创建新稿件**:
+        *   **Endpoint**: `POST /api/v1/outlines/{outlineId}/manuscripts`
+        *   **说明**: 为指定的大纲创建一篇新的稿件。
+        *   **成功响应**: `201 Created`，返回新创建的 `ManuscriptDto` 对象。
+    *   **获取稿件详情**:
+        *   **Endpoint**: `GET /api/v1/manuscripts/{manuscriptId}`
+        *   **说明**: 获取一篇稿件及其所有章节的详细内容。
+        *   **成功响应**: `200 OK`，返回 `ManuscriptWithSectionsDto` 对象。
 
 *   **更新场景接口**
     *   **Endpoint**: `PATCH /api/v1/scenes/{id}`

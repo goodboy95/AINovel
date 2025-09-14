@@ -53,6 +53,18 @@ export interface StoryCard {
     tone: string;
 }
 
+/**
+ * Manuscript DTO from backend.
+ * Aligns with backend ManuscriptDto fields.
+ */
+export interface Manuscript {
+    id: number;
+    title: string;
+    outlineId: number;
+    createdAt: string;
+    updatedAt: string;
+}
+
 export interface CharacterCard {
     id: number;
     name: string;
@@ -65,10 +77,20 @@ export interface ManuscriptSection {
     id: number;
     content: string;
     version: number;
-    active: boolean;
-    scene: {
+    /**
+     * Backend field is "isActive" (boolean). Keep "active" for compatibility.
+     */
+    active?: boolean;
+    /**
+     * Transient scene object for backward-compat; may be absent.
+     */
+    scene?: {
         id: number;
     };
+    /**
+     * New canonical reference for scene link on backend model.
+     */
+    sceneId?: number;
 }
 
 export interface ConceptionFormValues {

@@ -14,6 +14,8 @@ const Settings = () => {
     const [isLoading, setIsLoading] = useState(true);
     const [isSaving, setIsSaving] = useState(false);
     const [isTesting, setIsTesting] = useState(false);
+    const [apiKeyEditable, setApiKeyEditable] = useState(false);
+    const [apiKeyIsSet, setApiKeyIsSet] = useState(false);
 
     useEffect(() => {
         const fetchSettings = async () => {
@@ -26,14 +28,20 @@ const Settings = () => {
                     const text = await response.text();
                     if (text) {
                         const data = JSON.parse(text);
+                        setApiKeyIsSet(!!data.apiKeyIsSet);
+                        setApiKeyEditable(!data.apiKeyIsSet);
                         form.setFieldsValue({
                             baseUrl: data.baseUrl || '',
                             modelName: data.modelName || '',
+                            apiKey: data.apiKeyIsSet ? '********' : '',
                         });
                     } else {
+                        setApiKeyIsSet(false);
+                        setApiKeyEditable(true);
                         form.setFieldsValue({
                             baseUrl: '',
                             modelName: '',
+                            apiKey: '',
                         });
                     }
                 } else {
@@ -59,17 +67,31 @@ const Settings = () => {
     const onFinish = async (values: SettingsValues) => {
         setIsSaving(true);
         try {
+            const payload: Record<string, unknown> = {
+                baseUrl: values.baseUrl ?? '',
+                modelName: values.modelName ?? '',
+            };
+            // 仅当用户主动修改过 apiKey 且不是占位符时，才提交给后端
+            if (apiKeyEditable && values.apiKey && values.apiKey.trim() !== '' && values.apiKey !== '********') {
+                payload.apiKey = values.apiKey.trim();
+            }
+
             const response = await fetch('/api/v1/settings', {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
                     'Authorization': `Bearer ${localStorage.getItem('token')}`
                 },
-                body: JSON.stringify(values),
+                body: JSON.stringify(payload),
             });
             if (response.ok) {
                 message.success('设置已成功保存！');
-                form.setFieldsValue({ apiKey: '' }); // 保存后清空密钥字段
+                // 如果这次提交包含 apiKey，则视为已设置并改为占位显示、锁定输入
+                if ('apiKey' in payload) {
+                    setApiKeyIsSet(true);
+                    setApiKeyEditable(false);
+                    form.setFieldsValue({ apiKey: '********' });
+                }
             } else {
                 const data = await response.json();
                 console.error('Failed to save settings: Response not OK', data);
@@ -91,13 +113,22 @@ const Settings = () => {
         try {
             const values = await form.validateFields();
             setIsTesting(true);
+
+            const testPayload: Record<string, unknown> = {
+                baseUrl: values.baseUrl ?? '',
+                modelName: values.modelName ?? '',
+            };
+            if (apiKeyEditable && values.apiKey && values.apiKey.trim() !== '' && values.apiKey !== '********') {
+                testPayload.apiKey = values.apiKey.trim();
+            }
+
             const response = await fetch('/api/v1/settings/test', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                     'Authorization': `Bearer ${localStorage.getItem('token')}`
                 },
-                body: JSON.stringify(values),
+                body: JSON.stringify(testPayload),
             });
             const data = await response.json();
             if (response.ok) {
@@ -133,9 +164,34 @@ const Settings = () => {
                         <Form.Item
                             name="apiKey"
                             label="API 密钥"
-                            tooltip="您的 API 密钥仅用于当前会话，不会存储在服务器上。"
+                            tooltip="后端不回显密钥原文。若显示“********”，表示已设置。点击“修改”可重新输入。"
                         >
-                            <Input.Password placeholder="输入您的 API 密钥" />
+                            <div style={{ display: 'flex', gap: 8 }}>
+                                <Input.Password
+                                    placeholder={apiKeyIsSet ? '********' : '输入您的 API 密钥'}
+                                    disabled={!apiKeyEditable}
+                                />
+                                {apiKeyIsSet && (
+                                    <Button
+                                        onClick={() => {
+                                            if (apiKeyEditable) {
+                                                // 取消编辑，恢复占位
+                                                form.setFieldsValue({ apiKey: '********' });
+                                                setApiKeyEditable(false);
+                                            } else {
+                                                // 开启编辑，清空输入
+                                                form.setFieldsValue({ apiKey: '' });
+                                                setApiKeyEditable(true);
+                                            }
+                                        }}
+                                    >
+                                        {apiKeyEditable ? '取消' : '修改'}
+                                    </Button>
+                                )}
+                            </div>
+                            <div style={{ marginTop: 8, color: apiKeyIsSet ? '#52c41a' : '#faad14' }}>
+                                {apiKeyIsSet ? '密钥状态：已设置' : '密钥状态：未设置'}
+                            </div>
                         </Form.Item>
                         <Form.Item>
                             <div style={{ display: 'flex', gap: '16px' }}>
