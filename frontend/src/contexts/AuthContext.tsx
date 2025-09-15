@@ -19,6 +19,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [user, setUser] = useState<AuthUser | null>(null);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [didInit, setDidInit] = useState(false);
 
   const performValidate = async () => {
     try {
@@ -35,13 +36,15 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   useEffect(() => {
+    if (didInit) return;
+    setDidInit(true);
     const token = localStorage.getItem('token');
     if (token) {
       performValidate();
     } else {
       setLoading(false);
     }
-  }, []);
+  }, [didInit]);
 
   const login = async (token: string) => {
     localStorage.setItem('token', token);

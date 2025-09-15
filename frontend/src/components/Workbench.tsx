@@ -114,9 +114,13 @@ const Workbench = () => {
     const [selectedSceneId, setSelectedSceneId] = useState<number | null>(null);
     const [error, setError] = useState(''); // General error, can be deprecated if hooks handle all errors
 
+    const [didLoadStories, setDidLoadStories] = useState(false);
     useEffect(() => {
-        loadStoryList();
-    }, [loadStoryList]);
+        if (!didLoadStories) {
+            setDidLoadStories(true);
+            loadStoryList();
+        }
+    }, [didLoadStories, loadStoryList]);
 
     useEffect(() => {
         const next = normalizeTab(tab);
@@ -299,7 +303,7 @@ const Workbench = () => {
                 onLogout={() => { logout(); navigate('/'); }}
             />
             <Content style={{ padding: '24px', margin: 0, background: '#f0f2f5' }}>
-                <Tabs activeKey={activeTab} onChange={handleTabChange} type="card" style={{ height: '100%' }}>
+                <Tabs destroyInactiveTabPane activeKey={activeTab} onChange={handleTabChange} type="card" style={{ height: '100%' }}>
                     <TabPane tab="故事构思" key="story-conception">
                         <StoryConception
                             onFinish={onFinish}

@@ -7,6 +7,8 @@ public class OutlineDto {
     private String title;
     private String pointOfView;
     private List<ChapterDto> chapters;
+    @com.fasterxml.jackson.annotation.JsonProperty("created_at")
+    private String createdAt;
 
     // Getters and Setters
     public Long getId() {
@@ -39,5 +41,13 @@ public class OutlineDto {
 
     public void setChapters(List<ChapterDto> chapters) {
         this.chapters = chapters;
+    }
+
+    public String getCreatedAt() {
+        return createdAt;
+    }
+
+    public void setCreatedAt(String createdAt) {
+        this.createdAt = createdAt;
     }
 }

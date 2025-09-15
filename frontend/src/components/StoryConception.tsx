@@ -2,7 +2,7 @@ import React from 'react';
 import {
     Form,
     Input,
-    Select,
+    AutoComplete,
     Button,
     Spin,
     Card,
@@ -15,7 +15,8 @@ import {
 } from 'antd';
 
 const { Title, Paragraph } = Typography;
-const { Option } = Select;
+const GENRE_OPTIONS = ['科幻', '奇幻', '悬疑', '恐怖', '爱情'];
+const TONE_OPTIONS = ['黑暗', '幽默', '严肃', '冒险', '异想天开'];
 
 interface ConceptionFormValues {
     idea: string;
@@ -74,7 +75,7 @@ const StoryConception: React.FC<StoryConceptionProps> = ({
                         form={form}
                         layout="vertical"
                         onFinish={onFinish}
-                        initialValues={{ genre: 'Sci-Fi', tone: 'Dark' }}
+                        initialValues={{ genre: '科幻', tone: '黑暗' }}
                     >
                         <Form.Item
                             name="idea"
@@ -87,22 +88,22 @@ const StoryConception: React.FC<StoryConceptionProps> = ({
                             />
                         </Form.Item>
                         <Form.Item name="genre" label="类型">
-                            <Select>
-                                <Option value="Sci-Fi">科幻</Option>
-                                <Option value="Fantasy">奇幻</Option>
-                                <Option value="Mystery">悬疑</Option>
-                                <Option value="Horror">恐怖</Option>
-                                <Option value="Romance">爱情</Option>
-                            </Select>
+                            <AutoComplete
+                                options={GENRE_OPTIONS.map(g => ({ value: g }))}
+                                placeholder="输入或选择类型（如：科幻）"
+                                filterOption={(inputValue, option) =>
+                                    (option?.value ?? '').toLowerCase().includes(inputValue.toLowerCase())
+                                }
+                            />
                         </Form.Item>
                         <Form.Item name="tone" label="基调">
-                            <Select>
-                                <Option value="Dark">黑暗</Option>
-                                <Option value="Humorous">幽默</Option>
-                                <Option value="Serious">严肃</Option>
-                                <Option value="Adventurous">冒险</Option>
-                                <Option value="Whimsical">异想天开</Option>
-                            </Select>
+                            <AutoComplete
+                                options={TONE_OPTIONS.map(t => ({ value: t }))}
+                                placeholder="输入或选择基调（如：黑暗）"
+                                filterOption={(inputValue, option) =>
+                                    (option?.value ?? '').toLowerCase().includes(inputValue.toLowerCase())
+                                }
+                            />
                         </Form.Item>
                         <Form.Item>
                             <Button type="primary" htmlType="submit" loading={isLoading} style={{ width: '100%' }}>

@@ -132,6 +132,40 @@ public class SettingsService {
         }
     }
 
+    /**
+     * Tests the connection using either the provided settings or the stored settings of the user.
+     * If apiKey is absent in the request body, fall back to the user's saved (decrypted) API key.
+     * If baseUrl is absent, fall back to the user's saved baseUrl.
+     */
+    public boolean testConnectionForUser(Long userId, SettingsDto settingsDto) {
+        String apiKey = settingsDto.getApiKey();
+        String baseUrl = settingsDto.getBaseUrl();
+
+        if (!StringUtils.hasText(apiKey)) {
+            try {
+                apiKey = getDecryptedApiKeyByUserId(userId);
+            } catch (Exception ignored) {
+                // No stored key
+            }
+        }
+        if (!StringUtils.hasText(baseUrl)) {
+            try {
+                baseUrl = getBaseUrlByUserId(userId);
+            } catch (Exception ignored) {
+                // No stored baseUrl
+            }
+        }
+
+        if (!StringUtils.hasText(apiKey)) {
+            return false;
+        }
+        try {
+            return openAiService.validateApiKey(apiKey, baseUrl);
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
     @Transactional(readOnly = true)
     public String getBaseUrlByUserId(Long userId) {
         UserSetting userSetting = findUserSettingByUserId(userId);

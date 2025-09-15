@@ -133,6 +133,7 @@ public class OutlineService {
         dto.setId(outlineCard.getId());
         dto.setTitle(outlineCard.getTitle());
         dto.setPointOfView(outlineCard.getPointOfView());
+        dto.setCreatedAt(outlineCard.getCreatedAt() != null ? outlineCard.getCreatedAt().toString() : null);
         dto.setChapters(outlineCard.getChapters().stream()
                 .map(this::convertChapterToDto)
                 .collect(Collectors.toList()));

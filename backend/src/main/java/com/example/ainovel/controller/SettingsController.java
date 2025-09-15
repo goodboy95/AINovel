@@ -49,8 +49,9 @@ public class SettingsController {
      * @return A response entity indicating whether the connection was successful.
      */
     @PostMapping("/test")
-    public ResponseEntity<Map<String, String>> testConnection(@RequestBody SettingsDto settingsDto) {
-        boolean isSuccess = settingsService.testConnection(settingsDto);
+    public ResponseEntity<Map<String, String>> testConnection(@AuthenticationPrincipal User user,
+                                                             @RequestBody SettingsDto settingsDto) {
+        boolean isSuccess = settingsService.testConnectionForUser(user.getId(), settingsDto);
         if (isSuccess) {
             return ResponseEntity.ok(Map.of("message", "Connection successful!"));
         }
