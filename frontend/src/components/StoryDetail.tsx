@@ -1,6 +1,8 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Card, Form, Input, Button, message } from 'antd';
 import type { StoryCard } from '../types';
+import AiRefineButton from './AiRefineButton';
+import RefineModal from './modals/RefineModal';
 
 const { TextArea } = Input;
 
@@ -29,6 +31,8 @@ const StoryDetail: React.FC<StoryDetailProps> = ({
   onAfterCreate,
 }) => {
   const [form] = Form.useForm();
+  const [isRefineModalOpen, setIsRefineModalOpen] = useState(false);
+  const [refineTarget, setRefineTarget] = useState<{ field: keyof StoryCard; context: string } | null>(null);
 
   useEffect(() => {
     if (mode === 'edit' && story) {
@@ -70,6 +74,16 @@ const StoryDetail: React.FC<StoryDetailProps> = ({
     }
   };
 
+  const openRefine = (field: keyof StoryCard, context: string) => {
+    setRefineTarget({ field, context });
+    setIsRefineModalOpen(true);
+  };
+
+  const applyRefined = (newText: string) => {
+    if (!refineTarget) return;
+    form.setFieldsValue({ [refineTarget.field]: newText });
+  };
+
   return (
     <Card
       title={mode === 'create' ? '新建故事' : '故事详情'}
@@ -80,17 +94,26 @@ const StoryDetail: React.FC<StoryDetailProps> = ({
       }
     >
       <Form form={form} layout="vertical">
-        <Form.Item name="title" label="标题" rules={[{ required: true, message: '请输入标题' }]}>
-          <Input placeholder="请输入故事标题" />
-        </Form.Item>
-        {mode === 'edit' && (
-          <Form.Item name="storyArc" label="故事弧线">
-            <TextArea rows={3} placeholder="故事主线与发展轨迹" />
+        <div style={{ position: 'relative' }}>
+          <Form.Item name="title" label="标题" rules={[{ required: true, message: '请输入标题' }]}>
+            <Input placeholder="请输入故事标题" />
           </Form.Item>
+          <AiRefineButton onClick={() => openRefine('title', '故事标题')} />
+        </div>
+        {mode === 'edit' && (
+          <div style={{ position: 'relative' }}>
+            <Form.Item name="storyArc" label="故事弧线">
+              <TextArea rows={3} placeholder="故事主线与发展轨迹" />
+            </Form.Item>
+            <AiRefineButton onClick={() => openRefine('storyArc', '故事弧线')} />
+          </div>
         )}
-        <Form.Item name="synopsis" label="简介">
-          <TextArea rows={4} placeholder="故事的初步梗概..." />
-        </Form.Item>
+        <div style={{ position: 'relative' }}>
+          <Form.Item name="synopsis" label="简介">
+            <TextArea rows={4} placeholder="故事的初步梗概..." />
+          </Form.Item>
+          <AiRefineButton onClick={() => openRefine('synopsis', '故事简介')} />
+        </div>
         <Form.Item name="genre" label="类型">
           <Input placeholder="如：奇幻、科幻、悬疑" />
         </Form.Item>
@@ -98,6 +121,15 @@ const StoryDetail: React.FC<StoryDetailProps> = ({
           <Input placeholder="如：轻松、黑暗、史诗" />
         </Form.Item>
       </Form>
+      {refineTarget && (
+        <RefineModal
+          open={isRefineModalOpen}
+          onCancel={() => setIsRefineModalOpen(false)}
+          originalText={form.getFieldValue(refineTarget.field) || ''}
+          contextType={refineTarget.context}
+          onRefined={applyRefined}
+        />
+      )}
     </Card>
   );
 };

@@ -16,6 +16,8 @@ import {
   Space,
 } from 'antd';
 import OutlineTreeView from './OutlineTreeView';
+import AiRefineButton from './AiRefineButton';
+import RefineModal from './modals/RefineModal';
 import type { Outline, ManuscriptSection, StoryCard, Manuscript } from '../types';
 import { useOutlineData } from '../hooks/useOutlineData';
 import {
@@ -61,6 +63,7 @@ const ManuscriptWriter: React.FC<ManuscriptWriterProps> = ({
   const [selectedOutlineDetail, setSelectedOutlineDetail] = useState<Outline | null>(null);
   const [manuscriptMap, setManuscriptMap] = useState<Record<number, ManuscriptSection>>({});
   const [manuscriptContent, setManuscriptContent] = useState('');
+  const [isRefineModalOpen, setIsRefineModalOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [isFetchingManuscript, setIsFetchingManuscript] = useState(false);
   const [isLoadingOutlineDetail, setIsLoadingOutlineDetail] = useState(false);
@@ -232,6 +235,14 @@ const ManuscriptWriter: React.FC<ManuscriptWriterProps> = ({
       setManuscriptContent('');
     }
   }, [selectedSceneId, manuscriptMap]);
+
+  const openRefineModal = () => {
+    setIsRefineModalOpen(true);
+  };
+
+  const applyRefinedContent = (newText: string) => {
+    setManuscriptContent(newText);
+  };
 
   // 生成与保存依旧使用兼容接口（生成会写入“最新”或默认小说）
   const handleGenerateContent = async () => {
@@ -424,6 +435,7 @@ const ManuscriptWriter: React.FC<ManuscriptWriterProps> = ({
     }
 
     return (
+      <>
       <Row gutter={24} style={{ height: '100%' }}>
         <Col span={8} style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
           <Card title={selectedOutlineDetail.title} style={{ height: '100%', overflow: 'auto' }}>
@@ -443,14 +455,17 @@ const ManuscriptWriter: React.FC<ManuscriptWriterProps> = ({
               description={selectedScene?.synopsis || '请先在左侧大纲树中选择一个场景。'}
               style={{ marginBottom: '16px' }}
             />
-            <TextArea
-              value={manuscriptContent}
-              onChange={(e) => setManuscriptContent(e.target.value)}
-              placeholder="这里是您创作的故事内容..."
-              rows={20}
-              style={{ resize: 'none' }}
-              disabled={!selectedSceneId}
-            />
+            <div style={{ position: 'relative' }}>
+              <TextArea
+                value={manuscriptContent}
+                onChange={(e) => setManuscriptContent(e.target.value)}
+                placeholder="这里是您创作的故事内容..."
+                rows={20}
+                style={{ resize: 'none' }}
+                disabled={!selectedSceneId}
+              />
+              <AiRefineButton onClick={openRefineModal} />
+            </div>
             <div className="mt-4 flex items-center justify-between">
               <div>
                 <Button type="primary" loading={isLoading} onClick={handleGenerateContent} disabled={!selectedSceneId}>
@@ -465,6 +480,16 @@ const ManuscriptWriter: React.FC<ManuscriptWriterProps> = ({
           </Card>
         </Col>
       </Row>
+      {isRefineModalOpen && (
+        <RefineModal
+          open={isRefineModalOpen}
+          onCancel={() => setIsRefineModalOpen(false)}
+          originalText={manuscriptContent || ''}
+          contextType={selectedSceneId ? '小说正文' : '文本'}
+          onRefined={applyRefinedContent}
+        />
+      )}
+      </>
     );
   };
 
