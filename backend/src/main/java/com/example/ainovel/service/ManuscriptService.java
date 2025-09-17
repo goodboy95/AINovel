@@ -11,9 +11,12 @@ import org.springframework.retry.annotation.Retryable;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.context.annotation.Lazy;
 
 import com.example.ainovel.exception.ResourceNotFoundException;
+import com.example.ainovel.dto.AnalyzeCharacterChangesRequest;
 import com.example.ainovel.model.CharacterCard;
+import com.example.ainovel.model.CharacterChangeLog;
 import com.example.ainovel.model.ManuscriptSection;
 import com.example.ainovel.model.Manuscript;
 import com.example.ainovel.model.OutlineCard;
@@ -47,6 +50,8 @@ public class ManuscriptService {
     private final SettingsService settingsService;
     private final OutlineCardRepository outlineCardRepository;
     private final ManuscriptRepository manuscriptRepository;
+    @Lazy
+    private final CharacterChangeLogService characterChangeLogService;
 
     /**
      * Retrieves the manuscript for a given outline, verifying user access.
@@ -362,7 +367,7 @@ public class ManuscriptService {
         }
     }
 
-    private void validateManuscriptAccess(Manuscript manuscript, Long userId) {
+    public void validateManuscriptAccess(Manuscript manuscript, Long userId) {
         Long ownerFromManuscript = manuscript.getUser() != null ? manuscript.getUser().getId() : null;
         Long ownerFromOutline = (manuscript.getOutlineCard() != null && manuscript.getOutlineCard().getUser() != null)
                 ? manuscript.getOutlineCard().getUser().getId() : null;
@@ -370,6 +375,14 @@ public class ManuscriptService {
         if (owner == null || !owner.equals(userId)) {
             throw new AccessDeniedException("User does not have permission to access this manuscript.");
         }
+    }
+
+    public List<CharacterChangeLog> analyzeCharacterChanges(Long manuscriptId, AnalyzeCharacterChangesRequest request, Long userId) {
+        return characterChangeLogService.analyzeAndPersist(manuscriptId, request, userId);
+    }
+
+    public List<CharacterChangeLog> getCharacterChangeLogs(Long manuscriptId, Long sceneId, Long userId) {
+        return characterChangeLogService.getLogsForScene(manuscriptId, sceneId, userId);
     }
 
     private ManuscriptDto toDto(Manuscript m) {

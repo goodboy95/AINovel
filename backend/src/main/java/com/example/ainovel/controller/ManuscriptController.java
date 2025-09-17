@@ -1,5 +1,7 @@
 package com.example.ainovel.controller;
 
+import com.example.ainovel.dto.AnalyzeCharacterChangesRequest;
+import com.example.ainovel.dto.CharacterChangeLogResponse;
 import com.example.ainovel.dto.ManuscriptDto;
 import com.example.ainovel.dto.ManuscriptWithSectionsDto;
 import com.example.ainovel.dto.UpdateSectionRequest;
@@ -13,6 +15,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * Controller for handling manuscript-related operations.
@@ -99,5 +102,31 @@ public class ManuscriptController {
     public ResponseEntity<Void> deleteManuscript(@PathVariable Long manuscriptId, @AuthenticationPrincipal User user) {
         manuscriptService.deleteManuscript(manuscriptId, user.getId());
         return ResponseEntity.noContent().build();
+    }
+
+    @PostMapping("/manuscripts/{manuscriptId}/sections/analyze-character-changes")
+    public ResponseEntity<List<CharacterChangeLogResponse>> analyzeCharacterChanges(
+            @PathVariable Long manuscriptId,
+            @RequestBody AnalyzeCharacterChangesRequest request,
+            @AuthenticationPrincipal User user) {
+        List<CharacterChangeLogResponse> responses = manuscriptService
+                .analyzeCharacterChanges(manuscriptId, request, user.getId())
+                .stream()
+                .map(CharacterChangeLogResponse::from)
+                .collect(Collectors.toList());
+        return ResponseEntity.ok(responses);
+    }
+
+    @GetMapping("/manuscripts/{manuscriptId}/sections/{sceneId}/character-change-logs")
+    public ResponseEntity<List<CharacterChangeLogResponse>> getCharacterChangeLogs(
+            @PathVariable Long manuscriptId,
+            @PathVariable Long sceneId,
+            @AuthenticationPrincipal User user) {
+        List<CharacterChangeLogResponse> responses = manuscriptService
+                .getCharacterChangeLogs(manuscriptId, sceneId, user.getId())
+                .stream()
+                .map(CharacterChangeLogResponse::from)
+                .collect(Collectors.toList());
+        return ResponseEntity.ok(responses);
     }
 }

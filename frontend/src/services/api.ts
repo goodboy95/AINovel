@@ -1,4 +1,14 @@
-import type { StoryCard, CharacterCard, Outline, ConceptionFormValues, Chapter, Manuscript, ManuscriptSection } from '../types';
+import type {
+    StoryCard,
+    CharacterCard,
+    Outline,
+    ConceptionFormValues,
+    Chapter,
+    Manuscript,
+    ManuscriptSection,
+    CharacterChangeLog,
+    AnalyzeCharacterChangesPayload,
+} from '../types';
 
 /**
  * Creates authorization headers for API requests.
@@ -313,4 +323,24 @@ export const deleteManuscript = (manuscriptId: number): Promise<void> => {
         method: 'DELETE',
         headers: getAuthHeaders(),
     }).then(res => handleResponse<void>(res));
+};
+
+export const analyzeCharacterChanges = (
+    manuscriptId: number,
+    payload: AnalyzeCharacterChangesPayload
+): Promise<CharacterChangeLog[]> => {
+    return fetch(`/api/v1/manuscripts/${manuscriptId}/sections/analyze-character-changes`, {
+        method: 'POST',
+        headers: getAuthHeaders(),
+        body: JSON.stringify(payload),
+    }).then(res => handleResponse<CharacterChangeLog[]>(res));
+};
+
+export const fetchCharacterChangeLogs = (
+    manuscriptId: number,
+    sceneId: number
+): Promise<CharacterChangeLog[]> => {
+    return fetch(`/api/v1/manuscripts/${manuscriptId}/sections/${sceneId}/character-change-logs`, {
+        headers: getAuthHeaders(),
+    }).then(res => handleResponse<CharacterChangeLog[]>(res));
 };

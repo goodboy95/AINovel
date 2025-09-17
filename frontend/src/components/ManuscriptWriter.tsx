@@ -18,15 +18,19 @@ import {
 import OutlineTreeView from './OutlineTreeView';
 import AiRefineButton from './AiRefineButton';
 import RefineModal from './modals/RefineModal';
-import type { Outline, ManuscriptSection, StoryCard, Manuscript } from '../types';
+import type { Outline, ManuscriptSection, StoryCard, Manuscript, CharacterCard, CharacterChangeLog } from '../types';
 import { useOutlineData } from '../hooks/useOutlineData';
 import {
   fetchStories,
+  fetchStoryDetails,
   fetchManuscriptsForOutline,
   fetchManuscriptWithSections,
   createManuscript,
   deleteManuscript as apiDeleteManuscript,
+  analyzeCharacterChanges,
+  fetchCharacterChangeLogs,
 } from '../services/api';
+import CharacterStatusSidebar from './CharacterStatusSidebar';
 
 const { Content } = Layout;
 const { TextArea } = Input;
@@ -49,6 +53,7 @@ const ManuscriptWriter: React.FC<ManuscriptWriterProps> = ({
   // 顶部下拉：故事列表
   const [stories, setStories] = useState<StoryCard[]>([]);
   const [selectedStoryId, setSelectedStoryId] = useState<string | null>(storyId);
+  const [characterMap, setCharacterMap] = useState<Record<number, CharacterCard>>({});
 
   // 大纲数据（依赖所选故事）
   const {
@@ -70,6 +75,8 @@ const ManuscriptWriter: React.FC<ManuscriptWriterProps> = ({
 
   const [manuscripts, setManuscripts] = useState<Manuscript[]>([]);
   const [selectedManuscript, setSelectedManuscript] = useState<Manuscript | null>(null);
+  const [characterChangeLogs, setCharacterChangeLogs] = useState<Record<number, CharacterChangeLog[]>>({});
+  const [isAnalyzing, setIsAnalyzing] = useState(false);
 
   // 初始化故事列表
   useEffect(() => {
@@ -93,14 +100,16 @@ const ManuscriptWriter: React.FC<ManuscriptWriterProps> = ({
   // 切换故事后清理状态并加载对应大纲
   useEffect(() => {
     if (selectedStoryId) {
+      const storyNumericId = Number(selectedStoryId);
       loadOutlines();
-      // 清理上一次选择
+      loadStoryCharacters(storyNumericId);
       selectOutline(null);
       setSelectedOutlineDetail(null);
       setManuscripts([]);
       setSelectedManuscript(null);
       setManuscriptMap({});
       setManuscriptContent('');
+      setCharacterChangeLogs({});
       onSelectScene(null);
     } else {
       setSelectedOutlineDetail(null);
@@ -108,9 +117,11 @@ const ManuscriptWriter: React.FC<ManuscriptWriterProps> = ({
       setSelectedManuscript(null);
       setManuscriptMap({});
       setManuscriptContent('');
+      setCharacterMap({});
+      setCharacterChangeLogs({});
       onSelectScene(null);
     }
-  }, [selectedStoryId, loadOutlines, selectOutline, onSelectScene]);
+  }, [selectedStoryId, loadOutlines, loadStoryCharacters, selectOutline, onSelectScene]);
 
   // 加载所选大纲的详情
   const loadSelectedOutlineDetail = useCallback(
@@ -125,6 +136,21 @@ const ManuscriptWriter: React.FC<ManuscriptWriterProps> = ({
     },
     [getOutlineForWriting]
   );
+
+  const loadStoryCharacters = useCallback(async (storyId: number) => {
+    try {
+      const { characterCards } = await fetchStoryDetails(storyId);
+      const map: Record<number, CharacterCard> = {};
+      characterCards.forEach((card) => {
+        map[card.id] = card;
+      });
+      setCharacterMap(map);
+    } catch (error) {
+      console.error(error);
+      setCharacterMap({});
+      message.error('获取角色信息失败');
+    }
+  }, []);
 
   const loadManuscripts = useCallback(async (outlineId: number) => {
     try {
@@ -144,6 +170,7 @@ const ManuscriptWriter: React.FC<ManuscriptWriterProps> = ({
       setSelectedManuscript(null);
       setManuscriptMap({});
       setManuscriptContent('');
+      setCharacterChangeLogs({});
       onSelectScene(null);
     } else {
       setSelectedOutlineDetail(null);
@@ -151,6 +178,7 @@ const ManuscriptWriter: React.FC<ManuscriptWriterProps> = ({
       setSelectedManuscript(null);
       setManuscriptMap({});
       setManuscriptContent('');
+      setCharacterChangeLogs({});
       onSelectScene(null);
     }
   }, [selectedOutline, loadSelectedOutlineDetail, loadManuscripts, onSelectScene]);
@@ -161,6 +189,7 @@ const ManuscriptWriter: React.FC<ManuscriptWriterProps> = ({
       if (!selectedOutline) return;
       setSelectedManuscript(m);
       setIsFetchingManuscript(true);
+      setCharacterChangeLogs({});
       try {
         const dto = await fetchManuscriptWithSections(m.id);
         // dto.sections: Record<sceneId, ManuscriptSection>
@@ -236,6 +265,58 @@ const ManuscriptWriter: React.FC<ManuscriptWriterProps> = ({
     }
   }, [selectedSceneId, manuscriptMap]);
 
+  useEffect(() => {
+    const loadLogsForScene = async () => {
+      if (!selectedManuscript || !selectedSceneId) return;
+      try {
+        const logs = await fetchCharacterChangeLogs(selectedManuscript.id, selectedSceneId);
+        setCharacterChangeLogs((prev) => ({ ...prev, [selectedSceneId]: logs }));
+      } catch (error) {
+        console.error(error);
+        message.error('加载角色状态失败');
+      }
+    };
+    loadLogsForScene();
+  }, [selectedManuscript, selectedSceneId]);
+
+  const runCharacterAnalysis = useCallback(
+    async (sectionText: string, sceneId: number | null) => {
+      if (!selectedManuscript || !sceneId) return;
+      const context = getSceneContext(sceneId);
+      if (!context) {
+        message.error('无法获取场景信息');
+        return;
+      }
+      const { scene, chapterNumber, sectionNumber } = context;
+      const presentIds = Array.isArray(scene.presentCharacterIds) ? scene.presentCharacterIds : [];
+      const validIds = presentIds.filter((id): id is number => typeof id === 'number' && !!characterMap[id]);
+      if (validIds.length === 0) {
+        message.warning('当前场景缺少出场角色信息，请在大纲中补充角色设置。');
+        return;
+      }
+
+      setIsAnalyzing(true);
+      try {
+        const logs = await analyzeCharacterChanges(selectedManuscript.id, {
+          sceneId,
+          chapterNumber,
+          sectionNumber,
+          sectionContent: sectionText || '',
+          characterIds: validIds,
+          outlineId: selectedOutlineDetail?.id,
+        });
+        setCharacterChangeLogs((prev) => ({ ...prev, [sceneId]: logs }));
+        message.success('角色状态已更新');
+      } catch (error) {
+        console.error(error);
+        message.error(error instanceof Error ? error.message : '分析角色变化失败');
+      } finally {
+        setIsAnalyzing(false);
+      }
+    },
+    [selectedManuscript, getSceneContext, characterMap, selectedOutlineDetail]
+  );
+
   const openRefineModal = () => {
     setIsRefineModalOpen(true);
   };
@@ -278,6 +359,7 @@ const ManuscriptWriter: React.FC<ManuscriptWriterProps> = ({
       });
       setManuscriptContent(newSection.content || '');
       message.success('内容已生成！现在您可以继续编辑。');
+      await runCharacterAnalysis(newSection.content || '', sceneKey);
     } catch (error) {
       message.error(error instanceof Error ? error.message : '内容生成失败，请检查后台服务。');
     } finally {
@@ -315,6 +397,7 @@ const ManuscriptWriter: React.FC<ManuscriptWriterProps> = ({
       const sceneKey = getSectionSceneId(updatedSection) ?? selectedSceneId;
       setManuscriptMap((prev) => ({ ...prev, [sceneKey]: updatedSection }));
       message.success('内容已保存！');
+      await runCharacterAnalysis(manuscriptContent, sceneKey);
     } catch (error) {
       console.error('Failed to save content:', error);
       message.error(error instanceof Error ? error.message : '保存失败');
@@ -323,14 +406,32 @@ const ManuscriptWriter: React.FC<ManuscriptWriterProps> = ({
     }
   };
 
-  const selectedScene = useMemo(() => {
-    if (!selectedOutlineDetail || !selectedSceneId) return null;
-    for (const chapter of selectedOutlineDetail.chapters) {
-      const scene = chapter.scenes.find((s) => s.id === selectedSceneId);
-      if (scene) return scene;
-    }
-    return null;
-  }, [selectedOutlineDetail, selectedSceneId]);
+  const getSceneContext = useCallback(
+    (sceneId: number | null) => {
+      if (!selectedOutlineDetail || !sceneId) return null;
+      for (const chapter of selectedOutlineDetail.chapters) {
+        const scene = chapter.scenes.find((s) => s.id === sceneId);
+        if (scene) {
+          return {
+            scene,
+            chapterNumber: chapter.chapterNumber,
+            sectionNumber: scene.sceneNumber,
+          };
+        }
+      }
+      return null;
+    },
+    [selectedOutlineDetail]
+  );
+
+  const selectedSceneContext = useMemo(
+    () => getSceneContext(selectedSceneId),
+    [getSceneContext, selectedSceneId]
+  );
+
+  const selectedScene = selectedSceneContext?.scene ?? null;
+  const selectedChapterNumber = selectedSceneContext?.chapterNumber;
+  const selectedSectionNumber = selectedSceneContext?.sectionNumber;
 
   // 渲染顶部筛选区域：选择故事 + 选择大纲
   const renderTopSelectors = () => (
@@ -437,7 +538,7 @@ const ManuscriptWriter: React.FC<ManuscriptWriterProps> = ({
     return (
       <>
       <Row gutter={24} style={{ height: '100%' }}>
-        <Col span={8} style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
+        <Col span={6} style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
           <Card title={selectedOutlineDetail.title} style={{ height: '100%', overflow: 'auto' }}>
             <OutlineTreeView
               outline={selectedOutlineDetail}
@@ -445,7 +546,7 @@ const ManuscriptWriter: React.FC<ManuscriptWriterProps> = ({
             />
           </Card>
         </Col>
-        <Col span={16} style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
+        <Col span={12} style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
           <Card
             title={`场景内容（当前小说：${selectedManuscript.title}）`}
             style={{ flex: 1, display: 'flex', flexDirection: 'column' }}
@@ -474,10 +575,28 @@ const ManuscriptWriter: React.FC<ManuscriptWriterProps> = ({
                 <Button style={{ marginLeft: 8 }} onClick={handleSaveContent} disabled={!selectedSceneId || isLoading}>
                   保存
                 </Button>
+                <Button
+                  style={{ marginLeft: 8 }}
+                  onClick={() => runCharacterAnalysis(manuscriptContent, selectedSceneId)}
+                  disabled={!selectedSceneId || isLoading}
+                  loading={isAnalyzing}
+                >
+                  分析角色变化
+                </Button>
               </div>
               <span className="text-sm text-gray-500">预期字数: {selectedScene?.expectedWords || 'N/A'}</span>
             </div>
           </Card>
+        </Col>
+        <Col span={6} style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
+          <CharacterStatusSidebar
+            characterMap={characterMap}
+            logs={selectedSceneId ? characterChangeLogs[selectedSceneId] || [] : []}
+            chapterNumber={selectedChapterNumber}
+            sectionNumber={selectedSectionNumber}
+            isAnalyzing={isAnalyzing}
+            onAnalyze={selectedSceneId ? () => runCharacterAnalysis(manuscriptContent, selectedSceneId) : undefined}
+          />
         </Col>
       </Row>
       {isRefineModalOpen && (

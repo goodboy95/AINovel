@@ -73,6 +73,27 @@ export interface CharacterCard {
     relationships: string;
 }
 
+export interface CharacterChangeLog {
+    id: number;
+    characterId: number;
+    chapterNumber: number;
+    sectionNumber: number;
+    newlyKnownInfo?: string;
+    characterChanges?: string;
+    characterDetailsAfter: string;
+    isAutoCopied: boolean;
+    createdAt: string;
+}
+
+export interface AnalyzeCharacterChangesPayload {
+    sceneId: number;
+    chapterNumber?: number;
+    sectionNumber?: number;
+    sectionContent: string;
+    characterIds: number[];
+    outlineId?: number;
+}
+
 export interface ManuscriptSection {
     id: number;
     content: string;

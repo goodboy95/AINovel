@@ -76,6 +76,19 @@ public class OpenAiService extends AbstractAiService {
         }
     }
 
+    public String generateJson(String prompt, String apiKey, String baseUrl, String model) {
+        try {
+            return callOpenAi(prompt, apiKey, baseUrl, model, true);
+        } catch (JsonProcessingException e) {
+            log.error("Error processing JSON for OpenAI structured generation", e);
+            throw new RuntimeException("Failed to process JSON for OpenAI structured generation.", e);
+        }
+    }
+
+    public String generateJson(String prompt, String apiKey) {
+        return generateJson(prompt, apiKey, null, null);
+    }
+
     // Legacy two-arg variant for backward compatibility
     @Override
     @Retryable(value = {RestClientException.class, RuntimeException.class}, maxAttempts = 3, backoff = @Backoff(delay = 1000))

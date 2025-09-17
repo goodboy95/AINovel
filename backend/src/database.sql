@@ -182,3 +182,32 @@ ADD COLUMN `actions_in_scene` TEXT CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai
 -- 2) Drop deprecated llm_provider column
 ALTER TABLE `user_settings` ADD COLUMN `base_url` varchar(255) NULL DEFAULT NULL AFTER `custom_prompt`;
 ALTER TABLE `user_settings` DROP COLUMN `llm_provider`;
+
+-- ----------------------------
+-- Table structure for character_change_logs
+-- ----------------------------
+DROP TABLE IF EXISTS `character_change_logs`;
+CREATE TABLE `character_change_logs`  (
+  `id` bigint NOT NULL AUTO_INCREMENT,
+  `character_id` bigint NOT NULL,
+  `manuscript_id` bigint NOT NULL,
+  `scene_id` bigint NOT NULL,
+  `outline_id` bigint NOT NULL,
+  `chapter_number` int NOT NULL,
+  `section_number` int NOT NULL,
+  `newly_known_info` text CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL,
+  `character_changes` text CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL,
+  `character_details_after` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
+  `is_auto_copied` bit(1) NOT NULL DEFAULT b'0',
+  `created_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `deleted_at` datetime NULL DEFAULT NULL,
+  PRIMARY KEY (`id`) USING BTREE,
+  INDEX `idx_ccl_character`(`character_id`, `manuscript_id`) USING BTREE,
+  INDEX `idx_ccl_scene`(`manuscript_id`, `scene_id`, `chapter_number`, `section_number`) USING BTREE,
+  INDEX `idx_ccl_turning`(`manuscript_id`, `character_id`, `deleted_at`) USING BTREE,
+  CONSTRAINT `fk_ccl_character` FOREIGN KEY (`character_id`) REFERENCES `character_cards` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT,
+  CONSTRAINT `fk_ccl_manuscript` FOREIGN KEY (`manuscript_id`) REFERENCES `manuscripts` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT,
+  CONSTRAINT `fk_ccl_outline` FOREIGN KEY (`outline_id`) REFERENCES `outline_cards` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT,
+  CONSTRAINT `fk_ccl_scene` FOREIGN KEY (`scene_id`) REFERENCES `outline_scenes` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT
+) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci ROW_FORMAT = Dynamic;
