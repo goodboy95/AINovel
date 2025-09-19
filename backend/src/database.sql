@@ -198,6 +198,74 @@ ADD COLUMN `status_in_scene` TEXT CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_
 ADD COLUMN `mood_in_scene` TEXT CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '在本节中的心情',
 ADD COLUMN `actions_in_scene` TEXT CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '在本节中的核心行动';
 
+-- ----------------------------
+-- Version 2.3 Changes
+-- ----------------------------
+
+-- Create structured scene character table
+CREATE TABLE IF NOT EXISTS `scene_characters`  (
+  `id` bigint NOT NULL AUTO_INCREMENT,
+  `scene_id` bigint NOT NULL,
+  `character_card_id` bigint NULL DEFAULT NULL,
+  `character_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
+  `status` text CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL,
+  `thought` text CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL,
+  `action` text CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL,
+  PRIMARY KEY (`id`) USING BTREE,
+  KEY `idx_scene_characters_scene_id` (`scene_id`),
+  KEY `idx_scene_characters_card_id` (`character_card_id`),
+  CONSTRAINT `fk_scene_characters_scene` FOREIGN KEY (`scene_id`) REFERENCES `outline_scenes` (`id`) ON DELETE CASCADE ON UPDATE RESTRICT,
+  CONSTRAINT `fk_scene_characters_card` FOREIGN KEY (`character_card_id`) REFERENCES `character_cards` (`id`) ON DELETE SET NULL ON UPDATE RESTRICT
+) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci ROW_FORMAT = Dynamic;
+
+-- 如果生产环境中仍然保留 legacy 的 outline_scenes.character_states JSON 字段，
+-- 需要在删除该列之前先将数据迁移到 scene_characters 表。
+-- 以下示例脚本覆盖了两种常见的历史结构，执行前请根据实际 JSON 结构验证并在事务中运行：
+--
+-- 1) character_states 为数组结构（每个元素带有 characterName/status/thought/action 字段）时：
+-- INSERT INTO scene_characters (scene_id, character_name, status, thought, action)
+-- SELECT
+--   os.id,
+--   jt.character_name,
+--   jt.status,
+--   jt.thought,
+--   jt.action
+-- FROM outline_scenes AS os
+-- CROSS JOIN JSON_TABLE(
+--   os.character_states,
+--   '$[*]' COLUMNS (
+--     character_name VARCHAR(255) PATH '$.characterName',
+--     status TEXT PATH '$.status',
+--     thought TEXT PATH '$.thought',
+--     action TEXT PATH '$.action'
+--   )
+-- ) AS jt
+-- WHERE os.character_states IS NOT NULL;
+--
+-- 2) character_states 为简单的键值对（{"角色名": "人物状态描述"}）时：
+-- INSERT INTO scene_characters (scene_id, character_name, status)
+-- SELECT
+--   os.id,
+--   key_list.character_name,
+--   JSON_UNQUOTE(JSON_EXTRACT(os.character_states, CONCAT('$."', key_list.character_name, '"')))
+-- FROM outline_scenes AS os
+-- CROSS JOIN JSON_TABLE(
+--   JSON_KEYS(os.character_states),
+--   '$[*]' COLUMNS (character_name VARCHAR(255) PATH '$')
+-- ) AS key_list
+-- WHERE JSON_TYPE(os.character_states) = 'OBJECT';
+--
+-- 无论采用哪种方式，均应迁移完成并人工抽样校验后，再执行下面的 DROP COLUMN 操作。
+
+-- Remove legacy character_states column from outline_scenes if it exists
+ALTER TABLE `outline_scenes` DROP COLUMN IF EXISTS `character_states`;
+
+-- Rename temporary character columns to align with new schema
+ALTER TABLE `temporary_characters`
+  CHANGE COLUMN `status_in_scene` `status` TEXT CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '在本节中的状态',
+  CHANGE COLUMN `mood_in_scene` `thought` TEXT CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '在本节中的想法',
+  CHANGE COLUMN `actions_in_scene` `action` TEXT CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '在本节中的行动';
+
 -- Note: The column names in the SQL script use snake_case (e.g., status_in_scene)
 -- to follow common SQL conventions, which will be automatically mapped by Hibernate
 -- to the camelCase field names in the Java Entity (e.g., statusInScene).

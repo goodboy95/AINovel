@@ -77,9 +77,9 @@ const TemporaryCharacterEditModal: React.FC<TemporaryCharacterEditModalProps> = 
           {renderTextAreaWithRefine('summary', '概要', '临时人物概要')}
           {renderTextAreaWithRefine('details', '详情', '临时人物详情')}
           {renderTextAreaWithRefine('relationships', '与核心人物的关系', '临时人物关系')}
-          {renderTextAreaWithRefine('statusInScene', '在本节中的状态', '临时人物状态')}
-          {renderTextAreaWithRefine('moodInScene', '在本节中的心情', '临时人物心情')}
-          {renderTextAreaWithRefine('actionsInScene', '在本节中的核心行动', '临时人物核心行动')}
+          {renderTextAreaWithRefine('status', '在本节中的状态', '临时人物状态')}
+          {renderTextAreaWithRefine('thought', '在本节中的想法', '临时人物想法')}
+          {renderTextAreaWithRefine('action', '在本节中的核心行动', '临时人物核心行动')}
         </Form>
       </Modal>
       {refineTarget && (

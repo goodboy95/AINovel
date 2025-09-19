@@ -31,11 +31,11 @@ import com.example.ainovel.model.OutlineChapter;
 import com.example.ainovel.model.StoryCard;
 import com.example.ainovel.model.User;
 import com.example.ainovel.model.UserSetting;
+import com.example.ainovel.repository.CharacterCardRepository;
 import com.example.ainovel.repository.OutlineCardRepository;
 import com.example.ainovel.repository.OutlineChapterRepository;
 import com.example.ainovel.repository.OutlineSceneRepository;
 import com.example.ainovel.repository.StoryCardRepository;
-import com.example.ainovel.repository.TemporaryCharacterRepository;
 import com.example.ainovel.repository.UserRepository;
 import com.example.ainovel.repository.UserSettingRepository;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -48,6 +48,8 @@ class OutlineServiceTest {
     private OutlineCardRepository outlineCardRepository;
     @Mock
     private StoryCardRepository storyCardRepository;
+    @Mock
+    private CharacterCardRepository characterCardRepository;
     @Mock
     private UserRepository userRepository;
     @Mock
@@ -63,9 +65,6 @@ class OutlineServiceTest {
     private OutlineChapterRepository outlineChapterRepository;
     @Mock
     private OutlineSceneRepository outlineSceneRepository;
-
-    @Mock
-    private TemporaryCharacterRepository temporaryCharacterRepository;
 
     @Spy
     private ObjectMapper objectMapper = new ObjectMapper();
@@ -93,9 +92,11 @@ class OutlineServiceTest {
         storyCard.setSynopsis("A grand space opera.");
         storyCard.setStoryArc("From rags to riches.");
         CharacterCard mainChar = new CharacterCard();
+        mainChar.setId(101L);
         mainChar.setName("艾丽莎");
         mainChar.setSynopsis("A brave pilot.");
         storyCard.setCharacters(List.of(mainChar));
+        mainChar.setStoryCard(storyCard);
 
         outlineCard = new OutlineCard();
         outlineCard.setId(OUTLINE_ID);
@@ -118,13 +119,23 @@ class OutlineServiceTest {
               "sceneNumber": 1,
               "synopsis": "在偏远的采矿星球上，主角艾丽莎正在维修她的飞船。突然，一个衣着考究、自称“信使”的老人找到了她，声称带来了她失踪多年父亲的消息。老人看起来非常疲惫，但眼神锐利。",
               "presentCharacters": ["艾丽莎"],
-              "characterStates": {
-                "艾丽莎": "警惕但又好奇。她对任何与父亲有关的消息都抱有希望，但多年的独自生活让她不轻易相信陌生人。"
-              },
+              "sceneCharacters": [
+                {
+                  "characterName": "艾丽莎",
+                  "status": "她刚修完飞船，身上带着机油味，精神保持高度警惕。",
+                  "thought": "这个陌生人可能掌握父亲的线索，但也可能是危险的陷阱。",
+                  "action": "暂时收起扳手，与信使保持距离交谈。"
+                }
+              ],
               "temporaryCharacters": [
                 {
                   "name": "信使",
-                  "description": "一位年迈但精神矍铄的老人，身负传递重要信息的使命，身份神秘。"
+                  "summary": "一位年迈但精神矍铄的老人，身负传递重要信息的使命，身份神秘。",
+                  "details": "他的外套沾着宇宙尘土，似乎长途跋涉而来。",
+                  "relationships": "声称认识艾丽莎的父亲。",
+                  "status": "旅途劳顿，但仍强打精神。",
+                  "thought": "必须尽快把消息传达出去。",
+                  "action": "掏出带有徽记的信物，试图取信于她。"
                 }
               ]
             },
@@ -132,9 +143,14 @@ class OutlineServiceTest {
               "sceneNumber": 2,
               "synopsis": "信使向艾丽莎展示了一枚刻有家族徽记的信物，并讲述了一个关于古代外星神器和迫在眉睫的星际威胁的故事。艾丽莎的内心在怀疑和继承父亲遗志的使命感之间激烈斗争。",
               "presentCharacters": ["艾丽莎"],
-              "characterStates": {
-                "艾丽莎": "内心震惊，从最初的怀疑转变为沉重的责任感。她意识到自己的生活将永远改变。"
-              },
+              "sceneCharacters": [
+                {
+                  "characterName": "艾丽莎",
+                  "status": "被信使的故事震撼，心跳加速。",
+                  "thought": "如果父亲真的陷入危机，我必须接过他的责任。",
+                  "action": "握紧信物，准备跟随信使离开矿区。"
+                }
+              ],
               "temporaryCharacters": []
             }
           ]
@@ -189,21 +205,31 @@ class OutlineServiceTest {
         assertEquals(1, scene1.getSceneNumber());
         assertTrue(scene1.getSynopsis().contains("自称“信使”的老人找到了她"));
         assertEquals("艾丽莎", scene1.getPresentCharacters());
-        assertNotNull(scene1.getCharacterStates());
+        assertEquals(1, scene1.getSceneCharacters().size());
+        assertEquals("艾丽莎", scene1.getSceneCharacters().get(0).getCharacterName());
+        assertTrue(scene1.getSceneCharacters().get(0).getStatus().contains("机油"));
         assertEquals(1, scene1.getTemporaryCharacters().size());
         assertEquals("信使", scene1.getTemporaryCharacters().get(0).getName());
         assertEquals("一位年迈但精神矍铄的老人，身负传递重要信息的使命，身份神秘。", scene1.getTemporaryCharacters().get(0).getSummary());
+        assertEquals("他的外套沾着宇宙尘土，似乎长途跋涉而来。", scene1.getTemporaryCharacters().get(0).getDetails());
+        assertEquals("旅途劳顿，但仍强打精神。", scene1.getTemporaryCharacters().get(0).getStatus());
+        assertEquals("必须尽快把消息传达出去。", scene1.getTemporaryCharacters().get(0).getThought());
+        assertEquals("掏出带有徽记的信物，试图取信于她。", scene1.getTemporaryCharacters().get(0).getAction());
         assertEquals(scene1, scene1.getTemporaryCharacters().get(0).getScene()); // Verify back-reference
 
         // Verify second scene
         var scene2 = savedChapter.getScenes().get(1);
         assertEquals(2, scene2.getSceneNumber());
         assertTrue(scene2.getSynopsis().contains("古代外星神器"));
+        assertEquals(1, scene2.getSceneCharacters().size());
+        assertTrue(scene2.getSceneCharacters().get(0).getThought().contains("责任"));
         assertTrue(scene2.getTemporaryCharacters().isEmpty());
 
         // Verify DTO conversion
         assertEquals(1, resultDto.getScenes().get(0).getTemporaryCharacters().size());
         assertEquals("信使", resultDto.getScenes().get(0).getTemporaryCharacters().get(0).getName());
+        assertEquals(1, resultDto.getScenes().get(0).getSceneCharacters().size());
+        assertEquals("艾丽莎", resultDto.getScenes().get(0).getSceneCharacters().get(0).getCharacterName());
         assertTrue(resultDto.getScenes().get(1).getTemporaryCharacters().isEmpty());
     }
 }
