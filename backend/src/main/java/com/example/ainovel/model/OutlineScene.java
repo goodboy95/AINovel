@@ -1,5 +1,6 @@
 package com.example.ainovel.model;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
@@ -71,14 +72,15 @@ public class OutlineScene {
     private String presentCharacters;
 
     /**
-     * Detailed description of the characters' states, thoughts, and actions in this scene.
+     * Structured records describing each core character's status, thoughts, and actions within the scene.
      */
-    @Lob
-    @Column(name = "character_states", columnDefinition = "TEXT")
-    private String characterStates;
+    @OneToMany(mappedBy = "scene", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonManagedReference
+    @ToString.Exclude
+    private List<SceneCharacter> sceneCharacters = new ArrayList<>();
 
     @OneToMany(mappedBy = "scene", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonManagedReference
     @ToString.Exclude
-    private List<TemporaryCharacter> temporaryCharacters;
+    private List<TemporaryCharacter> temporaryCharacters = new ArrayList<>();
 }

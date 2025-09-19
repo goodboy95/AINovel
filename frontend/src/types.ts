@@ -4,9 +4,18 @@ export interface TemporaryCharacter {
   summary: string;
   details: string;
   relationships: string;
-  statusInScene: string;
-  moodInScene: string;
-  actionsInScene: string;
+  status: string;
+  thought: string;
+  action: string;
+}
+
+export interface SceneCharacter {
+  id?: number;
+  characterCardId?: number;
+  characterName: string;
+  status: string;
+  thought: string;
+  action: string;
 }
 
 export interface Scene {
@@ -16,7 +25,7 @@ export interface Scene {
     expectedWords: number;
     presentCharacterIds?: number[]; // 多选角色ID数组
     presentCharacters?: string; // 兼容旧数据：以逗号分隔的人名
-    characterStates?: string;
+    sceneCharacters?: SceneCharacter[];
     temporaryCharacters?: TemporaryCharacter[]; // 新增：临时人物
     content?: string; // 正文内容
 }

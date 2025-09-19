@@ -1,8 +1,13 @@
 package com.example.ainovel.service;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
@@ -19,16 +24,20 @@ import com.example.ainovel.dto.OutlineDto;
 import com.example.ainovel.dto.OutlineRequest;
 import com.example.ainovel.dto.RefineRequest;
 import com.example.ainovel.dto.RefineResponse;
+import com.example.ainovel.dto.SceneCharacterDto;
 import com.example.ainovel.dto.SceneDto;
 import com.example.ainovel.dto.TemporaryCharacterDto;
 import com.example.ainovel.exception.ResourceNotFoundException;
+import com.example.ainovel.model.CharacterCard;
 import com.example.ainovel.model.OutlineCard;
 import com.example.ainovel.model.OutlineChapter;
 import com.example.ainovel.model.OutlineScene;
+import com.example.ainovel.model.SceneCharacter;
 import com.example.ainovel.model.StoryCard;
 import com.example.ainovel.model.TemporaryCharacter;
 import com.example.ainovel.model.User;
 import com.example.ainovel.model.UserSetting;
+import com.example.ainovel.repository.CharacterCardRepository;
 import com.example.ainovel.repository.OutlineCardRepository;
 import com.example.ainovel.repository.OutlineChapterRepository;
 import com.example.ainovel.repository.OutlineSceneRepository;
@@ -52,6 +61,7 @@ public class OutlineService {
 
     private final OutlineCardRepository outlineCardRepository;
     private final StoryCardRepository storyCardRepository;
+    private final CharacterCardRepository characterCardRepository;
     private final UserRepository userRepository;
     private final UserSettingRepository userSettingRepository;
     private final EncryptionService encryptionService;
@@ -159,12 +169,34 @@ public class OutlineService {
         dto.setSceneNumber(scene.getSceneNumber());
         dto.setSynopsis(scene.getSynopsis());
         dto.setExpectedWords(scene.getExpectedWords());
-        dto.setPresentCharacterIds(parsePresentCharacterIds(scene.getPresentCharacters()));
-        dto.setCharacterStates(scene.getCharacterStates());
+        if (scene.getSceneCharacters() != null && !scene.getSceneCharacters().isEmpty()) {
+            List<Long> presentIds = scene.getSceneCharacters().stream()
+                    .map(SceneCharacter::getCharacterCard)
+                    .filter(Objects::nonNull)
+                    .map(CharacterCard::getId)
+                    .filter(Objects::nonNull)
+                    .distinct()
+                    .collect(Collectors.toList());
+            dto.setPresentCharacterIds(presentIds);
+            String presentNames = scene.getSceneCharacters().stream()
+                    .map(SceneCharacter::getCharacterName)
+                    .filter(name -> name != null && !name.isBlank())
+                    .distinct()
+                    .collect(Collectors.joining(", "));
+            dto.setPresentCharacters(presentNames.isBlank() ? scene.getPresentCharacters() : presentNames);
+        } else {
+            dto.setPresentCharacterIds(parsePresentCharacterIds(scene.getPresentCharacters()));
+            dto.setPresentCharacters(scene.getPresentCharacters());
+        }
+        if (scene.getSceneCharacters() != null) {
+            dto.setSceneCharacters(scene.getSceneCharacters().stream()
+                    .map(this::convertSceneCharacterToDto)
+                    .collect(Collectors.toList()));
+        }
         if (scene.getTemporaryCharacters() != null) {
             dto.setTemporaryCharacters(scene.getTemporaryCharacters().stream()
-                .map(this::convertTemporaryCharacterToDto)
-                .collect(Collectors.toList()));
+                    .map(this::convertTemporaryCharacterToDto)
+                    .collect(Collectors.toList()));
         }
         return dto;
     }
@@ -176,10 +208,135 @@ public class OutlineService {
         dto.setSummary(temporaryCharacter.getSummary());
         dto.setDetails(temporaryCharacter.getDetails());
         dto.setRelationships(temporaryCharacter.getRelationships());
-        dto.setStatusInScene(temporaryCharacter.getStatusInScene());
-        dto.setMoodInScene(temporaryCharacter.getMoodInScene());
-        dto.setActionsInScene(temporaryCharacter.getActionsInScene());
+        dto.setStatus(temporaryCharacter.getStatus());
+        dto.setThought(temporaryCharacter.getThought());
+        dto.setAction(temporaryCharacter.getAction());
         return dto;
+    }
+
+    private SceneCharacterDto convertSceneCharacterToDto(SceneCharacter sceneCharacter) {
+        SceneCharacterDto dto = new SceneCharacterDto();
+        dto.setId(sceneCharacter.getId());
+        dto.setCharacterCardId(sceneCharacter.getCharacterCard() != null
+                ? sceneCharacter.getCharacterCard().getId()
+                : null);
+        dto.setCharacterName(sceneCharacter.getCharacterName());
+        dto.setStatus(sceneCharacter.getStatus());
+        dto.setThought(sceneCharacter.getThought());
+        dto.setAction(sceneCharacter.getAction());
+        return dto;
+    }
+
+    private void applySceneCharacterDtos(OutlineScene scene, List<SceneCharacterDto> sceneCharacterDtos, StoryCard storyCard) {
+        List<SceneCharacter> targetList = scene.getSceneCharacters();
+        if (targetList == null) {
+            targetList = new ArrayList<>();
+            scene.setSceneCharacters(targetList);
+        }
+
+        Map<Long, SceneCharacter> existingMap = targetList.stream()
+                .filter(sc -> sc.getId() != null)
+                .collect(Collectors.toMap(SceneCharacter::getId, sc -> sc, (a, b) -> a));
+
+        List<SceneCharacter> charactersToKeep = new ArrayList<>();
+        for (SceneCharacterDto dto : sceneCharacterDtos) {
+            SceneCharacter entity = dto.getId() != null ? existingMap.remove(dto.getId()) : null;
+            if (entity == null) {
+                entity = new SceneCharacter();
+                entity.setScene(scene);
+            }
+
+            CharacterCard linkedCard = resolveCharacterCard(dto.getCharacterCardId(), dto.getCharacterName(), storyCard);
+            entity.setCharacterCard(linkedCard);
+            if (dto.getCharacterName() != null && !dto.getCharacterName().isBlank()) {
+                entity.setCharacterName(dto.getCharacterName().trim());
+            } else if (linkedCard != null) {
+                entity.setCharacterName(linkedCard.getName());
+            }
+
+            entity.setStatus(dto.getStatus());
+            entity.setThought(dto.getThought());
+            entity.setAction(dto.getAction());
+
+            charactersToKeep.add(entity);
+        }
+
+        targetList.clear();
+        targetList.addAll(charactersToKeep);
+        syncScenePresentCharacters(scene, charactersToKeep, Collections.emptyList());
+    }
+
+    private void syncScenePresentCharacters(OutlineScene scene, List<SceneCharacter> sceneCharacters, List<String> fallbackNames) {
+        Set<String> uniqueNames = new LinkedHashSet<>();
+        if (sceneCharacters != null) {
+            sceneCharacters.stream()
+                    .map(SceneCharacter::getCharacterName)
+                    .filter(name -> name != null && !name.isBlank())
+                    .map(String::trim)
+                    .forEach(uniqueNames::add);
+        }
+
+        if ((uniqueNames.isEmpty()) && fallbackNames != null) {
+            fallbackNames.stream()
+                    .filter(name -> name != null && !name.isBlank())
+                    .map(String::trim)
+                    .forEach(uniqueNames::add);
+        }
+
+        if (uniqueNames.isEmpty()) {
+            scene.setPresentCharacters(null);
+        } else {
+            scene.setPresentCharacters(String.join(", ", uniqueNames));
+        }
+    }
+
+    private String buildPresentCharactersStringFromIds(List<Long> characterIds, StoryCard storyCard, String fallback) {
+        if (characterIds == null || characterIds.isEmpty()) {
+            return (fallback != null && !fallback.isBlank()) ? fallback : null;
+        }
+
+        Set<String> resolvedNames = new LinkedHashSet<>();
+        if (storyCard != null && storyCard.getCharacters() != null) {
+            Map<Long, String> idToName = storyCard.getCharacters().stream()
+                    .filter(card -> card.getId() != null && card.getName() != null && !card.getName().isBlank())
+                    .collect(Collectors.toMap(
+                            CharacterCard::getId,
+                            card -> card.getName().trim(),
+                            (existing, replacement) -> existing
+                    ));
+            for (Long characterId : characterIds) {
+                if (characterId == null) {
+                    continue;
+                }
+                String name = idToName.get(characterId);
+                if (name != null && !name.isBlank()) {
+                    resolvedNames.add(name.trim());
+                }
+            }
+        }
+
+        if (!resolvedNames.isEmpty()) {
+            return String.join(", ", resolvedNames);
+        }
+
+        return (fallback != null && !fallback.isBlank()) ? fallback : null;
+    }
+
+    private CharacterCard resolveCharacterCard(Long characterCardId, String characterName, StoryCard storyCard) {
+        if (characterCardId != null) {
+            Optional<CharacterCard> byId = characterCardRepository.findById(characterCardId);
+            if (byId.isPresent()) {
+                return byId.get();
+            }
+        }
+        if (storyCard != null && storyCard.getCharacters() != null && characterName != null) {
+            String trimmed = characterName.trim();
+            return storyCard.getCharacters().stream()
+                    .filter(card -> card.getName() != null && card.getName().trim().equalsIgnoreCase(trimmed))
+                    .findFirst()
+                    .orElse(null);
+        }
+        return null;
     }
 
     /**
@@ -248,20 +405,24 @@ public class OutlineService {
                         scene.setSynopsis(sceneDto.getSynopsis());
                         scene.setExpectedWords(sceneDto.getExpectedWords());
                         if (sceneDto.getPresentCharacterIds() != null) {
-                            try {
-                                scene.setPresentCharacters(objectMapper.writeValueAsString(sceneDto.getPresentCharacterIds()));
-                            } catch (JsonProcessingException e) {
-                                logger.warn("Failed to serialize presentCharacterIds, storing empty array", e);
-                                scene.setPresentCharacters("[]");
-                            }
+                            String resolvedPresentCharacters = buildPresentCharactersStringFromIds(
+                                    sceneDto.getPresentCharacterIds(),
+                                    outlineCard.getStoryCard(),
+                                    sceneDto.getPresentCharacters());
+                            scene.setPresentCharacters(resolvedPresentCharacters);
                         }
-                        scene.setCharacterStates(sceneDto.getCharacterStates());
+                        if (sceneDto.getSceneCharacters() != null) {
+                            applySceneCharacterDtos(scene, sceneDto.getSceneCharacters(), outlineCard.getStoryCard());
+                        }
 
                         // --- Temporary Character Management ---
                         if (sceneDto.getTemporaryCharacters() != null) {
-                            Map<Long, TemporaryCharacter> existingTempCharsMap = scene.getTemporaryCharacters().stream()
+                            List<TemporaryCharacter> existingList = scene.getTemporaryCharacters() != null
+                                    ? scene.getTemporaryCharacters()
+                                    : new ArrayList<>();
+                            Map<Long, TemporaryCharacter> existingTempCharsMap = existingList.stream()
                                     .collect(Collectors.toMap(TemporaryCharacter::getId, tc -> tc, (tc1, tc2) -> tc1));
-                            
+
                             List<TemporaryCharacter> tempCharsToKeep = new ArrayList<>();
                             for (TemporaryCharacterDto tempCharDto : sceneDto.getTemporaryCharacters()) {
                                 TemporaryCharacter tempChar = existingTempCharsMap.remove(tempCharDto.getId());
@@ -273,9 +434,9 @@ public class OutlineService {
                                 tempChar.setSummary(tempCharDto.getSummary());
                                 tempChar.setDetails(tempCharDto.getDetails());
                                 tempChar.setRelationships(tempCharDto.getRelationships());
-                                tempChar.setStatusInScene(tempCharDto.getStatusInScene());
-                                tempChar.setMoodInScene(tempCharDto.getMoodInScene());
-                                tempChar.setActionsInScene(tempCharDto.getActionsInScene());
+                                tempChar.setStatus(tempCharDto.getStatus());
+                                tempChar.setThought(tempCharDto.getThought());
+                                tempChar.setAction(tempCharDto.getAction());
                                 tempCharsToKeep.add(tempChar);
                             }
                             scene.getTemporaryCharacters().clear();
@@ -420,6 +581,8 @@ public class OutlineService {
             3.  **伏笔与回收:** 如果有机会，可以埋下一些与长线剧情相关的伏笔。如果前文有伏笔，思考本章是否是回收它的好时机。
             4.  **创作建议 (重要):** 在满足核心要求的前提下，你完全可以提出更有创意的想法。例如，你认为某个临时人物的设定稍微调整一下会更有戏剧性，或者某个情节有更好的表现方式，请大胆地在你的设计中体现出来，并用 `[创作建议]` 标签标注。
             5.  **拒绝平庸:** 请极力避免机械地推进剧情。每一节都应该有其独特的作用，或是塑造人物，或是铺垫情绪，或是揭示信息。
+            6.  **关键节点呈现:** 对于每节大纲，不应当写一篇长简介，而是应该写出本节的多个关键故事节点（按照每节的预定长度来决定关键故事节点个数，可考虑平均每200-400字一个关键节点），每个关键故事节点只有两三句话。
+            7.  **语言风格:** 应当减少比喻、排比等修辞手法的使用，仅在认为确实有必要的情况下才少量使用；同时减少套路化的写作格式和剧情走向，允许在一定程度上自由发挥。
 
             # 输出格式
             请严格以JSON格式返回。根对象应包含 "title", "synopsis" 和一个 "scenes" 数组。
@@ -427,8 +590,12 @@ public class OutlineService {
             - "sceneNumber": (number) 序号。
             - "synopsis": (string) 详细、生动、充满画面感的故事梗概，字数不少于200字。
             - "presentCharacters": (string[]) 核心出场人物姓名列表。
-            - "characterStates": (object) 一个对象，键为核心人物姓名，值为该人物在本节中非常详细的状态、内心想法和关键行动的描述。
-            - "temporaryCharacters": (object[]) 一个对象数组，用于描写本节新出现的或需要详细刻画的临时人物。如果不需要，则返回空数组[]。每个对象必须包含所有字段: "name", "summary", "details", "relationships", "statusInScene", "moodInScene", "actionsInScene"。
+            - "sceneCharacters": (object[]) 一个数组，用结构化的“人物卡”描述每位核心人物在本节中的状态，字段必须包含:
+              - "characterName": (string) 角色姓名。
+              - "status": (string) 角色在本节的生理或环境状态。
+              - "thought": (string) 角色在本节的主要想法或心理活动。
+              - "action": (string) 角色在本节的关键行动。
+            - "temporaryCharacters": (object[]) 一个对象数组，用于描写本节新出现的或需要详细刻画的临时人物。如果不需要，则返回空数组[]。每个对象必须包含所有字段: "name", "summary", "details", "relationships", "status", "thought", "action"。
             """,
             storyCard.getSynopsis(),
             storyCard.getGenre(), storyCard.getTone(),
@@ -462,6 +629,7 @@ public class OutlineService {
 
         List<OutlineScene> scenes = new ArrayList<>();
         JsonNode scenesNode = chapterNode.path("scenes");
+        StoryCard storyCard = outlineCard.getStoryCard();
         for (JsonNode sceneNode : scenesNode) {
             OutlineScene scene = new OutlineScene();
             scene.setOutlineChapter(chapter);
@@ -472,19 +640,54 @@ public class OutlineService {
             // Handle presentCharacters as an array of strings
             List<String> presentChars = new ArrayList<>();
             sceneNode.path("presentCharacters").forEach(node -> presentChars.add(node.asText()));
-            scene.setPresentCharacters(String.join(", ", presentChars));
 
-            // Handle characterStates as a JSON object string
-            scene.setCharacterStates(sceneNode.path("characterStates").toString());
+            // Handle structured scene characters
+            List<SceneCharacter> sceneCharacters = new ArrayList<>();
+            JsonNode sceneCharactersNode = sceneNode.path("sceneCharacters");
+            for (JsonNode characterNode : sceneCharactersNode) {
+                SceneCharacter sceneCharacter = new SceneCharacter();
+                sceneCharacter.setScene(scene);
+                String characterName = characterNode.path("characterName").asText("").trim();
+                sceneCharacter.setStatus(characterNode.path("status").asText(null));
+                sceneCharacter.setThought(characterNode.path("thought").asText(null));
+                sceneCharacter.setAction(characterNode.path("action").asText(null));
+                CharacterCard linkedCard = resolveCharacterCard(null, characterName, storyCard);
+                sceneCharacter.setCharacterCard(linkedCard);
+                if ((characterName == null || characterName.isBlank()) && linkedCard != null) {
+                    sceneCharacter.setCharacterName(linkedCard.getName());
+                } else {
+                    sceneCharacter.setCharacterName(characterName);
+                }
+                sceneCharacters.add(sceneCharacter);
+            }
+            scene.setSceneCharacters(sceneCharacters);
+            syncScenePresentCharacters(scene, sceneCharacters, presentChars);
 
             // Handle temporary characters
             List<TemporaryCharacter> tempChars = new ArrayList<>();
             JsonNode tempCharsNode = sceneNode.path("temporaryCharacters");
             for (JsonNode tempCharNode : tempCharsNode) {
                 TemporaryCharacter tempChar = new TemporaryCharacter();
-                tempChar.setName(tempCharNode.path("name").asText());
-                tempChar.setSummary(tempCharNode.path("description").asText()); // Legacy support for "description" from old prompts
                 tempChar.setScene(scene); // Set back-reference
+                tempChar.setName(tempCharNode.path("name").asText());
+                String summary = tempCharNode.hasNonNull("summary")
+                        ? tempCharNode.path("summary").asText()
+                        : tempCharNode.path("description").asText("");
+                tempChar.setSummary(summary);
+                tempChar.setDetails(tempCharNode.path("details").asText(null));
+                tempChar.setRelationships(tempCharNode.path("relationships").asText(null));
+                String status = tempCharNode.hasNonNull("status")
+                        ? tempCharNode.path("status").asText()
+                        : tempCharNode.path("statusInScene").asText(null);
+                String thought = tempCharNode.hasNonNull("thought")
+                        ? tempCharNode.path("thought").asText()
+                        : tempCharNode.path("moodInScene").asText(null);
+                String action = tempCharNode.hasNonNull("action")
+                        ? tempCharNode.path("action").asText()
+                        : tempCharNode.path("actionsInScene").asText(null);
+                tempChar.setStatus(status);
+                tempChar.setThought(thought);
+                tempChar.setAction(action);
                 tempChars.add(tempChar);
             }
             scene.setTemporaryCharacters(tempChars);
@@ -599,15 +802,18 @@ public class OutlineService {
             scene.setExpectedWords(sceneDto.getExpectedWords());
         }
         if (sceneDto.getPresentCharacterIds() != null) {
-            try {
-                scene.setPresentCharacters(objectMapper.writeValueAsString(sceneDto.getPresentCharacterIds()));
-            } catch (JsonProcessingException e) {
-                logger.warn("Failed to serialize presentCharacterIds, storing empty array", e);
-                scene.setPresentCharacters("[]");
-            }
+            StoryCard storyCard = Optional.ofNullable(scene.getOutlineChapter())
+                    .map(OutlineChapter::getOutlineCard)
+                    .map(OutlineCard::getStoryCard)
+                    .orElse(null);
+            String resolvedPresentCharacters = buildPresentCharactersStringFromIds(
+                    sceneDto.getPresentCharacterIds(),
+                    storyCard,
+                    sceneDto.getPresentCharacters());
+            scene.setPresentCharacters(resolvedPresentCharacters);
         }
-        if (sceneDto.getCharacterStates() != null) {
-            scene.setCharacterStates(sceneDto.getCharacterStates());
+        if (sceneDto.getSceneCharacters() != null) {
+            applySceneCharacterDtos(scene, sceneDto.getSceneCharacters(), scene.getOutlineChapter().getOutlineCard().getStoryCard());
         }
 
         // Replace temporary characters if provided in DTO
@@ -634,9 +840,9 @@ public class OutlineService {
                 tempChar.setSummary(tempCharDto.getSummary());
                 tempChar.setDetails(tempCharDto.getDetails());
                 tempChar.setRelationships(tempCharDto.getRelationships());
-                tempChar.setStatusInScene(tempCharDto.getStatusInScene());
-                tempChar.setMoodInScene(tempCharDto.getMoodInScene());
-                tempChar.setActionsInScene(tempCharDto.getActionsInScene());
+                tempChar.setStatus(tempCharDto.getStatus());
+                tempChar.setThought(tempCharDto.getThought());
+                tempChar.setAction(tempCharDto.getAction());
 
                 tempCharsToKeep.add(tempChar);
             }

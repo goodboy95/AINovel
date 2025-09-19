@@ -185,6 +185,14 @@ const ManuscriptWriter: React.FC<ManuscriptWriterProps> = ({
   }, []);
   const extractCharacterIds = useCallback((scene: Scene | null): number[] => {
     if (!scene) return [];
+    if (scene.sceneCharacters && scene.sceneCharacters.length > 0) {
+      const ids = scene.sceneCharacters
+        .map((sc) => sc.characterCardId)
+        .filter((id): id is number => typeof id === 'number');
+      if (ids.length > 0) {
+        return ids;
+      }
+    }
     if (scene.presentCharacterIds && scene.presentCharacterIds.length > 0) {
       return scene.presentCharacterIds.filter((id): id is number => typeof id === 'number');
     }

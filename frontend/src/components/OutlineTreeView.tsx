@@ -14,7 +14,9 @@ interface SceneCardProps {
 
 const SceneCard = ({ scene, onNodeSelect }: SceneCardProps) => {
     const [isStatesExpanded, setIsStatesExpanded] = useState(false);
-    const characters = scene.presentCharacters?.split(/[,，、]/).map(name => name.trim()).filter(Boolean) || [];
+    const coreCharacterNames = (scene.sceneCharacters && scene.sceneCharacters.length > 0)
+        ? scene.sceneCharacters.map(sc => sc.characterName).filter((name): name is string => !!name && name.trim().length > 0)
+        : scene.presentCharacters?.split(/[,，、]/).map(name => name.trim()).filter(Boolean) || [];
 
     return (
         <div
@@ -32,12 +34,12 @@ const SceneCard = ({ scene, onNodeSelect }: SceneCardProps) => {
 
             <div className="space-y-3">
                 {/* Present Characters */}
-                {characters.length > 0 && (
+                {coreCharacterNames.length > 0 && (
                     <div className="flex items-center">
                         <div>
                             <h5 className="text-sm font-semibold text-gray-700">核心人物</h5>
                             <div className="flex flex-wrap gap-2 mt-1">
-                                {characters.map((char, index) => (
+                                {coreCharacterNames.map((char, index) => (
                                     <span key={index} className="px-2 py-1 text-xs bg-blue-100 text-blue-800 rounded-full">{char}</span>
                                 ))}
                             </div>
@@ -62,7 +64,7 @@ const SceneCard = ({ scene, onNodeSelect }: SceneCardProps) => {
                 )}
 
                 {/* Character States */}
-                {scene.characterStates && (
+                {scene.sceneCharacters && scene.sceneCharacters.length > 0 && (
                     <div>
                         <button
                             onClick={(e) => {
@@ -74,8 +76,17 @@ const SceneCard = ({ scene, onNodeSelect }: SceneCardProps) => {
                             <span>人物状态与行动</span>
                         </button>
                         {isStatesExpanded && (
-                            <div className="mt-2 p-3 bg-gray-50 rounded-md whitespace-pre-wrap text-sm text-gray-800">
-                                {scene.characterStates}
+                            <div className="mt-2 p-3 bg-gray-50 rounded-md text-sm text-gray-800 space-y-3">
+                                {scene.sceneCharacters.map((sc, index) => (
+                                    <div key={sc.id ?? `${sc.characterName}-${index}`}>
+                                        <div className="font-semibold text-gray-700">{sc.characterName || '未命名角色'}</div>
+                                        <div className="mt-1 text-gray-600">
+                                            <div><span className="font-medium">状态：</span>{sc.status || '无'}</div>
+                                            <div><span className="font-medium">想法：</span>{sc.thought || '无'}</div>
+                                            <div><span className="font-medium">行动：</span>{sc.action || '无'}</div>
+                                        </div>
+                                    </div>
+                                ))}
                             </div>
                         )}
                     </div>

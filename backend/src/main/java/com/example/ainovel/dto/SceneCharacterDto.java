@@ -5,12 +5,10 @@ import lombok.NoArgsConstructor;
 
 @Data
 @NoArgsConstructor
-public class TemporaryCharacterDto {
+public class SceneCharacterDto {
     private Long id;
-    private String name;
-    private String summary;
-    private String details;
-    private String relationships;
+    private Long characterCardId;
+    private String characterName;
     private String status;
     private String thought;
     private String action;
