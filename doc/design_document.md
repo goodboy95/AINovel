@@ -1,4 +1,20 @@
 # AINovel 系统详细设计文档
+CHARACTER_CHANGE_LOG {
+    Long id PK
+    Long character_id FK
+    Long manuscript_id FK
+    Long outline_id FK
+    Integer chapter_number
+    Integer section_number
+    String newly_known_info
+    String character_changes
+    String character_details_after
+    Boolean is_auto_copied
+    Boolean is_turning_point
+    Json relationship_changes
+    DateTime created_at
+    DateTime updated_at
+}
 
 ## 1. 功能设计
 
@@ -131,11 +147,31 @@ sequenceDiagram
     *   请求被发送至 `POST /api/v1/manuscript/scenes/{sceneId}/generate` 接口。
     *   后端 `ManuscriptService` 会整合故事背景、角色设定、大纲上下文和当前场景描述，构建一个详细的 Prompt。
     *   调用 AI 服务生成场景的具体文本内容。
+    *   生成完成后，系统会调用 `POST /api/v1/manuscripts/{manuscriptId}/sections/analyze-character-changes` 分析当前场景涉及的角色，并将新生成的 `CharacterChangeLog` 返回给前端。
     *   生成的内容被存入 `manuscript_sections` 表，并与对应的场景关联。
 
 3.  **编辑和保存**:
     *   用户可以在文本编辑器中对 AI 生成的内容进行任意修改。
     *   系统会自动或手动触发保存，通过 `PUT /api/v1/manuscript/sections/{sectionId}` 接口更新稿件内容。
+
+4.  **角色演化展示与 AI 对话**:
+    *   前端根据最新的 `CharacterChangeLogDto` 渲染角色状态侧边栏，突出关键转折点、关系变化及最新角色详情。
+    *   用户可在侧边栏打开“关系图谱”或“成长轨迹”视图，复盘人物关系和成长线。
+    *   通过调用 `POST /api/v1/ai/generate-dialogue` 接口，结合角色记忆与场景描述生成契合人物语气的对话。
+
+### 1.5. 角色演化追踪与记忆驱动对话
+
+#### 1.5.1. 功能描述
+在正文生成与编辑的流程中，系统会自动分析每个场景对人物的影响，并将分析结果以 `CharacterChangeLog` 形式持久化。前端通过“角色状态侧边栏”展示最新的角色新知、状态变化、关系变化以及关键转折点，同时支持记忆驱动的对话生成，帮助作者保持人物设定的一致性。
+
+#### 1.5.2. 用户流程
+
+1.  **触发分析**：用户在小说创作页签中点击“生成内容”或“保存”，前端会携带场景内容、章节编号及出场角色调用 `POST /api/v1/manuscripts/{manuscriptId}/sections/analyze-character-changes`。
+2.  **后端处理**：`ManuscriptService` 组装上下文（上一条角色详情、角色关系、场景正文等），调用 `OpenAiService.generateJson` 获取结构化的角色变化信息，并写入 `character_change_log` 表。
+3.  **前端展示**：接口返回的 `CharacterChangeLogDto` 会刷新角色状态侧边栏。作者可以在此查看“新知信息”“状态变化”“关系变化”，并通过按钮打开关系图谱或成长路径视图。
+4.  **记忆驱动对话**：点击角色卡片中的“生成对话”会触发 `POST /api/v1/ai/generate-dialogue`。`CharacterDialogueService` 会整理角色设定、最近的记忆片段（`newly_known_info`）与场景描述，一并提交给 AI，并返回符合人物语气的对话文本。
+
+此功能通过 `CharacterChangeLogRepository` 与 `CharacterDialogueService` 实现，前端对应的核心组件包括 `CharacterStatusSidebar`、`RelationshipGraphModal`、`CharacterGrowthPath` 与 `GenerateDialogueModal`。
 
 ## 2. 数据库设计
 

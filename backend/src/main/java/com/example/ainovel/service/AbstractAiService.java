@@ -25,6 +25,28 @@ public abstract class AbstractAiService implements AiService {
 
     @Override
     @Retryable(value = {RestClientException.class, IOException.class, RuntimeException.class}, maxAttempts = 3, backoff = @Backoff(delay = 1000))
+    public String generateJson(String prompt, String apiKey) {
+        try {
+            return callApiForJson(prompt, apiKey);
+        } catch (JsonProcessingException e) {
+            log.error("Error processing JSON response from AI service", e);
+            throw new RuntimeException("Failed to obtain structured JSON from AI service.", e);
+        }
+    }
+
+    @Override
+    @Retryable(value = {RestClientException.class, IOException.class, RuntimeException.class}, maxAttempts = 3, backoff = @Backoff(delay = 1000))
+    public String generateJson(String prompt, String apiKey, String baseUrl, String model) {
+        try {
+            return callApiForJson(prompt, apiKey, baseUrl, model);
+        } catch (JsonProcessingException e) {
+            log.error("Error processing JSON response from AI service", e);
+            throw new RuntimeException("Failed to obtain structured JSON from AI service.", e);
+        }
+    }
+
+    @Override
+    @Retryable(value = {RestClientException.class, IOException.class, RuntimeException.class}, maxAttempts = 3, backoff = @Backoff(delay = 1000))
     public ConceptionResponse generateConception(ConceptionRequest request, String apiKey) {
         String prompt = buildConceptionPrompt(request);
         try {

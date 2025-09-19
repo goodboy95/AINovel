@@ -105,4 +105,40 @@ export interface RefineContext {
     onSuccess: (newText: string) => void;
 }
 
+export interface RelationshipChange {
+    targetCharacterId: number;
+    previousRelationship?: string | null;
+    currentRelationship?: string | null;
+    changeReason?: string | null;
+}
+
+export interface CharacterChangeLog {
+    id: number;
+    characterId: number;
+    characterName: string;
+    manuscriptId: number;
+    outlineId?: number | null;
+    chapterNumber: number;
+    sectionNumber: number;
+    newlyKnownInfo?: string | null;
+    characterChanges?: string | null;
+    characterDetailsAfter: string;
+    isAutoCopied: boolean;
+    relationshipChanges: RelationshipChange[];
+    isTurningPoint: boolean;
+    createdAt: string;
+    updatedAt: string;
+}
+
+export interface CharacterDialogueRequestPayload {
+    characterId: number;
+    manuscriptId: number;
+    currentSceneDescription?: string;
+    dialogueTopic?: string;
+}
+
+export interface CharacterDialogueResponsePayload {
+    dialogue: string;
+}
+
 export type RefineHandler = (text: string, context: RefineContext) => void;

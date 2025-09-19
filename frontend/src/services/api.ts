@@ -1,4 +1,4 @@
-import type { StoryCard, CharacterCard, Outline, ConceptionFormValues, Chapter, Manuscript, ManuscriptSection } from '../types';
+import type { StoryCard, CharacterCard, Outline, ConceptionFormValues, Chapter, Manuscript, ManuscriptSection, CharacterChangeLog, CharacterDialogueRequestPayload, CharacterDialogueResponsePayload } from '../types';
 
 /**
  * Creates authorization headers for API requests.
@@ -314,3 +314,35 @@ export const deleteManuscript = (manuscriptId: number): Promise<void> => {
         headers: getAuthHeaders(),
     }).then(res => handleResponse<void>(res));
 };
+export const analyzeCharacterChanges = (
+    manuscriptId: number,
+    payload: { chapterNumber: number; sectionNumber: number; sectionContent: string; characterIds: number[]; }
+): Promise<CharacterChangeLog[]> => {
+    return fetch(`/api/v1/manuscripts/${manuscriptId}/sections/analyze-character-changes`, {
+        method: 'POST',
+        headers: getAuthHeaders(),
+        body: JSON.stringify(payload),
+    }).then(res => handleResponse<CharacterChangeLog[]>(res));
+};
+
+export const fetchCharacterChangeLogs = (manuscriptId: number): Promise<CharacterChangeLog[]> => {
+    return fetch(`/api/v1/manuscripts/${manuscriptId}/character-change-logs`, {
+        headers: getAuthHeaders(),
+    }).then(res => handleResponse<CharacterChangeLog[]>(res));
+};
+
+export const fetchCharacterChangeLogsForCharacter = (manuscriptId: number, characterId: number): Promise<CharacterChangeLog[]> => {
+    return fetch(`/api/v1/manuscripts/${manuscriptId}/character-change-logs/${characterId}`, {
+        headers: getAuthHeaders(),
+    }).then(res => handleResponse<CharacterChangeLog[]>(res));
+};
+
+export const generateDialogue = (payload: CharacterDialogueRequestPayload): Promise<CharacterDialogueResponsePayload> => {
+    return fetch('/api/v1/ai/generate-dialogue', {
+        method: 'POST',
+        headers: getAuthHeaders(),
+        body: JSON.stringify(payload),
+    }).then(res => handleResponse<CharacterDialogueResponsePayload>(res));
+};
+
+

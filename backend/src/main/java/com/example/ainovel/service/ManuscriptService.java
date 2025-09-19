@@ -4,6 +4,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.stream.Collectors;
 
 import org.springframework.retry.annotation.Backoff;
@@ -14,6 +16,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.example.ainovel.exception.ResourceNotFoundException;
 import com.example.ainovel.model.CharacterCard;
+import com.example.ainovel.model.CharacterChangeLog;
 import com.example.ainovel.model.ManuscriptSection;
 import com.example.ainovel.model.Manuscript;
 import com.example.ainovel.model.OutlineCard;
@@ -27,8 +30,17 @@ import com.example.ainovel.repository.ManuscriptSectionRepository;
 import com.example.ainovel.repository.ManuscriptRepository;
 import com.example.ainovel.repository.OutlineCardRepository;
 import com.example.ainovel.repository.OutlineSceneRepository;
+import com.example.ainovel.repository.CharacterChangeLogRepository;
 import com.example.ainovel.dto.ManuscriptDto;
 import com.example.ainovel.dto.ManuscriptWithSectionsDto;
+import com.example.ainovel.dto.AnalyzeCharacterChangesRequest;
+import com.example.ainovel.dto.CharacterChangeLogDto;
+import com.example.ainovel.dto.RelationshipChangeDto;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import lombok.RequiredArgsConstructor;
 
@@ -47,6 +59,9 @@ public class ManuscriptService {
     private final SettingsService settingsService;
     private final OutlineCardRepository outlineCardRepository;
     private final ManuscriptRepository manuscriptRepository;
+    private final CharacterChangeLogRepository characterChangeLogRepository;
+    private final ObjectMapper objectMapper;
+    private static final TypeReference<List<RelationshipChangeDto>> RELATIONSHIP_CHANGE_LIST_TYPE = new TypeReference<>() {};
 
     /**
      * Retrieves the manuscript for a given outline, verifying user access.
@@ -453,4 +468,458 @@ public class ManuscriptService {
         validateManuscriptAccess(manuscript, userId);
         manuscriptRepository.delete(manuscript);
     }
+    /**
+     * Analyzes a manuscript section for character evolution, persists the change logs, and returns the saved records.
+     */
+    @Transactional
+    public List<CharacterChangeLogDto> analyzeCharacterChanges(Long manuscriptId,
+                                                                AnalyzeCharacterChangesRequest request,
+                                                                Long userId) {
+        if (request == null) {
+            throw new IllegalArgumentException("Request payload cannot be null.");
+        }
+        Manuscript manuscript = manuscriptRepository.findById(manuscriptId)
+                .orElseThrow(() -> new ResourceNotFoundException("Manuscript not found with id: " + manuscriptId));
+        validateManuscriptAccess(manuscript, userId);
+
+        Integer chapterNumber = request.getChapterNumber();
+        Integer sectionNumber = request.getSectionNumber();
+        if (chapterNumber == null || sectionNumber == null) {
+            throw new IllegalArgumentException("chapterNumber and sectionNumber must be provided.");
+        }
+
+        List<Long> characterIds = Optional.ofNullable(request.getCharacterIds())
+                .orElse(Collections.emptyList())
+                .stream()
+                .filter(id -> id != null && id > 0)
+                .distinct()
+                .collect(Collectors.toList());
+        if (characterIds.isEmpty()) {
+            throw new IllegalArgumentException("At least one characterId is required for analysis.");
+        }
+
+        List<CharacterCard> characters = characterCardRepository.findAllById(characterIds);
+        if (characters.size() != characterIds.size()) {
+            throw new ResourceNotFoundException("One or more characters could not be found for the given ids.");
+        }
+
+        StoryCard storyCard = Optional.ofNullable(manuscript.getOutlineCard())
+                .map(OutlineCard::getStoryCard)
+                .orElseThrow(() -> new IllegalStateException("Manuscript is not linked to a story card."));
+        Long storyId = storyCard.getId();
+
+        for (CharacterCard character : characters) {
+            if (!character.getStoryCard().getId().equals(storyId)) {
+                throw new AccessDeniedException("Character " + character.getId() + " does not belong to the manuscript's story.");
+            }
+        }
+
+        Map<Long, String> storyCharacterNames = characterCardRepository.findByStoryCardId(storyId).stream()
+                .collect(Collectors.toMap(CharacterCard::getId, CharacterCard::getName));
+
+        List<CharacterAnalysisContext> contexts = buildAnalysisContexts(manuscript, characters, storyCharacterNames);
+        Map<Long, CharacterAnalysisContext> contextById = contexts.stream()
+                .collect(Collectors.toMap(ctx -> ctx.getCharacter().getId(), ctx -> ctx));
+
+        String prompt = buildCharacterChangePrompt(
+                manuscript,
+                chapterNumber,
+                sectionNumber,
+                defaultString(request.getSectionContent(), "无内容提供。"),
+                contexts,
+                storyCharacterNames
+        );
+
+        String apiKey = settingsService.getDecryptedApiKeyByUserId(userId);
+        String baseUrl = settingsService.getBaseUrlByUserId(userId);
+        String model = settingsService.getModelNameByUserId(userId);
+
+        String jsonResponse = openAiService.generateJson(prompt, apiKey, baseUrl, model);
+        List<AiCharacterChangeItem> aiItems = parseAiCharacterChangeResponse(jsonResponse);
+
+        List<CharacterChangeLog> toPersist = new ArrayList<>();
+        for (AiCharacterChangeItem item : aiItems) {
+            if (item.getCharacterId() == null) {
+                continue;
+            }
+            CharacterAnalysisContext context = contextById.get(item.getCharacterId());
+            if (context == null) {
+                continue;
+            }
+
+            boolean noChange = Boolean.TRUE.equals(item.getNoChange());
+            String detailsAfter = noChange
+                    ? context.getPreviousDetails()
+                    : defaultString(item.getCharacterDetailsAfter(), context.getPreviousDetails());
+            if (detailsAfter == null || detailsAfter.isBlank()) {
+                detailsAfter = context.getPreviousDetails();
+            }
+
+            CharacterChangeLog log = new CharacterChangeLog();
+            log.setCharacter(context.getCharacter());
+            log.setManuscript(manuscript);
+            log.setOutline(manuscript.getOutlineCard());
+            log.setChapterNumber(chapterNumber);
+            log.setSectionNumber(sectionNumber);
+            log.setNewlyKnownInfo(noChange ? null : safeTrim(item.getNewlyKnownInfo()));
+            log.setCharacterChanges(noChange ? null : safeTrim(item.getCharacterChanges()));
+            log.setCharacterDetailsAfter(detailsAfter);
+            log.setIsAutoCopied(noChange || Boolean.TRUE.equals(item.getIsAutoCopied()));
+            log.setIsTurningPoint(Boolean.TRUE.equals(item.getIsTurningPoint()));
+
+            String relationshipJson = serializeRelationshipChanges(item.getRelationshipChanges());
+            log.setRelationshipChangesJson(relationshipJson);
+
+            toPersist.add(log);
+        }
+
+        if (toPersist.isEmpty()) {
+            return Collections.emptyList();
+        }
+
+        List<CharacterChangeLog> saved = characterChangeLogRepository.saveAll(toPersist);
+        return saved.stream()
+                .sorted(Comparator.comparing(log -> log.getCharacter().getId()))
+                .map(this::toCharacterChangeLogDto)
+                .collect(Collectors.toList());
+    }
+
+    /**
+     * Retrieves all character change logs for a manuscript in chronological order.
+     */
+    @Transactional(readOnly = true)
+    public List<CharacterChangeLogDto> getCharacterChangeLogs(Long manuscriptId, Long userId) {
+        Manuscript manuscript = manuscriptRepository.findById(manuscriptId)
+                .orElseThrow(() -> new ResourceNotFoundException("Manuscript not found with id: " + manuscriptId));
+        validateManuscriptAccess(manuscript, userId);
+
+        List<CharacterChangeLog> logs = characterChangeLogRepository.findByManuscript_IdOrderByChapterNumberAscSectionNumberAscCreatedAtAsc(manuscriptId);
+        return logs.stream()
+                .map(this::toCharacterChangeLogDto)
+                .collect(Collectors.toList());
+    }
+
+    /**
+     * Retrieves character change logs for a specific character in a manuscript.
+     */
+    @Transactional(readOnly = true)
+    public List<CharacterChangeLogDto> getCharacterChangeLogsForCharacter(Long manuscriptId, Long characterId, Long userId) {
+        Manuscript manuscript = manuscriptRepository.findById(manuscriptId)
+                .orElseThrow(() -> new ResourceNotFoundException("Manuscript not found with id: " + manuscriptId));
+        validateManuscriptAccess(manuscript, userId);
+
+        CharacterCard character = characterCardRepository.findById(characterId)
+                .orElseThrow(() -> new ResourceNotFoundException("Character not found with id: " + characterId));
+        StoryCard storyCard = Optional.ofNullable(manuscript.getOutlineCard())
+                .map(OutlineCard::getStoryCard)
+                .orElseThrow(() -> new IllegalStateException("Manuscript is not linked to a story card."));
+        if (!character.getStoryCard().getId().equals(storyCard.getId())) {
+            throw new AccessDeniedException("Character does not belong to the manuscript's story.");
+        }
+
+        List<CharacterChangeLog> logs = characterChangeLogRepository.findByManuscript_IdAndCharacter_IdOrderByCreatedAtDesc(manuscriptId, characterId);
+        List<CharacterChangeLog> chronological = new ArrayList<>(logs);
+        Collections.reverse(chronological);
+        return chronological.stream()
+                .map(this::toCharacterChangeLogDto)
+                .collect(Collectors.toList());
+    }
+
+    private List<CharacterAnalysisContext> buildAnalysisContexts(Manuscript manuscript,
+                                                                 List<CharacterCard> characters,
+                                                                 Map<Long, String> storyCharacterNames) {
+        List<CharacterAnalysisContext> contexts = new ArrayList<>();
+        for (CharacterCard character : characters) {
+            List<CharacterChangeLog> history = characterChangeLogRepository
+                    .findByManuscript_IdAndCharacter_IdOrderByCreatedAtDesc(manuscript.getId(), character.getId());
+
+            String previousDetails = history.stream()
+                    .findFirst()
+                    .map(CharacterChangeLog::getCharacterDetailsAfter)
+                    .map(this::safeTrim)
+                    .orElseGet(() -> defaultString(character.getDetails(), character.getSynopsis()));
+            if (previousDetails == null) {
+                previousDetails = "暂无记录。";
+            }
+
+            String relationshipSummary = buildRelationshipSummary(character, history, storyCharacterNames);
+            List<String> memoryHighlights = buildMemoryHighlights(history);
+
+            contexts.add(new CharacterAnalysisContext(character, previousDetails, relationshipSummary, memoryHighlights));
+        }
+        return contexts;
+    }
+
+    private String buildRelationshipSummary(CharacterCard character,
+                                            List<CharacterChangeLog> history,
+                                            Map<Long, String> storyCharacterNames) {
+        List<String> summary = new ArrayList<>();
+        String baseRelationships = safeTrim(character.getRelationships());
+        if (baseRelationships != null) {
+            summary.add("初始关系: " + baseRelationships);
+        }
+
+        int recorded = 0;
+        for (CharacterChangeLog log : history) {
+            List<RelationshipChangeDto> changes = parseRelationshipChanges(log.getRelationshipChangesJson());
+            if (changes.isEmpty()) {
+                continue;
+            }
+            String sectionLabel = String.format("第%d章第%d节", log.getChapterNumber(), log.getSectionNumber());
+            for (RelationshipChangeDto change : changes) {
+                String targetName = storyCharacterNames.getOrDefault(change.getTargetCharacterId(), "角色" + change.getTargetCharacterId());
+                String previousState = defaultString(change.getPreviousRelationship(), "未知");
+                String currentState = defaultString(change.getCurrentRelationship(), "未知");
+                String reason = defaultString(change.getChangeReason(), "未说明原因");
+                summary.add(String.format("[%s] 与%s的关系由“%s”变为“%s”，原因：%s", sectionLabel, targetName, previousState, currentState, reason));
+            }
+            recorded++;
+            if (recorded >= 3) {
+                break;
+            }
+        }
+        return summary.isEmpty() ? "暂无过往关系变化。" : String.join("；", summary);
+    }
+
+    private List<String> buildMemoryHighlights(List<CharacterChangeLog> history) {
+        List<String> highlights = new ArrayList<>();
+        for (CharacterChangeLog log : history) {
+            String info = safeTrim(log.getNewlyKnownInfo());
+            if (info != null) {
+                highlights.add(String.format("第%d章第%d节：%s", log.getChapterNumber(), log.getSectionNumber(), info));
+            }
+            if (highlights.size() >= 5) {
+                break;
+            }
+        }
+        return highlights;
+    }
+
+    private String buildCharacterChangePrompt(Manuscript manuscript,
+                                              Integer chapterNumber,
+                                              Integer sectionNumber,
+                                              String sectionContent,
+                                              List<CharacterAnalysisContext> contexts,
+                                              Map<Long, String> storyCharacterNames) {
+        String storyTitle = Optional.ofNullable(manuscript.getOutlineCard())
+                .map(OutlineCard::getStoryCard)
+                .map(StoryCard::getTitle)
+                .orElse("未知故事");
+        String outlineTitle = Optional.ofNullable(manuscript.getOutlineCard())
+                .map(OutlineCard::getTitle)
+                .orElse("未知大纲");
+
+        StringBuilder builder = new StringBuilder();
+        builder.append("你是一名小说角色演化分析助手。请根据提供的章节内容，判断角色的认知、情绪、目标和关系是否发生变化，并严格输出JSON。");
+        builder.append("返回内容必须完全符合后文给出的JSON结构，不得包含额外文字。\n\n");
+
+        builder.append("故事标题: ").append(storyTitle).append('\n');
+        builder.append("所属大纲: ").append(outlineTitle).append('\n');
+        builder.append(String.format("章节: 第%d章 第%d节\n", chapterNumber, sectionNumber));
+        builder.append("本节正文:\n").append(sectionContent).append("\n\n");
+
+        builder.append("本节出场角色:\n");
+        for (CharacterAnalysisContext context : contexts) {
+            builder.append(String.format("- 角色ID %d，名称 %s\n", context.getCharacter().getId(), context.getCharacter().getName()));
+            builder.append("  既往详情: ").append(context.getPreviousDetails()).append('\n');
+            builder.append("  既往关系脉络: ").append(context.getRelationshipSummary()).append('\n');
+            if (!context.getMemoryHighlights().isEmpty()) {
+                builder.append("  近期重要记忆:\n");
+                for (String memory : context.getMemoryHighlights()) {
+                    builder.append("    · ").append(memory).append('\n');
+                }
+            }
+        }
+
+        builder.append("\n所有故事角色（供参考）: ");
+        builder.append(storyCharacterNames.entrySet().stream()
+                .map(entry -> String.format("%d:%s", entry.getKey(), entry.getValue()))
+                .collect(Collectors.joining(", ")));
+        builder.append("\n\n");
+
+        builder.append("请输出如下JSON结构:\n");
+        builder.append("{\n");
+        builder.append("  \"characters\": [\n");
+        builder.append("    {\n");
+        builder.append("      \"character_id\": 101,\n");
+        builder.append("      \"newly_known_info\": \"...\",\n");
+        builder.append("      \"character_changes\": \"...\",\n");
+        builder.append("      \"character_details_after\": \"...\",\n");
+        builder.append("      \"relationship_changes\": [\n");
+        builder.append("        {\n");
+        builder.append("          \"target_character_id\": 102,\n");
+        builder.append("          \"previous_relationship\": \"...\",\n");
+        builder.append("          \"current_relationship\": \"...\",\n");
+        builder.append("          \"change_reason\": \"...\"\n");
+        builder.append("        }\n");
+        builder.append("      ],\n");
+        builder.append("      \"is_turning_point\": false,\n");
+        builder.append("      \"is_auto_copied\": false\n");
+        builder.append("    }\n");
+        builder.append("  ]\n");
+        builder.append("}\n");
+        builder.append("若角色没有任何变化，返回对象 {\"character_id\": 101, \"no_change\": true}。若无关系变化，请返回空数组。仅返回JSON字符串，无说明文字。\n");
+
+        return builder.toString();
+    }
+
+    private List<AiCharacterChangeItem> parseAiCharacterChangeResponse(String jsonResponse) {
+        if (jsonResponse == null || jsonResponse.trim().isEmpty()) {
+            throw new IllegalStateException("AI did not return any content for character analysis.");
+        }
+        try {
+            JsonNode root = objectMapper.readTree(jsonResponse);
+            JsonNode charactersNode = root.get("characters");
+            if (charactersNode == null || !charactersNode.isArray()) {
+                throw new IllegalStateException("AI response must contain a 'characters' array.");
+            }
+            List<AiCharacterChangeItem> items = new ArrayList<>();
+            for (JsonNode node : charactersNode) {
+                items.add(objectMapper.treeToValue(node, AiCharacterChangeItem.class));
+            }
+            return items;
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException("Failed to parse AI character change response.", e);
+        }
+    }
+
+    private String serializeRelationshipChanges(List<RelationshipChangeDto> changes) {
+        if (changes == null || changes.isEmpty()) {
+            return null;
+        }
+        try {
+            return objectMapper.writeValueAsString(changes);
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException("Failed to serialize relationship changes.", e);
+        }
+    }
+
+    private List<RelationshipChangeDto> parseRelationshipChanges(String json) {
+        if (json == null || json.isBlank()) {
+            return Collections.emptyList();
+        }
+        try {
+            return objectMapper.readValue(json, RELATIONSHIP_CHANGE_LIST_TYPE);
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException("Failed to parse relationship changes.", e);
+        }
+    }
+
+    private CharacterChangeLogDto toCharacterChangeLogDto(CharacterChangeLog log) {
+        List<RelationshipChangeDto> relationshipChanges = parseRelationshipChanges(log.getRelationshipChangesJson());
+        return new CharacterChangeLogDto()
+                .setId(log.getId())
+                .setCharacterId(log.getCharacter().getId())
+                .setCharacterName(log.getCharacter().getName())
+                .setManuscriptId(log.getManuscript().getId())
+                .setOutlineId(log.getOutline() != null ? log.getOutline().getId() : null)
+                .setChapterNumber(log.getChapterNumber())
+                .setSectionNumber(log.getSectionNumber())
+                .setNewlyKnownInfo(log.getNewlyKnownInfo())
+                .setCharacterChanges(log.getCharacterChanges())
+                .setCharacterDetailsAfter(log.getCharacterDetailsAfter())
+                .setIsAutoCopied(Boolean.TRUE.equals(log.getIsAutoCopied()))
+                .setRelationshipChanges(relationshipChanges)
+                .setIsTurningPoint(Boolean.TRUE.equals(log.getIsTurningPoint()))
+                .setCreatedAt(log.getCreatedAt())
+                .setUpdatedAt(log.getUpdatedAt());
+    }
+
+    private String defaultString(String value, String fallback) {
+        String trimmed = safeTrim(value);
+        return trimmed != null ? trimmed : fallback;
+    }
+
+    private String safeTrim(String value) {
+        if (value == null) {
+            return null;
+        }
+        String trimmed = value.trim();
+        return trimmed.isEmpty() ? null : trimmed;
+    }
+
+    private static class CharacterAnalysisContext {
+        private final CharacterCard character;
+        private final String previousDetails;
+        private final String relationshipSummary;
+        private final List<String> memoryHighlights;
+
+        CharacterAnalysisContext(CharacterCard character,
+                                 String previousDetails,
+                                 String relationshipSummary,
+                                 List<String> memoryHighlights) {
+            this.character = character;
+            this.previousDetails = previousDetails;
+            this.relationshipSummary = relationshipSummary;
+            this.memoryHighlights = memoryHighlights;
+        }
+
+        CharacterCard getCharacter() {
+            return character;
+        }
+
+        String getPreviousDetails() {
+            return previousDetails;
+        }
+
+        String getRelationshipSummary() {
+            return relationshipSummary;
+        }
+
+        List<String> getMemoryHighlights() {
+            return memoryHighlights == null ? Collections.emptyList() : memoryHighlights;
+        }
+    }
+
+    private static class AiCharacterChangeItem {
+        @JsonProperty("character_id")
+        private Long characterId;
+        @JsonProperty("newly_known_info")
+        private String newlyKnownInfo;
+        @JsonProperty("character_changes")
+        private String characterChanges;
+        @JsonProperty("character_details_after")
+        private String characterDetailsAfter;
+        @JsonProperty("relationship_changes")
+        private List<RelationshipChangeDto> relationshipChanges;
+        @JsonProperty("is_turning_point")
+        private Boolean isTurningPoint;
+        @JsonProperty("is_auto_copied")
+        private Boolean isAutoCopied;
+        @JsonProperty("no_change")
+        private Boolean noChange;
+
+        Long getCharacterId() {
+            return characterId;
+        }
+
+        String getNewlyKnownInfo() {
+            return newlyKnownInfo;
+        }
+
+        String getCharacterChanges() {
+            return characterChanges;
+        }
+
+        String getCharacterDetailsAfter() {
+            return characterDetailsAfter;
+        }
+
+        List<RelationshipChangeDto> getRelationshipChanges() {
+            return relationshipChanges == null ? Collections.emptyList() : relationshipChanges;
+        }
+
+        Boolean getIsTurningPoint() {
+            return isTurningPoint;
+        }
+
+        Boolean getIsAutoCopied() {
+            return isAutoCopied;
+        }
+
+        Boolean getNoChange() {
+            return noChange;
+        }
+    }
 }
+

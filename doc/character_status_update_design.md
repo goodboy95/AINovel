@@ -203,4 +203,13 @@
     - 对于被标记为 `is_turning_point` 的更新，在UI上使用特殊图标或样式（如加星、高亮）进行突出显示。
 - **`CharacterGrowthPath.tsx` (新增)**:
     - 创建一个独立的角色详情页面或弹窗，其中有一个“成长路径”或“人生轨迹”的视图。
-    - 在这个视图中，以时间轴的形式，只筛选并展示该角色的所有“关键转折点”记录，方便作者快速回顾角色的核心成长经历。
+    - 在这个视图中，以时间轴的形式，只筛选并展示该角色的所有“关键转折点”记录，方便作者快速回顾角色的核心成长经历。---
+
+## 实现进度记录（2025-09）
+- `character_change_log` 表及对应的 JPA 实体已落地，并通过 `ManuscriptService` 在生成/保存场景时自动写入。
+- 新增接口：
+  - `POST /api/manuscripts/{manuscriptId}/sections/analyze-character-changes`
+  - `GET /api/manuscripts/{manuscriptId}/character-change-logs`
+  - `GET /api/manuscripts/{manuscriptId}/character-change-logs/{characterId}`
+  - `POST /api/ai/generate-dialogue`
+- 前端在 `ManuscriptWriter` 中提供了“角色状态侧边栏”“关系图谱”“成长轨迹”和“AI 生成对话”等功能，直接消费上述接口。

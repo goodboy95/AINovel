@@ -1,5 +1,5 @@
 import React from 'react';
-import { Card, Button, List, Modal, Popconfirm } from 'antd';
+import { Card, Button, List, Popconfirm } from 'antd';
 import type { StoryCard } from '../types';
 
 interface StoryListProps {
@@ -11,16 +11,6 @@ interface StoryListProps {
 }
 
 const StoryList: React.FC<StoryListProps> = ({ stories, selectedId, onSelect, loading, onDelete }) => {
-  const confirmDelete = (id: number, title: string) => {
-    Modal.confirm({
-      title: '删除故事确认',
-      content: `删除故事《${title}》将一并删除其下的所有大纲和角色，此操作不可恢复。是否继续？`,
-      okText: '删除',
-      okButtonProps: { danger: true },
-      cancelText: '取消',
-      onOk: () => onDelete?.(id),
-    });
-  };
 
   return (
     <Card

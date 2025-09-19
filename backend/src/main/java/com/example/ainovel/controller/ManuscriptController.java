@@ -2,6 +2,8 @@ package com.example.ainovel.controller;
 
 import com.example.ainovel.dto.ManuscriptDto;
 import com.example.ainovel.dto.ManuscriptWithSectionsDto;
+import com.example.ainovel.dto.AnalyzeCharacterChangesRequest;
+import com.example.ainovel.dto.CharacterChangeLogDto;
 import com.example.ainovel.dto.UpdateSectionRequest;
 import com.example.ainovel.model.ManuscriptSection;
 import com.example.ainovel.model.User;
@@ -55,6 +57,36 @@ public class ManuscriptController {
     public ResponseEntity<ManuscriptSection> updateSection(@PathVariable Long sectionId, @RequestBody UpdateSectionRequest request, @AuthenticationPrincipal User user) {
         ManuscriptSection updatedSection = manuscriptService.updateSectionContent(sectionId, request.getContent(), user.getId());
         return ResponseEntity.ok(updatedSection);
+    }
+
+    /**
+     * Analyzes the provided section content for character changes and saves the resulting logs.
+     */
+    @PostMapping("/manuscripts/{manuscriptId}/sections/analyze-character-changes")
+    public ResponseEntity<List<CharacterChangeLogDto>> analyzeCharacterChanges(@PathVariable Long manuscriptId,
+                                                                               @RequestBody AnalyzeCharacterChangesRequest request,
+                                                                               @AuthenticationPrincipal User user) {
+        List<CharacterChangeLogDto> logs = manuscriptService.analyzeCharacterChanges(manuscriptId, request, user.getId());
+        return ResponseEntity.ok(logs);
+    }
+
+    /**
+     * Lists all character change logs for a manuscript in chronological order.
+     */
+    @GetMapping("/manuscripts/{manuscriptId}/character-change-logs")
+    public ResponseEntity<List<CharacterChangeLogDto>> getCharacterChangeLogs(@PathVariable Long manuscriptId,
+                                                                              @AuthenticationPrincipal User user) {
+        return ResponseEntity.ok(manuscriptService.getCharacterChangeLogs(manuscriptId, user.getId()));
+    }
+
+    /**
+     * Lists character change logs for a specific character within a manuscript.
+     */
+    @GetMapping("/manuscripts/{manuscriptId}/character-change-logs/{characterId}")
+    public ResponseEntity<List<CharacterChangeLogDto>> getCharacterChangeLogsForCharacter(@PathVariable Long manuscriptId,
+                                                                                        @PathVariable Long characterId,
+                                                                                        @AuthenticationPrincipal User user) {
+        return ResponseEntity.ok(manuscriptService.getCharacterChangeLogsForCharacter(manuscriptId, characterId, user.getId()));
     }
 
     // ----------------- New endpoints per design -----------------

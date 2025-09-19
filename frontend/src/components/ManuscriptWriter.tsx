@@ -18,7 +18,11 @@ import {
 import OutlineTreeView from './OutlineTreeView';
 import AiRefineButton from './AiRefineButton';
 import RefineModal from './modals/RefineModal';
-import type { Outline, ManuscriptSection, StoryCard, Manuscript } from '../types';
+import CharacterStatusSidebar from './CharacterStatusSidebar';
+import RelationshipGraphModal from './modals/RelationshipGraphModal';
+import CharacterGrowthPath from './modals/CharacterGrowthPath';
+import GenerateDialogueModal from './modals/GenerateDialogueModal';
+import type { Outline, Scene, ManuscriptSection, StoryCard, Manuscript, CharacterChangeLog, CharacterDialogueRequestPayload, CharacterDialogueResponsePayload, CharacterCard } from '../types';
 import { useOutlineData } from '../hooks/useOutlineData';
 import {
   fetchStories,
@@ -26,11 +30,15 @@ import {
   fetchManuscriptWithSections,
   createManuscript,
   deleteManuscript as apiDeleteManuscript,
+  analyzeCharacterChanges,
+  fetchCharacterChangeLogs,
+  generateDialogue,
+  fetchCharactersForStory,
 } from '../services/api';
 
 const { Content } = Layout;
 const { TextArea } = Input;
-const { Text } = Typography;
+const { Text, Paragraph } = Typography;
 
 export interface ManuscriptWriterProps {
   storyId: string | null;
@@ -70,6 +78,22 @@ const ManuscriptWriter: React.FC<ManuscriptWriterProps> = ({
 
   const [manuscripts, setManuscripts] = useState<Manuscript[]>([]);
   const [selectedManuscript, setSelectedManuscript] = useState<Manuscript | null>(null);
+  const [storyCharacters, setStoryCharacters] = useState<CharacterCard[]>([]);
+  const [characterChangeLogs, setCharacterChangeLogs] = useState<CharacterChangeLog[]>([]);
+  const [isLoadingCharacterLogs, setIsLoadingCharacterLogs] = useState(false);
+  const [isAnalyzingCharacters, setIsAnalyzingCharacters] = useState(false);
+  const [isRelationshipModalOpen, setIsRelationshipModalOpen] = useState(false);
+  const [isGrowthPathOpen, setIsGrowthPathOpen] = useState(false);
+  const [dialogueModalState, setDialogueModalState] = useState<{ visible: boolean; log: CharacterChangeLog | null }>({ visible: false, log: null });
+  const [isGeneratingDialogue, setIsGeneratingDialogue] = useState(false);
+
+  const handleOpenRelationshipGraph = useCallback(() => setIsRelationshipModalOpen(true), []);
+  const handleCloseRelationshipGraph = useCallback(() => setIsRelationshipModalOpen(false), []);
+  const handleOpenGrowthPath = useCallback(() => setIsGrowthPathOpen(true), []);
+  const handleCloseGrowthPath = useCallback(() => setIsGrowthPathOpen(false), []);
+  const handleOpenDialogueModal = useCallback((log: CharacterChangeLog) => {
+    setDialogueModalState({ visible: true, log });
+  }, []);
 
   // 初始化故事列表
   useEffect(() => {
@@ -99,18 +123,39 @@ const ManuscriptWriter: React.FC<ManuscriptWriterProps> = ({
       setSelectedOutlineDetail(null);
       setManuscripts([]);
       setSelectedManuscript(null);
+        setCharacterChangeLogs([]);
       setManuscriptMap({});
       setManuscriptContent('');
+      setCharacterChangeLogs([]);
       onSelectScene(null);
     } else {
       setSelectedOutlineDetail(null);
       setManuscripts([]);
       setSelectedManuscript(null);
       setManuscriptMap({});
+        setCharacterChangeLogs([]);
       setManuscriptContent('');
       onSelectScene(null);
     }
   }, [selectedStoryId, loadOutlines, selectOutline, onSelectScene]);
+
+  useEffect(() => {
+    if (!selectedStoryId) {
+      setStoryCharacters([]);
+      return;
+    }
+    const storyNumericId = Number(selectedStoryId);
+    if (Number.isNaN(storyNumericId)) {
+      setStoryCharacters([]);
+      return;
+    }
+    fetchCharactersForStory(storyNumericId)
+      .then((list) => setStoryCharacters(list || []))
+      .catch((err) => {
+        console.error(err);
+        setStoryCharacters([]);
+      });
+  }, [selectedStoryId]);
 
   // 加载所选大纲的详情
   const loadSelectedOutlineDetail = useCallback(
@@ -125,6 +170,33 @@ const ManuscriptWriter: React.FC<ManuscriptWriterProps> = ({
     },
     [getOutlineForWriting]
   );
+  const loadCharacterLogs = useCallback(async (manuscriptId: number) => {
+    setIsLoadingCharacterLogs(true);
+    try {
+      const logs = await fetchCharacterChangeLogs(manuscriptId);
+      setCharacterChangeLogs(logs || []);
+    } catch (err) {
+      console.error(err);
+      message.error('加载角色变化记录失败');
+      setCharacterChangeLogs([]);
+    } finally {
+      setIsLoadingCharacterLogs(false);
+    }
+  }, []);
+  const extractCharacterIds = useCallback((scene: Scene | null): number[] => {
+    if (!scene) return [];
+    if (scene.presentCharacterIds && scene.presentCharacterIds.length > 0) {
+      return scene.presentCharacterIds.filter((id): id is number => typeof id === 'number');
+    }
+    if (scene.presentCharacters) {
+      const candidates = scene.presentCharacters.split(/[，,、]/).map((name) => name.trim()).filter(Boolean);
+      if (candidates.length > 0) {
+        const nameMap = new Map(storyCharacters.map((c) => [c.name.trim(), c.id]));
+        return candidates.map((name) => nameMap.get(name)).filter((id): id is number => typeof id === 'number');
+      }
+    }
+    return [];
+  }, [storyCharacters]);
 
   const loadManuscripts = useCallback(async (outlineId: number) => {
     try {
@@ -144,6 +216,7 @@ const ManuscriptWriter: React.FC<ManuscriptWriterProps> = ({
       setSelectedManuscript(null);
       setManuscriptMap({});
       setManuscriptContent('');
+      setCharacterChangeLogs([]);
       onSelectScene(null);
     } else {
       setSelectedOutlineDetail(null);
@@ -151,6 +224,7 @@ const ManuscriptWriter: React.FC<ManuscriptWriterProps> = ({
       setSelectedManuscript(null);
       setManuscriptMap({});
       setManuscriptContent('');
+      setCharacterChangeLogs([]);
       onSelectScene(null);
     }
   }, [selectedOutline, loadSelectedOutlineDetail, loadManuscripts, onSelectScene]);
@@ -167,6 +241,7 @@ const ManuscriptWriter: React.FC<ManuscriptWriterProps> = ({
         setManuscriptMap(dto.sections || {});
         // 同步一下最新的详细大纲（确保树与内容对应）
         await loadSelectedOutlineDetail(selectedOutline.id);
+        await loadCharacterLogs(m.id);
       } catch (e) {
         console.error(e);
         message.error('加载小说内容失败');
@@ -179,6 +254,74 @@ const ManuscriptWriter: React.FC<ManuscriptWriterProps> = ({
     [selectedOutline, loadSelectedOutlineDetail]
   );
 
+  const runCharacterAnalysis = useCallback(async (overrideContent?: string) => {
+    if (!selectedManuscript || !selectedOutlineDetail || !selectedSceneId) return;
+    let chapterNumber: number | null = null;
+    let sectionNumber: number | null = null;
+    let sceneForAnalysis: Scene | null = null;
+    for (const chapter of selectedOutlineDetail.chapters) {
+      const foundScene = chapter.scenes.find((scene) => scene.id === selectedSceneId);
+      if (foundScene) {
+        chapterNumber = chapter.chapterNumber;
+        sectionNumber = foundScene.sceneNumber;
+        sceneForAnalysis = foundScene;
+        break;
+      }
+    }
+    if (!sceneForAnalysis || chapterNumber == null || sectionNumber == null) {
+      message.warning('无法定位当前场景，无法进行角色分析');
+      return;
+    }
+    const characterIds = extractCharacterIds(sceneForAnalysis);
+    if (characterIds.length === 0) {
+      message.info('当前场景未配置出场角色，跳过角色分析。');
+      return;
+    }
+    const sectionContent = overrideContent ?? manuscriptContent;
+    setIsAnalyzingCharacters(true);
+    try {
+      await analyzeCharacterChanges(selectedManuscript.id, {
+        chapterNumber,
+        sectionNumber,
+        sectionContent,
+        characterIds,
+      });
+      await loadCharacterLogs(selectedManuscript.id);
+    } catch (error) {
+      console.error(error);
+      message.error('角色变化分析失败');
+    } finally {
+      setIsAnalyzingCharacters(false);
+    }
+  }, [selectedManuscript, selectedOutlineDetail, selectedSceneId, manuscriptContent, extractCharacterIds, loadCharacterLogs]);
+  const handleCloseDialogueModal = useCallback(() => {
+    setDialogueModalState({ visible: false, log: null });
+  }, []);
+
+  const handleDialogueSubmit = useCallback(async (values: { dialogueTopic: string; currentSceneDescription: string }) => {
+    if (!dialogueModalState.log || !selectedManuscript) return;
+    setIsGeneratingDialogue(true);
+    try {
+      const payload: CharacterDialogueRequestPayload = {
+        characterId: dialogueModalState.log.characterId,
+        manuscriptId: selectedManuscript.id,
+        dialogueTopic: values.dialogueTopic,
+        currentSceneDescription: values.currentSceneDescription,
+      };
+      const response: CharacterDialogueResponsePayload = await generateDialogue(payload);
+      Modal.success({
+        title: `${dialogueModalState.log.characterName} 的对话`,
+        content: <Paragraph style={{ whiteSpace: 'pre-wrap' }}>{(response.dialogue || '').trim() || 'AI 未返回内容'}</Paragraph>,
+        width: 520,
+      });
+      setDialogueModalState({ visible: false, log: null });
+    } catch (err) {
+      console.error(err);
+      message.error(err instanceof Error ? err.message : '对话生成失败');
+    } finally {
+      setIsGeneratingDialogue(false);
+    }
+  }, [dialogueModalState, selectedManuscript]);
   const handleCreateManuscript = useCallback(async () => {
     if (!selectedOutline) return;
     try {
@@ -189,11 +332,13 @@ const ManuscriptWriter: React.FC<ManuscriptWriterProps> = ({
       setSelectedManuscript(created);
       const dto = await fetchManuscriptWithSections(created.id);
       setManuscriptMap(dto.sections || {});
+      setCharacterChangeLogs([]);
+      await loadCharacterLogs(created.id);
     } catch (e) {
       console.error(e);
       message.error('创建小说失败');
     }
-  }, [selectedOutline, loadManuscripts]);
+  }, [selectedOutline, loadManuscripts, loadCharacterLogs]);
 
   const handleDeleteManuscript = useCallback(
     (m: Manuscript) => {
@@ -211,10 +356,11 @@ const ManuscriptWriter: React.FC<ManuscriptWriterProps> = ({
               await loadManuscripts(selectedOutline.id);
             }
             if (selectedManuscript?.id === m.id) {
-              setSelectedManuscript(null);
-              setManuscriptMap({});
-              setManuscriptContent('');
-              onSelectScene(null);
+            setSelectedManuscript(null);
+            setManuscriptMap({});
+            setManuscriptContent('');
+            setCharacterChangeLogs([]);
+            onSelectScene(null);
             }
           } catch (e) {
             console.error(e);
@@ -277,6 +423,7 @@ const ManuscriptWriter: React.FC<ManuscriptWriterProps> = ({
         return newMap;
       });
       setManuscriptContent(newSection.content || '');
+      await runCharacterAnalysis(newSection.content || '');
       message.success('内容已生成！现在您可以继续编辑。');
     } catch (error) {
       message.error(error instanceof Error ? error.message : '内容生成失败，请检查后台服务。');
@@ -314,6 +461,7 @@ const ManuscriptWriter: React.FC<ManuscriptWriterProps> = ({
       const updatedSection: ManuscriptSection = await response.json();
       const sceneKey = getSectionSceneId(updatedSection) ?? selectedSceneId;
       setManuscriptMap((prev) => ({ ...prev, [sceneKey]: updatedSection }));
+        await runCharacterAnalysis(manuscriptContent);
       message.success('内容已保存！');
     } catch (error) {
       console.error('Failed to save content:', error);
@@ -323,14 +471,27 @@ const ManuscriptWriter: React.FC<ManuscriptWriterProps> = ({
     }
   };
 
-  const selectedScene = useMemo(() => {
+  const selectedSceneInfo = useMemo(() => {
     if (!selectedOutlineDetail || !selectedSceneId) return null;
     for (const chapter of selectedOutlineDetail.chapters) {
       const scene = chapter.scenes.find((s) => s.id === selectedSceneId);
-      if (scene) return scene;
+      if (scene) {
+        return { scene, chapterNumber: chapter.chapterNumber };
+      }
     }
     return null;
   }, [selectedOutlineDetail, selectedSceneId]);
+
+  const selectedScene = selectedSceneInfo?.scene ?? null;
+  const selectedChapterNumber = selectedSceneInfo?.chapterNumber ?? null;
+  const selectedSectionNumber = selectedScene?.sceneNumber ?? null;
+  const defaultDialogueSceneDescription = useMemo(() => {
+    if (!selectedScene) return '';
+    if (selectedScene.synopsis && selectedScene.synopsis.trim()) {
+      return selectedScene.synopsis;
+    }
+    return manuscriptContent ? manuscriptContent.slice(0, 300) : '';
+  }, [selectedScene, manuscriptContent]);
 
   // 渲染顶部筛选区域：选择故事 + 选择大纲
   const renderTopSelectors = () => (
@@ -445,7 +606,7 @@ const ManuscriptWriter: React.FC<ManuscriptWriterProps> = ({
             />
           </Card>
         </Col>
-        <Col span={16} style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
+        <Col span={10} style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
           <Card
             title={`场景内容（当前小说：${selectedManuscript.title}）`}
             style={{ flex: 1, display: 'flex', flexDirection: 'column' }}
@@ -479,6 +640,18 @@ const ManuscriptWriter: React.FC<ManuscriptWriterProps> = ({
             </div>
           </Card>
         </Col>
+        <Col span={6} style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
+          <CharacterStatusSidebar
+            currentChapterNumber={selectedChapterNumber}
+            currentSectionNumber={selectedSectionNumber}
+            changeLogs={characterChangeLogs}
+            allLogs={characterChangeLogs}
+            loading={isLoadingCharacterLogs || isAnalyzingCharacters}
+            onOpenRelationshipGraph={handleOpenRelationshipGraph}
+            onOpenGrowthPath={handleOpenGrowthPath}
+            onGenerateDialogue={handleOpenDialogueModal}
+          />
+        </Col>
       </Row>
       {isRefineModalOpen && (
         <RefineModal
@@ -501,9 +674,41 @@ const ManuscriptWriter: React.FC<ManuscriptWriterProps> = ({
         <Spin spinning={isFetchingManuscript || isLoadingOutlineDetail} tip="加载中...">
           {renderWritingView()}
         </Spin>
+        <RelationshipGraphModal
+          open={isRelationshipModalOpen}
+          onClose={handleCloseRelationshipGraph}
+          logs={characterChangeLogs}
+        />
+        <CharacterGrowthPath
+          open={isGrowthPathOpen}
+          onClose={handleCloseGrowthPath}
+          logs={characterChangeLogs}
+        />
+        <GenerateDialogueModal
+          open={dialogueModalState.visible}
+          characterName={dialogueModalState.log?.characterName ?? ''}
+          submitting={isGeneratingDialogue}
+          defaultSceneDescription={defaultDialogueSceneDescription}
+          onCancel={handleCloseDialogueModal}
+          onSubmit={handleDialogueSubmit}
+        />
       </Content>
     </Layout>
   );
 };
 
 export default ManuscriptWriter;
+
+
+
+
+
+
+
+
+
+
+
+
+
+

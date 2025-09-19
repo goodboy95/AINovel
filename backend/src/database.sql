@@ -43,7 +43,35 @@ CREATE TABLE `character_cards`  (
 -- Table structure for manuscript_sections
 -- ----------------------------
 DROP TABLE IF EXISTS `manuscript_sections`;
-CREATE TABLE `manuscript_sections`  (
+CREATE TABLE `manuscript_sections`
+-- ----------------------------
+-- Table structure for character_change_log
+-- ----------------------------
+DROP TABLE IF EXISTS `character_change_log`;
+CREATE TABLE `character_change_log`  (
+  `id` bigint NOT NULL AUTO_INCREMENT,
+  `character_id` bigint NOT NULL,
+  `manuscript_id` bigint NOT NULL,
+  `outline_id` bigint NULL DEFAULT NULL,
+  `chapter_number` int NOT NULL,
+  `section_number` int NOT NULL,
+  `newly_known_info` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL,
+  `character_changes` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL,
+  `character_details_after` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
+  `is_auto_copied` bit(1) NOT NULL DEFAULT b'0',
+  `relationship_changes` json NULL,
+  `is_turning_point` bit(1) NOT NULL DEFAULT b'0',
+  `created_at` datetime(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
+  `updated_at` datetime(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6) ON UPDATE CURRENT_TIMESTAMP(6),
+  `deleted_at` datetime(6) NULL,
+  PRIMARY KEY (`id`) USING BTREE,
+  INDEX `idx_change_log_character`(`character_id`) USING BTREE,
+  INDEX `idx_change_log_manuscript`(`manuscript_id`) USING BTREE,
+  CONSTRAINT `fk_change_log_character` FOREIGN KEY (`character_id`) REFERENCES `character_cards` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT,
+  CONSTRAINT `fk_change_log_manuscript` FOREIGN KEY (`manuscript_id`) REFERENCES `manuscripts` (`id`) ON DELETE CASCADE ON UPDATE RESTRICT,
+  CONSTRAINT `fk_change_log_outline` FOREIGN KEY (`outline_id`) REFERENCES `outline_cards` (`id`) ON DELETE SET NULL ON UPDATE RESTRICT
+) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci ROW_FORMAT = Dynamic;
+  (
   `id` bigint NOT NULL AUTO_INCREMENT,
   `content` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL,
   `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
@@ -182,3 +210,5 @@ ADD COLUMN `actions_in_scene` TEXT CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai
 -- 2) Drop deprecated llm_provider column
 ALTER TABLE `user_settings` ADD COLUMN `base_url` varchar(255) NULL DEFAULT NULL AFTER `custom_prompt`;
 ALTER TABLE `user_settings` DROP COLUMN `llm_provider`;
+
+

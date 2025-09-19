@@ -122,13 +122,13 @@ AINovel/
 
 - 数据访问（Repository，Spring Data JPA）：
   - [backend/src/main/java/com/example/ainovel/repository/](backend/src/main/java/com/example/ainovel/repository/)
-  - 例如：UserRepository、StoryCardRepository、OutlineCardRepository、OutlineChapterRepository、OutlineSceneRepository 等
+  - 例如：UserRepository、StoryCardRepository、OutlineCardRepository、OutlineChapterRepository、OutlineSceneRepository、CharacterChangeLogRepository 等
 
 - 业务服务（Service）：
   - [backend/src/main/java/com/example/ainovel/service/](backend/src/main/java/com/example/ainovel/service/)
   - 核心业务逻辑与第三方 AI 服务对接：
     - AI 服务：`OpenAiService` 直接实现 `AiService` 接口，不再有多种提供商实现。依赖 `AiService` 的地方改为直接注入 `OpenAiService`。
-    - 业务域服务：ConceptionService、OutlineService、ManuscriptService、SettingsService、AuthService、StoryService
+    - 业务域服务：ConceptionService、OutlineService、ManuscriptService、CharacterDialogueService、SettingsService、AuthService、StoryService
 
 - 工具与异常：
   - 工具：[backend/src/main/java/com/example/ainovel/utils/JwtUtil.java](backend/src/main/java/com/example/ainovel/utils/JwtUtil.java)
@@ -157,10 +157,10 @@ AINovel/
 
 - 组件（UI）：
   - 页面/工作台等复合组件：[frontend/src/components/](frontend/src/components/)
-  - 示例：Workbench、StoryList、StoryDetail、OutlinePage、OutlineTreeView、ManuscriptWriter、Settings、StoryConception、Login、Register
+  - 示例：Workbench、StoryList、StoryDetail、OutlinePage、OutlineTreeView、ManuscriptWriter（含角色状态侧边栏）、CharacterStatusSidebar、Settings、StoryConception、Login、Register
   - 模态框与表单：
     - [frontend/src/components/modals/](frontend/src/components/modals/)
-    - 示例：EditStoryCardModal、EditOutlineModal、AddCharacterModal、EditCharacterCardModal、TemporaryCharacterEditModal、RefineModal
+    - 示例：EditStoryCardModal、EditOutlineModal、AddCharacterModal、EditCharacterCardModal、TemporaryCharacterEditModal、RefineModal、RelationshipGraphModal、CharacterGrowthPath、GenerateDialogueModal
   - 业务表单组件：
     - 例如：ChapterEditForm、SceneEditForm
 
@@ -225,6 +225,22 @@ AINovel/
         *   **Endpoint**: `GET /api/v1/manuscripts/{manuscriptId}`
         *   **说明**: 获取一篇稿件及其所有章节的详细内容。
         *   **成功响应**: `200 OK`，返回 `ManuscriptWithSectionsDto` 对象。
+
+    *   **分析角色变化**:
+        *   **Endpoint**: `POST /api/v1/manuscripts/{manuscriptId}/sections/analyze-character-changes`
+        *   **说明**: 根据章节内容和角色名单调用 AI 生成 `CharacterChangeLog` 记录，并返回新创建的日志数组。
+        *   **请求体示例**: `{ "chapter_number": 1, "section_number": 3, "section_content": "...", "character_ids": [101, 102] }`
+        *   **响应**: `200 OK`，返回 `CharacterChangeLogDto[]`。
+    *   **查询角色变化日志**:
+        *   **Endpoint**: `GET /api/v1/manuscripts/{manuscriptId}/character-change-logs`
+        *   **Endpoint**: `GET /api/v1/manuscripts/{manuscriptId}/character-change-logs/{characterId}`
+        *   **说明**: 获取稿件维度或特定角色的演化记录，用于前端侧边栏、关系图谱与成长路径视图。
+        *   **响应**: `200 OK`，返回 `CharacterChangeLogDto[]`。
+    *   **AI 生成对话**:
+        *   **Endpoint**: `POST /api/v1/ai/generate-dialogue`
+        *   **说明**: 基于角色档案、近期“记忆”与场景提示生成符合语气的对话文本。
+        *   **请求体示例**: `{ "character_id": 101, "manuscript_id": 1, "dialogue_topic": "关于信任", "current_scene_description": "李寻欢与阿飞在酒馆对峙..." }`
+        *   **响应**: `200 OK`，`{ "dialogue": "..." }`。
 
 *   **更新场景接口**
     *   **Endpoint**: `PATCH /api/v1/scenes/{id}`
@@ -450,3 +466,5 @@ Content-Type: application/json
 ---
 
 以上为 AINovel 项目的开发入门指南。请在开始编码前阅读并遵循本文档与设计文档，确保前后端接口契约、模型定义与业务流程保持一致。祝开发顺利。
+
+
