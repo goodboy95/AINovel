@@ -1,5 +1,7 @@
 package com.example.ainovel.dto;
 
+import java.util.List;
+
 import lombok.Data;
 
 /**
@@ -21,4 +23,9 @@ public class ConceptionRequest {
      * The tone of the story (e.g., Adventurous, Humorous).
      */
     private String tone;
+
+    /**
+     * Optional tags that further describe the story (e.g., keywords or themes).
+     */
+    private List<String> tags;
 }
