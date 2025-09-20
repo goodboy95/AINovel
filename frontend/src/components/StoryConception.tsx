@@ -3,6 +3,7 @@ import {
     Form,
     Input,
     AutoComplete,
+    Select,
     Button,
     Spin,
     Card,
@@ -22,6 +23,7 @@ interface ConceptionFormValues {
     idea: string;
     genre: string;
     tone: string;
+    tags: string[];
 }
 
 interface StoryCard {
@@ -63,6 +65,32 @@ const StoryConception: React.FC<StoryConceptionProps> = ({
     setIsAddCharacterModalVisible
 }) => {
     const [form] = Form.useForm();
+    const [tagOptions, setTagOptions] = React.useState<{ value: string; label: string }[]>([]);
+
+    const handleValuesChange = (_: unknown, allValues: ConceptionFormValues) => {
+        if (Array.isArray(allValues.tags)) {
+            const sanitized = Array.from(new Set(
+                allValues.tags
+                    .map(tag => (typeof tag === 'string' ? tag.trim() : ''))
+                    .filter(tag => tag.length > 0)
+            ));
+            setTagOptions(sanitized.map(tag => ({ value: tag, label: tag })));
+        } else {
+            setTagOptions([]);
+        }
+    };
+
+    const handleFinish = (values: ConceptionFormValues) => {
+        const normalizedTags = Array.from(new Set(
+            (values.tags || [])
+                .map(tag => tag.trim())
+                .filter(tag => tag.length > 0)
+        ));
+
+        setTagOptions(normalizedTags.map(tag => ({ value: tag, label: tag })));
+        form.setFieldsValue({ ...values, tags: normalizedTags });
+        onFinish({ ...values, tags: normalizedTags });
+    };
 
     return (
         <Row gutter={24} style={{ height: '100%' }}>
@@ -74,8 +102,9 @@ const StoryConception: React.FC<StoryConceptionProps> = ({
                     <Form
                         form={form}
                         layout="vertical"
-                        onFinish={onFinish}
-                        initialValues={{ genre: '科幻', tone: '黑暗' }}
+                        onFinish={handleFinish}
+                        onValuesChange={handleValuesChange}
+                        initialValues={{ genre: '科幻', tone: '黑暗', tags: [] }}
                     >
                         <Form.Item
                             name="idea"
@@ -103,6 +132,14 @@ const StoryConception: React.FC<StoryConceptionProps> = ({
                                 filterOption={(inputValue, option) =>
                                     (option?.value ?? '').toLowerCase().includes(inputValue.toLowerCase())
                                 }
+                            />
+                        </Form.Item>
+                        <Form.Item name="tags" label="标签">
+                            <Select
+                                mode="tags"
+                                placeholder="输入标签并按回车添加，可选择已有标签"
+                                options={tagOptions}
+                                allowClear
                             />
                         </Form.Item>
                         <Form.Item>

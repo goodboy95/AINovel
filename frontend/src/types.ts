@@ -106,6 +106,7 @@ export interface ConceptionFormValues {
     idea: string;
     genre: string;
     tone: string;
+    tags: string[];
 }
 
 export interface RefineContext {

@@ -1,6 +1,9 @@
 package com.example.ainovel.service;
 
 import java.io.IOException;
+import java.util.LinkedHashSet;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -84,27 +87,56 @@ public abstract class AbstractAiService implements AiService {
     protected abstract ConceptionResponse parseConceptionResponse(String jsonResponse) throws JsonProcessingException;
 
     private String buildConceptionPrompt(ConceptionRequest request) {
-        return String.format(
-            "你是一个世界级的小说家。请根据用户输入：'%s'，生成一个详细的故事构思。请严格按照以下JSON格式返回：\n" +
-            "{\n" +
-            "  \"storyCard\": {\n" +
-            "    \"title\": \"故事标题\",\n" +
-            "    \"synopsis\": \"(要求：详细、丰富的故事梗概，长度不少于400字)\",\n" +
-            "    \"worldview\": \"(要求：基于梗概生成详细的世界观设定)\"\n" +
-            "  },\n" +
-            "  \"characterCards\": [\n" +
-            "    {\n" +
-            "      \"name\": \"角色姓名\",\n" +
-            "      \"synopsis\": \"角色简介（年龄、性别、外貌、性格等）\",\n" +
-            "      \"details\": \"角色的详细背景故事和设定\",\n" +
-            "      \"relationships\": \"角色与其他主要角色的关系\",\n" +
-            "      \"avatarUrl\": \"（可选）角色的头像URL\"\n" +
-            "    }\n" +
-            "  ]\n" +
-            "}\n" +
-            "characterCards要基于梗概生成3-5个主要角色描述。只返回JSON对象，不要包含任何额外的解释或markdown格式。",
-            request.getIdea()
-        );
+        StringBuilder contextBuilder = new StringBuilder();
+
+        if (request.getIdea() != null && !request.getIdea().isBlank()) {
+            contextBuilder.append("核心想法：").append(request.getIdea().trim()).append("\n");
+        }
+        if (request.getGenre() != null && !request.getGenre().isBlank()) {
+            contextBuilder.append("类型：").append(request.getGenre().trim()).append("\n");
+        }
+        if (request.getTone() != null && !request.getTone().isBlank()) {
+            contextBuilder.append("基调：").append(request.getTone().trim()).append("\n");
+        }
+        if (request.getTags() != null && !request.getTags().isEmpty()) {
+            Set<String> uniqueTags = request.getTags().stream()
+                .filter(tag -> tag != null && !tag.isBlank())
+                .map(String::trim)
+                .collect(Collectors.toCollection(LinkedHashSet::new));
+            if (!uniqueTags.isEmpty()) {
+                contextBuilder.append("标签：").append(String.join("，", uniqueTags)).append("\n");
+            }
+        }
+
+        if (contextBuilder.length() == 0) {
+            contextBuilder.append("核心想法：请根据用户提供的信息生成故事。\n");
+        }
+
+        contextBuilder.append("\n");
+
+        StringBuilder prompt = new StringBuilder();
+        prompt.append("你是一个世界级的小说家。请根据以下用户输入生成一个详细的故事构思：\n");
+        prompt.append(contextBuilder);
+        prompt.append("请严格按照以下JSON格式返回：\n");
+        prompt.append("{\n");
+        prompt.append("  \\\"storyCard\\\": {\n");
+        prompt.append("    \\\"title\\\": \\\"故事标题\\\",\n");
+        prompt.append("    \\\"synopsis\\\": \\\"(要求：详细、丰富的故事梗概，长度不少于400字)\\\",\n");
+        prompt.append("    \\\"worldview\\\": \\\"(要求：基于梗概生成详细的世界观设定)\\\"\n");
+        prompt.append("  },\n");
+        prompt.append("  \\\"characterCards\\\": [\n");
+        prompt.append("    {\n");
+        prompt.append("      \\\"name\\\": \\\"角色姓名\\\",\n");
+        prompt.append("      \\\"synopsis\\\": \\\"角色简介（年龄、性别、外貌、性格等）\\\",\n");
+        prompt.append("      \\\"details\\\": \\\"角色的详细背景故事和设定\\\",\n");
+        prompt.append("      \\\"relationships\\\": \\\"角色与其他主要角色的关系\\\",\n");
+        prompt.append("      \\\"avatarUrl\\\": \\\"（可选）角色的头像URL\\\"\n");
+        prompt.append("    }\n");
+        prompt.append("  ]\n");
+        prompt.append("}\n");
+        prompt.append("characterCards要基于梗概生成3-5个主要角色描述。只返回JSON对象，不要包含任何额外的解释或markdown格式。");
+
+        return prompt.toString();
     }
 
     private String buildRefinePrompt(RefineRequest request) {
