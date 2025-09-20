@@ -6,6 +6,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.stream.Collectors;
 
 import org.springframework.retry.annotation.Backoff;
@@ -153,15 +154,21 @@ public class ManuscriptService {
         List<OutlineScene> previousChapterOutline = getPreviousChapterOutline(scene); // 上一章全部小节大纲（若存在）
         List<OutlineScene> currentChapterOutline = currentChapter.getScenes(); // 本章全部小节大纲
 
-        Map<Long, CharacterChangeLog> latestCharacterLogs = characters == null ? Collections.emptyMap()
-                : characters.stream()
-                        .collect(Collectors.toMap(
-                                CharacterCard::getId,
-                                character -> characterChangeLogRepository
-                                        .findFirstByManuscript_IdAndCharacter_IdOrderByCreatedAtDesc(
-                                                manuscript.getId(), character.getId())
-                                        .orElse(null)
-                        ));
+        Map<Long, CharacterChangeLog> latestCharacterLogs;
+        if (characters == null || characters.isEmpty()) {
+            latestCharacterLogs = Collections.emptyMap();
+        } else {
+            latestCharacterLogs = characters.stream()
+                    .collect(Collectors.toMap(
+                            CharacterCard::getId,
+                            character -> characterChangeLogRepository
+                                    .findFirstByManuscript_IdAndCharacter_IdOrderByCreatedAtDesc(
+                                            manuscript.getId(), character.getId())
+                                    .orElseGet(() -> buildInitialCharacterSnapshot(manuscript, character)),
+                            (existing, replacement) -> existing,
+                            HashMap::new
+                    ));
+        }
 
         // 构建新的 Prompt，整合所有上下文与写作规范
         String prompt = buildGenerationPrompt(
@@ -210,6 +217,35 @@ public class ManuscriptService {
         validateSceneAccess(sc, userId);
         section.setContent(content);
         return manuscriptSectionRepository.save(section);
+    }
+
+    private CharacterChangeLog buildInitialCharacterSnapshot(Manuscript manuscript, CharacterCard character) {
+        CharacterChangeLog snapshot = new CharacterChangeLog();
+        snapshot.setCharacter(character);
+        snapshot.setManuscript(manuscript);
+        snapshot.setOutline(manuscript != null ? manuscript.getOutlineCard() : null);
+        snapshot.setChapterNumber(0);
+        snapshot.setSectionNumber(0);
+
+        List<String> detailsSegments = new ArrayList<>();
+        String synopsis = safeTrim(character.getSynopsis());
+        if (synopsis != null) {
+            detailsSegments.add("基本设定：" + synopsis);
+        }
+        String details = safeTrim(character.getDetails());
+        if (details != null) {
+            detailsSegments.add("详细背景：" + details);
+        }
+        String relationships = safeTrim(character.getRelationships());
+        if (relationships != null) {
+            detailsSegments.add("关系脉络：" + relationships);
+        }
+
+        String combinedDetails = detailsSegments.isEmpty()
+                ? "暂无角色详情。"
+                : String.join(" / ", detailsSegments);
+        snapshot.setCharacterDetailsAfter(combinedDetails);
+        return snapshot;
     }
 
     private String buildGenerationPrompt(
