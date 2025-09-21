@@ -46,7 +46,6 @@ public class TemporaryCharacter {
     private String relationships; // 与核心人物的关系 (新字段)
 
     @Lob
-    @Lob
     @Column(columnDefinition = "TEXT")
     private String status; // 在本节中的状态
 
