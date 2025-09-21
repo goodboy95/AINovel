@@ -7,6 +7,9 @@ import com.example.ainovel.dto.world.WorldModuleSummary;
 import com.example.ainovel.dto.world.WorldModuleUpdateRequest;
 import com.example.ainovel.dto.world.WorldPublishPreviewResponse;
 import com.example.ainovel.dto.world.WorldPublishResponse;
+import com.example.ainovel.dto.world.WorldGenerationStatusResponse;
+import com.example.ainovel.dto.world.WorldFieldRefineRequest;
+import com.example.ainovel.dto.world.WorldFieldRefineResponse;
 import com.example.ainovel.dto.world.WorldSummaryResponse;
 import com.example.ainovel.dto.world.WorldUpsertRequest;
 import com.example.ainovel.model.User;
@@ -15,9 +18,12 @@ import com.example.ainovel.model.world.WorldModuleStatus;
 import com.example.ainovel.model.world.WorldStatus;
 import com.example.ainovel.service.world.WorldAggregate;
 import com.example.ainovel.service.world.WorldDtoMapper;
+import com.example.ainovel.service.world.WorldFieldRefineService;
 import com.example.ainovel.service.world.WorldModuleService;
+import com.example.ainovel.service.world.WorldModuleGenerationService;
 import com.example.ainovel.service.world.WorldPublicationService;
 import com.example.ainovel.service.world.WorldService;
+import com.example.ainovel.service.world.WorldGenerationWorkflowService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -43,16 +49,25 @@ public class WorldController {
 
     private final WorldService worldService;
     private final WorldModuleService worldModuleService;
+    private final WorldModuleGenerationService worldModuleGenerationService;
+    private final WorldFieldRefineService worldFieldRefineService;
     private final WorldPublicationService worldPublicationService;
+    private final WorldGenerationWorkflowService worldGenerationWorkflowService;
     private final WorldDtoMapper worldDtoMapper;
 
     public WorldController(WorldService worldService,
                            WorldModuleService worldModuleService,
+                           WorldModuleGenerationService worldModuleGenerationService,
+                           WorldFieldRefineService worldFieldRefineService,
                            WorldPublicationService worldPublicationService,
+                           WorldGenerationWorkflowService worldGenerationWorkflowService,
                            WorldDtoMapper worldDtoMapper) {
         this.worldService = worldService;
         this.worldModuleService = worldModuleService;
+        this.worldModuleGenerationService = worldModuleGenerationService;
+        this.worldFieldRefineService = worldFieldRefineService;
         this.worldPublicationService = worldPublicationService;
+        this.worldGenerationWorkflowService = worldGenerationWorkflowService;
         this.worldDtoMapper = worldDtoMapper;
     }
 
@@ -116,6 +131,24 @@ public class WorldController {
         return ResponseEntity.ok(worldDtoMapper.toModuleResponses(modules));
     }
 
+    @PostMapping("/{worldId}/modules/{moduleKey}/generate")
+    public ResponseEntity<WorldModuleResponse> generateModule(@PathVariable Long worldId,
+                                                               @PathVariable String moduleKey,
+                                                               @AuthenticationPrincipal User user) {
+        WorldModule module = worldModuleGenerationService.generateModule(worldId, moduleKey, user.getId());
+        return ResponseEntity.ok(worldDtoMapper.toModuleResponse(module));
+    }
+
+    @PostMapping("/{worldId}/modules/{moduleKey}/fields/{fieldKey}/refine")
+    public ResponseEntity<WorldFieldRefineResponse> refineField(@PathVariable Long worldId,
+                                                                @PathVariable String moduleKey,
+                                                                @PathVariable String fieldKey,
+                                                                @AuthenticationPrincipal User user,
+                                                                @RequestBody WorldFieldRefineRequest request) {
+        String result = worldFieldRefineService.refineField(worldId, moduleKey, fieldKey, user.getId(), request);
+        return ResponseEntity.ok(new WorldFieldRefineResponse().setResult(result));
+    }
+
     @GetMapping("/{worldId}/publish/preview")
     public ResponseEntity<WorldPublishPreviewResponse> previewPublish(@PathVariable Long worldId,
                                                                       @AuthenticationPrincipal User user) {
@@ -132,6 +165,21 @@ public class WorldController {
                 .setModulesToGenerate(toModuleSummaries(analysis.modulesToGenerate()))
                 .setModulesToReuse(toModuleSummaries(analysis.modulesToReuse()));
         return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/{worldId}/generation")
+    public ResponseEntity<WorldGenerationStatusResponse> getGenerationStatus(@PathVariable Long worldId,
+                                                                             @AuthenticationPrincipal User user) {
+        WorldGenerationStatusResponse status = worldGenerationWorkflowService.getStatus(worldId, user.getId());
+        return ResponseEntity.ok(status);
+    }
+
+    @PostMapping("/{worldId}/generation/{moduleKey}/retry")
+    public ResponseEntity<Void> retryGeneration(@PathVariable Long worldId,
+                                                @PathVariable String moduleKey,
+                                                @AuthenticationPrincipal User user) {
+        worldGenerationWorkflowService.retryModule(worldId, moduleKey, user.getId());
+        return ResponseEntity.noContent().build();
     }
 
     private WorldPublishPreviewResponse toPreviewResponse(WorldPublicationService.PublicationAnalysis analysis) {

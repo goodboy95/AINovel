@@ -186,6 +186,29 @@ SET FOREIGN_KEY_CHECKS = 1;
 
 
 -- ----------------------------
+-- Table structure for world_generation_jobs
+-- ----------------------------
+DROP TABLE IF EXISTS `world_generation_jobs`;
+CREATE TABLE `world_generation_jobs`  (
+  `id` bigint NOT NULL AUTO_INCREMENT,
+  `world_id` bigint NOT NULL,
+  `module_key` varchar(32) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
+  `job_type` varchar(32) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
+  `status` varchar(32) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
+  `sequence` int NOT NULL,
+  `attempts` int NOT NULL DEFAULT 0,
+  `last_error` text CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL,
+  `started_at` datetime NULL,
+  `finished_at` datetime NULL,
+  `created_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`) USING BTREE,
+  KEY `idx_generation_jobs_world` (`world_id`,`status`,`sequence`),
+  KEY `idx_generation_jobs_status_seq` (`status`,`sequence`),
+  CONSTRAINT `fk_generation_job_world` FOREIGN KEY (`world_id`) REFERENCES `worlds` (`id`) ON DELETE CASCADE ON UPDATE RESTRICT
+) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci ROW_FORMAT = Dynamic;
+
+-- ----------------------------
 -- Version 2.2 Changes
 -- ----------------------------
 
