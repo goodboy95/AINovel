@@ -198,6 +198,49 @@ export interface PromptFunctionMetadata {
     usage: string;
 }
 
+export interface WorldFieldDefinition {
+    key: string;
+    label: string;
+    description: string;
+    tooltip: string;
+    validation: string;
+    recommendedLength?: string;
+    aiFocus?: string;
+}
+
+export interface WorldBasicInfoDefinition {
+    description: string;
+    fields: WorldFieldDefinition[];
+}
+
+export interface WorldModuleDefinition {
+    key: string;
+    label: string;
+    description?: string;
+    fields: WorldFieldDefinition[];
+    aiGenerationTemplate: string;
+    finalTemplate: string;
+}
+
+export interface WorldFieldRefineTemplate {
+    description: string;
+    template: string;
+    usageNotes?: string[];
+}
+
+export interface WorldPromptContextDefinition {
+    description: string;
+    example: string;
+    notes: string[];
+}
+
+export interface WorldBuildingDefinitionsResponse {
+    basicInfo: WorldBasicInfoDefinition;
+    modules: WorldModuleDefinition[];
+    fieldRefineTemplate: WorldFieldRefineTemplate;
+    promptContext: WorldPromptContextDefinition;
+}
+
 export interface PromptTemplateMetadata {
     templates: PromptTypeMetadata[];
     functions: PromptFunctionMetadata[];
