@@ -1,4 +1,4 @@
-import type { StoryCard, CharacterCard, Outline, ConceptionFormValues, Chapter, Manuscript, ManuscriptSection, CharacterChangeLog, CharacterDialogueRequestPayload, CharacterDialogueResponsePayload, PromptTemplatesResponse, PromptTemplatesUpdatePayload, PromptTemplateMetadata } from '../types';
+import type { StoryCard, CharacterCard, Outline, ConceptionFormValues, Chapter, Manuscript, ManuscriptSection, CharacterChangeLog, CharacterDialogueRequestPayload, CharacterDialogueResponsePayload, PromptTemplatesResponse, PromptTemplatesUpdatePayload, PromptTemplateMetadata, WorldBuildingDefinitionsResponse } from '../types';
 
 /**
  * Creates authorization headers for API requests.
@@ -369,6 +369,11 @@ export const resetPromptTemplates = (keys: string[]): Promise<void> => {
 export const fetchPromptTemplateMetadata = (): Promise<PromptTemplateMetadata> => {
     return fetch('/api/v1/prompt-templates/metadata', { headers: getAuthHeaders() })
         .then(res => handleResponse<PromptTemplateMetadata>(res));
+};
+
+export const fetchWorldBuildingDefinitions = (): Promise<WorldBuildingDefinitionsResponse> => {
+    return fetch('/api/v1/world-building/definitions', { headers: getAuthHeaders() })
+        .then(res => handleResponse<WorldBuildingDefinitionsResponse>(res));
 };
 
 

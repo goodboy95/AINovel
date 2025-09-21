@@ -4,6 +4,7 @@ import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -63,7 +64,7 @@ public class TemplateEngine {
             if (segment.isEmpty()) {
                 continue;
             }
-            value = applyFunction(value, segment);
+            value = applyFunction(value, segment, context);
         }
         return value;
     }
@@ -107,7 +108,7 @@ public class TemplateEngine {
                             }
                         }
                         intermediate = expanded;
-                    } else {
+                    } else if (index.hasIndex()) {
                         int idx = index.index();
                         List<Object> selected = new ArrayList<>();
                         for (Object item : intermediate) {
@@ -121,6 +122,12 @@ public class TemplateEngine {
                             } else {
                                 selected.add(null);
                             }
+                        }
+                        intermediate = selected;
+                    } else if (index.hasExpression()) {
+                        List<Object> selected = new ArrayList<>();
+                        for (Object item : intermediate) {
+                            selected.add(resolveIndexByExpression(item, index.expression(), context));
                         }
                         intermediate = selected;
                     }
@@ -168,7 +175,7 @@ public class TemplateEngine {
         return null;
     }
 
-    private ValueWrapper applyFunction(ValueWrapper current, String functionSegment) {
+    private ValueWrapper applyFunction(ValueWrapper current, String functionSegment, Map<String, Object> context) {
         int parenIndex = functionSegment.indexOf('(');
         String name;
         String argsSection;
@@ -191,6 +198,7 @@ public class TemplateEngine {
             case "lower" -> ValueWrapper.of(current.asString().toLowerCase(Locale.ROOT));
             case "trim" -> ValueWrapper.of(current.asString().trim());
             case "json" -> applyJson(current);
+            case "map" -> applyMap(current, args, context);
             case "" -> current;
             default -> throw new PromptTemplateException("Unknown function: " + name);
         };
@@ -216,6 +224,36 @@ public class TemplateEngine {
                 .filter(Objects::nonNull)
                 .collect(java.util.stream.Collectors.joining(separator));
         return ValueWrapper.of(joined);
+    }
+
+    private ValueWrapper applyMap(ValueWrapper current, List<String> args, Map<String, Object> context) {
+        if (args.isEmpty()) {
+            throw new PromptTemplateException("map() requires a mapping expression");
+        }
+        String mapping = args.get(0);
+        String alias = "it";
+        String template = mapping;
+        int arrowIndex = mapping.indexOf("->");
+        if (arrowIndex >= 0) {
+            alias = mapping.substring(0, arrowIndex).trim();
+            template = mapping.substring(arrowIndex + 2).trim();
+        }
+        if (!StringUtils.hasText(alias)) {
+            alias = "it";
+        }
+        template = stripQuotes(template.trim());
+        List<Object> source = current.asList();
+        List<Object> results = new ArrayList<>(source.size());
+        for (Object element : source) {
+            Map<String, Object> childContext = new HashMap<>(context);
+            childContext.put(alias, element);
+            if (!"it".equals(alias)) {
+                childContext.put("it", element);
+            }
+            String rendered = render(template, childContext);
+            results.add(rendered);
+        }
+        return ValueWrapper.ofList(results, current.defaultSeparator());
     }
 
     private ValueWrapper applyJson(ValueWrapper current) {
@@ -307,10 +345,11 @@ public class TemplateEngine {
                 if ("*".equals(inside)) {
                     indices.add(IndexToken.wildcard());
                 } else if (!inside.isEmpty()) {
-                    if (!isNumeric(inside)) {
-                        throw new PromptTemplateException("Invalid index: " + inside);
+                    if (isNumeric(inside)) {
+                        indices.add(IndexToken.of(Integer.parseInt(inside)));
+                    } else {
+                        indices.add(IndexToken.expression(inside));
                     }
-                    indices.add(IndexToken.of(Integer.parseInt(inside)));
                 } else {
                     throw new PromptTemplateException("Index cannot be empty: " + segment);
                 }
@@ -357,6 +396,69 @@ public class TemplateEngine {
         return args;
     }
 
+    private Object resolveIndexByExpression(Object container, String expression, Map<String, Object> context) {
+        if (container == null) {
+            return null;
+        }
+        Object keyValue = evaluateIndexExpression(expression, context);
+        if (keyValue == null) {
+            return null;
+        }
+        if (container instanceof List<?> list) {
+            Integer idx = toInteger(keyValue);
+            if (idx == null) {
+                return null;
+            }
+            return idx >= 0 && idx < list.size() ? list.get(idx) : null;
+        }
+        if (container.getClass().isArray()) {
+            Integer idx = toInteger(keyValue);
+            if (idx == null) {
+                return null;
+            }
+            int length = Array.getLength(container);
+            return idx >= 0 && idx < length ? Array.get(container, idx) : null;
+        }
+        if (container instanceof Map<?, ?> map) {
+            Object value = map.get(keyValue);
+            if (value == null && keyValue instanceof String str) {
+                value = map.get(str);
+            }
+            return value;
+        }
+        String propertyName = String.valueOf(keyValue);
+        return extractPropertyValue(container, propertyName);
+    }
+
+    private Object evaluateIndexExpression(String expression, Map<String, Object> context) {
+        if (!StringUtils.hasText(expression)) {
+            return null;
+        }
+        if ((expression.startsWith("\"") && expression.endsWith("\""))
+                || (expression.startsWith("'") && expression.endsWith("'"))) {
+            return stripQuotes(expression);
+        }
+        ValueWrapper evaluated = evaluateExpression(expression, context);
+        Object raw = evaluated.rawValue();
+        if (raw instanceof List<?> list) {
+            return list.isEmpty() ? null : list.get(0);
+        }
+        return raw;
+    }
+
+    private Integer toInteger(Object value) {
+        if (value instanceof Number number) {
+            return number.intValue();
+        }
+        if (value instanceof String str) {
+            String trimmed = str.trim();
+            if (isNumeric(trimmed)) {
+                return Integer.parseInt(trimmed);
+            }
+        }
+        return null;
+    }
+
     private String stripQuotes(String value) {
         if (value == null || value.length() < 2) {
             return value;
@@ -395,14 +497,36 @@ public class TemplateEngine {
     private record PathToken(String name, List<IndexToken> indices) {
     }
 
-    private record IndexToken(boolean star, int index) {
+    private record IndexToken(IndexType type, int index, String expression) {
         static IndexToken wildcard() {
-            return new IndexToken(true, -1);
+            return new IndexToken(IndexType.STAR, -1, null);
         }
 
         static IndexToken of(int index) {
-            return new IndexToken(false, index);
+            return new IndexToken(IndexType.INDEX, index, null);
         }
+
+        static IndexToken expression(String expression) {
+            return new IndexToken(IndexType.EXPRESSION, -1, expression);
+        }
+
+        boolean star() {
+            return type == IndexType.STAR;
+        }
+
+        boolean hasIndex() {
+            return type == IndexType.INDEX;
+        }
+
+        boolean hasExpression() {
+            return type == IndexType.EXPRESSION;
+        }
+    }
+
+    private enum IndexType {
+        STAR,
+        INDEX,
+        EXPRESSION
     }
 
     private static final class ValueWrapper {
