@@ -21,6 +21,8 @@ import org.springframework.web.client.RestTemplate;
 import com.example.ainovel.dto.ConceptionResponse;
 import com.example.ainovel.model.CharacterCard;
 import com.example.ainovel.model.StoryCard;
+import com.example.ainovel.prompt.PromptTemplateService;
+import com.example.ainovel.prompt.context.PromptContextFactory;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -60,8 +62,11 @@ public class OpenAiService extends AbstractAiService {
     @Value("${openai.model.default:gpt-4-turbo}")
     private String defaultModel;
 
-    public OpenAiService(RestTemplate restTemplate, ObjectMapper objectMapper) {
-        super(objectMapper);
+    public OpenAiService(RestTemplate restTemplate,
+                         ObjectMapper objectMapper,
+                         PromptTemplateService promptTemplateService,
+                         PromptContextFactory promptContextFactory) {
+        super(objectMapper, promptTemplateService, promptContextFactory);
         this.restTemplate = restTemplate;
     }
 

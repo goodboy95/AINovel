@@ -37,6 +37,9 @@ import com.example.ainovel.model.StoryCard;
 import com.example.ainovel.model.TemporaryCharacter;
 import com.example.ainovel.model.User;
 import com.example.ainovel.model.UserSetting;
+import com.example.ainovel.prompt.PromptTemplateService;
+import com.example.ainovel.prompt.PromptType;
+import com.example.ainovel.prompt.context.PromptContextFactory;
 import com.example.ainovel.repository.CharacterCardRepository;
 import com.example.ainovel.repository.OutlineCardRepository;
 import com.example.ainovel.repository.OutlineChapterRepository;
@@ -68,6 +71,8 @@ public class OutlineService {
     private final SettingsService settingsService;
     private final OpenAiService openAiService;
     private final ObjectMapper objectMapper;
+    private final PromptTemplateService promptTemplateService;
+    private final PromptContextFactory promptContextFactory;
     private final OutlineChapterRepository outlineChapterRepository;
     private final OutlineSceneRepository outlineSceneRepository;
 
@@ -515,7 +520,7 @@ public class OutlineService {
         String baseUrl = settingsService.getBaseUrlByUserId(user.getId());
         String model = settingsService.getModelNameByUserId(user.getId());
 
-        String refinedText = openAiService.refineText(request, apiKey, baseUrl, model);
+        String refinedText = openAiService.refineText(user.getId(), request, apiKey, baseUrl, model);
         return new RefineResponse(refinedText);
     }
 
@@ -531,7 +536,19 @@ public class OutlineService {
         String baseUrl = settingsService.getBaseUrlByUserId(user.getId());
         String model = settingsService.getModelNameByUserId(user.getId());
 
-        String prompt = buildChapterPrompt(storyCard, outlineCard, request);
+        String previousChapterSynopsis = outlineChapterRepository
+            .findByOutlineCardIdAndChapterNumber(outlineCard.getId(), request.getChapterNumber() - 1)
+            .map(OutlineChapter::getSynopsis)
+            .orElse("无，这是第一章。");
+
+        Map<String, Object> context = promptContextFactory.buildOutlineChapterContext(
+                storyCard,
+                outlineCard,
+                request,
+                previousChapterSynopsis
+        );
+
+        String prompt = promptTemplateService.render(PromptType.OUTLINE_CHAPTER, user.getId(), context);
         logger.debug("Generated Prompt for Chapter {}: {}", request.getChapterNumber(), prompt);
 
         String jsonResponse = openAiService.generate(prompt, apiKey, baseUrl, model);
@@ -544,68 +561,6 @@ public class OutlineService {
             logger.error("Failed to parse AI response for chapter: {}", jsonResponse, e);
             throw new RuntimeException("Failed to parse AI response for chapter", e);
         }
-    }
-
-    private String buildChapterPrompt(StoryCard storyCard, OutlineCard outlineCard, GenerateChapterRequest request) {
-        String characterProfiles = storyCard.getCharacters().stream()
-                .map(c -> String.format("- %s: %s", c.getName(), c.getSynopsis()))
-                .collect(Collectors.joining("\n"));
-
-        String previousChapterSynopsis = outlineChapterRepository
-            .findByOutlineCardIdAndChapterNumber(outlineCard.getId(), request.getChapterNumber() - 1)
-            .map(OutlineChapter::getSynopsis)
-            .orElse("无，这是第一章。");
-
-        return String.format(
-            """
-            你是一位洞悉读者心理、擅长制造“爽点”与“泪点”的顶尖网络小说家。现在，请你以合作者的身份，为我的故事设计接下来的一章。我希望这一章不仅是情节的推进，更是情感的积累和爆发。
-
-            # 故事核心信息
-            - **故事简介:** %s
-            - **核心主题与基调:** %s / %s
-            - **故事长期走向:** %s
-
-            # 主要角色设定
-            %s
-
-            # 上下文回顾
-            - **上一章梗概:** %s
-
-            # 本章创作任务 (第 %d 章)
-            - **预设节数:** %d
-            - **预估每节字数:** %d
-
-            # 你的创作目标与自由度
-            1.  **情节设计:** 请构思一章充满“钩子”的情节。思考：这一章的结尾，最能让读者好奇地想读下一章的悬念是什么？中间是否可以安排一个小的“情绪爆点”或“情节反转”？
-            2.  **人物弧光:** 思考核心人物在本章的经历，他们的内心会产生怎样的变化？他们的信念是会更坚定，还是会受到挑战？
-            3.  **伏笔与回收:** 如果有机会，可以埋下一些与长线剧情相关的伏笔。如果前文有伏笔，思考本章是否是回收它的好时机。
-            4.  **创作建议 (重要):** 在满足核心要求的前提下，你完全可以提出更有创意的想法。例如，你认为某个临时人物的设定稍微调整一下会更有戏剧性，或者某个情节有更好的表现方式，请大胆地在你的设计中体现出来，并用 `[创作建议]` 标签标注。
-            5.  **拒绝平庸:** 请极力避免机械地推进剧情。每一节都应该有其独特的作用，或是塑造人物，或是铺垫情绪，或是揭示信息。
-            6.  **关键节点呈现:** 对于每节大纲，不应当写一篇长简介，而是应该写出本节的多个关键故事节点（按照每节的预定长度来决定关键故事节点个数，可考虑平均每200-400字一个关键节点），每个关键故事节点只有两三句话。
-            7.  **语言风格:** 应当减少比喻、排比等修辞手法的使用，仅在认为确实有必要的情况下才少量使用；同时减少套路化的写作格式和剧情走向，允许在一定程度上自由发挥。
-
-            # 输出格式
-            请严格以JSON格式返回。根对象应包含 "title", "synopsis" 和一个 "scenes" 数组。
-            每个 scene 对象必须包含:
-            - "sceneNumber": (number) 序号。
-            - "synopsis": (string) 详细、生动、充满画面感的故事梗概，字数不少于200字。
-            - "presentCharacters": (string[]) 核心出场人物姓名列表。
-            - "sceneCharacters": (object[]) 一个数组，用结构化的“人物卡”描述每位核心人物在本节中的状态，字段必须包含:
-              - "characterName": (string) 角色姓名。
-              - "status": (string) 角色在本节的生理或环境状态。
-              - "thought": (string) 角色在本节的主要想法或心理活动。
-              - "action": (string) 角色在本节的关键行动。
-            - "temporaryCharacters": (object[]) 一个对象数组，用于描写本节新出现的或需要详细刻画的临时人物。如果不需要，则返回空数组[]。每个对象必须包含所有字段: "name", "summary", "details", "relationships", "status", "thought", "action"。
-            """,
-            storyCard.getSynopsis(),
-            storyCard.getGenre(), storyCard.getTone(),
-            storyCard.getStoryArc(),
-            characterProfiles,
-            previousChapterSynopsis,
-            request.getChapterNumber(),
-            request.getSectionsPerChapter(),
-            request.getWordsPerSection()
-        );
     }
 
     private OutlineChapter parseAndSaveChapter(String jsonResponse, OutlineCard outlineCard, GenerateChapterRequest request) throws JsonProcessingException {

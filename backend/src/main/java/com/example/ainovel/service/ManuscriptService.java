@@ -27,6 +27,9 @@ import com.example.ainovel.model.SceneCharacter;
 import com.example.ainovel.model.StoryCard;
 import com.example.ainovel.model.TemporaryCharacter;
 import com.example.ainovel.model.User;
+import com.example.ainovel.prompt.PromptTemplateService;
+import com.example.ainovel.prompt.PromptType;
+import com.example.ainovel.prompt.context.PromptContextFactory;
 import com.example.ainovel.repository.CharacterCardRepository;
 import com.example.ainovel.repository.ManuscriptSectionRepository;
 import com.example.ainovel.repository.ManuscriptRepository;
@@ -62,6 +65,8 @@ public class ManuscriptService {
     private final OutlineCardRepository outlineCardRepository;
     private final ManuscriptRepository manuscriptRepository;
     private final CharacterChangeLogRepository characterChangeLogRepository;
+    private final PromptTemplateService promptTemplateService;
+    private final PromptContextFactory promptContextFactory;
     private final ObjectMapper objectMapper;
     private static final TypeReference<List<RelationshipChangeDto>> RELATIONSHIP_CHANGE_LIST_TYPE = new TypeReference<>() {};
 
@@ -170,8 +175,7 @@ public class ManuscriptService {
                     ));
         }
 
-        // 构建新的 Prompt，整合所有上下文与写作规范
-        String prompt = buildGenerationPrompt(
+        Map<String, Object> promptContext = promptContextFactory.buildManuscriptSectionContext(
                 scene,
                 story,
                 characters,
@@ -187,7 +191,8 @@ public class ManuscriptService {
                 latestCharacterLogs
         );
 
-        String generatedContent = openAiService.generate(prompt, apiKey, baseUrl, model);
+        String renderedPrompt = promptTemplateService.render(PromptType.MANUSCRIPT_SECTION, userId, promptContext);
+        String generatedContent = openAiService.generate(renderedPrompt, apiKey, baseUrl, model);
 
         // Create a new, active section
         ManuscriptSection newSection = new ManuscriptSection();
@@ -248,75 +253,6 @@ public class ManuscriptService {
         return snapshot;
     }
 
-    private String buildGenerationPrompt(
-            OutlineScene scene,
-            StoryCard story,
-            List<CharacterCard> allCharacters,
-            List<SceneCharacter> sceneCharacters,
-            List<TemporaryCharacter> temporaryCharacters,
-            String previousSectionContent,
-            List<OutlineScene> previousChapterOutline,
-            List<OutlineScene> currentChapterOutline,
-            int chapterNumber,
-            int totalChapters,
-            int sceneNumber,
-            int totalScenesInChapter,
-            Map<Long, CharacterChangeLog> latestCharacterLogs
-    ) {
-        String tempCharactersInfo = formatTemporaryCharacters(temporaryCharacters);
-        String allCharactersInfo = formatCharacters(allCharacters, latestCharacterLogs);
-        String prevChapterOutlineText = formatOutlineScenes(previousChapterOutline);
-        String currentChapterOutlineText = formatOutlineScenes(currentChapterOutline);
-        String presentCharacterNames = formatPresentCharacters(sceneCharacters, scene.getPresentCharacters());
-        String coreSceneCharacters = formatSceneCharacters(sceneCharacters);
-        OutlineCard oc = scene.getOutlineChapter().getOutlineCard();
-        String pointOfView = (oc != null && oc.getPointOfView() != null && !oc.getPointOfView().trim().isEmpty())
-                ? oc.getPointOfView().trim()
-                : "第三人称有限视角";
-
-        return String.format(
-                "你是一位资深的中文小说家，请使用简体中文进行创作。你的文风细腻而有张力，擅长通过细节与内心戏推动剧情。\n\n" +
-                "【故事核心设定】\n- 类型/基调: %s / %s\n- 叙事视角: %s\n- 故事简介: %s\n\n" +
-                "【全部角色档案】\n%s\n\n" +
-                "【上一章大纲回顾】\n%s\n\n" +
-                "【上一节正文（原文）】\n%s\n\n" +
-                "【本章完整大纲】\n%s\n\n" +
-                "【当前创作位置】\n- 章节: 第 %d/%d 章\n- 小节: 第 %d/%d 节\n\n" +
-                "【本节创作蓝图】\n- 梗概: %s\n- 核心出场人物: %s\n- 核心人物状态卡:\n%s\n- 临时出场人物:\n%s\n\n" +
-                "【写作规则】\n" +
-                "1. 钩子与悬念: 开篇30-80字设置强钩子；本节结尾制造悬念或情绪余韵。\n" +
-                "2. 伏笔与回收: 合理埋设或回收伏笔，贴合剧情逻辑，避免突兀。\n" +
-                "3. 人物弧光: 通过对话与行动自然呈现人物内心变化，拒绝直白说教。\n" +
-                "4. 节奏与张力: 结合当前进度（第 %d/%d 章，第 %d/%d 节）控制信息密度与冲突烈度。\n" +
-                "5. 细节与画面: 强化感官细节、空间调度与象征性意象，避免模板化。\n" +
-                "6. 忠于大纲，高于大纲: 不改变核心走向与设定，可进行合理艺术加工使剧情更佳。\n" +
-                "7. 风格统一: 始终保持故事既定基调与叙事视角。\n" +
-                "8. 输出要求: 直接输出本节“正文”，约 %d 字；不要输出标题、注释或总结。\n" +
-                "9. 语言节制: 减少比喻、排比等修辞手法，仅在确有必要时少量使用。\n" +
-                "10. 剧情新鲜: 避免套路化的表达和桥段，保持情节的惊喜度与原创性。\n" +
-                "11. 自然质感: 让叙述与对话贴近人物的真实语感，避免机械化陈述。\n" +
-                "12. 段落饱满: 每个自然段尽量写满多句内容，避免“一句话一个段落”的碎片化写法。\n\n" +
-                "开始创作。",
-                nullToNA(story.getGenre()),
-                nullToNA(story.getTone()),
-                pointOfView,
-                nullToNA(story.getSynopsis()),
-                allCharactersInfo,
-                (prevChapterOutlineText == null || prevChapterOutlineText.isEmpty()) ? "无" : prevChapterOutlineText,
-                nullToNA(previousSectionContent),
-                currentChapterOutlineText,
-                chapterNumber, totalChapters,
-                sceneNumber, totalScenesInChapter,
-                nullToNA(scene.getSynopsis()),
-                nullToNA(presentCharacterNames),
-                coreSceneCharacters,
-                tempCharactersInfo,
-                chapterNumber, totalChapters,
-                sceneNumber, totalScenesInChapter,
-                (scene.getExpectedWords() != null ? scene.getExpectedWords() : 1200)
-        );
-    }
-
     /**
      * 获取上一章的全部小节大纲（如果当前不是第一章）。
      */
@@ -334,135 +270,6 @@ public class ManuscriptService {
                 .findFirst()
                 .map(OutlineChapter::getScenes)
                 .orElse(Collections.emptyList());
-    }
-
-    /**
-     * 将角色列表格式化为可读文本，包含完整信息。
-     */
-    private String formatCharacters(List<CharacterCard> allCharacters, Map<Long, CharacterChangeLog> latestLogs) {
-        if (allCharacters == null || allCharacters.isEmpty()) {
-            return "无";
-        }
-        return allCharacters.stream()
-                .map(c -> String.format(
-                        "- %s\n  - 概述: %s\n  - 详细背景: %s\n  - 关系: %s\n  - 最近成长轨迹: %s\n  - 最新关系图谱: %s",
-                        c.getName(),
-                        nullToNA(c.getSynopsis()),
-                        nullToNA(c.getDetails()),
-                        nullToNA(c.getRelationships()),
-                        summarizeCharacterGrowth(latestLogs != null ? latestLogs.get(c.getId()) : null),
-                        summarizeRelationshipMap(latestLogs != null ? latestLogs.get(c.getId()) : null)
-                ))
-                .collect(Collectors.joining("\n"));
-    }
-
-    /**
-     * 将大纲场景列表格式化为可读文本。
-     */
-    private String formatOutlineScenes(List<OutlineScene> scenes) {
-        if (scenes == null || scenes.isEmpty()) {
-            return "无";
-        }
-        return scenes.stream()
-                .map(sc -> String.format(
-                        "第 %d 节:\n- 梗概: %s\n- 核心出场人物: %s\n- 核心人物状态卡:\n%s\n- 临时人物:\n%s",
-                        sc.getSceneNumber(),
-                        nullToNA(sc.getSynopsis()),
-                        nullToNA(formatPresentCharacters(sc.getSceneCharacters(), sc.getPresentCharacters())),
-                        formatSceneCharacters(sc.getSceneCharacters()),
-                        formatTemporaryCharacters(sc.getTemporaryCharacters())
-                ))
-                .collect(Collectors.joining("\n\n"));
-    }
-
-    /**
-     * 将临时角色信息格式化为可读文本（包含各字段）。
-     */
-    private String formatTemporaryCharacters(List<TemporaryCharacter> temporaryCharacters) {
-        if (temporaryCharacters == null || temporaryCharacters.isEmpty()) {
-            return "无";
-        }
-        return temporaryCharacters.stream()
-                .map(tc -> String.format(
-                        "- %s\n  - 概要: %s\n  - 详情: %s\n  - 关系: %s\n  - 在本节中的状态: %s\n  - 在本节中的想法: %s\n  - 在本节中的行动: %s",
-                        tc.getName(),
-                        nullToNA(tc.getSummary()),
-                        nullToNA(tc.getDetails()),
-                        nullToNA(tc.getRelationships()),
-                        nullToNA(tc.getStatus()),
-                        nullToNA(tc.getThought()),
-                        nullToNA(tc.getAction())
-                ))
-                .collect(Collectors.joining("\n"));
-    }
-
-    private String formatSceneCharacters(List<SceneCharacter> sceneCharacters) {
-        if (sceneCharacters == null || sceneCharacters.isEmpty()) {
-            return "无";
-        }
-        return sceneCharacters.stream()
-                .map(sc -> String.format(
-                        "- %s\n  - 状态: %s\n  - 想法: %s\n  - 行动: %s",
-                        defaultString(sc.getCharacterName(), "未知角色"),
-                        nullToNA(sc.getStatus()),
-                        nullToNA(sc.getThought()),
-                        nullToNA(sc.getAction())
-                ))
-                .collect(Collectors.joining("\n"));
-    }
-
-    private String formatPresentCharacters(List<SceneCharacter> sceneCharacters, String fallback) {
-        if (sceneCharacters != null && !sceneCharacters.isEmpty()) {
-            String names = sceneCharacters.stream()
-                    .map(SceneCharacter::getCharacterName)
-                    .filter(name -> name != null && !name.isBlank())
-                    .distinct()
-                    .collect(Collectors.joining(", "));
-            if (!names.isBlank()) {
-                return names;
-            }
-        }
-        return fallback;
-    }
-
-    private String summarizeCharacterGrowth(CharacterChangeLog log) {
-        if (log == null) {
-            return "暂无最新变化记录";
-        }
-        String combined = java.util.stream.Stream.of(log.getCharacterChanges(), log.getNewlyKnownInfo())
-                .filter(text -> text != null && !text.isBlank())
-                .map(String::trim)
-                .collect(Collectors.joining(" / "));
-        if (combined == null || combined.isBlank()) {
-            combined = nullToNA(log.getCharacterDetailsAfter());
-        }
-        return nullToNA(combined);
-    }
-
-    private String summarizeRelationshipMap(CharacterChangeLog log) {
-        if (log == null) {
-            return "暂无新的关系变更";
-        }
-        List<RelationshipChangeDto> changes = parseRelationshipChanges(log.getRelationshipChangesJson());
-        if (changes.isEmpty()) {
-            return "暂无新的关系变更";
-        }
-        return changes.stream()
-                .map(change -> String.format(
-                        "与角色ID %d: %s -> %s（原因: %s）",
-                        change.getTargetCharacterId(),
-                        defaultString(change.getPreviousRelationship(), "未知"),
-                        defaultString(change.getCurrentRelationship(), "未知"),
-                        defaultString(change.getChangeReason(), "未说明")
-                ))
-                .collect(Collectors.joining("；"));
-    }
-
-    /**
-     * 空值与空白安全处理。
-     */
-    private String nullToNA(String s) {
-        return (s == null || s.trim().isEmpty()) ? "无" : s.trim();
     }
 
     private String getPreviousSectionContent(OutlineScene currentScene) {
