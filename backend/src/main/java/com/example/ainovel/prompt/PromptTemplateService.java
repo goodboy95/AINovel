@@ -112,22 +112,22 @@ public class PromptTemplateService {
             return;
         }
         if (request.getStoryCreation() != null) {
-            settings.setStoryCreation(request.getStoryCreation());
+            settings.setStoryCreation(normalizeLineEndings(request.getStoryCreation()));
         }
         if (request.getOutlineChapter() != null) {
-            settings.setOutlineChapter(request.getOutlineChapter());
+            settings.setOutlineChapter(normalizeLineEndings(request.getOutlineChapter()));
         }
         if (request.getManuscriptSection() != null) {
-            settings.setManuscriptSection(request.getManuscriptSection());
+            settings.setManuscriptSection(normalizeLineEndings(request.getManuscriptSection()));
         }
         RefinePromptTemplatesUpdateRequest refine = request.getRefine();
         if (refine != null) {
             RefinePromptSettings refineSettings = settings.ensureRefine();
             if (refine.getWithInstruction() != null) {
-                refineSettings.setWithInstruction(refine.getWithInstruction());
+                refineSettings.setWithInstruction(normalizeLineEndings(refine.getWithInstruction()));
             }
             if (refine.getWithoutInstruction() != null) {
-                refineSettings.setWithoutInstruction(refine.getWithoutInstruction());
+                refineSettings.setWithoutInstruction(normalizeLineEndings(refine.getWithoutInstruction()));
             }
         }
     }
@@ -206,6 +206,13 @@ public class PromptTemplateService {
 
     private boolean isBlank(String value) {
         return value == null || value.trim().isEmpty();
+    }
+
+    private String normalizeLineEndings(String value) {
+        if (value == null) {
+            return null;
+        }
+        return value.replace("\r\n", "\n").replace('\r', '\n');
     }
 
     private String getDefaultTemplate(PromptType type) {

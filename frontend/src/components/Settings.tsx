@@ -1,7 +1,7 @@
 import { useState, useEffect, useMemo, useCallback } from 'react';
 import { Form, Input, Button, Card, Typography, message, Spin, Tabs, Space, Tag, Alert } from 'antd';
 import type { TabsProps } from 'antd';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { fetchPromptTemplates, updatePromptTemplates, resetPromptTemplates } from '../services/api';
 import type { PromptTemplatesResponse, PromptTemplatesUpdatePayload } from '../types';
 
@@ -59,6 +59,7 @@ const promptFieldConfigs: Record<PromptFieldKey, { label: string; description: s
 const Settings = () => {
     const [form] = Form.useForm<SettingsValues>();
     const [activeTab, setActiveTab] = useState<'model' | 'prompts'>('model');
+    const navigate = useNavigate();
 
     const [isLoading, setIsLoading] = useState(true);
     const [isSaving, setIsSaving] = useState(false);
@@ -473,7 +474,18 @@ const Settings = () => {
         <div style={{ padding: '24px', background: '#f0f2f5', minHeight: '100vh' }}>
             <Card style={{ maxWidth: 1000, margin: '0 auto' }}>
                 <Space direction="vertical" size={24} style={{ width: '100%' }}>
-                    <Title level={3} style={{ margin: 0 }}>用户设置</Title>
+                    <div
+                        style={{
+                            display: 'flex',
+                            justifyContent: 'space-between',
+                            alignItems: 'center',
+                            flexWrap: 'wrap',
+                            gap: 12,
+                        }}
+                    >
+                        <Title level={3} style={{ margin: 0 }}>用户设置</Title>
+                        <Button onClick={() => navigate(-1)}>返回</Button>
+                    </div>
                     <Tabs items={items} activeKey={activeTab} onChange={key => setActiveTab(key as 'model' | 'prompts')} />
                 </Space>
             </Card>
