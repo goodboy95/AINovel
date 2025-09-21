@@ -13,8 +13,7 @@ storyCreation: |
         "name": "角色姓名",
         "synopsis": "角色简介（年龄、性别、外貌、性格等）",
         "details": "角色的详细背景故事和设定",
-        "relationships": "角色与其他主要角色的关系",
-        "avatarUrl": "（可选）角色的头像URL"
+        "relationships": "角色与其他主要角色的关系"
       }
     ]
   }
