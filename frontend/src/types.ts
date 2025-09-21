@@ -241,6 +241,109 @@ export interface WorldBuildingDefinitionsResponse {
     promptContext: WorldPromptContextDefinition;
 }
 
+export type WorldStatus = 'DRAFT' | 'GENERATING' | 'ACTIVE' | 'ARCHIVED';
+
+export type WorldModuleStatus =
+    | 'EMPTY'
+    | 'IN_PROGRESS'
+    | 'READY'
+    | 'AWAITING_GENERATION'
+    | 'GENERATING'
+    | 'COMPLETED'
+    | 'FAILED';
+
+export type WorldGenerationJobStatus =
+    | 'WAITING'
+    | 'RUNNING'
+    | 'SUCCEEDED'
+    | 'FAILED'
+    | 'CANCELLED';
+
+export interface WorldSummary {
+    id: number;
+    name: string;
+    tagline: string;
+    themes: string[];
+    status: WorldStatus;
+    version?: number | null;
+    updatedAt?: string | null;
+    publishedAt?: string | null;
+    moduleProgress: Record<string, WorldModuleStatus>;
+}
+
+export interface WorldBasicInfo {
+    id?: number;
+    name: string;
+    tagline: string;
+    themes: string[];
+    creativeIntent: string;
+    notes?: string | null;
+    status: WorldStatus;
+    version?: number | null;
+    publishedAt?: string | null;
+    updatedAt?: string | null;
+    createdAt?: string | null;
+    lastEditedAt?: string | null;
+}
+
+export interface WorldModule {
+    key: string;
+    label: string;
+    status: WorldModuleStatus;
+    fields: Record<string, string>;
+    contentHash?: string | null;
+    fullContent?: string | null;
+    fullContentUpdatedAt?: string | null;
+}
+
+export interface WorldDetail {
+    world: WorldBasicInfo;
+    modules: WorldModule[];
+}
+
+export interface WorldModuleSummary {
+    key: string;
+    label: string;
+}
+
+export interface WorldPublishPreviewMissingField {
+    moduleKey: string;
+    moduleLabel: string;
+    fieldKey: string;
+    fieldLabel: string;
+}
+
+export interface WorldPublishPreview {
+    ready: boolean;
+    moduleStatuses: Record<string, WorldModuleStatus>;
+    missingFields: WorldPublishPreviewMissingField[];
+    modulesToGenerate: WorldModuleSummary[];
+    modulesToReuse: WorldModuleSummary[];
+}
+
+export interface WorldPublishResponse {
+    worldId: number;
+    modulesToGenerate: WorldModuleSummary[];
+    modulesToReuse: WorldModuleSummary[];
+}
+
+export interface WorldGenerationJobStatusEntry {
+    moduleKey: string;
+    moduleLabel: string;
+    status: WorldGenerationJobStatus;
+    attempts?: number | null;
+    startedAt?: string | null;
+    finishedAt?: string | null;
+    error?: string | null;
+}
+
+export interface WorldGenerationStatus {
+    worldId: number;
+    status: WorldStatus;
+    version?: number | null;
+    queue: WorldGenerationJobStatusEntry[];
+}
+
 export interface PromptTemplateMetadata {
     templates: PromptTypeMetadata[];
     functions: PromptFunctionMetadata[];

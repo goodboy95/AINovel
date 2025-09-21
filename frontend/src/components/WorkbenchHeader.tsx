@@ -1,5 +1,6 @@
 import React from 'react';
 import { Layout, Dropdown, Typography, Space, Button } from 'antd';
+import { Link } from 'react-router-dom';
 import { UserOutlined, SettingOutlined, LogoutOutlined } from '@ant-design/icons';
 
 const { Header } = Layout;
@@ -45,6 +46,9 @@ const WorkbenchHeader: React.FC<WorkbenchHeaderProps> = ({ username, onOpenSetti
       <Space align="center">
         <img src="/vite.svg" alt="AI 小说家" style={{ width: 28, height: 28 }} />
         <Title level={3} style={{ margin: 0 }}>AI 小说家工作台</Title>
+        <Link to="/worlds">
+          <Button type="link">世界构建</Button>
+        </Link>
       </Space>
 
       <Dropdown menu={{ items }} trigger={['click']}>

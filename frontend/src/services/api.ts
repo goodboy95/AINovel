@@ -1,4 +1,25 @@
-import type { StoryCard, CharacterCard, Outline, ConceptionFormValues, Chapter, Manuscript, ManuscriptSection, CharacterChangeLog, CharacterDialogueRequestPayload, CharacterDialogueResponsePayload, PromptTemplatesResponse, PromptTemplatesUpdatePayload, PromptTemplateMetadata, WorldBuildingDefinitionsResponse } from '../types';
+import type {
+    StoryCard,
+    CharacterCard,
+    Outline,
+    ConceptionFormValues,
+    Chapter,
+    Manuscript,
+    ManuscriptSection,
+    CharacterChangeLog,
+    CharacterDialogueRequestPayload,
+    CharacterDialogueResponsePayload,
+    PromptTemplatesResponse,
+    PromptTemplatesUpdatePayload,
+    PromptTemplateMetadata,
+    WorldBuildingDefinitionsResponse,
+    WorldDetail,
+    WorldSummary,
+    WorldPublishPreview,
+    WorldPublishResponse,
+    WorldGenerationStatus,
+    WorldModule,
+} from '../types';
 
 /**
  * Creates authorization headers for API requests.
@@ -374,6 +395,117 @@ export const fetchPromptTemplateMetadata = (): Promise<PromptTemplateMetadata> =
 export const fetchWorldBuildingDefinitions = (): Promise<WorldBuildingDefinitionsResponse> => {
     return fetch('/api/v1/world-building/definitions', { headers: getAuthHeaders() })
         .then(res => handleResponse<WorldBuildingDefinitionsResponse>(res));
+};
+
+// World building APIs
+
+export type WorldUpsertPayload = {
+    name: string;
+    tagline: string;
+    themes: string[];
+    creativeIntent: string;
+    notes?: string | null;
+};
+
+export const createWorld = (payload: WorldUpsertPayload): Promise<WorldDetail> => {
+    return fetch('/api/v1/worlds', {
+        method: 'POST',
+        headers: getAuthHeaders(),
+        body: JSON.stringify(payload),
+    }).then(res => handleResponse<WorldDetail>(res));
+};
+
+export const fetchWorlds = (status?: string): Promise<WorldSummary[]> => {
+    const query = status ? `?status=${encodeURIComponent(status)}` : '';
+    return fetch(`/api/v1/worlds${query}`, { headers: getAuthHeaders() })
+        .then(res => handleResponse<WorldSummary[]>(res));
+};
+
+export const fetchWorldDetail = (worldId: number): Promise<WorldDetail> => {
+    return fetch(`/api/v1/worlds/${worldId}`, { headers: getAuthHeaders() })
+        .then(res => handleResponse<WorldDetail>(res));
+};
+
+export const updateWorld = (worldId: number, payload: WorldUpsertPayload): Promise<WorldDetail> => {
+    return fetch(`/api/v1/worlds/${worldId}`, {
+        method: 'PUT',
+        headers: getAuthHeaders(),
+        body: JSON.stringify(payload),
+    }).then(res => handleResponse<WorldDetail>(res));
+};
+
+export const deleteWorld = (worldId: number): Promise<void> => {
+    return fetch(`/api/v1/worlds/${worldId}`, {
+        method: 'DELETE',
+        headers: getAuthHeaders(),
+    }).then(res => handleResponse<void>(res));
+};
+
+export const updateWorldModule = (
+    worldId: number,
+    moduleKey: string,
+    fields: Record<string, string>
+): Promise<WorldModule> => {
+    return fetch(`/api/v1/worlds/${worldId}/modules/${moduleKey}`, {
+        method: 'PUT',
+        headers: getAuthHeaders(),
+        body: JSON.stringify({ fields }),
+    }).then(res => handleResponse<WorldModule>(res));
+};
+
+export const updateWorldModules = (
+    worldId: number,
+    modules: { key: string; fields: Record<string, string> }[]
+): Promise<WorldModule[]> => {
+    return fetch(`/api/v1/worlds/${worldId}/modules`, {
+        method: 'PUT',
+        headers: getAuthHeaders(),
+        body: JSON.stringify({ modules }),
+    }).then(res => handleResponse<WorldModule[]>(res));
+};
+
+export const generateWorldModule = (worldId: number, moduleKey: string): Promise<WorldModule> => {
+    return fetch(`/api/v1/worlds/${worldId}/modules/${moduleKey}/generate`, {
+        method: 'POST',
+        headers: getAuthHeaders(),
+    }).then(res => handleResponse<WorldModule>(res));
+};
+
+export const refineWorldField = (
+    worldId: number,
+    moduleKey: string,
+    fieldKey: string,
+    payload: { text: string; instruction?: string }
+): Promise<{ result: string }> => {
+    return fetch(`/api/v1/worlds/${worldId}/modules/${moduleKey}/fields/${fieldKey}/refine`, {
+        method: 'POST',
+        headers: getAuthHeaders(),
+        body: JSON.stringify(payload),
+    }).then(res => handleResponse<{ result: string }>(res));
+};
+
+export const previewWorldPublish = (worldId: number): Promise<WorldPublishPreview> => {
+    return fetch(`/api/v1/worlds/${worldId}/publish/preview`, { headers: getAuthHeaders() })
+        .then(res => handleResponse<WorldPublishPreview>(res));
+};
+
+export const publishWorld = (worldId: number): Promise<WorldPublishResponse> => {
+    return fetch(`/api/v1/worlds/${worldId}/publish`, {
+        method: 'POST',
+        headers: getAuthHeaders(),
+    }).then(res => handleResponse<WorldPublishResponse>(res));
+};
+
+export const fetchWorldGenerationStatus = (worldId: number): Promise<WorldGenerationStatus> => {
+    return fetch(`/api/v1/worlds/${worldId}/generation`, { headers: getAuthHeaders() })
+        .then(res => handleResponse<WorldGenerationStatus>(res));
+};
+
+export const retryWorldGeneration = (worldId: number, moduleKey: string): Promise<void> => {
+    return fetch(`/api/v1/worlds/${worldId}/generation/${moduleKey}/retry`, {
+        method: 'POST',
+        headers: getAuthHeaders(),
+    }).then(res => handleResponse<void>(res));
 };
 
 

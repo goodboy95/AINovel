@@ -11,11 +11,12 @@ interface RefineModalProps {
   originalText: string;
   contextType: string;
   onRefined: (newText: string) => void;
+  onRequest?: (text: string, instruction: string) => Promise<string>;
 }
 
 type ChatItem = { role: 'user' | 'assistant'; content: string };
 
-const RefineModal: React.FC<RefineModalProps> = ({ open, onCancel, originalText, contextType, onRefined }) => {
+const RefineModal: React.FC<RefineModalProps> = ({ open, onCancel, originalText, contextType, onRefined, onRequest }) => {
   const [form] = Form.useForm();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -40,12 +41,18 @@ const RefineModal: React.FC<RefineModalProps> = ({ open, onCancel, originalText,
     setChatHistory(prev => [...prev, { role: 'user', content: instruction }]);
     form.resetFields(['instruction']);
     try {
-      const response = await api.refineText({
-        text: originalText,
-        instruction,
-        contextType,
-      });
-      setRefinedText(response.refinedText || '');
+      let refined = '';
+      if (onRequest) {
+        refined = await onRequest(originalText, instruction);
+      } else {
+        const response = await api.refineText({
+          text: originalText,
+          instruction,
+          contextType,
+        });
+        refined = response.refinedText || '';
+      }
+      setRefinedText(refined);
       // Append assistant ack
       setChatHistory(prev => [...prev, { role: 'assistant', content: '已根据你的指令优化了左侧结果。' }]);
     } catch (err) {
