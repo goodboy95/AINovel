@@ -11,34 +11,21 @@ import com.example.ainovel.repository.WorldModuleRepository;
 import com.example.ainovel.repository.WorldRepository;
 import com.example.ainovel.worldbuilding.definition.WorldModuleDefinition;
 import com.example.ainovel.worldbuilding.definition.WorldModuleDefinitionRegistry;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationFeature;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.HexFormat;
 
 @Service
 @Transactional
 public class WorldModuleService {
-
-    private static final ObjectMapper HASH_OBJECT_MAPPER = new ObjectMapper();
-
-    static {
-        HASH_OBJECT_MAPPER.findAndRegisterModules();
-        HASH_OBJECT_MAPPER.configure(SerializationFeature.ORDER_MAP_ENTRIES_BY_KEYS, true);
-    }
 
     private final WorldRepository worldRepository;
     private final WorldModuleRepository worldModuleRepository;
@@ -133,13 +120,14 @@ public class WorldModuleService {
             return false;
         }
         module.setFields(current);
-        String newHash = computeContentHash(current);
+        String newHash = WorldModuleContentHelper.computeContentHash(current);
         boolean contentChanged = !Objects.equals(module.getContentHash(), newHash);
         module.setContentHash(newHash);
         LocalDateTime now = LocalDateTime.now();
         module.setLastEditedBy(userId);
         module.setLastEditedAt(now);
-        WorldModuleStatus newStatus = determineStatus(world, module.getModuleKey(), current, contentChanged);
+        WorldModuleStatus newStatus = WorldModuleContentHelper.determineStatus(definitionRegistry, world,
+                module.getModuleKey(), current, contentChanged);
         module.setStatus(newStatus);
         if (contentChanged && world.getStatus() == WorldStatus.ACTIVE) {
             world.setStatus(WorldStatus.DRAFT);
@@ -163,30 +151,6 @@ public class WorldModuleService {
         }
     }
 
-    private WorldModuleStatus determineStatus(World world, String moduleKey, Map<String, String> fields, boolean contentChanged) {
-        WorldModuleDefinition definition = definitionRegistry.requireModule(moduleKey);
-        boolean anyFilled = false;
-        boolean allRequiredFilled = true;
-        for (WorldModuleDefinition.FieldDefinition field : definition.fields()) {
-            String value = fields.get(field.key());
-            if (value != null && !value.isBlank()) {
-                anyFilled = true;
-            } else if (field.required()) {
-                allRequiredFilled = false;
-            }
-        }
-        if (!anyFilled) {
-            return WorldModuleStatus.EMPTY;
-        }
-        if (allRequiredFilled) {
-            if (world.getVersion() != null && world.getVersion() > 0 && contentChanged) {
-                return WorldModuleStatus.AWAITING_GENERATION;
-            }
-            return WorldModuleStatus.READY;
-        }
-        return WorldModuleStatus.IN_PROGRESS;
-    }
-
     private World loadWorld(Long worldId, Long userId) {
         return worldRepository.findByIdAndUserId(worldId, userId)
                 .orElseThrow(() -> new ResourceNotFoundException("世界不存在或无权访问"));
@@ -198,16 +162,4 @@ public class WorldModuleService {
         }
     }
 
-    private String computeContentHash(Map<String, String> fields) {
-        if (fields == null || fields.isEmpty()) {
-            return null;
-        }
-        try {
-            byte[] json = HASH_OBJECT_MAPPER.writeValueAsBytes(fields);
-            MessageDigest digest = MessageDigest.getInstance("SHA-256");
-            return HexFormat.of().formatHex(digest.digest(json));
-        } catch (JsonProcessingException | NoSuchAlgorithmException e) {
-            throw new IllegalStateException("无法计算内容哈希", e);
-        }
-    }
 }

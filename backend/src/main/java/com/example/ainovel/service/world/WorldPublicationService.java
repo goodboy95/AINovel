@@ -9,6 +9,7 @@ import com.example.ainovel.repository.WorldModuleRepository;
 import com.example.ainovel.repository.WorldRepository;
 import com.example.ainovel.worldbuilding.definition.WorldModuleDefinition;
 import com.example.ainovel.worldbuilding.definition.WorldModuleDefinitionRegistry;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -30,13 +31,16 @@ public class WorldPublicationService {
     private final WorldRepository worldRepository;
     private final WorldModuleRepository worldModuleRepository;
     private final WorldModuleDefinitionRegistry definitionRegistry;
+    private final WorldGenerationWorkflowService generationWorkflowService;
 
     public WorldPublicationService(WorldRepository worldRepository,
                                    WorldModuleRepository worldModuleRepository,
-                                   WorldModuleDefinitionRegistry definitionRegistry) {
+                                   WorldModuleDefinitionRegistry definitionRegistry,
+                                   WorldGenerationWorkflowService generationWorkflowService) {
         this.worldRepository = worldRepository;
         this.worldModuleRepository = worldModuleRepository;
         this.definitionRegistry = definitionRegistry;
+        this.generationWorkflowService = generationWorkflowService;
     }
 
     @Transactional(readOnly = true)
@@ -56,20 +60,26 @@ public class WorldPublicationService {
         if (!analysis.missingFields().isEmpty()) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "存在未填写完整的模块字段");
         }
-        if (analysis.modulesToGenerate().isEmpty()) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "没有需要生成的模块");
-        }
         LocalDateTime now = LocalDateTime.now();
         world.setStatus(WorldStatus.GENERATING);
         world.setLastEditedBy(userId);
         world.setLastEditedAt(now);
-        for (WorldModule module : analysis.modulesToGenerate()) {
+        List<WorldModule> modulesToGenerate = analysis.modulesToGenerate();
+        if (modulesToGenerate.isEmpty()) {
+            world.setStatus(WorldStatus.ACTIVE);
+            world.setVersion((world.getVersion() == null ? 0 : world.getVersion()) + 1);
+            world.setPublishedAt(now);
+            worldRepository.save(world);
+            return analysis;
+        }
+        for (WorldModule module : modulesToGenerate) {
             module.setStatus(WorldModuleStatus.AWAITING_GENERATION);
             module.setLastEditedBy(userId);
             module.setLastEditedAt(now);
         }
         worldRepository.save(world);
-        worldModuleRepository.saveAll(analysis.modulesToGenerate());
+        worldModuleRepository.saveAll(modulesToGenerate);
+        generationWorkflowService.initializeJobs(world, modulesToGenerate);
         return analysis;
     }
 
