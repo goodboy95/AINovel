@@ -199,6 +199,56 @@ ADD COLUMN `mood_in_scene` TEXT CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci
 ADD COLUMN `actions_in_scene` TEXT CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '在本节中的核心行动';
 
 -- ----------------------------
+-- Table structure for worlds
+-- ----------------------------
+DROP TABLE IF EXISTS `worlds`;
+CREATE TABLE `worlds`  (
+  `id` bigint NOT NULL AUTO_INCREMENT,
+  `user_id` bigint NOT NULL,
+  `name` varchar(80) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
+  `tagline` varchar(180) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
+  `themes` json NULL,
+  `creative_intent` text CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
+  `notes` text CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL,
+  `status` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
+  `version` int NOT NULL DEFAULT 0,
+  `published_at` datetime(6) NULL,
+  `created_at` datetime(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
+  `updated_at` datetime(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6) ON UPDATE CURRENT_TIMESTAMP(6),
+  `deleted_at` datetime(6) NULL,
+  `last_edited_by` bigint NULL,
+  `last_edited_at` datetime(6) NULL,
+  PRIMARY KEY (`id`) USING BTREE,
+  KEY `idx_worlds_user_status`(`user_id`, `status`),
+  KEY `idx_worlds_status_updated`(`status`, `updated_at`),
+  CONSTRAINT `fk_worlds_user` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE
+) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci ROW_FORMAT = Dynamic;
+
+-- ----------------------------
+-- Table structure for world_modules
+-- ----------------------------
+DROP TABLE IF EXISTS `world_modules`;
+CREATE TABLE `world_modules`  (
+  `id` bigint NOT NULL AUTO_INCREMENT,
+  `world_id` bigint NOT NULL,
+  `module_key` varchar(32) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
+  `fields` json NULL,
+  `status` varchar(32) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
+  `content_hash` char(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL,
+  `full_content` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL,
+  `full_content_updated_at` datetime(6) NULL,
+  `created_at` datetime(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
+  `updated_at` datetime(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6) ON UPDATE CURRENT_TIMESTAMP(6),
+  `last_edited_by` bigint NULL,
+  `last_edited_at` datetime(6) NULL,
+  PRIMARY KEY (`id`) USING BTREE,
+  UNIQUE KEY `uk_world_module_key`(`world_id`, `module_key`),
+  KEY `idx_world_modules_world`(`world_id`),
+  KEY `idx_world_modules_status`(`status`),
+  CONSTRAINT `fk_world_modules_world` FOREIGN KEY (`world_id`) REFERENCES `worlds` (`id`) ON DELETE CASCADE
+) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci ROW_FORMAT = Dynamic;
+
+-- ----------------------------
 -- Version 2.3 Changes
 -- ----------------------------
 

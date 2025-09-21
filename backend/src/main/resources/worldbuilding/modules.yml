@@ -1,0 +1,204 @@
+modules:
+  - key: cosmos
+    label: "宇宙观与法则"
+    order: 1
+    fields:
+      - key: cosmos_structure
+        label: "宇宙结构与尺度"
+        required: true
+        minLength: 200
+        maxLength: 600
+      - key: space_time
+        label: "时间与空间规则"
+        required: true
+        minLength: 180
+        maxLength: 500
+      - key: energy_system
+        label: "能量/魔法来源与运作"
+        required: true
+        minLength: 220
+        maxLength: 600
+      - key: technology_magic_balance
+        label: "科技与超自然的关系"
+        required: true
+        minLength: 180
+        maxLength: 450
+      - key: constraints
+        label: "法则限制与禁忌"
+        required: true
+        minLength: 150
+        maxLength: 400
+  - key: geography
+    label: "地理与生态"
+    order: 2
+    fields:
+      - key: world_map_overview
+        label: "世界格局概览"
+        required: true
+        minLength: 200
+        maxLength: 600
+      - key: signature_regions
+        label: "代表性区域与地标"
+        required: true
+        minLength: 150
+        maxLength: 800
+      - key: climate_cycles
+        label: "气候与季节循环"
+        required: true
+        minLength: 180
+        maxLength: 500
+      - key: sapient_species
+        label: "智慧种族与分布"
+        required: true
+        minLength: 220
+        maxLength: 600
+      - key: ecosystems_resources
+        label: "生态系统与关键资源"
+        required: true
+        minLength: 220
+        maxLength: 600
+  - key: society
+    label: "社会与政治"
+    order: 3
+    fields:
+      - key: political_landscape
+        label: "政体与势力分布"
+        required: true
+        minLength: 200
+        maxLength: 600
+      - key: law_order
+        label: "法律体系与社会秩序"
+        required: true
+        minLength: 180
+        maxLength: 500
+      - key: social_structure
+        label: "社会阶层与民生结构"
+        required: true
+        minLength: 200
+        maxLength: 550
+      - key: military_conflict
+        label: "军事力量与冲突态势"
+        required: true
+        minLength: 200
+        maxLength: 500
+      - key: governance_dynamics
+        label: "权力运作与治理模式"
+        required: true
+        minLength: 200
+        maxLength: 500
+  - key: history
+    label: "历史与传说"
+    order: 4
+    fields:
+      - key: creation_myth
+        label: "创世神话与起源"
+        required: true
+        minLength: 180
+        maxLength: 500
+      - key: timeline_epochs
+        label: "纪元与年代划分"
+        required: true
+        minLength: 0
+        maxLength: 0
+      - key: turning_points
+        label: "关键历史事件"
+        required: true
+        minLength: 120
+        maxLength: 800
+      - key: legendary_figures
+        label: "传奇人物与传承"
+        required: true
+        minLength: 180
+        maxLength: 500
+      - key: prophecies
+        label: "预言、禁忌与未解之谜"
+        required: true
+        minLength: 150
+        maxLength: 450
+  - key: culture
+    label: "文化与日常"
+    order: 5
+    fields:
+      - key: religion_faith
+        label: "宗教体系与信仰实践"
+        required: true
+        minLength: 200
+        maxLength: 500
+      - key: language_communication
+        label: "语言与交流"
+        required: true
+        minLength: 180
+        maxLength: 400
+      - key: arts_entertainment
+        label: "艺术、娱乐与媒体"
+        required: true
+        minLength: 180
+        maxLength: 450
+      - key: customs_rituals
+        label: "社会习俗与仪式"
+        required: true
+        minLength: 180
+        maxLength: 450
+      - key: values_morality
+        label: "价值观与伦理争议"
+        required: true
+        minLength: 200
+        maxLength: 500
+  - key: economy
+    label: "经济与科技"
+    order: 6
+    fields:
+      - key: economic_system
+        label: "经济体系与货币"
+        required: true
+        minLength: 200
+        maxLength: 500
+      - key: industry_trade
+        label: "产业与贸易网络"
+        required: true
+        minLength: 200
+        maxLength: 500
+      - key: technology_level
+        label: "科技/魔法应用水平"
+        required: true
+        minLength: 200
+        maxLength: 500
+      - key: infrastructure
+        label: "交通、通讯与基础设施"
+        required: true
+        minLength: 200
+        maxLength: 450
+      - key: daily_life_tech
+        label: "日常生活技术与民生"
+        required: true
+        minLength: 180
+        maxLength: 400
+  - key: factions
+    label: "势力与剧情钩子"
+    order: 7
+    fields:
+      - key: faction_overview
+        label: "主导势力与组织"
+        required: true
+        minLength: 200
+        maxLength: 500
+      - key: species_relations
+        label: "种族关系与联盟"
+        required: true
+        minLength: 200
+        maxLength: 500
+      - key: current_conflicts
+        label: "当前冲突与危机"
+        required: true
+        minLength: 180
+        maxLength: 450
+      - key: key_locations
+        label: "关键地点与剧情场景"
+        required: true
+        minLength: 180
+        maxLength: 450
+      - key: story_hooks
+        label: "故事钩子与潜在剧情线"
+        required: true
+        minLength: 120
+        maxLength: 800
