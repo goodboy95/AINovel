@@ -1,4 +1,4 @@
-import type { StoryCard, CharacterCard, Outline, ConceptionFormValues, Chapter, Manuscript, ManuscriptSection, CharacterChangeLog, CharacterDialogueRequestPayload, CharacterDialogueResponsePayload } from '../types';
+import type { StoryCard, CharacterCard, Outline, ConceptionFormValues, Chapter, Manuscript, ManuscriptSection, CharacterChangeLog, CharacterDialogueRequestPayload, CharacterDialogueResponsePayload, PromptTemplatesResponse, PromptTemplatesUpdatePayload, PromptTemplateMetadata } from '../types';
 
 /**
  * Creates authorization headers for API requests.
@@ -33,7 +33,7 @@ const handleResponse = async <T>(response: Response): Promise<T> => {
                 message = errorData.message || errorData.error;
             }
             console.error('API request failed:', response.status, errorData);
-        } catch (_) {
+        } catch {
             try {
                 const text = await response.text();
                 if (text) message = text;
@@ -343,6 +343,32 @@ export const generateDialogue = (payload: CharacterDialogueRequestPayload): Prom
         headers: getAuthHeaders(),
         body: JSON.stringify(payload),
     }).then(res => handleResponse<CharacterDialogueResponsePayload>(res));
+};
+
+export const fetchPromptTemplates = (): Promise<PromptTemplatesResponse> => {
+    return fetch('/api/v1/prompt-templates', { headers: getAuthHeaders() })
+        .then(res => handleResponse<PromptTemplatesResponse>(res));
+};
+
+export const updatePromptTemplates = (payload: PromptTemplatesUpdatePayload): Promise<void> => {
+    return fetch('/api/v1/prompt-templates', {
+        method: 'PUT',
+        headers: getAuthHeaders(),
+        body: JSON.stringify(payload),
+    }).then(res => handleResponse<void>(res));
+};
+
+export const resetPromptTemplates = (keys: string[]): Promise<void> => {
+    return fetch('/api/v1/prompt-templates/reset', {
+        method: 'POST',
+        headers: getAuthHeaders(),
+        body: JSON.stringify({ keys }),
+    }).then(res => handleResponse<void>(res));
+};
+
+export const fetchPromptTemplateMetadata = (): Promise<PromptTemplateMetadata> => {
+    return fetch('/api/v1/prompt-templates/metadata', { headers: getAuthHeaders() })
+        .then(res => handleResponse<PromptTemplateMetadata>(res));
 };
 
 

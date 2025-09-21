@@ -305,7 +305,7 @@ public class TemplateEngine {
                 }
                 String inside = trimmed.substring(cursor + 1, close).trim();
                 if ("*".equals(inside)) {
-                    indices.add(IndexToken.star());
+                    indices.add(IndexToken.wildcard());
                 } else if (!inside.isEmpty()) {
                     if (!isNumeric(inside)) {
                         throw new PromptTemplateException("Invalid index: " + inside);
@@ -396,7 +396,7 @@ public class TemplateEngine {
     }
 
     private record IndexToken(boolean star, int index) {
-        static IndexToken star() {
+        static IndexToken wildcard() {
             return new IndexToken(true, -1);
         }
 

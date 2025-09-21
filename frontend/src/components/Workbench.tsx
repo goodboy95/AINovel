@@ -31,7 +31,6 @@ import EditCharacterCardModal from './modals/EditCharacterCardModal';
 import EditOutlineModal from './modals/EditOutlineModal';
 import RefineModal from './modals/RefineModal';
 import WorkbenchHeader from './WorkbenchHeader';
-import UserSettingsModal from './modals/UserSettingsModal';
 import { useAuth } from '../contexts/AuthContext';
 
 const SparklesSvg = () => (
@@ -50,7 +49,6 @@ const Workbench = () => {
     const { tab } = useParams<{ tab: string }>();
     const navigate = useNavigate();
     const { user, logout } = useAuth();
-    const [isSettingsOpen, setIsSettingsOpen] = useState(false);
 
     const normalizeTab = (t?: string) => {
         if (!t) return "story-conception";
@@ -299,7 +297,7 @@ const Workbench = () => {
         <Layout style={{ minHeight: '100vh' }}>
             <WorkbenchHeader
                 username={user?.username}
-                onOpenSettings={() => setIsSettingsOpen(true)}
+                onOpenSettings={() => navigate('/settings')}
                 onLogout={() => { logout(); navigate('/'); }}
             />
             <Content style={{ padding: '24px', margin: 0, background: '#f0f2f5' }}>
@@ -442,10 +440,6 @@ const Workbench = () => {
                 originalText={originalText}
                 contextType={context?.fieldName || ''}
                 onRefined={handleAcceptRefinement}
-            />
-            <UserSettingsModal
-                open={isSettingsOpen}
-                onClose={() => setIsSettingsOpen(false)}
             />
         </Layout>
     );

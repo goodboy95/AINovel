@@ -152,3 +152,55 @@ export interface CharacterDialogueResponsePayload {
 }
 
 export type RefineHandler = (text: string, context: RefineContext) => void;
+
+export interface PromptTemplateItem {
+    content: string;
+    default: boolean;
+}
+
+export interface RefinePromptTemplateGroup {
+    withInstruction: PromptTemplateItem;
+    withoutInstruction: PromptTemplateItem;
+}
+
+export interface PromptTemplatesResponse {
+    storyCreation: PromptTemplateItem;
+    outlineChapter: PromptTemplateItem;
+    manuscriptSection: PromptTemplateItem;
+    refine: RefinePromptTemplateGroup;
+}
+
+export interface PromptTemplatesUpdatePayload {
+    storyCreation?: string;
+    outlineChapter?: string;
+    manuscriptSection?: string;
+    refine?: {
+        withInstruction?: string;
+        withoutInstruction?: string;
+    };
+}
+
+export interface PromptVariableMetadata {
+    name: string;
+    valueType: string;
+    description: string;
+}
+
+export interface PromptTypeMetadata {
+    type: string;
+    label: string;
+    variables: PromptVariableMetadata[];
+}
+
+export interface PromptFunctionMetadata {
+    name: string;
+    description: string;
+    usage: string;
+}
+
+export interface PromptTemplateMetadata {
+    templates: PromptTypeMetadata[];
+    functions: PromptFunctionMetadata[];
+    syntaxTips: string[];
+    examples: string[];
+}
