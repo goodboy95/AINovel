@@ -22,9 +22,14 @@ const HomePage: React.FC = () => {
           </>
         )}
         {isAuthenticated && (
-          <Link to="/workbench">
-            <Button type="primary" size="large">进入工作台</Button>
-          </Link>
+          <>
+            <Link to="/workbench">
+              <Button type="primary" size="large">进入工作台</Button>
+            </Link>
+            <Link to="/worlds">
+              <Button size="large">世界构建</Button>
+            </Link>
+          </>
         )}
       </nav>
     </div>
