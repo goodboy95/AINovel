@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useEffect, useMemo, useState } from 'react';
+import React, { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import { validateToken as apiValidateToken } from '../services/api';
 
 type AuthUser = {
@@ -21,7 +21,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [loading, setLoading] = useState(true);
   const [didInit, setDidInit] = useState(false);
 
-  const performValidate = async () => {
+  const performValidate = useCallback(async () => {
     try {
       const data = await apiValidateToken();
       setUser({ username: data.username });
@@ -33,7 +33,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
   useEffect(() => {
     if (didInit) return;
@@ -44,28 +44,29 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     } else {
       setLoading(false);
     }
-  }, [didInit]);
+  }, [didInit, performValidate]);
 
-  const login = async (token: string) => {
+  const login = useCallback(async (token: string) => {
     localStorage.setItem('token', token);
     setLoading(true);
     await performValidate();
-  };
+  }, [performValidate]);
 
-  const logout = () => {
+  const logout = useCallback(() => {
     localStorage.removeItem('token');
     setUser(null);
     setIsAuthenticated(false);
-  };
+  }, []);
 
   const value = useMemo(
     () => ({ user, isAuthenticated, loading, login, logout }),
-    [user, isAuthenticated, loading]
+    [user, isAuthenticated, loading, login, logout]
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 };
 
+// eslint-disable-next-line react-refresh/only-export-components
 export const useAuth = () => {
   const ctx = useContext(AuthContext);
   if (!ctx) {
