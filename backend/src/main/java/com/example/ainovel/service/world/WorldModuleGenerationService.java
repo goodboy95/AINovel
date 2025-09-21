@@ -69,7 +69,7 @@ public class WorldModuleGenerationService {
                 .orElseThrow(() -> new ResourceNotFoundException("指定模块不存在"));
         List<WorldModule> modules = worldModuleRepository.findByWorldId(worldId);
         Map<String, Object> context = contextBuilder.buildModuleContext(world, module, modules);
-        String prompt = templateService.renderDraftTemplate(moduleKey, context);
+        String prompt = templateService.renderDraftTemplate(moduleKey, context, userId);
 
         AiCredentials credentials = resolveCredentials(userId);
         String aiResult = aiService.generateJson(prompt, credentials.apiKey(), credentials.baseUrl(), credentials.model());

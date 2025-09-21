@@ -83,7 +83,7 @@ class WorldModuleGenerationServiceTest {
         when(worldRepository.findByIdAndUserId(1L, 99L)).thenReturn(Optional.of(world));
         when(worldModuleRepository.findByWorldIdAndModuleKey(1L, "cosmos")).thenReturn(Optional.of(module));
         when(worldModuleRepository.findByWorldId(1L)).thenReturn(List.of(module));
-        when(templateService.renderDraftTemplate(eq("cosmos"), any())).thenReturn("prompt");
+        when(templateService.renderDraftTemplate(eq("cosmos"), any(), eq(99L))).thenReturn("prompt");
         when(definitionRegistry.requireModule("cosmos")).thenReturn(definition);
         when(aiService.generateJson(eq("prompt"), eq("test-key"), any(), any())).thenReturn("{" +
                 "\"cosmos_structure\":\"广袤的浮空大陆\"," +
@@ -120,7 +120,7 @@ class WorldModuleGenerationServiceTest {
         when(worldRepository.findByIdAndUserId(2L, 50L)).thenReturn(Optional.of(world));
         when(worldModuleRepository.findByWorldIdAndModuleKey(2L, "cosmos")).thenReturn(Optional.of(module));
         when(worldModuleRepository.findByWorldId(2L)).thenReturn(List.of(module));
-        when(templateService.renderDraftTemplate(eq("cosmos"), any())).thenReturn("prompt");
+        when(templateService.renderDraftTemplate(eq("cosmos"), any(), eq(50L))).thenReturn("prompt");
 
         when(settingsService.getDecryptedApiKeyByUserId(50L))
                 .thenThrow(new IllegalStateException("missing"));

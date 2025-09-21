@@ -19,6 +19,10 @@ import type {
     WorldPublishResponse,
     WorldGenerationStatus,
     WorldModule,
+    WorldPromptMetadata,
+    WorldPromptTemplatesResetPayload,
+    WorldPromptTemplatesResponse,
+    WorldPromptTemplatesUpdatePayload,
 } from '../types';
 
 /**
@@ -390,6 +394,32 @@ export const resetPromptTemplates = (keys: string[]): Promise<void> => {
 export const fetchPromptTemplateMetadata = (): Promise<PromptTemplateMetadata> => {
     return fetch('/api/v1/prompt-templates/metadata', { headers: getAuthHeaders() })
         .then(res => handleResponse<PromptTemplateMetadata>(res));
+};
+
+export const fetchWorldPromptTemplates = (): Promise<WorldPromptTemplatesResponse> => {
+    return fetch('/api/v1/world-prompts', { headers: getAuthHeaders() })
+        .then(res => handleResponse<WorldPromptTemplatesResponse>(res));
+};
+
+export const updateWorldPromptTemplates = (payload: WorldPromptTemplatesUpdatePayload): Promise<void> => {
+    return fetch('/api/v1/world-prompts', {
+        method: 'PUT',
+        headers: getAuthHeaders(),
+        body: JSON.stringify(payload),
+    }).then(res => handleResponse<void>(res));
+};
+
+export const resetWorldPromptTemplates = (payload: WorldPromptTemplatesResetPayload): Promise<void> => {
+    return fetch('/api/v1/world-prompts/reset', {
+        method: 'POST',
+        headers: getAuthHeaders(),
+        body: JSON.stringify(payload),
+    }).then(res => handleResponse<void>(res));
+};
+
+export const fetchWorldPromptMetadata = (): Promise<WorldPromptMetadata> => {
+    return fetch('/api/v1/world-prompts/metadata', { headers: getAuthHeaders() })
+        .then(res => handleResponse<WorldPromptMetadata>(res));
 };
 
 export const fetchWorldBuildingDefinitions = (): Promise<WorldBuildingDefinitionsResponse> => {

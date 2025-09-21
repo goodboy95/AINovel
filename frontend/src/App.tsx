@@ -6,6 +6,7 @@ import HomePage from './components/HomePage';
 import ProtectedRoute from './components/ProtectedRoute';
 import Settings from './components/Settings';
 import PromptHelpPage from './components/PromptHelpPage';
+import WorldPromptHelpPage from './components/WorldPromptHelpPage';
 import WorldBuilderPage from './pages/WorldBuilder/WorldBuilderPage';
 import { AuthProvider } from './contexts/AuthContext';
 
@@ -49,6 +50,14 @@ function App() {
             element={
               <ProtectedRoute>
                 <PromptHelpPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/settings/world-prompts/help"
+            element={
+              <ProtectedRoute>
+                <WorldPromptHelpPage />
               </ProtectedRoute>
             }
           />

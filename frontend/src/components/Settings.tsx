@@ -1,9 +1,25 @@
 import { useState, useEffect, useMemo, useCallback } from 'react';
-import { Form, Input, Button, Card, Typography, message, Spin, Tabs, Space, Tag, Alert } from 'antd';
+import { Form, Input, Button, Card, Typography, message, Spin, Tabs, Space, Tag, Alert, Select } from 'antd';
 import type { TabsProps } from 'antd';
+import { QuestionCircleOutlined } from '@ant-design/icons';
 import { Link, useNavigate } from 'react-router-dom';
-import { fetchPromptTemplates, updatePromptTemplates, resetPromptTemplates } from '../services/api';
-import type { PromptTemplatesResponse, PromptTemplatesUpdatePayload } from '../types';
+import {
+    fetchPromptTemplates,
+    updatePromptTemplates,
+    resetPromptTemplates,
+    fetchWorldPromptTemplates,
+    updateWorldPromptTemplates,
+    resetWorldPromptTemplates,
+    fetchWorldPromptMetadata,
+} from '../services/api';
+import type {
+    PromptTemplatesResponse,
+    PromptTemplatesUpdatePayload,
+    WorldPromptMetadata,
+    WorldPromptTemplatesResponse,
+    WorldPromptTemplatesUpdatePayload,
+    WorldPromptTemplatesResetPayload,
+} from '../types';
 
 const { Title, Paragraph, Text } = Typography;
 const { TextArea } = Input;
@@ -16,6 +32,9 @@ interface SettingsValues {
 
 type PromptFieldKey = 'storyCreation' | 'outlineChapter' | 'manuscriptSection' | 'refineWithInstruction' | 'refineWithoutInstruction';
 type PromptFormValues = Record<PromptFieldKey, string>;
+
+type WorldPromptTabKey = 'draft' | 'final' | 'field';
+type SettingsTabKey = 'model' | 'workspacePrompts' | 'worldPrompts';
 
 const promptFieldOrder: PromptFieldKey[] = [
     'storyCreation',
@@ -58,7 +77,7 @@ const promptFieldConfigs: Record<PromptFieldKey, { label: string; description: s
 
 const Settings = () => {
     const [form] = Form.useForm<SettingsValues>();
-    const [activeTab, setActiveTab] = useState<'model' | 'prompts'>('model');
+    const [activeTab, setActiveTab] = useState<SettingsTabKey>('model');
     const navigate = useNavigate();
 
     const [isLoading, setIsLoading] = useState(true);
@@ -79,6 +98,30 @@ const Settings = () => {
     const [isPromptSaving, setIsPromptSaving] = useState(false);
     const [promptError, setPromptError] = useState<string | null>(null);
     const [resettingKey, setResettingKey] = useState<PromptFieldKey | null>(null);
+
+    const [worldPromptTab, setWorldPromptTab] = useState<WorldPromptTabKey>('draft');
+    const [worldPromptData, setWorldPromptData] = useState<WorldPromptTemplatesResponse | null>(null);
+    const [worldPromptMetadata, setWorldPromptMetadata] = useState<WorldPromptMetadata | null>(null);
+    const [worldDraftValues, setWorldDraftValues] = useState<Record<string, string>>({});
+    const [worldFinalValues, setWorldFinalValues] = useState<Record<string, string>>({});
+    const [worldFieldValue, setWorldFieldValue] = useState('');
+    const [selectedDraftModule, setSelectedDraftModule] = useState<string>('');
+    const [selectedFinalModule, setSelectedFinalModule] = useState<string>('');
+    const [worldPromptLoading, setWorldPromptLoading] = useState(false);
+    const [worldPromptSaving, setWorldPromptSaving] = useState(false);
+    const [worldPromptResettingKey, setWorldPromptResettingKey] = useState<string | null>(null);
+    const [worldPromptError, setWorldPromptError] = useState<string | null>(null);
+
+    const worldModuleOptions = useMemo(() => {
+        if (worldPromptMetadata && worldPromptMetadata.modules.length > 0) {
+            return worldPromptMetadata.modules.map(module => ({
+                value: module.key,
+                label: module.label,
+            }));
+        }
+        const keys = new Set<string>([...Object.keys(worldDraftValues), ...Object.keys(worldFinalValues)]);
+        return Array.from(keys).map(key => ({ value: key, label: key }));
+    }, [worldPromptMetadata, worldDraftValues, worldFinalValues]);
 
     useEffect(() => {
         const fetchSettings = async () => {
@@ -151,9 +194,75 @@ const Settings = () => {
         }
     }, []);
 
+    const loadWorldPromptData = useCallback(async () => {
+        setWorldPromptLoading(true);
+        setWorldPromptError(null);
+        try {
+            const templates = await fetchWorldPromptTemplates();
+            setWorldPromptData(templates);
+
+            const draftValues: Record<string, string> = {};
+            Object.entries(templates.modules).forEach(([key, item]) => {
+                draftValues[key] = item.content;
+            });
+            setWorldDraftValues(draftValues);
+
+            const finalValues: Record<string, string> = {};
+            Object.entries(templates.finalTemplates).forEach(([key, item]) => {
+                finalValues[key] = item.content;
+            });
+            setWorldFinalValues(finalValues);
+
+            setWorldFieldValue(templates.fieldRefine.content);
+
+            let orderedKeys: string[] = [];
+            try {
+                const metadata = await fetchWorldPromptMetadata();
+                setWorldPromptMetadata(metadata);
+                orderedKeys = metadata.modules.map(module => module.key);
+            } catch (error: unknown) {
+                console.error('Failed to load world prompt metadata:', error);
+                const errorMessage = error instanceof Error ? error.message : '未知错误';
+                message.warning(`加载世界提示词帮助信息失败：${errorMessage}`);
+                orderedKeys = Object.keys(draftValues);
+                setWorldPromptMetadata(null);
+            }
+
+            const draftKeys = Object.keys(draftValues);
+            const finalKeys = Object.keys(finalValues);
+            const draftFallback = orderedKeys.find(key => draftValues[key] !== undefined) || draftKeys[0] || '';
+            const finalFallback = orderedKeys.find(key => finalValues[key] !== undefined) || finalKeys[0] || '';
+            setSelectedDraftModule(prev => (prev && draftValues[prev] !== undefined ? prev : draftFallback));
+            setSelectedFinalModule(prev => (prev && finalValues[prev] !== undefined ? prev : finalFallback));
+        } catch (error: unknown) {
+            console.error('Failed to load world prompt templates:', error);
+            const errorMessage = error instanceof Error ? error.message : '未知错误';
+            setWorldPromptError(`加载世界提示词模板失败：${errorMessage}`);
+            message.error(`加载世界提示词模板失败：${errorMessage}`);
+        } finally {
+            setWorldPromptLoading(false);
+        }
+    }, [message]);
+
     useEffect(() => {
         loadPromptTemplates();
     }, [loadPromptTemplates]);
+
+    useEffect(() => {
+        loadWorldPromptData();
+    }, [loadWorldPromptData]);
+
+    useEffect(() => {
+        if (!selectedDraftModule && worldModuleOptions.length > 0) {
+            setSelectedDraftModule(worldModuleOptions[0].value);
+        }
+    }, [selectedDraftModule, worldModuleOptions]);
+
+    useEffect(() => {
+        if (!selectedFinalModule && worldModuleOptions.length > 0) {
+            setSelectedFinalModule(worldModuleOptions[0].value);
+        }
+    }, [selectedFinalModule, worldModuleOptions]);
 
     const onFinish = async (values: SettingsValues) => {
         setIsSaving(true);
@@ -292,6 +401,39 @@ const Settings = () => {
         return promptFieldOrder.some(key => promptValues[key] !== getSavedContent(key));
     }, [promptTemplatesData, promptValues, getSavedContent]);
 
+    const getWorldModuleLabel = useCallback((key: string) => {
+        if (!worldPromptMetadata) {
+            return key;
+        }
+        const found = worldPromptMetadata.modules.find(module => module.key === key);
+        return found ? found.label : key;
+    }, [worldPromptMetadata]);
+
+    const getWorldPromptStatus = useCallback(
+        (kind: 'draft' | 'final', moduleKey: string) => {
+            if (!worldPromptData) {
+                return { label: '加载中', color: 'default' as const };
+            }
+            const saved = kind === 'draft'
+                ? worldPromptData.modules[moduleKey]
+                : worldPromptData.finalTemplates[moduleKey];
+            const current = kind === 'draft'
+                ? worldDraftValues[moduleKey] ?? ''
+                : worldFinalValues[moduleKey] ?? '';
+            if (!saved) {
+                return { label: '尚未配置', color: 'warning' as const };
+            }
+            if (current !== saved.content) {
+                return { label: '已修改（未保存）', color: 'processing' as const };
+            }
+            if (saved.defaultTemplate) {
+                return { label: '系统默认模板', color: 'default' as const };
+            }
+            return { label: '自定义模板', color: 'success' as const };
+        },
+        [worldPromptData, worldDraftValues, worldFinalValues],
+    );
+
     const handleSavePrompts = async () => {
         const payload: PromptTemplatesUpdatePayload = {
             storyCreation: promptValues.storyCreation,
@@ -333,6 +475,88 @@ const Settings = () => {
             message.error(`恢复默认模板失败：${errorMessage}`);
         } finally {
             setResettingKey(null);
+        }
+    };
+
+    const handleSaveWorldPrompt = async (type: 'draft' | 'final', moduleKey: string) => {
+        if (!moduleKey) {
+            return;
+        }
+        const payload: WorldPromptTemplatesUpdatePayload =
+            type === 'draft'
+                ? { modules: { [moduleKey]: worldDraftValues[moduleKey] ?? '' } }
+                : { finalTemplates: { [moduleKey]: worldFinalValues[moduleKey] ?? '' } };
+        setWorldPromptSaving(true);
+        setWorldPromptError(null);
+        try {
+            await updateWorldPromptTemplates(payload);
+            message.success('世界提示词模板已保存。');
+            await loadWorldPromptData();
+        } catch (error: unknown) {
+            console.error('Failed to save world prompt template:', error);
+            const errorMessage = error instanceof Error ? error.message : '未知错误';
+            setWorldPromptError(`保存世界提示词模板失败：${errorMessage}`);
+            message.error(`保存世界提示词模板失败：${errorMessage}`);
+        } finally {
+            setWorldPromptSaving(false);
+        }
+    };
+
+    const handleResetWorldPrompt = async (type: 'draft' | 'final', moduleKey: string) => {
+        if (!moduleKey) {
+            return;
+        }
+        const resetKey = type === 'draft' ? `modules.${moduleKey}` : `final.${moduleKey}`;
+        setWorldPromptResettingKey(resetKey);
+        setWorldPromptError(null);
+        const payload: WorldPromptTemplatesResetPayload = { keys: [resetKey] };
+        try {
+            await resetWorldPromptTemplates(payload);
+            message.success('已恢复系统默认模板。');
+            await loadWorldPromptData();
+        } catch (error: unknown) {
+            console.error('Failed to reset world prompt template:', error);
+            const errorMessage = error instanceof Error ? error.message : '未知错误';
+            setWorldPromptError(`恢复世界提示词模板失败：${errorMessage}`);
+            message.error(`恢复世界提示词模板失败：${errorMessage}`);
+        } finally {
+            setWorldPromptResettingKey(null);
+        }
+    };
+
+    const handleSaveFieldRefine = async () => {
+        setWorldPromptSaving(true);
+        setWorldPromptError(null);
+        const payload: WorldPromptTemplatesUpdatePayload = { fieldRefine: worldFieldValue };
+        try {
+            await updateWorldPromptTemplates(payload);
+            message.success('字段优化模板已保存。');
+            await loadWorldPromptData();
+        } catch (error: unknown) {
+            console.error('Failed to save world field refine template:', error);
+            const errorMessage = error instanceof Error ? error.message : '未知错误';
+            setWorldPromptError(`保存字段优化模板失败：${errorMessage}`);
+            message.error(`保存字段优化模板失败：${errorMessage}`);
+        } finally {
+            setWorldPromptSaving(false);
+        }
+    };
+
+    const handleResetFieldRefine = async () => {
+        const payload: WorldPromptTemplatesResetPayload = { keys: ['fieldRefine'] };
+        setWorldPromptResettingKey('fieldRefine');
+        setWorldPromptError(null);
+        try {
+            await resetWorldPromptTemplates(payload);
+            message.success('已恢复字段优化默认模板。');
+            await loadWorldPromptData();
+        } catch (error: unknown) {
+            console.error('Failed to reset world field refine template:', error);
+            const errorMessage = error instanceof Error ? error.message : '未知错误';
+            setWorldPromptError(`恢复字段优化模板失败：${errorMessage}`);
+            message.error(`恢复字段优化模板失败：${errorMessage}`);
+        } finally {
+            setWorldPromptResettingKey(null);
         }
     };
 
@@ -412,7 +636,7 @@ const Settings = () => {
             <Space direction="vertical" size={16} style={{ width: '100%' }}>
                 <Paragraph>
                     你可以为不同场景编写独立的提示词模板，使用 <Text code>{'${变量}'}</Text> 形式插入上下文数据。查看{' '}
-                    <Link to="/settings/prompt-guide">提示词编写帮助</Link>，了解所有可用变量与函数。
+                    <Link to="/settings/prompt-guide">工作台提示词编写帮助</Link>，了解所有可用变量与函数。
                 </Paragraph>
                 {promptError && <Alert type="error" showIcon message={promptError} />}
                 {isPromptDirty && !promptError && (
@@ -465,9 +689,184 @@ const Settings = () => {
         </Spin>
     );
 
+    const renderWorldPromptSettings = () => {
+        const renderModuleEditor = (kind: 'draft' | 'final') => {
+            const selectedModule = kind === 'draft' ? selectedDraftModule : selectedFinalModule;
+            const status = selectedModule ? getWorldPromptStatus(kind, selectedModule) : null;
+            const currentValue = selectedModule
+                ? kind === 'draft'
+                    ? worldDraftValues[selectedModule] ?? ''
+                    : worldFinalValues[selectedModule] ?? ''
+                : '';
+            const savedItem = selectedModule && worldPromptData
+                ? (kind === 'draft'
+                    ? worldPromptData.modules[selectedModule]
+                    : worldPromptData.finalTemplates[selectedModule])
+                : undefined;
+            const isDirty = savedItem ? currentValue !== savedItem.content : !!(selectedModule && currentValue);
+            const resetKey = kind === 'draft' ? `modules.${selectedModule}` : `final.${selectedModule}`;
+            const instruction = kind === 'draft'
+                ? '提示：模块自动生成需要返回合法的 JSON，键名需与字段 key 完全一致。'
+                : '提示：正式创建模板应输出结构化段落文本，可包含列表但不应包含 Markdown 标题。';
+
+            return (
+                <Space direction="vertical" size={16} style={{ width: '100%' }}>
+                    <Space
+                        align="center"
+                        style={{ justifyContent: 'space-between', width: '100%', flexWrap: 'wrap', gap: 12 }}
+                    >
+                        <Space align="center" size={8}>
+                            <Text strong>选择模块：</Text>
+                            <Select
+                                style={{ minWidth: 220 }}
+                                placeholder="选择模块"
+                                value={selectedModule || undefined}
+                                onChange={value => {
+                                    if (kind === 'draft') {
+                                        setSelectedDraftModule(value);
+                                    } else {
+                                        setSelectedFinalModule(value);
+                                    }
+                                }}
+                                options={worldModuleOptions}
+                                disabled={worldModuleOptions.length === 0}
+                            />
+                        </Space>
+                        {selectedModule && status && <Tag color={status.color}>{status.label}</Tag>}
+                    </Space>
+                    {selectedModule && (
+                        <Text type="secondary">
+                            当前编辑：{getWorldModuleLabel(selectedModule)}
+                        </Text>
+                    )}
+                    <Alert type={kind === 'draft' ? 'info' : 'warning'} showIcon message={instruction} />
+                    <TextArea
+                        value={currentValue}
+                        onChange={event => {
+                            if (!selectedModule) {
+                                return;
+                            }
+                            const value = event.target.value;
+                            if (kind === 'draft') {
+                                setWorldDraftValues(prev => ({ ...prev, [selectedModule]: value }));
+                            } else {
+                                setWorldFinalValues(prev => ({ ...prev, [selectedModule]: value }));
+                            }
+                        }}
+                        autoSize={{ minRows: 10, maxRows: 40 }}
+                        showCount
+                        spellCheck={false}
+                        disabled={!selectedModule}
+                    />
+                    <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 8, flexWrap: 'wrap' }}>
+                        <Button
+                            onClick={() => selectedModule && handleResetWorldPrompt(kind, selectedModule)}
+                            loading={worldPromptResettingKey === resetKey}
+                            disabled={!selectedModule || worldPromptSaving}
+                        >
+                            恢复默认
+                        </Button>
+                        <Button
+                            type="primary"
+                            onClick={() => selectedModule && handleSaveWorldPrompt(kind, selectedModule)}
+                            loading={worldPromptSaving}
+                            disabled={!selectedModule || !isDirty}
+                        >
+                            保存当前模块
+                        </Button>
+                    </div>
+                </Space>
+            );
+        };
+
+        const renderFieldEditor = () => {
+            const saved = worldPromptData?.fieldRefine;
+            let fieldStatus: { label: string; color: string } = { label: '加载中', color: 'default' };
+            if (saved) {
+                fieldStatus = saved.defaultTemplate
+                    ? { label: '系统默认模板', color: 'default' }
+                    : { label: '自定义模板', color: 'success' };
+            } else if (worldPromptData) {
+                fieldStatus = { label: '尚未配置', color: 'warning' };
+            }
+            const fieldDirty = saved ? worldFieldValue !== saved.content : worldFieldValue.length > 0;
+
+            return (
+                <Space direction="vertical" size={16} style={{ width: '100%' }}>
+                    <Space
+                        align="center"
+                        style={{ justifyContent: 'space-between', width: '100%', flexWrap: 'wrap', gap: 12 }}
+                    >
+                        <Text strong>字段优化模板：</Text>
+                        <Tag color={fieldStatus.color}>{fieldStatus.label}</Tag>
+                    </Space>
+                    <Alert
+                        type="info"
+                        showIcon
+                        message="提示：字段优化模板用于生成单字段润色提示词，系统会自动注入焦点提示与原文。"
+                    />
+                    <TextArea
+                        value={worldFieldValue}
+                        onChange={event => setWorldFieldValue(event.target.value)}
+                        autoSize={{ minRows: 10, maxRows: 40 }}
+                        showCount
+                        spellCheck={false}
+                    />
+                    <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 8, flexWrap: 'wrap' }}>
+                        <Button
+                            onClick={handleResetFieldRefine}
+                            loading={worldPromptResettingKey === 'fieldRefine'}
+                            disabled={worldPromptSaving}
+                        >
+                            恢复默认
+                        </Button>
+                        <Button
+                            type="primary"
+                            onClick={handleSaveFieldRefine}
+                            loading={worldPromptSaving}
+                            disabled={!fieldDirty}
+                        >
+                            保存字段优化模板
+                        </Button>
+                    </div>
+                </Space>
+            );
+        };
+
+        return (
+            <Spin spinning={worldPromptLoading}>
+                <Space direction="vertical" size={16} style={{ width: '100%' }}>
+                    <Space
+                        align="center"
+                        style={{ justifyContent: 'space-between', width: '100%', flexWrap: 'wrap', gap: 12 }}
+                    >
+                        <Paragraph style={{ margin: 0 }}>
+                            自定义世界构建相关的提示词模板，控制自动生成、正式创建与字段优化时的 AI 输出。
+                        </Paragraph>
+                        <Space size={4} align="center">
+                            <QuestionCircleOutlined style={{ color: '#1890ff' }} />
+                            <Link to="/settings/world-prompts/help">编写帮助</Link>
+                        </Space>
+                    </Space>
+                    {worldPromptError && <Alert type="error" showIcon message={worldPromptError} />}
+                    <Tabs
+                        activeKey={worldPromptTab}
+                        onChange={key => setWorldPromptTab(key as WorldPromptTabKey)}
+                        items={[
+                            { key: 'draft', label: '模块自动生成', children: renderModuleEditor('draft') },
+                            { key: 'final', label: '正式创建', children: renderModuleEditor('final') },
+                            { key: 'field', label: '字段优化', children: renderFieldEditor() },
+                        ]}
+                    />
+                </Space>
+            </Spin>
+        );
+    };
+
     const items: TabsProps['items'] = [
         { key: 'model', label: '模型设置', children: renderModelSettings() },
-        { key: 'prompts', label: '提示词配置', children: renderPromptSettings() },
+        { key: 'workspacePrompts', label: '工作台提示词配置', children: renderPromptSettings() },
+        { key: 'worldPrompts', label: '世界构建提示词配置', children: renderWorldPromptSettings() },
     ];
 
     return (
@@ -486,7 +885,7 @@ const Settings = () => {
                         <Title level={3} style={{ margin: 0 }}>用户设置</Title>
                         <Button onClick={() => navigate(-1)}>返回</Button>
                     </div>
-                    <Tabs items={items} activeKey={activeTab} onChange={key => setActiveTab(key as 'model' | 'prompts')} />
+                    <Tabs items={items} activeKey={activeTab} onChange={key => setActiveTab(key as SettingsTabKey)} />
                 </Space>
             </Card>
         </div>

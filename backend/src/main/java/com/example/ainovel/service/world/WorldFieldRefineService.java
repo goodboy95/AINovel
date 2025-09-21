@@ -62,7 +62,7 @@ public class WorldFieldRefineService {
         String focusNote = templateService.resolveFocusNote(moduleKey, fieldKey);
         Map<String, Object> context = contextBuilder.buildFieldRefineContext(world, module, fieldKey, focusNote,
                 originalText, request.getInstruction(), modules);
-        String prompt = templateService.renderFieldRefineTemplate(context);
+        String prompt = templateService.renderFieldRefineTemplate(moduleKey, fieldKey, context, userId);
         AiCredentials credentials = resolveCredentials(userId);
         String refined = aiService.generate(prompt, credentials.apiKey(), credentials.baseUrl(), credentials.model());
         if (!StringUtils.hasText(refined)) {

@@ -272,6 +272,23 @@ CREATE TABLE `world_modules`  (
 ) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci ROW_FORMAT = Dynamic;
 
 -- ----------------------------
+-- Table structure for world_prompt_settings
+-- ----------------------------
+DROP TABLE IF EXISTS `world_prompt_settings`;
+CREATE TABLE `world_prompt_settings`  (
+  `id` bigint NOT NULL AUTO_INCREMENT,
+  `user_id` bigint NOT NULL,
+  `module_templates` json NULL,
+  `final_templates` json NULL,
+  `field_refine_template` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL,
+  `created_at` datetime(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
+  `updated_at` datetime(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6) ON UPDATE CURRENT_TIMESTAMP(6),
+  PRIMARY KEY (`id`) USING BTREE,
+  UNIQUE KEY `uk_world_prompt_user`(`user_id`),
+  CONSTRAINT `fk_world_prompt_user` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE
+) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci ROW_FORMAT = Dynamic;
+
+-- ----------------------------
 -- Version 2.3 Changes
 -- ----------------------------
 

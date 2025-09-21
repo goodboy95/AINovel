@@ -191,8 +191,6 @@ public class WorldGenerationWorkflowService {
                 .findFirst()
                 .orElseThrow(() -> new ResponseStatusException(org.springframework.http.HttpStatus.NOT_FOUND, "模块不存在"));
 
-        Map<String, Object> context = contextBuilder.buildModuleContext(world, module, modules);
-        String prompt = templateService.renderFinalTemplate(job.getModuleKey(), context);
         Long ownerId = world.getUser() != null ? world.getUser().getId()
                 : worldRepository.findById(world.getId())
                 .map(entity -> entity.getUser() != null ? entity.getUser().getId() : null)
@@ -200,6 +198,8 @@ public class WorldGenerationWorkflowService {
         if (ownerId == null) {
             throw new IllegalStateException("无法确定世界所属用户");
         }
+        Map<String, Object> context = contextBuilder.buildModuleContext(world, module, modules);
+        String prompt = templateService.renderFinalTemplate(job.getModuleKey(), context, ownerId);
         AiCredentials credentials = resolveCredentials(ownerId);
         String result = aiService.generate(prompt, credentials.apiKey(), credentials.baseUrl(), credentials.model());
         if (!StringUtils.hasText(result)) {

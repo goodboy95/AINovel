@@ -68,4 +68,16 @@ class TemplateEngineTest {
         assertThrows(PromptTemplateException.class,
                 () -> templateEngine.render("${value|unknown()}", Map.of("value", "test")));
     }
+
+    @Test
+    void appliesHeadlineFunction() {
+        String result = templateEngine.render("${value|headline()}", Map.of("value", "  the   shattered WOrld  "));
+        assertEquals("The Shattered World", result);
+    }
+
+    @Test
+    void appliesTruncateFunction() {
+        String result = templateEngine.render("${text|truncate(5)}", Map.of("text", "abcdefg"));
+        assertEquals("abcde…", result);
+    }
 }
