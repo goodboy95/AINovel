@@ -350,3 +350,55 @@ export interface PromptTemplateMetadata {
     syntaxTips: string[];
     examples: string[];
 }
+
+export interface WorldPromptTemplateItem {
+    content: string;
+    defaultTemplate: boolean;
+}
+
+export interface WorldPromptTemplatesResponse {
+    modules: Record<string, WorldPromptTemplateItem>;
+    finalTemplates: Record<string, WorldPromptTemplateItem>;
+    fieldRefine: WorldPromptTemplateItem;
+}
+
+export interface WorldPromptTemplatesUpdatePayload {
+    modules?: Record<string, string>;
+    finalTemplates?: Record<string, string>;
+    fieldRefine?: string | null;
+}
+
+export interface WorldPromptTemplatesResetPayload {
+    keys: string[];
+}
+
+export interface WorldPromptModuleFieldMetadata {
+    key: string;
+    label: string;
+    recommendedLength?: string;
+}
+
+export interface WorldPromptModuleMetadata {
+    key: string;
+    label: string;
+    fields: WorldPromptModuleFieldMetadata[];
+}
+
+export interface WorldPromptVariableMetadata {
+    name: string;
+    valueType: string;
+    description: string;
+}
+
+export interface WorldPromptFunctionMetadata {
+    name: string;
+    description: string;
+    usage: string;
+}
+
+export interface WorldPromptMetadata {
+    modules: WorldPromptModuleMetadata[];
+    variables: WorldPromptVariableMetadata[];
+    functions: WorldPromptFunctionMetadata[];
+    examples: string[];
+}

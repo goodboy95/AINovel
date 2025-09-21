@@ -199,6 +199,8 @@ public class TemplateEngine {
             case "trim" -> ValueWrapper.of(current.asString().trim());
             case "json" -> applyJson(current);
             case "map" -> applyMap(current, args, context);
+            case "headline" -> ValueWrapper.of(applyHeadline(current.asString()));
+            case "truncate" -> applyTruncate(current, args);
             case "" -> current;
             default -> throw new PromptTemplateException("Unknown function: " + name);
         };
@@ -262,6 +264,49 @@ public class TemplateEngine {
         } catch (JsonProcessingException e) {
             throw new PromptTemplateException("Failed to serialize value as JSON", e);
         }
+    }
+
+    private String applyHeadline(String input) {
+        if (!StringUtils.hasText(input)) {
+            return "";
+        }
+        String normalized = input.trim().replaceAll("\\s+", " ");
+        StringBuilder builder = new StringBuilder(normalized.length());
+        boolean capitalizeNext = true;
+        for (int i = 0; i < normalized.length(); i++) {
+            char ch = normalized.charAt(i);
+            if (Character.isWhitespace(ch)) {
+                builder.append(' ');
+                capitalizeNext = true;
+            } else if (capitalizeNext) {
+                builder.append(Character.toTitleCase(ch));
+                capitalizeNext = false;
+            } else {
+                builder.append(Character.toLowerCase(ch));
+            }
+        }
+        return builder.toString();
+    }
+
+    private ValueWrapper applyTruncate(ValueWrapper current, List<String> args) {
+        if (args.isEmpty()) {
+            throw new PromptTemplateException("truncate() requires a length argument");
+        }
+        String firstArg = args.get(0);
+        int limit;
+        try {
+            limit = Integer.parseInt(firstArg.trim());
+        } catch (NumberFormatException e) {
+            throw new PromptTemplateException("truncate() expects a numeric length but got: " + firstArg, e);
+        }
+        if (limit < 1) {
+            return ValueWrapper.of("…");
+        }
+        String value = current.asString();
+        if (value.length() <= limit) {
+            return ValueWrapper.of(value);
+        }
+        return ValueWrapper.of(value.substring(0, limit) + "…");
     }
 
     private List<String> splitPipeline(String expression) {

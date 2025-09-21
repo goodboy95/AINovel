@@ -99,7 +99,7 @@ class WorldGenerationWorkflowServiceTest {
         when(jobRepository.fetchNextJobForUpdate()).thenReturn(Optional.of(job));
         when(worldModuleRepository.findByWorldId(7L)).thenReturn(modules);
         when(contextBuilder.buildModuleContext(world, module, modules)).thenReturn(Map.of("key", "value"));
-        when(templateService.renderFinalTemplate(eq("cosmos"), anyMap())).thenReturn("prompt");
+        when(templateService.renderFinalTemplate(eq("cosmos"), anyMap(), eq(321L))).thenReturn("prompt");
         when(settingsService.getDecryptedApiKeyByUserId(321L)).thenReturn("api-key");
         when(aiService.generate("prompt", "api-key", null, null)).thenReturn("  生成后的完整信息  ");
         when(jobRepository.countByWorldIdAndStatusIn(eq(7L), anyCollection())).thenReturn(0L);
@@ -130,7 +130,7 @@ class WorldGenerationWorkflowServiceTest {
         when(jobRepository.fetchNextJobForUpdate()).thenReturn(Optional.of(job));
         when(worldModuleRepository.findByWorldId(8L)).thenReturn(modules);
         when(contextBuilder.buildModuleContext(world, module, modules)).thenReturn(Map.of("key", "value"));
-        when(templateService.renderFinalTemplate(eq("cosmos"), anyMap())).thenReturn("prompt");
+        when(templateService.renderFinalTemplate(eq("cosmos"), anyMap(), eq(654L))).thenReturn("prompt");
         when(settingsService.getDecryptedApiKeyByUserId(654L)).thenReturn("api-key");
         when(aiService.generate("prompt", "api-key", null, null)).thenThrow(new IllegalStateException("AI 错误"));
         when(worldModuleRepository.findByWorldIdAndModuleKey(8L, "cosmos")).thenReturn(Optional.of(module));

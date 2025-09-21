@@ -72,7 +72,8 @@ class WorldFieldRefineServiceTest {
         Map<String, Object> context = Map.of("key", "value");
         when(contextBuilder.buildFieldRefineContext(world, module, "cosmos_structure", "聚焦宇宙结构",
                 "原始文本", "请更具象", List.of(module))).thenReturn(context);
-        when(templateService.renderFieldRefineTemplate(context)).thenReturn("prompt");
+        when(templateService.renderFieldRefineTemplate(eq("cosmos"), eq("cosmos_structure"), eq(context), eq(88L)))
+                .thenReturn("prompt");
         when(settingsService.getDecryptedApiKeyByUserId(88L)).thenReturn("api-key");
         when(aiService.generate("prompt", "api-key", null, null)).thenReturn("  精炼后的文本  ");
 
