@@ -4,6 +4,8 @@ import Register from './components/Register';
 import Workbench from './components/Workbench';
 import HomePage from './components/HomePage';
 import ProtectedRoute from './components/ProtectedRoute';
+import Settings from './components/Settings';
+import PromptHelpPage from './components/PromptHelpPage';
 import { AuthProvider } from './contexts/AuthContext';
 
 function App() {
@@ -33,6 +35,22 @@ function App() {
           <Route path="/workbench/outline-design" element={<Navigate to="/workbench/outline-workspace" replace />} />
           <Route path="/workbench/outline-management" element={<Navigate to="/workbench/outline-workspace" replace />} />
           <Route path="/story-conception" element={<Navigate to="/workbench/story-conception" replace />} />
+          <Route
+            path="/settings"
+            element={
+              <ProtectedRoute>
+                <Settings />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/settings/prompt-guide"
+            element={
+              <ProtectedRoute>
+                <PromptHelpPage />
+              </ProtectedRoute>
+            }
+          />
         </Routes>
       </AuthProvider>
     </Router>
