@@ -1,5 +1,8 @@
 package com.example.ainovel.model;
 
+import com.example.ainovel.model.prompt.PromptSettings;
+import com.example.ainovel.model.prompt.PromptSettingsAttributeConverter;
+
 import jakarta.persistence.*;
 
 @Entity
@@ -25,6 +28,10 @@ public class UserSetting {
 
     @Column(columnDefinition = "TEXT")
     private String customPrompt;
+
+    @Column(name = "prompt_settings", columnDefinition = "LONGTEXT")
+    @Convert(converter = PromptSettingsAttributeConverter.class)
+    private PromptSettings promptSettings;
 
     // Getters and Setters
 
@@ -74,5 +81,13 @@ public class UserSetting {
 
     public void setCustomPrompt(String customPrompt) {
         this.customPrompt = customPrompt;
+    }
+
+    public PromptSettings getPromptSettings() {
+        return promptSettings;
+    }
+
+    public void setPromptSettings(PromptSettings promptSettings) {
+        this.promptSettings = promptSettings;
     }
 }

@@ -56,7 +56,7 @@ public class ConceptionService {
         String baseUrl = settingsService.getBaseUrlByUserId(user.getId());
         String model = settingsService.getModelNameByUserId(user.getId());
 
-        ConceptionResponse responseFromAi = openAiService.generateConception(request, apiKey, baseUrl, model);
+        ConceptionResponse responseFromAi = openAiService.generateConception(user.getId(), request, apiKey, baseUrl, model);
 
         StoryCard storyCard = responseFromAi.getStoryCard();
         if (storyCard == null) {
@@ -226,7 +226,7 @@ public class ConceptionService {
         String apiKey = getApiKeyForUser(user);
         String baseUrl = settingsService.getBaseUrlByUserId(user.getId());
         String model = settingsService.getModelNameByUserId(user.getId());
-        String refinedText = openAiService.refineText(request, apiKey, baseUrl, model);
+        String refinedText = openAiService.refineText(user.getId(), request, apiKey, baseUrl, model);
         return new RefineResponse(refinedText);
     }
 

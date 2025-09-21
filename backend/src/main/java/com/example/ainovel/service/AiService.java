@@ -20,11 +20,19 @@ public interface AiService {
 
     ConceptionResponse generateConception(ConceptionRequest request, String apiKey);
 
+    default ConceptionResponse generateConception(Long userId, ConceptionRequest request, String apiKey, String baseUrl, String model) {
+        return generateConception(request, apiKey, baseUrl, model);
+    }
+
     default ConceptionResponse generateConception(ConceptionRequest request, String apiKey, String baseUrl, String model) {
         return generateConception(request, apiKey);
     }
 
     String refineText(RefineRequest request, String apiKey);
+
+    default String refineText(Long userId, RefineRequest request, String apiKey, String baseUrl, String model) {
+        return refineText(request, apiKey, baseUrl, model);
+    }
 
     default String refineText(RefineRequest request, String apiKey, String baseUrl, String model) {
         return refineText(request, apiKey);
