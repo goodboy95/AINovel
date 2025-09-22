@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo, useCallback } from 'react';
+import React, { useState, useEffect, useMemo, useCallback, useRef } from 'react';
 import {
   Card,
   Input,
@@ -22,7 +22,9 @@ import CharacterStatusSidebar from './CharacterStatusSidebar';
 import RelationshipGraphModal from './modals/RelationshipGraphModal';
 import CharacterGrowthPath from './modals/CharacterGrowthPath';
 import GenerateDialogueModal from './modals/GenerateDialogueModal';
-import type { Outline, Scene, ManuscriptSection, StoryCard, Manuscript, CharacterChangeLog, CharacterDialogueRequestPayload, CharacterDialogueResponsePayload, CharacterCard } from '../types';
+import WorldSelect from './WorldSelect';
+import WorldReferenceDrawer from './WorldReferenceDrawer';
+import type { Outline, Scene, ManuscriptSection, StoryCard, Manuscript, CharacterChangeLog, CharacterDialogueRequestPayload, CharacterDialogueResponsePayload, CharacterCard, WorldSummary } from '../types';
 import { useOutlineData } from '../hooks/useOutlineData';
 import {
   fetchStories,
@@ -58,6 +60,17 @@ const ManuscriptWriter: React.FC<ManuscriptWriterProps> = ({
   const [stories, setStories] = useState<StoryCard[]>([]);
   const [selectedStoryId, setSelectedStoryId] = useState<string | null>(storyId);
 
+  const activeStory = useMemo(() => {
+    if (!selectedStoryId) {
+      return null;
+    }
+    const numericId = Number(selectedStoryId);
+    if (Number.isNaN(numericId)) {
+      return null;
+    }
+    return stories.find((s) => s.id === numericId) ?? null;
+  }, [stories, selectedStoryId]);
+
   // 大纲数据（依赖所选故事）
   const {
     outlines,
@@ -86,6 +99,14 @@ const ManuscriptWriter: React.FC<ManuscriptWriterProps> = ({
   const [isGrowthPathOpen, setIsGrowthPathOpen] = useState(false);
   const [dialogueModalState, setDialogueModalState] = useState<{ visible: boolean; log: CharacterChangeLog | null }>({ visible: false, log: null });
   const [isGeneratingDialogue, setIsGeneratingDialogue] = useState(false);
+
+  const [worldIdForGeneration, setWorldIdForGeneration] = useState<number | null>(null);
+  const [selectedWorld, setSelectedWorld] = useState<WorldSummary | undefined>();
+  const [worldPreviewId, setWorldPreviewId] = useState<number | null>(null);
+  const [isWorldDrawerOpen, setWorldDrawerOpen] = useState(false);
+  const [hasUserModifiedWorld, setHasUserModifiedWorld] = useState(false);
+
+  const lastManuscriptIdRef = useRef<number | null>(null);
 
   const handleOpenRelationshipGraph = useCallback(() => setIsRelationshipModalOpen(true), []);
   const handleCloseRelationshipGraph = useCallback(() => setIsRelationshipModalOpen(false), []);
@@ -123,7 +144,6 @@ const ManuscriptWriter: React.FC<ManuscriptWriterProps> = ({
       setSelectedOutlineDetail(null);
       setManuscripts([]);
       setSelectedManuscript(null);
-        setCharacterChangeLogs([]);
       setManuscriptMap({});
       setManuscriptContent('');
       setCharacterChangeLogs([]);
@@ -133,10 +153,14 @@ const ManuscriptWriter: React.FC<ManuscriptWriterProps> = ({
       setManuscripts([]);
       setSelectedManuscript(null);
       setManuscriptMap({});
-        setCharacterChangeLogs([]);
       setManuscriptContent('');
       onSelectScene(null);
     }
+    setWorldIdForGeneration(null);
+    setSelectedWorld(undefined);
+    setHasUserModifiedWorld(false);
+    setWorldPreviewId(null);
+    setWorldDrawerOpen(false);
   }, [selectedStoryId, loadOutlines, selectOutline, onSelectScene]);
 
   useEffect(() => {
@@ -156,6 +180,35 @@ const ManuscriptWriter: React.FC<ManuscriptWriterProps> = ({
         setStoryCharacters([]);
       });
   }, [selectedStoryId]);
+
+  useEffect(() => {
+    const currentManuscriptId = selectedManuscript?.id ?? null;
+    if (lastManuscriptIdRef.current !== currentManuscriptId) {
+      lastManuscriptIdRef.current = currentManuscriptId;
+      const derivedWorld = selectedManuscript?.worldId ?? selectedOutlineDetail?.worldId ?? activeStory?.worldId ?? null;
+      setWorldIdForGeneration(derivedWorld ?? null);
+      setWorldPreviewId(derivedWorld ?? null);
+      setHasUserModifiedWorld(false);
+    }
+  }, [selectedManuscript, selectedOutlineDetail, activeStory]);
+
+  useEffect(() => {
+    if (selectedManuscript) {
+      return;
+    }
+    if (hasUserModifiedWorld) {
+      return;
+    }
+    const derivedWorld = selectedOutlineDetail?.worldId ?? activeStory?.worldId ?? null;
+    setWorldIdForGeneration(derivedWorld ?? null);
+    setWorldPreviewId(derivedWorld ?? null);
+  }, [selectedOutlineDetail, activeStory, selectedManuscript, hasUserModifiedWorld]);
+
+  useEffect(() => {
+    if (worldIdForGeneration == null) {
+      setSelectedWorld(undefined);
+    }
+  }, [worldIdForGeneration]);
 
   // 加载所选大纲的详情
   const loadSelectedOutlineDetail = useCallback(
@@ -330,10 +383,30 @@ const ManuscriptWriter: React.FC<ManuscriptWriterProps> = ({
       setIsGeneratingDialogue(false);
     }
   }, [dialogueModalState, selectedManuscript]);
+
+  const handleWorldChange = useCallback((worldId?: number, world?: WorldSummary) => {
+    const normalized = worldId ?? null;
+    setWorldIdForGeneration(normalized);
+    setSelectedWorld(world ?? undefined);
+    setHasUserModifiedWorld(true);
+    setWorldPreviewId(normalized);
+    if (selectedManuscript) {
+      const updated = { ...selectedManuscript, worldId: normalized };
+      setSelectedManuscript(updated);
+      setManuscripts((prev) => prev.map((m) => (m.id === updated.id ? { ...m, worldId: normalized } : m)));
+    } else {
+      setSelectedOutlineDetail((prev) => (prev ? { ...prev, worldId: normalized } : prev));
+    }
+  }, [selectedManuscript]);
+
+  const handleWorldResolved = useCallback((world?: WorldSummary) => {
+    setSelectedWorld(world ?? undefined);
+  }, []);
   const handleCreateManuscript = useCallback(async () => {
     if (!selectedOutline) return;
     try {
-      const created = await createManuscript(selectedOutline.id, { title: '新小说稿件' });
+      const payloadWorldId = worldIdForGeneration ?? null;
+      const created = await createManuscript(selectedOutline.id, { title: '新小说稿件', worldId: payloadWorldId });
       message.success('已创建新小说稿件');
       await loadManuscripts(selectedOutline.id);
       // 自动选中新建的稿件并拉取其内容
@@ -346,7 +419,7 @@ const ManuscriptWriter: React.FC<ManuscriptWriterProps> = ({
       console.error(e);
       message.error('创建小说失败');
     }
-  }, [selectedOutline, loadManuscripts, loadCharacterLogs]);
+  }, [selectedOutline, loadManuscripts, loadCharacterLogs, worldIdForGeneration]);
 
   const handleDeleteManuscript = useCallback(
     (m: Manuscript) => {
@@ -411,12 +484,15 @@ const ManuscriptWriter: React.FC<ManuscriptWriterProps> = ({
     setIsLoading(true);
     try {
       const token = localStorage.getItem('token');
+      const resolvedWorldId = worldIdForGeneration ?? selectedManuscript.worldId ?? selectedOutlineDetail?.worldId ?? activeStory?.worldId ?? null;
+      const payload = resolvedWorldId != null ? { worldId: resolvedWorldId } : {};
       const response = await fetch(`/api/v1/manuscript/scenes/${selectedSceneId}/generate`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           Authorization: `Bearer ${token}`,
         },
+        body: JSON.stringify(payload),
       });
 
       if (!response.ok) {
@@ -432,6 +508,16 @@ const ManuscriptWriter: React.FC<ManuscriptWriterProps> = ({
       });
       setManuscriptContent(newSection.content || '');
       await runCharacterAnalysis(newSection.content || '');
+      if (selectedManuscript && selectedManuscript.worldId !== resolvedWorldId) {
+        const updatedManuscript = { ...selectedManuscript, worldId: resolvedWorldId ?? null };
+        setSelectedManuscript(updatedManuscript);
+        setManuscripts((prev) => prev.map((m) => (m.id === updatedManuscript.id ? { ...m, worldId: resolvedWorldId ?? null } : m)));
+      }
+      if (selectedOutlineDetail && selectedOutlineDetail.worldId !== resolvedWorldId) {
+        setSelectedOutlineDetail({ ...selectedOutlineDetail, worldId: resolvedWorldId ?? null });
+      }
+      setWorldIdForGeneration(resolvedWorldId ?? null);
+      setHasUserModifiedWorld(false);
       message.success('内容已生成！现在您可以继续编辑。');
     } catch (error) {
       message.error(error instanceof Error ? error.message : '内容生成失败，请检查后台服务。');
@@ -619,6 +705,35 @@ const ManuscriptWriter: React.FC<ManuscriptWriterProps> = ({
             title={`场景内容（当前小说：${selectedManuscript.title}）`}
             style={{ flex: 1, display: 'flex', flexDirection: 'column' }}
           >
+            <Space direction="vertical" size="small" style={{ marginBottom: 16 }}>
+              <Text strong>引用世界</Text>
+              <Space.Compact style={{ width: '100%' }}>
+                <WorldSelect
+                  allowClear
+                  value={worldIdForGeneration ?? undefined}
+                  onChange={handleWorldChange}
+                  onWorldResolved={handleWorldResolved}
+                  placeholder="可选：选择一个已发布的世界观"
+                />
+                <Button
+                  type="default"
+                  disabled={!worldIdForGeneration}
+                  onClick={() => {
+                    if (worldIdForGeneration) {
+                      setWorldPreviewId(worldIdForGeneration);
+                      setWorldDrawerOpen(true);
+                    }
+                  }}
+                >
+                  查看设定
+                </Button>
+              </Space.Compact>
+              {selectedWorld && (
+                <Text type="secondary" style={{ display: 'block' }}>
+                  {selectedWorld.tagline}
+                </Text>
+              )}
+            </Space>
             <Card.Meta
               title="当前场景概要"
               description={selectedScene?.synopsis || '请先在左侧大纲树中选择一个场景。'}
@@ -699,6 +814,14 @@ const ManuscriptWriter: React.FC<ManuscriptWriterProps> = ({
           defaultSceneDescription={defaultDialogueSceneDescription}
           onCancel={handleCloseDialogueModal}
           onSubmit={handleDialogueSubmit}
+        />
+        <WorldReferenceDrawer
+          worldId={worldPreviewId ?? undefined}
+          open={isWorldDrawerOpen}
+          onClose={() => {
+            setWorldDrawerOpen(false);
+            setWorldPreviewId(null);
+          }}
         />
       </Content>
     </Layout>

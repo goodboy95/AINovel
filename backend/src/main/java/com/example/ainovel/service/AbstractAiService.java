@@ -64,7 +64,7 @@ public abstract class AbstractAiService implements AiService {
     @Override
     @Retryable(value = {RestClientException.class, IOException.class, RuntimeException.class}, maxAttempts = 3, backoff = @Backoff(delay = 1000))
     public ConceptionResponse generateConception(Long userId, ConceptionRequest request, String apiKey, String baseUrl, String model) {
-        Map<String, Object> context = promptContextFactory.buildStoryCreationContext(request);
+        Map<String, Object> context = promptContextFactory.buildStoryCreationContext(userId, request);
         String prompt = promptTemplateService.render(PromptType.STORY_CREATION, userId, context);
         try {
             log.info("Attempting to generate conception with prompt: {}", prompt);

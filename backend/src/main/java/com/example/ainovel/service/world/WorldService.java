@@ -83,6 +83,14 @@ public class WorldService {
     }
 
     @Transactional(readOnly = true)
+    public WorldAggregate getPublishedWorldWithModules(Long worldId, Long userId) {
+        World world = worldRepository.findByIdAndUserIdAndStatus(worldId, userId, WorldStatus.ACTIVE)
+                .orElseThrow(() -> new ResourceNotFoundException("世界不存在或尚未发布"));
+        List<WorldModule> modules = worldModuleRepository.findByWorldId(worldId);
+        return new WorldAggregate(world, modules);
+    }
+
+    @Transactional(readOnly = true)
     public List<WorldAggregate> listWorlds(Long userId, WorldStatus statusFilter) {
         List<World> worlds;
         if (statusFilter == null) {
@@ -132,6 +140,15 @@ public class WorldService {
     private World loadWorld(Long worldId, Long userId) {
         return worldRepository.findByIdAndUserId(worldId, userId)
                 .orElseThrow(() -> new ResourceNotFoundException("世界不存在或无权访问"));
+    }
+
+    @Transactional(readOnly = true)
+    public void ensureSelectableWorld(Long worldId, Long userId) {
+        if (worldId == null) {
+            return;
+        }
+        worldRepository.findByIdAndUserIdAndStatus(worldId, userId, WorldStatus.ACTIVE)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "所选世界不存在或未发布"));
     }
 
     private void validateBasicInfo(WorldUpsertRequest request) {

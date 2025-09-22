@@ -30,7 +30,16 @@ public class PromptTemplateMetadataProvider {
                                         new PromptVariableMetadataDto("context.lines.genre", "string", "类型对应的单行提示文本。"),
                                         new PromptVariableMetadataDto("context.lines.tone", "string", "基调对应的单行提示文本。"),
                                         new PromptVariableMetadataDto("context.lines.tags", "string", "标签对应的单行提示文本。"),
-                                        new PromptVariableMetadataDto("request.raw", "object", "原始的 `ConceptionRequest` 对象。")
+                                        new PromptVariableMetadataDto("request.raw", "object", "原始的 `ConceptionRequest` 对象。"),
+                                        new PromptVariableMetadataDto("workspace.world", "object", "当前选定的世界上下文，未选择世界时为 null。"),
+                                        new PromptVariableMetadataDto("workspace.world.name", "string", "世界名称。"),
+                                        new PromptVariableMetadataDto("workspace.world.tagline", "string", "世界概述/一句话简介。"),
+                                        new PromptVariableMetadataDto("workspace.world.themes", "string[]", "世界主题标签数组。"),
+                                        new PromptVariableMetadataDto("workspace.world.creativeIntent", "string", "创作意图说明。"),
+                                        new PromptVariableMetadataDto("workspace.world.modules", "map", "按模块 key 索引的世界模块集合，可使用 `[*]` 遍历。"),
+                                        new PromptVariableMetadataDto("workspace.world.modules[*]", "object", "全部世界模块的列表视图，可用于 map/join。"),
+                                        new PromptVariableMetadataDto("workspace.world.modules.KEY.fullContent", "string", "指定模块的完整描述。"),
+                                        new PromptVariableMetadataDto("workspace.world.modules.KEY.excerpt", "string", "指定模块的精简摘要。")
                                 )
                         ),
                         new PromptTypeMetadataDto(
@@ -51,7 +60,11 @@ public class PromptTemplateMetadataProvider {
                                         new PromptVariableMetadataDto("characters.list", "object[]", "故事主要角色列表（含简介/详情/关系）。"),
                                         new PromptVariableMetadataDto("characters.summary", "string", "预格式化的角色条目文本。"),
                                         new PromptVariableMetadataDto("characters.names", "string[]", "角色姓名数组。"),
-                                        new PromptVariableMetadataDto("request.raw", "object", "原始的 `GenerateChapterRequest` 对象。")
+                                        new PromptVariableMetadataDto("request.raw", "object", "原始的 `GenerateChapterRequest` 对象。"),
+                                        new PromptVariableMetadataDto("workspace.world", "object", "选定世界的上下文对象，未选择世界时为 null。"),
+                                        new PromptVariableMetadataDto("workspace.world.modules[*]", "object", "世界模块列表，可用于枚举。"),
+                                        new PromptVariableMetadataDto("workspace.world.modules.KEY.fullContent", "string", "指定模块的完整内容。"),
+                                        new PromptVariableMetadataDto("workspace.world.modules.KEY.excerpt", "string", "指定模块的概要内容。")
                                 )
                         ),
                         new PromptTypeMetadataDto(
@@ -83,7 +96,10 @@ public class PromptTemplateMetadataProvider {
                                         new PromptVariableMetadataDto("chapter.number", "number", "当前章号。"),
                                         new PromptVariableMetadataDto("chapter.total", "number", "总章节数。"),
                                         new PromptVariableMetadataDto("chapter.title", "string", "当前章标题。"),
-                                        new PromptVariableMetadataDto("log.latestByCharacter", "map", "角色 -> 最近成长日志摘要。")
+                                        new PromptVariableMetadataDto("log.latestByCharacter", "map", "角色 -> 最近成长日志摘要。"),
+                                        new PromptVariableMetadataDto("workspace.world", "object", "选定世界的上下文对象，未选择世界时为 null。"),
+                                        new PromptVariableMetadataDto("workspace.world.modules[*]", "object", "全部世界模块列表。"),
+                                        new PromptVariableMetadataDto("workspace.world.modules.KEY.fullContent", "string", "指定模块的完整内容，可用于正文参考。")
                                 )
                         ),
                         new PromptTypeMetadataDto(

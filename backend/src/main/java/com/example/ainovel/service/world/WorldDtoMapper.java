@@ -3,6 +3,9 @@ package com.example.ainovel.service.world;
 import com.example.ainovel.dto.world.WorldDetailResponse;
 import com.example.ainovel.dto.world.WorldModuleResponse;
 import com.example.ainovel.dto.world.WorldModuleSummary;
+import com.example.ainovel.dto.world.WorldFullResponse;
+import com.example.ainovel.dto.world.WorldFullResponse.WorldInfo;
+import com.example.ainovel.dto.world.WorldFullResponse.WorldModuleFull;
 import com.example.ainovel.dto.world.WorldPublishPreviewResponse;
 import com.example.ainovel.dto.world.WorldSummaryResponse;
 import com.example.ainovel.model.world.World;
@@ -12,6 +15,7 @@ import com.example.ainovel.worldbuilding.definition.WorldModuleDefinition;
 import com.example.ainovel.worldbuilding.definition.WorldModuleDefinitionRegistry;
 import org.springframework.stereotype.Component;
 
+import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.LinkedHashMap;
@@ -100,6 +104,32 @@ public class WorldDtoMapper {
                 .collect(Collectors.toList());
     }
 
+    public WorldFullResponse toFullResponse(World world, List<WorldModule> modules) {
+        WorldInfo info = new WorldInfo()
+                .setId(world.getId())
+                .setName(world.getName())
+                .setTagline(world.getTagline())
+                .setThemes(world.getThemes())
+                .setCreativeIntent(world.getCreativeIntent())
+                .setVersion(world.getVersion())
+                .setPublishedAt(world.getPublishedAt());
+
+        List<WorldModuleFull> moduleDtos = sortModules(modules).stream()
+                .map(module -> new WorldModuleFull()
+                        .setKey(module.getModuleKey())
+                        .setLabel(definitionRegistry.resolveLabel(module.getModuleKey()))
+                        .setFullContent(module.getFullContent())
+                        .setExcerpt(buildExcerpt(module.getFullContent()))
+                        .setUpdatedAt(module.getFullContentUpdatedAt() == null
+                                ? null
+                                : module.getFullContentUpdatedAt().atZone(ZoneId.systemDefault()).toInstant()))
+                .collect(Collectors.toList());
+
+        return new WorldFullResponse()
+                .setWorld(info)
+                .setModules(moduleDtos);
+    }
+
     public List<WorldPublishPreviewResponse.MissingField> buildMissingFields(
             Map<String, List<String>> missingByModule) {
         List<WorldPublishPreviewResponse.MissingField> results = new ArrayList<>();
@@ -123,5 +153,16 @@ public class WorldDtoMapper {
         return modules.stream()
                 .sorted(Comparator.comparingInt(module -> orderMap.getOrDefault(module.getModuleKey(), Integer.MAX_VALUE)))
                 .collect(Collectors.toList());
+    }
+
+    private String buildExcerpt(String content) {
+        if (content == null) {
+            return "";
+        }
+        String normalized = content.trim();
+        if (normalized.length() <= 200) {
+            return normalized;
+        }
+        return normalized.substring(0, 200);
     }
 }

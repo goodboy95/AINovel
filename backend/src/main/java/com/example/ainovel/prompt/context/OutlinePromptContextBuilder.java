@@ -11,12 +11,14 @@ import com.example.ainovel.dto.GenerateChapterRequest;
 import com.example.ainovel.model.CharacterCard;
 import com.example.ainovel.model.OutlineCard;
 import com.example.ainovel.model.StoryCard;
+import com.example.ainovel.service.world.WorkspaceWorldContext;
 
 @Component
 public class OutlinePromptContextBuilder {
 
     public Map<String, Object> build(StoryCard storyCard, OutlineCard outlineCard,
-                                     GenerateChapterRequest request, String previousChapterSynopsis) {
+                                     GenerateChapterRequest request, String previousChapterSynopsis,
+                                     WorkspaceWorldContext worldContext) {
         Map<String, Object> root = new LinkedHashMap<>();
         Map<String, Object> story = new LinkedHashMap<>();
         story.put("title", safeString(storyCard.getTitle()));
@@ -60,6 +62,9 @@ public class OutlinePromptContextBuilder {
         root.put("characters", characterContext);
 
         root.put("request", Map.of("raw", request));
+        Map<String, Object> workspace = new LinkedHashMap<>();
+        workspace.put("world", worldContext);
+        root.put("workspace", workspace);
         return root;
     }
 

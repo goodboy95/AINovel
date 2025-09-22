@@ -49,6 +49,9 @@ public class StoryCard {
     @JsonManagedReference
     private List<OutlineCard> outlines;
 
+    @Column(name = "world_id")
+    private Long worldId;
+
     // Getters and Setters
 
     public List<OutlineCard> getOutlines() {
@@ -137,5 +140,13 @@ public class StoryCard {
 
     public void setUpdatedAt(LocalDateTime updatedAt) {
         this.updatedAt = updatedAt;
+    }
+
+    public Long getWorldId() {
+        return worldId;
+    }
+
+    public void setWorldId(Long worldId) {
+        this.worldId = worldId;
     }
 }

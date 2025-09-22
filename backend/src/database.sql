@@ -95,9 +95,11 @@ CREATE TABLE `outline_cards`  (
   `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   `story_card_id` bigint NOT NULL,
   `user_id` bigint NOT NULL,
+  `world_id` bigint NULL DEFAULT NULL,
   PRIMARY KEY (`id`) USING BTREE,
   INDEX `FKppqtshxh48rvqalsyxjmaonjt`(`story_card_id` ASC) USING BTREE,
   INDEX `FKjurndtjfa6wkjg6iwyexqgy5n`(`user_id` ASC) USING BTREE,
+  INDEX `idx_outline_cards_world`(`world_id` ASC) USING BTREE,
   CONSTRAINT `FKjurndtjfa6wkjg6iwyexqgy5n` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT,
   CONSTRAINT `FKppqtshxh48rvqalsyxjmaonjt` FOREIGN KEY (`story_card_id`) REFERENCES `story_cards` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT
 ) ENGINE = InnoDB AUTO_INCREMENT = 7 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci ROW_FORMAT = Dynamic;
@@ -146,8 +148,10 @@ CREATE TABLE `story_cards`  (
   `tone` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL,
   `updated_at` datetime(6) NULL DEFAULT NULL,
   `user_id` bigint NOT NULL,
+  `world_id` bigint NULL DEFAULT NULL,
   PRIMARY KEY (`id`) USING BTREE,
   INDEX `FKbyhxq84adsppi4alnbuo7q52o`(`user_id` ASC) USING BTREE,
+  INDEX `idx_story_cards_world`(`world_id` ASC) USING BTREE,
   CONSTRAINT `FKbyhxq84adsppi4alnbuo7q52o` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT
 ) ENGINE = InnoDB AUTO_INCREMENT = 9 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci ROW_FORMAT = Dynamic;
 
@@ -359,6 +363,24 @@ ALTER TABLE `temporary_characters`
 -- Note: The column names in the SQL script use snake_case (e.g., status_in_scene)
 -- to follow common SQL conventions, which will be automatically mapped by Hibernate
 -- to the camelCase field names in the Java Entity (e.g., statusInScene).
+
+-- ----------------------------
+-- Step 6: World integration for workbench entities
+-- ----------------------------
+ALTER TABLE `story_cards`
+  ADD COLUMN IF NOT EXISTS `world_id` bigint NULL DEFAULT NULL;
+ALTER TABLE `story_cards`
+  ADD INDEX IF NOT EXISTS `idx_story_cards_world` (`world_id`);
+
+ALTER TABLE `outline_cards`
+  ADD COLUMN IF NOT EXISTS `world_id` bigint NULL DEFAULT NULL;
+ALTER TABLE `outline_cards`
+  ADD INDEX IF NOT EXISTS `idx_outline_cards_world` (`world_id`);
+
+ALTER TABLE `manuscripts`
+  ADD COLUMN IF NOT EXISTS `world_id` bigint NULL DEFAULT NULL;
+ALTER TABLE `manuscripts`
+  ADD INDEX IF NOT EXISTS `idx_manuscripts_world` (`world_id`);
 
 -- ----------------------------
 -- Version 2.3 Schema Alignment

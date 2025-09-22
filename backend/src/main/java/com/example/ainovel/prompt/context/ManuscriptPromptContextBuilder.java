@@ -21,6 +21,7 @@ import com.example.ainovel.model.SceneCharacter;
 import com.example.ainovel.model.StoryCard;
 import com.example.ainovel.model.TemporaryCharacter;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.example.ainovel.service.world.WorkspaceWorldContext;
 
 import lombok.RequiredArgsConstructor;
 
@@ -43,7 +44,8 @@ public class ManuscriptPromptContextBuilder {
             int totalChapters,
             int sceneNumber,
             int totalScenesInChapter,
-            Map<Long, CharacterChangeLog> latestCharacterLogs
+            Map<Long, CharacterChangeLog> latestCharacterLogs,
+            WorkspaceWorldContext worldContext
     ) {
         Map<String, Object> root = new LinkedHashMap<>();
 
@@ -102,6 +104,10 @@ public class ManuscriptPromptContextBuilder {
         Map<String, Object> logMap = new LinkedHashMap<>();
         logMap.put("latestByCharacter", buildLatestLogMap(latestCharacterLogs));
         root.put("log", logMap);
+
+        Map<String, Object> workspace = new LinkedHashMap<>();
+        workspace.put("world", worldContext);
+        root.put("workspace", workspace);
 
         return root;
     }

@@ -12,6 +12,7 @@ import com.example.ainovel.dto.world.WorldFieldRefineRequest;
 import com.example.ainovel.dto.world.WorldFieldRefineResponse;
 import com.example.ainovel.dto.world.WorldSummaryResponse;
 import com.example.ainovel.dto.world.WorldUpsertRequest;
+import com.example.ainovel.dto.world.WorldFullResponse;
 import com.example.ainovel.model.User;
 import com.example.ainovel.model.world.WorldModule;
 import com.example.ainovel.model.world.WorldModuleStatus;
@@ -95,6 +96,14 @@ public class WorldController {
                                                         @AuthenticationPrincipal User user) {
         WorldAggregate aggregate = worldService.getWorld(worldId, user.getId());
         WorldDetailResponse response = worldDtoMapper.toDetail(aggregate.world(), aggregate.modules());
+        return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/{worldId}/full")
+    public ResponseEntity<WorldFullResponse> getWorldFull(@PathVariable Long worldId,
+                                                          @AuthenticationPrincipal User user) {
+        WorldAggregate aggregate = worldService.getPublishedWorldWithModules(worldId, user.getId());
+        WorldFullResponse response = worldDtoMapper.toFullResponse(aggregate.world(), aggregate.modules());
         return ResponseEntity.ok(response);
     }
 

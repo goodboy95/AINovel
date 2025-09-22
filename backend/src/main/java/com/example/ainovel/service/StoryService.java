@@ -7,6 +7,7 @@ import com.example.ainovel.dto.StoryCardDto;
 import com.example.ainovel.model.StoryCard;
 import com.example.ainovel.model.User;
 import com.example.ainovel.repository.StoryCardRepository;
+import com.example.ainovel.service.world.WorldService;
 
 import lombok.RequiredArgsConstructor;
 
@@ -18,6 +19,7 @@ import java.util.stream.Collectors;
 public class StoryService {
 
     private final StoryCardRepository storyCardRepository;
+    private final WorldService worldService;
 
     /**
      * 创建新的故事卡并保存
@@ -33,6 +35,10 @@ public class StoryService {
         story.setSynopsis(safeTrim(dto.getSynopsis()));
         story.setGenre(safeTrim(dto.getGenre()));
         story.setTone(safeTrim(dto.getTone()));
+        if (dto.getWorldId() != null) {
+            worldService.ensureSelectableWorld(dto.getWorldId(), user.getId());
+        }
+        story.setWorldId(dto.getWorldId());
         // storyArc 由 AI 构思流程生成，这里留空
         return storyCardRepository.save(story);
     }
@@ -64,6 +70,7 @@ public class StoryService {
         dto.setSynopsis(s.getSynopsis());
         dto.setGenre(s.getGenre());
         dto.setTone(s.getTone());
+        dto.setWorldId(s.getWorldId());
         return dto;
     }
 

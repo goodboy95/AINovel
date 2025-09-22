@@ -32,6 +32,9 @@ public class Manuscript {
     @OneToMany(mappedBy = "manuscript", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ManuscriptSection> sections;
 
+    @Column(name = "world_id")
+    private Long worldId;
+
     @CreationTimestamp
     private LocalDateTime createdAt;
 

@@ -1,6 +1,12 @@
 storyCreation: |
   你是一个世界级的小说家。请根据以下用户输入生成一个详细的故事构思：
   ${context.summary}
+  【世界参考】
+  - 世界名称：${workspace.world.name|default("未选择世界")}
+  - 世界概述：${workspace.world.tagline|default("无固定设定，可自由发挥。")}
+  - 创作意图：${workspace.world.creativeIntent|default("未提供")}
+  - 关键设定摘要：
+  ${workspace.world.modules[*]|map(m -> "  · " + m.label + "：" + m.excerpt)|join("\n")|default("  · 暂无固定世界观，可根据创意自由发挥。")}
   请严格按照以下JSON格式返回：
   {
     "storyCard": {
@@ -31,6 +37,13 @@ outlineChapter: |
 
   # 上下文回顾
   - **上一章梗概:** ${chapter.previousSynopsis}
+
+  # 世界设定参考
+  - **世界名称:** ${workspace.world.name|default("未选择世界")}
+  - **世界概述:** ${workspace.world.tagline|default("无固定设定，可自主发挥世界观。")}
+  - **创作意图:** ${workspace.world.creativeIntent|default("未提供")}
+  - **模块摘要:**
+  ${workspace.world.modules[*]|map(m -> "  · " + m.label + "：" + m.excerpt)|join("\n")|default("  · 暂无固定世界模块，可结合剧情自由发挥。")}
 
   # 本章创作任务 (第 ${chapter.number} 章)
   - **预设节数:** ${chapter.sectionsPerChapter}
@@ -89,6 +102,13 @@ manuscriptSection: |
   - 临时出场人物:
   ${scene.temporaryCharacterSummary}
 
+  【世界设定摘要】
+  - 世界名称：${workspace.world.name|default("未选择世界")}
+  - 世界概述：${workspace.world.tagline|default("无固定设定，可自由发挥。")}
+  - 创作意图：${workspace.world.creativeIntent|default("未提供")}
+  - 关键设定摘要：
+  ${workspace.world.modules[*]|map(m -> "  · " + m.label + "：" + m.excerpt)|join("\n")|default("  · 暂无固定世界模块，可结合剧情自定义。")}
+
   【写作规则】
   1. 钩子与悬念: 开篇30-80字设置强钩子；本节结尾制造悬念或情绪余韵。
   2. 伏笔与回收: 合理埋设或回收伏笔，贴合剧情逻辑，避免突兀。
@@ -104,6 +124,9 @@ manuscriptSection: |
   12. 段落饱满: 每个自然段尽量写满多句内容，避免“一句话一个段落”的碎片化写法。
 
   开始创作。
+
+  【世界参考（完整）】
+  ${workspace.world.modules[*]|map(m -> "[" + m.label + "]\n" + m.fullContent)|join("\n\n")|default("（未选择世界，无需额外世界参考。）")}
 refine:
   withInstruction: |
     你是一个专业的编辑。请根据我的修改意见，优化以下文本。${context.note}请只返回优化后的文本内容，不要包含任何解释性文字或Markdown格式。

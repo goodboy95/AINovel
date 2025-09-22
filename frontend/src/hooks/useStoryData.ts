@@ -105,7 +105,7 @@ export const useStoryData = () => {
      * @param payload - Basic fields for a new story.
      * @returns The created StoryCard or null on failure.
      */
-    const createStory = useCallback(async (payload: { title: string; synopsis: string; genre: string; tone: string; }): Promise<StoryCard | null> => {
+    const createStory = useCallback(async (payload: { title: string; synopsis: string; genre: string; tone: string; worldId?: number | null; }): Promise<StoryCard | null> => {
         setIsLoading(true);
         setError(null);
         try {

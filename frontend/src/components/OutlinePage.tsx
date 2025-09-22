@@ -14,12 +14,15 @@ import {
   Col,
   Empty,
   Modal,
+  Space,
 } from 'antd';
-import type { Outline, StoryCard, Chapter, Scene } from '../types';
+import type { Outline, StoryCard, Chapter, Scene, WorldSummary } from '../types';
 import { generateChapter, createEmptyOutlineForStory } from '../services/api';
 import OutlineTreeView from './OutlineTreeView';
 import ChapterEditForm from './ChapterEditForm';
 import SceneEditForm from './SceneEditForm';
+import WorldSelect from './WorldSelect';
+import WorldReferenceDrawer from './WorldReferenceDrawer';
 
 const { Title, Text } = Typography;
 const { Option } = Select;
@@ -84,6 +87,22 @@ const OutlinePage: React.FC<OutlinePageProps> = ({
   const [isSaving, setIsSaving] = useState(false);
   const [currentChapter, setCurrentChapter] = useState(1);
   const [isEditing, setIsEditing] = useState(false);
+  const [worldIdForGeneration, setWorldIdForGeneration] = useState<number | null>(null);
+  const [selectedWorld, setSelectedWorld] = useState<WorldSummary | undefined>();
+  const [worldPreviewId, setWorldPreviewId] = useState<number | null>(null);
+  const [isWorldDrawerOpen, setWorldDrawerOpen] = useState(false);
+  const activeStory = React.useMemo(() => {
+    if (!selectedStoryId) return null;
+    return storyCards.find((story) => story.id.toString() === selectedStoryId) ?? null;
+  }, [storyCards, selectedStoryId]);
+
+  useEffect(() => {
+    const nextWorldId = outline?.worldId ?? activeStory?.worldId ?? null;
+    setWorldIdForGeneration(nextWorldId ?? null);
+    if (nextWorldId == null) {
+      setSelectedWorld(undefined);
+    }
+  }, [outline, activeStory]);
 
   useEffect(() => {
     if (outline) {
@@ -101,7 +120,18 @@ const OutlinePage: React.FC<OutlinePageProps> = ({
     setIsLoading(true);
     setError(null);
     try {
-      const newOutline = await createEmptyOutlineForStory(selectedStoryId);
+      let newOutline = await createEmptyOutlineForStory(selectedStoryId);
+      if (worldIdForGeneration !== null && newOutline.worldId !== worldIdForGeneration) {
+        const updatedOutline = { ...newOutline, worldId: worldIdForGeneration };
+        try {
+          await updateOutlineRemote(updatedOutline);
+          newOutline = updatedOutline;
+        } catch (err) {
+          setError(err instanceof Error ? err.message : '更新世界失败。');
+        }
+      }
+      setOutline(newOutline);
+      setWorldIdForGeneration(newOutline.worldId ?? null);
       onSelectOutline(newOutline);
       await loadOutlines();
     } catch (err) {
@@ -120,6 +150,34 @@ const OutlinePage: React.FC<OutlinePageProps> = ({
     setIsEditing(!!node);
   };
 
+  const handleWorldChange = React.useCallback(async (worldId?: number, world?: WorldSummary) => {
+    const nextWorldId = worldId ?? null;
+    setWorldIdForGeneration(nextWorldId);
+    setSelectedWorld(world ?? undefined);
+    setWorldPreviewId(nextWorldId);
+    if (!outline) {
+      return;
+    }
+    const currentWorldId = outline.worldId ?? null;
+    if (currentWorldId === nextWorldId) {
+      return;
+    }
+    const nextOutline = { ...outline, worldId: nextWorldId };
+    setOutline(nextOutline);
+    try {
+      setIsLoading(true);
+      await updateOutlineRemote(nextOutline);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : '更新世界失败。');
+    } finally {
+      setIsLoading(false);
+    }
+  }, [outline, setOutline, updateOutlineRemote, setIsLoading, setError]);
+
+  const handleWorldResolved = React.useCallback((world?: WorldSummary) => {
+    setSelectedWorld(world ?? undefined);
+  }, []);
+
   const handleGenerateFinish = async (values: GenerateChapterParams) => {
     if (!outline) {
       setError('请先选择或创建一个大纲。');
@@ -131,6 +189,7 @@ const OutlinePage: React.FC<OutlinePageProps> = ({
       const newChapter: Chapter = await generateChapter(outline.id, {
         ...values,
         chapterNumber: currentChapter,
+        worldId: worldIdForGeneration ?? undefined,
       });
       setOutline({
         ...outline,
@@ -230,26 +289,27 @@ const OutlinePage: React.FC<OutlinePageProps> = ({
   };
 
   return (
-    <Spin spinning={isLoading || isSaving} tip="处理中..." size="large">
-      <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
-        {error && (
-          <Alert
-            message="操作失败"
-            description={error}
-            type="error"
-            showIcon
-            style={{ marginBottom: 16 }}
-          />
-        )}
+    <>
+      <Spin spinning={isLoading || isSaving} tip="处理中..." size="large">
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
+          {error && (
+            <Alert
+              message="操作失败"
+              description={error}
+              type="error"
+              showIcon
+              style={{ marginBottom: 16 }}
+            />
+          )}
 
-        {isEditing && (
-          <div style={{ marginBottom: 16, display: 'flex', justifyContent: 'flex-end' }}>
-            <Button onClick={() => { setSelectedNode(null); setIsEditing(false); }}>
-              返回
-            </Button>
-          </div>
-        )}
-        <Row gutter={16}>
+          {isEditing && (
+            <div style={{ marginBottom: 16, display: 'flex', justifyContent: 'flex-end' }}>
+              <Button onClick={() => { setSelectedNode(null); setIsEditing(false); }}>
+                返回
+              </Button>
+            </div>
+          )}
+          <Row gutter={16}>
           {/* 左侧：故事选择 + 历史大纲列表 + 创建新大纲 */}
           <Col span={6}>
             <Card title="故事与大纲">
@@ -274,6 +334,38 @@ const OutlinePage: React.FC<OutlinePageProps> = ({
                   </Select>
                 </Form.Item>
               </Form>
+
+              {selectedStoryId && (
+                <div style={{ marginTop: 16 }}>
+                  <Text strong>引用世界</Text>
+                  <Space.Compact style={{ width: '100%', marginTop: 8 }}>
+                    <WorldSelect
+                      allowClear
+                      value={worldIdForGeneration ?? undefined}
+                      onChange={handleWorldChange}
+                      onWorldResolved={handleWorldResolved}
+                      placeholder="可选：选择一个已发布的世界"
+                    />
+                    <Button
+                      type="default"
+                      disabled={!worldIdForGeneration}
+                      onClick={() => {
+                        if (worldIdForGeneration) {
+                          setWorldPreviewId(worldIdForGeneration);
+                          setWorldDrawerOpen(true);
+                        }
+                      }}
+                    >
+                      查看设定
+                    </Button>
+                  </Space.Compact>
+                  {selectedWorld && (
+                    <Text type="secondary" style={{ display: 'block', marginTop: 8 }}>
+                      {selectedWorld.tagline}
+                    </Text>
+                  )}
+                </div>
+              )}
 
               {selectedStoryId && (
                 <>
@@ -357,10 +449,19 @@ const OutlinePage: React.FC<OutlinePageProps> = ({
 
           {/* 右侧：生成/编辑区域 */}
           <Col span={8}>{renderRightPanel()}</Col>
-        </Row>
+          </Row>
 
-      </div>
-    </Spin>
+        </div>
+      </Spin>
+      <WorldReferenceDrawer
+        worldId={worldPreviewId ?? undefined}
+        open={isWorldDrawerOpen}
+        onClose={() => {
+          setWorldDrawerOpen(false);
+          setWorldPreviewId(null);
+        }}
+      />
+    </>
   );
 };
 

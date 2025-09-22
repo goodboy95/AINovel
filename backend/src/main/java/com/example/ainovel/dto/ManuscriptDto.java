@@ -8,6 +8,7 @@ public class ManuscriptDto {
     private Long outlineId;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
+    private Long worldId;
 
     public ManuscriptDto() {}
 
@@ -17,6 +18,11 @@ public class ManuscriptDto {
         this.outlineId = outlineId;
         this.createdAt = createdAt;
         this.updatedAt = updatedAt;
+    }
+
+    public ManuscriptDto(Long id, String title, Long outlineId, LocalDateTime createdAt, LocalDateTime updatedAt, Long worldId) {
+        this(id, title, outlineId, createdAt, updatedAt);
+        this.worldId = worldId;
     }
 
     // Getters / Setters
@@ -62,6 +68,15 @@ public class ManuscriptDto {
 
     public ManuscriptDto setUpdatedAt(LocalDateTime updatedAt) {
         this.updatedAt = updatedAt;
+        return this;
+    }
+
+    public Long getWorldId() {
+        return worldId;
+    }
+
+    public ManuscriptDto setWorldId(Long worldId) {
+        this.worldId = worldId;
         return this;
     }
 }

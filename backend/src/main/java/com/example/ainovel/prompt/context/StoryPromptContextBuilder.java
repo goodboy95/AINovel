@@ -8,11 +8,12 @@ import java.util.stream.Collectors;
 import org.springframework.stereotype.Component;
 
 import com.example.ainovel.dto.ConceptionRequest;
+import com.example.ainovel.service.world.WorkspaceWorldContext;
 
 @Component
 public class StoryPromptContextBuilder {
 
-    public Map<String, Object> build(ConceptionRequest request) {
+    public Map<String, Object> build(ConceptionRequest request, WorkspaceWorldContext worldContext) {
         Map<String, Object> root = new LinkedHashMap<>();
         String idea = safeTrim(request.getIdea());
         String genre = safeTrim(request.getGenre());
@@ -74,6 +75,9 @@ public class StoryPromptContextBuilder {
         root.put("tag", tags);
         root.put("context", context);
         root.put("request", Map.of("raw", request));
+        Map<String, Object> workspace = new LinkedHashMap<>();
+        workspace.put("world", worldContext);
+        root.put("workspace", workspace);
         return root;
     }
 

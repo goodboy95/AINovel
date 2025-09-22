@@ -5,6 +5,7 @@ import com.example.ainovel.dto.ManuscriptWithSectionsDto;
 import com.example.ainovel.dto.AnalyzeCharacterChangesRequest;
 import com.example.ainovel.dto.CharacterChangeLogDto;
 import com.example.ainovel.dto.UpdateSectionRequest;
+import com.example.ainovel.dto.GenerateManuscriptSectionRequest;
 import com.example.ainovel.model.ManuscriptSection;
 import com.example.ainovel.model.User;
 import com.example.ainovel.service.ManuscriptService;
@@ -44,8 +45,11 @@ public class ManuscriptController {
      * Backward-compatible path: /api/v1/manuscript/scenes/{sceneId}/generate
      */
     @PostMapping("/manuscript/scenes/{sceneId}/generate")
-    public ResponseEntity<ManuscriptSection> generateScene(@PathVariable Long sceneId, @AuthenticationPrincipal User user) {
-        ManuscriptSection section = manuscriptService.generateSceneContent(sceneId, user.getId());
+    public ResponseEntity<ManuscriptSection> generateScene(@PathVariable Long sceneId,
+                                                           @AuthenticationPrincipal User user,
+                                                           @RequestBody(required = false) GenerateManuscriptSectionRequest request) {
+        Long worldId = request != null ? request.getWorldId() : null;
+        ManuscriptSection section = manuscriptService.generateSceneContent(sceneId, user.getId(), worldId);
         return ResponseEntity.ok(section);
     }
 

@@ -6,6 +6,7 @@ public class StoryCardDto {
     private String synopsis;
     private String genre;
     private String tone;
+    private Long worldId;
 
     public Long getId() {
         return id;
@@ -45,5 +46,13 @@ public class StoryCardDto {
 
     public void setTone(String tone) {
         this.tone = tone;
+    }
+
+    public Long getWorldId() {
+        return worldId;
+    }
+
+    public void setWorldId(Long worldId) {
+        this.worldId = worldId;
     }
 }
