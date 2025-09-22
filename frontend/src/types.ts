@@ -51,6 +51,7 @@ export interface Outline {
     storySynopsis?: string; // Add optional story synopsis
     storyCard?: StoryCard; // Optional because it might not always be loaded
     created_at: string; // Add created_at for historical view
+    worldId?: number | null;
 }
 
 export interface StoryCard {
@@ -60,6 +61,7 @@ export interface StoryCard {
     storyArc: string;
     genre: string;
     tone: string;
+    worldId?: number | null;
 }
 
 /**
@@ -72,6 +74,7 @@ export interface Manuscript {
     outlineId: number;
     createdAt: string;
     updatedAt: string;
+    worldId?: number | null;
 }
 
 export interface CharacterCard {
@@ -107,6 +110,7 @@ export interface ConceptionFormValues {
     genre: string;
     tone: string;
     tags: string[];
+    worldId?: number | null;
 }
 
 export interface RefineContext {
@@ -299,6 +303,27 @@ export interface WorldModule {
 export interface WorldDetail {
     world: WorldBasicInfo;
     modules: WorldModule[];
+}
+
+export interface WorldModuleFull {
+    key: string;
+    label: string;
+    fullContent: string;
+    excerpt: string;
+    updatedAt?: string | null;
+}
+
+export interface WorldFull {
+    world: {
+        id: number;
+        name: string;
+        tagline: string;
+        themes: string[];
+        creativeIntent?: string | null;
+        version?: number | null;
+        publishedAt?: string | null;
+    };
+    modules: WorldModuleFull[];
 }
 
 export interface WorldModuleSummary {

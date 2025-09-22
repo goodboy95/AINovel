@@ -1,6 +1,7 @@
 package com.example.ainovel.service;
 
 import java.util.List;
+import java.util.Objects;
 
 import org.springframework.retry.annotation.Backoff;
 import org.springframework.retry.annotation.Retryable;
@@ -22,6 +23,7 @@ import com.example.ainovel.repository.CharacterCardRepository;
 import com.example.ainovel.repository.StoryCardRepository;
 import com.example.ainovel.repository.UserRepository;
 import com.example.ainovel.repository.UserSettingRepository;
+import com.example.ainovel.service.world.WorldService;
 
 import lombok.RequiredArgsConstructor;
 
@@ -40,6 +42,7 @@ public class ConceptionService {
     private final EncryptionService encryptionService;
     private final SettingsService settingsService;
     private final OpenAiService openAiService;
+    private final WorldService worldService;
 
     /**
      * Generates and saves a new story and associated character cards based on a user's prompt.
@@ -56,6 +59,11 @@ public class ConceptionService {
         String baseUrl = settingsService.getBaseUrlByUserId(user.getId());
         String model = settingsService.getModelNameByUserId(user.getId());
 
+        Long worldId = request.getWorldId();
+        if (worldId != null) {
+            worldService.ensureSelectableWorld(worldId, user.getId());
+        }
+
         ConceptionResponse responseFromAi = openAiService.generateConception(user.getId(), request, apiKey, baseUrl, model);
 
         StoryCard storyCard = responseFromAi.getStoryCard();
@@ -63,6 +71,7 @@ public class ConceptionService {
             throw new IllegalStateException("Failed to generate story card from AI service.");
         }
         storyCard.setUser(user);
+        storyCard.setWorldId(worldId);
         StoryCard savedStoryCard = storyCardRepository.save(storyCard);
 
         List<CharacterCard> characterCards = responseFromAi.getCharacterCards();
@@ -133,6 +142,10 @@ public class ConceptionService {
         storyCard.setTone(storyDetails.getTone());
         storyCard.setSynopsis(storyDetails.getSynopsis());
         storyCard.setStoryArc(storyDetails.getStoryArc());
+        if (!Objects.equals(storyCard.getWorldId(), storyDetails.getWorldId())) {
+            worldService.ensureSelectableWorld(storyDetails.getWorldId(), userId);
+            storyCard.setWorldId(storyDetails.getWorldId());
+        }
 
         return storyCardRepository.save(storyCard);
     }

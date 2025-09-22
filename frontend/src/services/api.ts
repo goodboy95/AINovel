@@ -23,6 +23,7 @@ import type {
     WorldPromptTemplatesResetPayload,
     WorldPromptTemplatesResponse,
     WorldPromptTemplatesUpdatePayload,
+    WorldFull,
 } from '../types';
 
 /**
@@ -132,7 +133,7 @@ export const updateStoryCard = (storyCard: StoryCard): Promise<StoryCard> => {
     }).then(res => handleResponse<StoryCard>(res));
 };
 // Create a new story (manual creation)
-export const createStory = (payload: { title: string; synopsis: string; genre: string; tone: string; }): Promise<StoryCard> => {
+export const createStory = (payload: { title: string; synopsis: string; genre: string; tone: string; worldId?: number | null; }): Promise<StoryCard> => {
     return fetch('/api/v1/stories', {
         method: 'POST',
         headers: getAuthHeaders(),
@@ -228,7 +229,7 @@ export const generateOutline = (params: { storyCardId: string; numberOfChapters:
  * @param {{ chapterNumber: number; sectionsPerChapter: number; wordsPerSection: number; }} params - The parameters for chapter generation.
  * @returns {Promise<Chapter>} A promise that resolves to the newly generated chapter.
  */
-export const generateChapter = (outlineId: number, params: { chapterNumber: number; sectionsPerChapter: number; wordsPerSection: number; }): Promise<Chapter> => {
+export const generateChapter = (outlineId: number, params: { chapterNumber: number; sectionsPerChapter: number; wordsPerSection: number; worldId?: number | null; }): Promise<Chapter> => {
     return fetch(`/api/v1/outlines/${outlineId}/chapters`, {
         method: 'POST',
         headers: getAuthHeaders(),
@@ -325,7 +326,7 @@ export const fetchManuscriptWithSections = (manuscriptId: number): Promise<{ man
     }).then(res => handleResponse<{ manuscript: Manuscript; sections: Record<number, ManuscriptSection> }>(res));
 };
 
-export const createManuscript = (outlineId: number, data: { title: string }): Promise<Manuscript> => {
+export const createManuscript = (outlineId: number, data: { title: string; worldId?: number | null }): Promise<Manuscript> => {
     return fetch(`/api/v1/outlines/${outlineId}/manuscripts`, {
         method: 'POST',
         headers: getAuthHeaders(),
@@ -454,6 +455,11 @@ export const fetchWorlds = (status?: string): Promise<WorldSummary[]> => {
 export const fetchWorldDetail = (worldId: number): Promise<WorldDetail> => {
     return fetch(`/api/v1/worlds/${worldId}`, { headers: getAuthHeaders() })
         .then(res => handleResponse<WorldDetail>(res));
+};
+
+export const fetchWorldFull = (worldId: number): Promise<WorldFull> => {
+    return fetch(`/api/v1/worlds/${worldId}/full`, { headers: getAuthHeaders() })
+        .then(res => handleResponse<WorldFull>(res));
 };
 
 export const updateWorld = (worldId: number, payload: WorldUpsertPayload): Promise<WorldDetail> => {

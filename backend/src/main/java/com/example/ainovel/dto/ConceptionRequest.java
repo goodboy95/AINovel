@@ -28,4 +28,9 @@ public class ConceptionRequest {
      * Optional tags that further describe the story (e.g., keywords or themes).
      */
     private List<String> tags;
+
+    /**
+     * Optional reference to a published world whose information should be injected into prompts.
+     */
+    private Long worldId;
 }

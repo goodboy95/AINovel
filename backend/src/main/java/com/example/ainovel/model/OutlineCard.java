@@ -69,6 +69,9 @@ public class OutlineCard {
     @ToString.Exclude
     private List<Manuscript> manuscripts;
 
+    @Column(name = "world_id")
+    private Long worldId;
+
     /**
      * Timestamp of when the outline was created.
      */
@@ -80,4 +83,12 @@ public class OutlineCard {
      */
     @UpdateTimestamp
     private LocalDateTime updatedAt;
+
+    public Long getWorldId() {
+        return worldId;
+    }
+
+    public void setWorldId(Long worldId) {
+        this.worldId = worldId;
+    }
 }

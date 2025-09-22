@@ -9,6 +9,7 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.Objects;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -50,6 +51,7 @@ import com.example.ainovel.repository.UserSettingRepository;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.example.ainovel.service.world.WorldService;
 
 import lombok.RequiredArgsConstructor;
 
@@ -73,6 +75,7 @@ public class OutlineService {
     private final ObjectMapper objectMapper;
     private final PromptTemplateService promptTemplateService;
     private final PromptContextFactory promptContextFactory;
+    private final WorldService worldService;
     private final OutlineChapterRepository outlineChapterRepository;
     private final OutlineSceneRepository outlineSceneRepository;
 
@@ -112,6 +115,7 @@ public class OutlineService {
         newOutline.setStoryCard(storyCard);
         newOutline.setUser(user);
         newOutline.setChapters(new ArrayList<>()); // Initialize with an empty list
+        newOutline.setWorldId(storyCard.getWorldId());
 
         OutlineCard savedOutline = outlineCardRepository.save(newOutline);
         return convertToDto(savedOutline);
@@ -149,6 +153,7 @@ public class OutlineService {
         dto.setTitle(outlineCard.getTitle());
         dto.setPointOfView(outlineCard.getPointOfView());
         dto.setCreatedAt(outlineCard.getCreatedAt() != null ? outlineCard.getCreatedAt().toString() : null);
+        dto.setWorldId(outlineCard.getWorldId());
         dto.setChapters(outlineCard.getChapters().stream()
                 .map(this::convertChapterToDto)
                 .collect(Collectors.toList()));
@@ -376,6 +381,10 @@ public class OutlineService {
 
         outlineCard.setTitle(outlineDto.getTitle());
         outlineCard.setPointOfView(outlineDto.getPointOfView());
+        if (!Objects.equals(outlineCard.getWorldId(), outlineDto.getWorldId())) {
+            worldService.ensureSelectableWorld(outlineDto.getWorldId(), userId);
+            outlineCard.setWorldId(outlineDto.getWorldId());
+        }
 
         // --- Chapter Management ---
         Map<Long, OutlineChapter> existingChaptersMap = outlineCard.getChapters().stream()
@@ -536,16 +545,29 @@ public class OutlineService {
         String baseUrl = settingsService.getBaseUrlByUserId(user.getId());
         String model = settingsService.getModelNameByUserId(user.getId());
 
+        Long resolvedWorldId = request.getWorldId();
+        if (resolvedWorldId == null) {
+            resolvedWorldId = outlineCard.getWorldId() != null
+                    ? outlineCard.getWorldId()
+                    : storyCard.getWorldId();
+        }
+        if (resolvedWorldId != null) {
+            worldService.ensureSelectableWorld(resolvedWorldId, user.getId());
+        }
+        outlineCard.setWorldId(resolvedWorldId);
+
         String previousChapterSynopsis = outlineChapterRepository
             .findByOutlineCardIdAndChapterNumber(outlineCard.getId(), request.getChapterNumber() - 1)
             .map(OutlineChapter::getSynopsis)
             .orElse("无，这是第一章。");
 
         Map<String, Object> context = promptContextFactory.buildOutlineChapterContext(
+                user.getId(),
                 storyCard,
                 outlineCard,
                 request,
-                previousChapterSynopsis
+                previousChapterSynopsis,
+                resolvedWorldId
         );
 
         String prompt = promptTemplateService.render(PromptType.OUTLINE_CHAPTER, user.getId(), context);

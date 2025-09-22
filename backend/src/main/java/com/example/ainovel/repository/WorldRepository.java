@@ -11,6 +11,8 @@ public interface WorldRepository extends JpaRepository<World, Long> {
 
     Optional<World> findByIdAndUserId(Long id, Long userId);
 
+    Optional<World> findByIdAndUserIdAndStatus(Long id, Long userId, WorldStatus status);
+
     List<World> findAllByUserIdOrderByUpdatedAtDesc(Long userId);
 
     List<World> findAllByUserIdAndStatusOrderByUpdatedAtDesc(Long userId, WorldStatus status);

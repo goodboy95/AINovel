@@ -12,10 +12,14 @@ import {
     Alert,
     Empty,
     Row,
-    Col
+    Col,
+    Space
 } from 'antd';
+import type { WorldSummary } from '../types';
+import WorldSelect from './WorldSelect';
+import WorldReferenceDrawer from './WorldReferenceDrawer';
 
-const { Title, Paragraph } = Typography;
+const { Title, Paragraph, Text } = Typography;
 const GENRE_OPTIONS = ['科幻', '奇幻', '悬疑', '恐怖', '爱情'];
 const TONE_OPTIONS = ['黑暗', '幽默', '严肃', '冒险', '异想天开'];
 
@@ -24,6 +28,7 @@ interface ConceptionFormValues {
     genre: string;
     tone: string;
     tags: string[];
+    worldId?: number | null;
 }
 
 interface StoryCard {
@@ -33,6 +38,7 @@ interface StoryCard {
     storyArc: string;
     genre: string;
     tone: string;
+    worldId?: number | null;
 }
 
 interface CharacterCard {
@@ -66,6 +72,9 @@ const StoryConception: React.FC<StoryConceptionProps> = ({
 }) => {
     const [form] = Form.useForm();
     const [tagOptions, setTagOptions] = React.useState<{ value: string; label: string }[]>([]);
+    const [selectedWorld, setSelectedWorld] = React.useState<WorldSummary | undefined>();
+    const [worldPreviewId, setWorldPreviewId] = React.useState<number | null>(null);
+    const [isWorldDrawerOpen, setWorldDrawerOpen] = React.useState(false);
 
     const handleValuesChange = (_: unknown, allValues: ConceptionFormValues) => {
         if (Array.isArray(allValues.tags)) {
@@ -88,8 +97,13 @@ const StoryConception: React.FC<StoryConceptionProps> = ({
         ));
 
         setTagOptions(normalizedTags.map(tag => ({ value: tag, label: tag })));
-        form.setFieldsValue({ ...values, tags: normalizedTags });
-        onFinish({ ...values, tags: normalizedTags });
+        const payload: ConceptionFormValues = {
+            ...values,
+            tags: normalizedTags,
+            worldId: values.worldId ?? null,
+        };
+        form.setFieldsValue({ ...payload, tags: normalizedTags });
+        onFinish(payload);
     };
 
     return (
@@ -104,7 +118,7 @@ const StoryConception: React.FC<StoryConceptionProps> = ({
                         layout="vertical"
                         onFinish={handleFinish}
                         onValuesChange={handleValuesChange}
-                        initialValues={{ genre: '科幻', tone: '黑暗', tags: [] }}
+                        initialValues={{ genre: '科幻', tone: '黑暗', tags: [], worldId: null }}
                     >
                         <Form.Item
                             name="idea"
@@ -141,6 +155,42 @@ const StoryConception: React.FC<StoryConceptionProps> = ({
                                 options={tagOptions}
                                 allowClear
                             />
+                        </Form.Item>
+                        <Form.Item label="引用世界">
+                            <Space.Compact style={{ width: '100%' }}>
+                                <Form.Item name="worldId" noStyle>
+                                    <WorldSelect
+                                        allowClear
+                                        value={form.getFieldValue('worldId') ?? undefined}
+                                        onChange={(worldId, world) => {
+                                            form.setFieldsValue({ worldId: worldId ?? null });
+                                            setSelectedWorld(world);
+                                        }}
+                                        onWorldResolved={(world) => {
+                                            setSelectedWorld(world ?? undefined);
+                                        }}
+                                        placeholder="可选：选择一个已发布的世界观"
+                                    />
+                                </Form.Item>
+                                <Button
+                                    type="default"
+                                    disabled={!form.getFieldValue('worldId')}
+                                    onClick={() => {
+                                        const id = form.getFieldValue('worldId');
+                                        if (id) {
+                                            setWorldPreviewId(id);
+                                            setWorldDrawerOpen(true);
+                                        }
+                                    }}
+                                >
+                                    查看设定
+                                </Button>
+                            </Space.Compact>
+                            {selectedWorld && (
+                                <Text type="secondary" style={{ display: 'block', marginTop: 8 }}>
+                                    {selectedWorld.tagline}
+                                </Text>
+                            )}
                         </Form.Item>
                         <Form.Item>
                             <Button type="primary" htmlType="submit" loading={isLoading} style={{ width: '100%' }}>
@@ -184,6 +234,14 @@ const StoryConception: React.FC<StoryConceptionProps> = ({
                     </div>
                 </Spin>
             </Col>
+            <WorldReferenceDrawer
+                worldId={worldPreviewId ?? undefined}
+                open={isWorldDrawerOpen}
+                onClose={() => {
+                    setWorldDrawerOpen(false);
+                    setWorldPreviewId(null);
+                }}
+            />
         </Row>
     );
 };

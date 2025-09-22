@@ -7,6 +7,7 @@ import java.util.Optional;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 import org.springframework.retry.annotation.Backoff;
@@ -47,6 +48,8 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import com.example.ainovel.service.world.WorldService;
+
 import lombok.RequiredArgsConstructor;
 
 /**
@@ -67,6 +70,7 @@ public class ManuscriptService {
     private final CharacterChangeLogRepository characterChangeLogRepository;
     private final PromptTemplateService promptTemplateService;
     private final PromptContextFactory promptContextFactory;
+    private final WorldService worldService;
     private final ObjectMapper objectMapper;
     private static final TypeReference<List<RelationshipChangeDto>> RELATIONSHIP_CHANGE_LIST_TYPE = new TypeReference<>() {};
 
@@ -108,7 +112,7 @@ public class ManuscriptService {
      */
     @Transactional
     @Retryable(backoff = @Backoff(delay = 1000), maxAttempts = 3)
-    public ManuscriptSection generateSceneContent(Long sceneId, Long userId) {
+    public ManuscriptSection generateSceneContent(Long sceneId, Long userId, Long worldId) {
         OutlineScene scene = findSceneById(sceneId);
         validateSceneAccess(scene, userId);
 
@@ -139,6 +143,18 @@ public class ManuscriptService {
         OutlineChapter currentChapter = scene.getOutlineChapter();
         OutlineCard outline = currentChapter.getOutlineCard();
 
+        Long resolvedWorldId = worldId;
+        if (resolvedWorldId == null) {
+            resolvedWorldId = outline.getWorldId() != null ? outline.getWorldId() : story.getWorldId();
+        }
+        if (resolvedWorldId != null) {
+            worldService.ensureSelectableWorld(resolvedWorldId, userId);
+        }
+        if (outline != null && !Objects.equals(outline.getWorldId(), resolvedWorldId)) {
+            outline.setWorldId(resolvedWorldId);
+            outlineCardRepository.save(outline);
+        }
+
         // Determine target Manuscript (use latest for this outline or create default)
         Manuscript manuscript = manuscriptRepository.findFirstByOutlineCardIdOrderByCreatedAtDesc(outline.getId())
                 .orElseGet(() -> {
@@ -146,8 +162,13 @@ public class ManuscriptService {
                     m.setOutlineCard(outline);
                     m.setUser(story.getUser());
                     m.setTitle("默认稿件");
+                    m.setWorldId(resolvedWorldId);
                     return manuscriptRepository.save(m);
                 });
+        if (!Objects.equals(manuscript.getWorldId(), resolvedWorldId)) {
+            manuscript.setWorldId(resolvedWorldId);
+            manuscript = manuscriptRepository.save(manuscript);
+        }
 
         int chapterNumber = currentChapter.getChapterNumber();
         int totalChapters = outline.getChapters().size();
@@ -176,6 +197,7 @@ public class ManuscriptService {
         }
 
         Map<String, Object> promptContext = promptContextFactory.buildManuscriptSectionContext(
+                userId,
                 scene,
                 story,
                 characters,
@@ -188,7 +210,8 @@ public class ManuscriptService {
                 totalChapters,
                 sceneNumber,
                 totalScenesInChapter,
-                latestCharacterLogs
+                latestCharacterLogs,
+                resolvedWorldId
         );
 
         String renderedPrompt = promptTemplateService.render(PromptType.MANUSCRIPT_SECTION, userId, promptContext);
@@ -323,7 +346,8 @@ public class ManuscriptService {
                 .setTitle(m.getTitle())
                 .setOutlineId(m.getOutlineCard() != null ? m.getOutlineCard().getId() : null)
                 .setCreatedAt(m.getCreatedAt())
-                .setUpdatedAt(m.getUpdatedAt());
+                .setUpdatedAt(m.getUpdatedAt())
+                .setWorldId(m.getWorldId());
     }
 
     /**
@@ -353,6 +377,13 @@ public class ManuscriptService {
                 ? request.getTitle().trim()
                 : "新小说稿件";
         m.setTitle(title);
+        Long resolvedWorldId = request != null && request.getWorldId() != null
+                ? request.getWorldId()
+                : (outline.getWorldId() != null ? outline.getWorldId() : outline.getStoryCard().getWorldId());
+        if (resolvedWorldId != null) {
+            worldService.ensureSelectableWorld(resolvedWorldId, userId);
+        }
+        m.setWorldId(resolvedWorldId);
 
         Manuscript saved = manuscriptRepository.save(m);
         return toDto(saved);
