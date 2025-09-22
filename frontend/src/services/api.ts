@@ -537,6 +537,13 @@ export const fetchWorldGenerationStatus = (worldId: number): Promise<WorldGenera
         .then(res => handleResponse<WorldGenerationStatus>(res));
 };
 
+export const runWorldGenerationModule = (worldId: number, moduleKey: string): Promise<WorldGenerationStatus> => {
+    return fetch(`/api/v1/worlds/${worldId}/generation/${moduleKey}`, {
+        method: 'POST',
+        headers: getAuthHeaders(),
+    }).then(res => handleResponse<WorldGenerationStatus>(res));
+};
+
 export const retryWorldGeneration = (worldId: number, moduleKey: string): Promise<void> => {
     return fetch(`/api/v1/worlds/${worldId}/generation/${moduleKey}/retry`, {
         method: 'POST',

@@ -29,6 +29,7 @@ import java.util.Optional;
 import java.util.stream.StreamSupport;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.anyCollection;
 import static org.mockito.ArgumentMatchers.anyMap;
 import static org.mockito.ArgumentMatchers.eq;
@@ -89,22 +90,25 @@ class WorldGenerationWorkflowServiceTest {
     }
 
     @Test
-    void processQueueShouldGenerateModuleAndFinalizeWorld() {
+    void generateModuleShouldProduceContentAndFinalizeWorld() {
         World world = createWorld(7L, 321L, WorldStatus.GENERATING, 0);
         WorldGenerationJob job = createJob(world, "cosmos");
         WorldModule module = createModule(world, "cosmos", WorldModuleStatus.AWAITING_GENERATION,
                 Map.of("cosmos_structure", "原始设定"));
         List<WorldModule> modules = List.of(module);
 
-        when(jobRepository.fetchNextJobForUpdate()).thenReturn(Optional.of(job));
+        when(worldRepository.findByIdAndUserId(7L, 321L)).thenReturn(Optional.of(world));
+        when(jobRepository.findByWorldIdAndModuleKey(7L, "cosmos")).thenReturn(Optional.of(job));
         when(worldModuleRepository.findByWorldId(7L)).thenReturn(modules);
         when(contextBuilder.buildModuleContext(world, module, modules)).thenReturn(Map.of("key", "value"));
         when(templateService.renderFinalTemplate(eq("cosmos"), anyMap(), eq(321L))).thenReturn("prompt");
         when(settingsService.getDecryptedApiKeyByUserId(321L)).thenReturn("api-key");
         when(aiService.generate("prompt", "api-key", null, null)).thenReturn("  生成后的完整信息  ");
         when(jobRepository.countByWorldIdAndStatusIn(eq(7L), anyCollection())).thenReturn(0L);
+        when(jobRepository.findByWorldIdOrderBySequenceAsc(7L)).thenReturn(List.of(job));
+        when(definitionRegistry.resolveLabel("cosmos")).thenReturn("宇宙");
 
-        service.processQueue();
+        service.generateModule(7L, "cosmos", 321L);
 
         assertThat(job.getStatus()).isEqualTo(WorldGenerationJobStatus.SUCCEEDED);
         assertThat(job.getAttempts()).isEqualTo(1);
@@ -120,14 +124,15 @@ class WorldGenerationWorkflowServiceTest {
     }
 
     @Test
-    void processQueueShouldMarkFailureWhenAiThrows() {
+    void generateModuleShouldMarkFailureWhenAiThrows() {
         World world = createWorld(8L, 654L, WorldStatus.GENERATING, 1);
         WorldGenerationJob job = createJob(world, "cosmos");
         WorldModule module = createModule(world, "cosmos", WorldModuleStatus.AWAITING_GENERATION,
                 Map.of("cosmos_structure", "原始设定"));
         List<WorldModule> modules = List.of(module);
 
-        when(jobRepository.fetchNextJobForUpdate()).thenReturn(Optional.of(job));
+        when(worldRepository.findByIdAndUserId(8L, 654L)).thenReturn(Optional.of(world));
+        when(jobRepository.findByWorldIdAndModuleKey(8L, "cosmos")).thenReturn(Optional.of(job));
         when(worldModuleRepository.findByWorldId(8L)).thenReturn(modules);
         when(contextBuilder.buildModuleContext(world, module, modules)).thenReturn(Map.of("key", "value"));
         when(templateService.renderFinalTemplate(eq("cosmos"), anyMap(), eq(654L))).thenReturn("prompt");
@@ -135,7 +140,8 @@ class WorldGenerationWorkflowServiceTest {
         when(aiService.generate("prompt", "api-key", null, null)).thenThrow(new IllegalStateException("AI 错误"));
         when(worldModuleRepository.findByWorldIdAndModuleKey(8L, "cosmos")).thenReturn(Optional.of(module));
 
-        service.processQueue();
+        assertThatThrownBy(() -> service.generateModule(8L, "cosmos", 654L))
+                .isInstanceOf(org.springframework.web.server.ResponseStatusException.class);
 
         assertThat(job.getStatus()).isEqualTo(WorldGenerationJobStatus.FAILED);
         assertThat(job.getFinishedAt()).isNotNull();

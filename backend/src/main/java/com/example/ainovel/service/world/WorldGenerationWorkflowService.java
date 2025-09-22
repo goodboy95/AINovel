@@ -17,7 +17,7 @@ import com.example.ainovel.worldbuilding.definition.WorldModuleDefinitionRegistr
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
@@ -30,7 +30,6 @@ import java.util.EnumSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
 
 @Service
@@ -144,38 +143,30 @@ public class WorldGenerationWorkflowService {
         }
     }
 
-    @Scheduled(fixedDelayString = "${world.generation.poll-interval-ms:3000}")
     @Transactional
-    public void processQueue() {
-        Optional<WorldGenerationJob> jobOpt = jobRepository.fetchNextJobForUpdate();
-        if (jobOpt.isEmpty()) {
-            return;
+    public WorldGenerationStatusResponse generateModule(Long worldId, String moduleKey, Long userId) {
+        World world = worldRepository.findByIdAndUserId(worldId, userId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "世界不存在或无权访问"));
+        WorldGenerationJob job = jobRepository.findByWorldIdAndModuleKey(worldId, moduleKey)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "未找到对应的生成任务"));
+        if (job.getStatus() == WorldGenerationJobStatus.SUCCEEDED) {
+            return getStatus(worldId, userId);
         }
-        WorldGenerationJob job = jobOpt.get();
-        World world = job.getWorld();
-        if (world == null) {
-            log.warn("Job {} missing world reference", job.getId());
-            job.setStatus(WorldGenerationJobStatus.FAILED);
-            job.setLastError("缺少世界信息");
-            job.setFinishedAt(LocalDateTime.now());
-            jobRepository.save(job);
-            return;
+        if (job.getStatus() == WorldGenerationJobStatus.RUNNING) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "该模块正在生成中");
         }
         try {
             executeJob(job, world);
+        } catch (ResponseStatusException ex) {
+            markJobFailed(job, moduleKey, ex);
+            throw ex;
         } catch (Exception ex) {
-            log.error("Failed to process world generation job {}", job.getId(), ex);
-            job.setStatus(WorldGenerationJobStatus.FAILED);
-            job.setFinishedAt(LocalDateTime.now());
-            job.setLastError(truncateError(ex.getMessage()));
-            jobRepository.save(job);
-            WorldModule module = worldModuleRepository.findByWorldIdAndModuleKey(world.getId(), job.getModuleKey())
-                    .orElse(null);
-            if (module != null) {
-                module.setStatus(WorldModuleStatus.FAILED);
-                worldModuleRepository.save(module);
-            }
+            markJobFailed(job, moduleKey, ex);
+            String message = truncateError(ex.getMessage());
+            throw new ResponseStatusException(HttpStatus.BAD_GATEWAY,
+                    StringUtils.hasText(message) ? message : "模块生成失败", ex);
         }
+        return getStatus(worldId, userId);
     }
 
     private void executeJob(WorldGenerationJob job, World world) {
@@ -237,6 +228,22 @@ public class WorldGenerationWorkflowService {
             return message;
         }
         return message.substring(0, (int) maxErrorLength) + "…";
+    }
+
+    private void markJobFailed(WorldGenerationJob job, String moduleKey, Exception ex) {
+        World world = job.getWorld();
+        Long worldId = world != null ? world.getId() : null;
+        log.error("Failed to generate module {} for world {}", moduleKey, worldId, ex);
+        job.setStatus(WorldGenerationJobStatus.FAILED);
+        job.setFinishedAt(LocalDateTime.now());
+        job.setLastError(truncateError(ex.getMessage()));
+        jobRepository.save(job);
+        if (worldId != null) {
+            worldModuleRepository.findByWorldIdAndModuleKey(worldId, moduleKey).ifPresent(module -> {
+                module.setStatus(WorldModuleStatus.FAILED);
+                worldModuleRepository.save(module);
+            });
+        }
     }
 
     private AiCredentials resolveCredentials(Long userId) {
