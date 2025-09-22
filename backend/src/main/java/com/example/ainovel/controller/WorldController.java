@@ -183,6 +183,14 @@ public class WorldController {
         return ResponseEntity.ok(status);
     }
 
+    @PostMapping("/{worldId}/generation/{moduleKey}")
+    public ResponseEntity<WorldGenerationStatusResponse> generateModuleFinal(@PathVariable Long worldId,
+                                                                             @PathVariable String moduleKey,
+                                                                             @AuthenticationPrincipal User user) {
+        WorldGenerationStatusResponse status = worldGenerationWorkflowService.generateModule(worldId, moduleKey, user.getId());
+        return ResponseEntity.ok(status);
+    }
+
     @PostMapping("/{worldId}/generation/{moduleKey}/retry")
     public ResponseEntity<Void> retryGeneration(@PathVariable Long worldId,
                                                 @PathVariable String moduleKey,

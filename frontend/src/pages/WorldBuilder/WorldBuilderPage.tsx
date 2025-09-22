@@ -20,6 +20,7 @@ import {
     previewWorldPublish,
     publishWorld,
     refineWorldField,
+    runWorldGenerationModule,
     retryWorldGeneration,
     updateWorld,
     updateWorldModules,
@@ -55,7 +56,7 @@ const mergeModules = (current: WorldModule[], updated: WorldModule[]): WorldModu
     return merged;
 };
 
-const initialCreativeIntent = '（占位文案）请在此处写下你的创作意图、灵感来源、预期主题以及需要遵守的世界观边界。建议至少 150 字，说明故事想聚焦的冲突、角色成长方向和需要避免的情节。该文本仅为占位，请尽快替换为真实内容，以帮助 AI 在生成时保持一致性和合理性。';
+const initialCreativeIntent = '（占位文案）请在此处写下你的创作意图、灵感来源、预期主题以及需要遵守的世界观边界。建议至少 150 字，说明故事想聚焦的冲突、角色成长方向和需要避免的情节。该文本仅为占位，请尽快替换为真实内容，以帮助 AI 在生成时保持一致性和合理性。同时补充时代背景、关键势力、禁忌设定与长期发展目标，让生成的内容更贴近你的设计。';
 
 const buildBasicInfoPayload = (detail: WorldDetail): WorldUpsertPayload => ({
     name: detail.world.name,
@@ -84,8 +85,9 @@ const WorldBuilderPage: React.FC = () => {
     const [progressVisible, setProgressVisible] = useState(false);
     const [progressStatus, setProgressStatus] = useState<WorldGenerationStatus | null>(null);
     const [progressLoading, setProgressLoading] = useState(false);
-    const progressTimerRef = useRef<number | undefined>(undefined);
-    const pollingWorldRef = useRef<number | null>(null);
+    const [progressWorldName, setProgressWorldName] = useState('');
+    const generationWorldRef = useRef<number | null>(null);
+    const generationRunningRef = useRef(false);
     const [refineState, setRefineState] = useState<{
         moduleKey: string;
         fieldKey: string;
@@ -112,14 +114,19 @@ const WorldBuilderPage: React.FC = () => {
         }
     }, []);
 
-    const stopPolling = useCallback(() => {
-        if (progressTimerRef.current) {
-            window.clearInterval(progressTimerRef.current);
-            progressTimerRef.current = undefined;
-        }
-        pollingWorldRef.current = null;
+    const stopGeneration = useCallback(() => {
+        generationWorldRef.current = null;
+        generationRunningRef.current = false;
         setProgressLoading(false);
     }, []);
+
+    const resolveWorldName = useCallback((worldId: number) => {
+        if (worldDetail?.world.id === worldId) {
+            return worldDetail.world.name ?? '';
+        }
+        const summary = worlds.find(world => world.id === worldId);
+        return summary?.name ?? '';
+    }, [worldDetail, worlds]);
 
     const loadWorldSummaries = useCallback(async () => {
         setLoadingWorlds(true);
@@ -136,50 +143,136 @@ const WorldBuilderPage: React.FC = () => {
         }
     }, [selectedWorldId]);
 
-    const startPolling = useCallback(async (worldId: number) => {
-        if (pollingWorldRef.current === worldId) {
+    const handleGenerationCompletion = useCallback(async (worldId: number) => {
+        stopGeneration();
+        setProgressStatus(null);
+        setProgressVisible(false);
+        setProgressWorldName('');
+        message.success('世界完整信息生成完成');
+        await loadWorldSummaries();
+        try {
+            const detail = await fetchWorldDetail(worldId);
+            setWorldDetail(detail);
+            setBaselineDetail(cloneWorldDetail(detail));
+            setDirtyBasicInfo({});
+            setDirtyModules({});
+            setSaveState('saved');
+        } catch (err) {
+            message.error(err instanceof Error ? err.message : '刷新世界详情失败');
+        }
+    }, [loadWorldSummaries, stopGeneration]);
+
+    const runGenerationPipeline = useCallback(async (worldId: number, initialStatus?: WorldGenerationStatus) => {
+        if (generationRunningRef.current) {
             return;
         }
-        stopPolling();
-        pollingWorldRef.current = worldId;
-        setProgressVisible(true);
-        setProgressLoading(true);
-
-        const fetchStatus = async () => {
-            try {
-                const status = await fetchWorldGenerationStatus(worldId);
-                if (pollingWorldRef.current !== worldId) {
+        generationRunningRef.current = true;
+        try {
+            let status = initialStatus;
+            if (!status) {
+                status = await fetchWorldGenerationStatus(worldId);
+                if (generationWorldRef.current !== worldId) {
                     return;
                 }
                 setProgressStatus(status);
-                if (status.status !== 'GENERATING') {
-                    stopPolling();
-                    setProgressVisible(false);
-                    message.success('世界完整信息生成完成');
-                    await loadWorldSummaries();
-                    try {
-                        const detail = await fetchWorldDetail(worldId);
-                        setWorldDetail(detail);
-                        setBaselineDetail(cloneWorldDetail(detail));
-                        setDirtyBasicInfo({});
-                        setDirtyModules({});
-                        setSaveState('saved');
-                    } catch (err) {
-                        message.error(err instanceof Error ? err.message : '刷新世界详情失败');
-                    }
-                }
-            } catch (err) {
-                if (pollingWorldRef.current === worldId) {
-                    message.error(err instanceof Error ? err.message : '获取生成进度失败');
-                }
-            } finally {
-                setProgressLoading(false);
             }
-        };
+            while (generationWorldRef.current === worldId) {
+                const queue = status?.queue ?? [];
+                const nextJob = queue.find(job => job.status === 'WAITING');
+                if (!nextJob) {
+                    if (status && status.status !== 'GENERATING') {
+                        await handleGenerationCompletion(worldId);
+                    }
+                    break;
+                }
+                setProgressStatus(prev => {
+                    if (!prev) return prev;
+                    return {
+                        ...prev,
+                        queue: prev.queue.map(job => job.moduleKey === nextJob.moduleKey
+                            ? { ...job, status: 'RUNNING' }
+                            : job),
+                    };
+                });
+                try {
+                    const updated = await runWorldGenerationModule(worldId, nextJob.moduleKey);
+                    if (generationWorldRef.current !== worldId) {
+                        break;
+                    }
+                    setProgressStatus(updated);
+                    status = updated;
+                    if (updated.status !== 'GENERATING') {
+                        await handleGenerationCompletion(worldId);
+                        break;
+                    }
+                } catch (err) {
+                    if (generationWorldRef.current === worldId) {
+                        message.error(err instanceof Error ? err.message : '生成模块失败');
+                        try {
+                            const fallback = await fetchWorldGenerationStatus(worldId);
+                            if (generationWorldRef.current === worldId) {
+                                setProgressStatus(fallback);
+                                status = fallback;
+                            }
+                        } catch {
+                            // ignore secondary failure
+                        }
+                    }
+                    break;
+                }
+            }
+        } finally {
+            generationRunningRef.current = false;
+        }
+    }, [handleGenerationCompletion]);
 
-        await fetchStatus();
-        progressTimerRef.current = window.setInterval(fetchStatus, 3000);
-    }, [loadWorldSummaries, stopPolling]);
+    const startGeneration = useCallback(async (
+        worldId: number,
+        options?: { initialStatus?: WorldGenerationStatus; force?: boolean; worldName?: string }
+    ) => {
+        const { initialStatus, force = false, worldName } = options ?? {};
+        const resolvedName = worldName ?? resolveWorldName(worldId);
+        if (resolvedName) {
+            setProgressWorldName(resolvedName);
+        }
+        setProgressVisible(true);
+        if (!force && generationWorldRef.current === worldId) {
+            if (initialStatus) {
+                setProgressStatus(initialStatus);
+                if (initialStatus.status === 'GENERATING') {
+                    await runGenerationPipeline(worldId, initialStatus);
+                } else {
+                    await handleGenerationCompletion(worldId);
+                }
+            }
+            return;
+        }
+        generationWorldRef.current = worldId;
+        if (initialStatus) {
+            setProgressStatus(initialStatus);
+            setProgressLoading(false);
+        } else {
+            setProgressLoading(true);
+        }
+        try {
+            const status = initialStatus ?? await fetchWorldGenerationStatus(worldId);
+            if (generationWorldRef.current !== worldId) {
+                return;
+            }
+            setProgressStatus(status);
+            setProgressLoading(false);
+            if (status.status !== 'GENERATING') {
+                await handleGenerationCompletion(worldId);
+                return;
+            }
+            await runGenerationPipeline(worldId, status);
+        } catch (err) {
+            setProgressLoading(false);
+            generationWorldRef.current = null;
+            generationRunningRef.current = false;
+            message.error(err instanceof Error ? err.message : '获取生成进度失败');
+        }
+    }, [handleGenerationCompletion, resolveWorldName, runGenerationPipeline]);
 
     const loadWorldDetail = useCallback(async (worldId: number) => {
         setLoadingDetail(true);
@@ -191,18 +284,22 @@ const WorldBuilderPage: React.FC = () => {
             setDirtyModules({});
             setSaveState('saved');
             if (detail.world.status === 'GENERATING') {
-                startPolling(worldId);
-            } else if (pollingWorldRef.current === worldId) {
-                stopPolling();
+                void startGeneration(worldId, {
+                    force: true,
+                    worldName: detail.world.name ?? undefined,
+                });
+            } else if (generationWorldRef.current === worldId) {
+                stopGeneration();
                 setProgressVisible(false);
                 setProgressStatus(null);
+                setProgressWorldName('');
             }
         } catch (err) {
             message.error(err instanceof Error ? err.message : '加载世界详情失败');
         } finally {
             setLoadingDetail(false);
         }
-    }, [startPolling, stopPolling]);
+    }, [startGeneration, stopGeneration]);
 
     useEffect(() => {
         const fetchDefinitions = async () => {
@@ -235,9 +332,9 @@ const WorldBuilderPage: React.FC = () => {
     useEffect(() => {
         return () => {
             clearAutoSaveTimer();
-            stopPolling();
+            stopGeneration();
         };
-    }, [clearAutoSaveTimer, stopPolling]);
+    }, [clearAutoSaveTimer, stopGeneration]);
 
     useEffect(() => {
         const handleBeforeUnload = (event: BeforeUnloadEvent) => {
@@ -566,29 +663,33 @@ const WorldBuilderPage: React.FC = () => {
                 ),
             } : prev);
             await loadWorldSummaries();
-            await startPolling(worldDetail.world.id!);
+            void startGeneration(worldDetail.world.id!, {
+                force: true,
+                worldName: worldDetail.world.name ?? undefined,
+            });
         } catch (err) {
             message.error(err instanceof Error ? err.message : '正式创建失败');
         } finally {
             setPublishing(false);
         }
-    }, [loadWorldSummaries, saveDraft, startPolling, worldDetail]);
+    }, [loadWorldSummaries, saveDraft, startGeneration, worldDetail]);
 
     const handleRetryModule = useCallback(async (moduleKey: string) => {
         if (!worldDetail) return;
         try {
             await retryWorldGeneration(worldDetail.world.id!, moduleKey);
             message.success('已重新排队');
-            if (pollingWorldRef.current === worldDetail.world.id) {
-                const status = await fetchWorldGenerationStatus(worldDetail.world.id!);
-                setProgressStatus(status);
-            } else {
-                await startPolling(worldDetail.world.id!);
-            }
+            const status = await fetchWorldGenerationStatus(worldDetail.world.id!);
+            setProgressStatus(status);
+            void startGeneration(worldDetail.world.id!, {
+                initialStatus: status,
+                force: true,
+                worldName: worldDetail.world.name ?? undefined,
+            });
         } catch (err) {
             message.error(err instanceof Error ? err.message : '重新排队失败');
         }
-    }, [startPolling, worldDetail]);
+    }, [startGeneration, worldDetail]);
     useEffect(() => {
         if (selectedWorldId == null && worlds.length > 0) {
             setSelectedWorldId(worlds[0].id);
@@ -675,11 +776,13 @@ const WorldBuilderPage: React.FC = () => {
             <GenerationProgressModal
                 open={progressVisible}
                 status={progressStatus}
-                worldName={worldDetail?.world.name}
+                worldName={progressWorldName || worldDetail?.world.name}
                 loading={progressLoading}
                 onClose={() => {
                     setProgressVisible(false);
-                    stopPolling();
+                    stopGeneration();
+                    setProgressStatus(null);
+                    setProgressWorldName('');
                 }}
                 onRetry={handleRetryModule}
             />
