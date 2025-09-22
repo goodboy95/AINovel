@@ -156,18 +156,19 @@ public class ManuscriptService {
         }
 
         // Determine target Manuscript (use latest for this outline or create default)
+        final Long manuscriptWorldId = resolvedWorldId;
         Manuscript manuscript = manuscriptRepository.findFirstByOutlineCardIdOrderByCreatedAtDesc(outline.getId())
                 .orElseGet(() -> {
                     Manuscript m = new Manuscript();
                     m.setOutlineCard(outline);
                     m.setUser(story.getUser());
                     m.setTitle("默认稿件");
-                    m.setWorldId(resolvedWorldId);
+                    m.setWorldId(manuscriptWorldId);
                     return manuscriptRepository.save(m);
                 });
         if (!Objects.equals(manuscript.getWorldId(), resolvedWorldId)) {
             manuscript.setWorldId(resolvedWorldId);
-            manuscript = manuscriptRepository.save(manuscript);
+            manuscriptRepository.save(manuscript);
         }
 
         int chapterNumber = currentChapter.getChapterNumber();

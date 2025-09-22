@@ -645,9 +645,9 @@ public class WorldBuildingDefinitionService {
                         请在 180-400 字内重写下方内容，只返回优化后的正文，无需任何解释或 Markdown 标题。
 
                         原始文本：
-                        """
+                        '''
                         ${originalText}
-                        """
+                        '''
                         """)
                 .setUsageNotes(List.of(
                         "调用时需提供 fieldLabel、focusNote、originalText。",
