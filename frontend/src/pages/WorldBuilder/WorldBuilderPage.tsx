@@ -39,6 +39,7 @@ const { Content } = Layout;
 const { Title, Paragraph } = Typography;
 
 const AUTO_SAVE_DELAY = 2000;
+const MAX_MODULE_GENERATION_RETRIES = 3;
 
 const cloneWorldDetail = (detail: WorldDetail): WorldDetail => {
     return JSON.parse(JSON.stringify(detail)) as WorldDetail;
@@ -167,6 +168,7 @@ const WorldBuilderPage: React.FC = () => {
             return;
         }
         generationRunningRef.current = true;
+        const retryCounts = new Map<string, number>();
         try {
             let status = initialStatus;
             if (!status) {
@@ -178,7 +180,7 @@ const WorldBuilderPage: React.FC = () => {
             }
             while (generationWorldRef.current === worldId) {
                 const queue = status?.queue ?? [];
-                const nextJob = queue.find(job => job.status === 'WAITING');
+                const nextJob = queue.find(job => job.status === 'WAITING' || job.status === 'FAILED');
                 if (!nextJob) {
                     if (status && status.status !== 'GENERATING') {
                         await handleGenerationCompletion(worldId);
@@ -199,6 +201,7 @@ const WorldBuilderPage: React.FC = () => {
                     if (generationWorldRef.current !== worldId) {
                         break;
                     }
+                    retryCounts.delete(nextJob.moduleKey);
                     setProgressStatus(updated);
                     status = updated;
                     if (updated.status !== 'GENERATING') {
@@ -206,18 +209,27 @@ const WorldBuilderPage: React.FC = () => {
                         break;
                     }
                 } catch (err) {
-                    if (generationWorldRef.current === worldId) {
-                        message.error(err instanceof Error ? err.message : '生成模块失败');
-                        try {
-                            const fallback = await fetchWorldGenerationStatus(worldId);
-                            if (generationWorldRef.current === worldId) {
-                                setProgressStatus(fallback);
-                                status = fallback;
-                            }
-                        } catch {
-                            // ignore secondary failure
-                        }
+                    if (generationWorldRef.current !== worldId) {
+                        break;
                     }
+                    const previousRetries = retryCounts.get(nextJob.moduleKey) ?? 0;
+                    const nextRetry = previousRetries + 1;
+                    retryCounts.set(nextJob.moduleKey, nextRetry);
+                    const errorMessage = err instanceof Error ? err.message : '生成模块失败';
+                    try {
+                        const fallback = await fetchWorldGenerationStatus(worldId);
+                        if (generationWorldRef.current === worldId) {
+                            setProgressStatus(fallback);
+                            status = fallback;
+                        }
+                    } catch {
+                        // ignore secondary failure when refreshing status
+                    }
+                    if (previousRetries < MAX_MODULE_GENERATION_RETRIES) {
+                        message.warning(`${nextJob.moduleLabel} 模块生成失败，正在进行第 ${nextRetry} 次重试…`);
+                        continue;
+                    }
+                    message.error(`${nextJob.moduleLabel} 模块生成失败：${errorMessage}，请稍后手动重试。`);
                     break;
                 }
             }
@@ -283,23 +295,12 @@ const WorldBuilderPage: React.FC = () => {
             setDirtyBasicInfo({});
             setDirtyModules({});
             setSaveState('saved');
-            if (detail.world.status === 'GENERATING') {
-                void startGeneration(worldId, {
-                    force: true,
-                    worldName: detail.world.name ?? undefined,
-                });
-            } else if (generationWorldRef.current === worldId) {
-                stopGeneration();
-                setProgressVisible(false);
-                setProgressStatus(null);
-                setProgressWorldName('');
-            }
         } catch (err) {
             message.error(err instanceof Error ? err.message : '加载世界详情失败');
         } finally {
             setLoadingDetail(false);
         }
-    }, [startGeneration, stopGeneration]);
+    }, []);
 
     useEffect(() => {
         const fetchDefinitions = async () => {
@@ -328,6 +329,37 @@ const WorldBuilderPage: React.FC = () => {
         }
         loadWorldDetail(selectedWorldId);
     }, [selectedWorldId, loadWorldDetail]);
+
+    useEffect(() => {
+        const worldId = worldDetail?.world.id;
+        if (!worldId) {
+            if (generationWorldRef.current != null) {
+                stopGeneration();
+                setProgressVisible(false);
+                setProgressStatus(null);
+                setProgressWorldName('');
+            }
+            return;
+        }
+        if (worldDetail.world.status === 'GENERATING') {
+            if (generationWorldRef.current !== worldId) {
+                void startGeneration(worldId, {
+                    force: true,
+                    worldName: worldDetail.world.name ?? undefined,
+                });
+            } else {
+                setProgressVisible(true);
+                if (worldDetail.world.name) {
+                    setProgressWorldName(worldDetail.world.name);
+                }
+            }
+        } else if (generationWorldRef.current === worldId) {
+            stopGeneration();
+            setProgressVisible(false);
+            setProgressStatus(null);
+            setProgressWorldName('');
+        }
+    }, [worldDetail, startGeneration, stopGeneration]);
 
     useEffect(() => {
         return () => {
