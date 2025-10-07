@@ -11,7 +11,6 @@ import com.example.ainovel.service.SettingsService;
 import com.example.ainovel.worldbuilding.definition.WorldModuleDefinition;
 import com.example.ainovel.worldbuilding.definition.WorldModuleDefinitionRegistry;
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.http.HttpStatus;
@@ -29,9 +28,6 @@ import java.util.Objects;
 @Service
 @Transactional
 public class WorldModuleGenerationService {
-
-    private static final TypeReference<Map<String, String>> FIELD_MAP_TYPE = new TypeReference<>() {
-    };
 
     private final WorldRepository worldRepository;
     private final WorldModuleRepository worldModuleRepository;
@@ -129,11 +125,49 @@ public class WorldModuleGenerationService {
         try {
             JsonNode node = objectMapper.readTree(sanitized);
             if (node.isObject()) {
-                return objectMapper.convertValue(node, FIELD_MAP_TYPE);
+                LinkedHashMap<String, String> result = new LinkedHashMap<>();
+                node.fields().forEachRemaining(entry -> {
+                    String value = normalizeValue(entry.getValue());
+                    if (value != null) {
+                        result.put(entry.getKey(), value);
+                    }
+                });
+                return result;
             }
             throw new ResponseStatusException(HttpStatus.BAD_GATEWAY, "AI 返回内容不是 JSON 对象");
         } catch (JsonProcessingException e) {
             throw new ResponseStatusException(HttpStatus.BAD_GATEWAY, "无法解析 AI 返回的 JSON", e);
+        }
+    }
+
+    private String normalizeValue(JsonNode valueNode) {
+        if (valueNode == null || valueNode.isNull() || valueNode.isMissingNode()) {
+            return null;
+        }
+        if (valueNode.isTextual() || valueNode.isNumber() || valueNode.isBoolean()) {
+            return valueNode.asText();
+        }
+        if (valueNode.isArray()) {
+            StringBuilder builder = new StringBuilder();
+            for (JsonNode element : valueNode) {
+                String elementString = normalizeValue(element);
+                if (!StringUtils.hasText(elementString)) {
+                    continue;
+                }
+                if (builder.length() > 0) {
+                    builder.append("\n\n");
+                }
+                builder.append(elementString);
+            }
+            if (builder.length() > 0) {
+                return builder.toString();
+            }
+            return "[]";
+        }
+        try {
+            return objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(valueNode);
+        } catch (JsonProcessingException ignored) {
+            return valueNode.toString();
         }
     }
 
