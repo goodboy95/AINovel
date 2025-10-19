@@ -11,6 +11,9 @@ import com.example.ainovel.repository.WorldModuleRepository;
 import com.example.ainovel.repository.WorldRepository;
 import com.example.ainovel.worldbuilding.definition.WorldModuleDefinition;
 import com.example.ainovel.worldbuilding.definition.WorldModuleDefinitionRegistry;
+
+import lombok.extern.slf4j.Slf4j;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -26,8 +29,12 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+/**
+ * 世界观相关的聚合服务，负责持久层和业务校验的衔接。
+ */
 @Service
 @Transactional
+@Slf4j
 public class WorldService {
 
     private static final int MAX_THEMES = 5;
@@ -48,6 +55,7 @@ public class WorldService {
 
     public WorldAggregate createWorld(User user, WorldUpsertRequest request) {
         validateBasicInfo(request);
+        log.info("User {} is creating a new world with name '{}'", user.getId(), request.getName());
         World world = new World();
         world.setUser(user);
         applyBasicInfo(world, request);
@@ -71,12 +79,14 @@ public class WorldService {
         }
 
         World saved = worldRepository.save(world);
+        log.debug("World {} created with {} modules", saved.getId(), modules.size());
         List<WorldModule> persistedModules = worldModuleRepository.findByWorldId(saved.getId());
         return new WorldAggregate(saved, persistedModules);
     }
 
     @Transactional(readOnly = true)
     public WorldAggregate getWorld(Long worldId, Long userId) {
+        log.debug("Loading draft world {} for user {}", worldId, userId);
         World world = loadWorld(worldId, userId);
         List<WorldModule> modules = worldModuleRepository.findByWorldId(worldId);
         return new WorldAggregate(world, modules);
@@ -84,6 +94,7 @@ public class WorldService {
 
     @Transactional(readOnly = true)
     public WorldAggregate getPublishedWorldWithModules(Long worldId, Long userId) {
+        log.debug("Loading published world {} for user {}", worldId, userId);
         World world = worldRepository.findByIdAndUserIdAndStatus(worldId, userId, WorldStatus.ACTIVE)
                 .orElseThrow(() -> new ResourceNotFoundException("世界不存在或尚未发布"));
         List<WorldModule> modules = worldModuleRepository.findByWorldId(worldId);
@@ -92,6 +103,7 @@ public class WorldService {
 
     @Transactional(readOnly = true)
     public List<WorldAggregate> listWorlds(Long userId, WorldStatus statusFilter) {
+        log.debug("Listing worlds for user {} with status filter {}", userId, statusFilter);
         List<World> worlds;
         if (statusFilter == null) {
             worlds = worldRepository.findAllByUserIdOrderByUpdatedAtDesc(userId);
@@ -105,13 +117,16 @@ public class WorldService {
         Map<Long, List<WorldModule>> moduleMap = worldModuleRepository.findByWorldIdIn(worldIds)
                 .stream()
                 .collect(Collectors.groupingBy(module -> module.getWorld().getId()));
-        return worlds.stream()
+        List<WorldAggregate> aggregates = worlds.stream()
                 .map(world -> new WorldAggregate(world, moduleMap.getOrDefault(world.getId(), List.of())))
                 .collect(Collectors.toList());
+        log.debug("Returning {} worlds for user {}", aggregates.size(), userId);
+        return aggregates;
     }
 
     public WorldAggregate updateWorld(Long worldId, Long userId, WorldUpsertRequest request) {
         validateBasicInfo(request);
+        log.info("User {} updating world {}", userId, worldId);
         World world = loadWorld(worldId, userId);
         if (world.getStatus() == WorldStatus.GENERATING) {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "世界正在生成中，无法修改");
@@ -126,20 +141,27 @@ public class WorldService {
         }
         World saved = worldRepository.save(world);
         List<WorldModule> modules = worldModuleRepository.findByWorldId(worldId);
+        log.debug("World {} updated; changed={}, status={}", worldId, changed, saved.getStatus());
         return new WorldAggregate(saved, modules);
     }
 
     public void deleteWorld(Long worldId, Long userId) {
+        log.info("User {} attempting to delete world {}", userId, worldId);
         World world = loadWorld(worldId, userId);
         if (world.getStatus() != WorldStatus.DRAFT || (world.getVersion() != null && world.getVersion() > 0)) {
+            log.warn("User {} cannot delete world {} due to status {} or version {}", userId, worldId, world.getStatus(), world.getVersion());
             throw new ResponseStatusException(HttpStatus.CONFLICT, "仅允许删除未发布的草稿世界");
         }
         worldRepository.delete(world);
+        log.info("World {} deleted for user {}", worldId, userId);
     }
 
     private World loadWorld(Long worldId, Long userId) {
         return worldRepository.findByIdAndUserId(worldId, userId)
-                .orElseThrow(() -> new ResourceNotFoundException("世界不存在或无权访问"));
+                .orElseThrow(() -> {
+                    log.warn("World {} not found or unauthorized for user {}", worldId, userId);
+                    return new ResourceNotFoundException("世界不存在或无权访问");
+                });
     }
 
     @Transactional(readOnly = true)
@@ -148,7 +170,10 @@ public class WorldService {
             return;
         }
         worldRepository.findByIdAndUserIdAndStatus(worldId, userId, WorldStatus.ACTIVE)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "所选世界不存在或未发布"));
+                .orElseThrow(() -> {
+                    log.warn("User {} attempted to link story to unavailable world {}", userId, worldId);
+                    return new ResponseStatusException(HttpStatus.BAD_REQUEST, "所选世界不存在或未发布");
+                });
     }
 
     private void validateBasicInfo(WorldUpsertRequest request) {
