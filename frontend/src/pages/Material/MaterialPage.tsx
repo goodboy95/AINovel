@@ -1,7 +1,9 @@
-import { Card, Tabs, Alert } from 'antd';
+import { Card, Tabs } from 'antd';
 import MaterialCreateForm from '../../components/MaterialCreateForm';
 import MaterialUpload from '../../components/MaterialUpload';
 import ReviewDashboard from './ReviewDashboard';
+import MaterialList from '../../components/MaterialList';
+import Can from '../../components/Can';
 
 const { TabPane } = Tabs;
 
@@ -9,21 +11,23 @@ const MaterialPage = () => (
     <div style={{ padding: 24 }}>
         <Card title="素材库" bordered={false}>
             <Tabs defaultActiveKey="create">
-                <TabPane tab="创建素材" key="create">
-                    <MaterialCreateForm />
-                </TabPane>
-                <TabPane tab="上传文件" key="upload">
-                    <MaterialUpload />
-                </TabPane>
-                <TabPane tab="素材审核" key="review">
-                    <ReviewDashboard />
-                </TabPane>
+                <Can perform="workspace:write">
+                    <TabPane tab="创建素材" key="create">
+                        <MaterialCreateForm />
+                    </TabPane>
+                </Can>
+                <Can perform="workspace:write">
+                    <TabPane tab="上传文件" key="upload">
+                        <MaterialUpload />
+                    </TabPane>
+                </Can>
+                <Can perform="workspace:write">
+                    <TabPane tab="素材审核" key="review">
+                        <ReviewDashboard />
+                    </TabPane>
+                </Can>
                 <TabPane tab="素材列表" key="list">
-                    <Alert
-                        message="素材列表功能将在后续版本中提供"
-                        type="info"
-                        showIcon
-                    />
+                    <MaterialList />
                 </TabPane>
             </Tabs>
         </Card>

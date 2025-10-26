@@ -4,6 +4,7 @@ import com.example.ainovel.dto.RegisterRequest;
 import com.example.ainovel.model.User;
 import com.example.ainovel.repository.UserRepository;
 import com.example.ainovel.utils.JwtUtil;
+import com.example.ainovel.service.security.PermissionService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -25,6 +26,7 @@ public class AuthService {
     private final PasswordEncoder passwordEncoder;
     private final AuthenticationManager authenticationManager;
     private final JwtUtil jwtUtil;
+    private final PermissionService permissionService;
 
     /**
      * Registers a new user based on the provided registration data.
@@ -47,7 +49,9 @@ public class AuthService {
         newUser.setEmail(registerRequest.getEmail());
         newUser.setPassword(passwordEncoder.encode(registerRequest.getPassword()));
 
-        return userRepository.save(newUser);
+        User saved = userRepository.save(newUser);
+        permissionService.ensureWorkspaceAdmin(saved.getId(), saved.getId());
+        return saved;
     }
 
     /**

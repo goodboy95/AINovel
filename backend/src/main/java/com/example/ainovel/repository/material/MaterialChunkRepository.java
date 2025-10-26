@@ -13,6 +13,14 @@ public interface MaterialChunkRepository extends JpaRepository<MaterialChunk, Lo
 
     List<MaterialChunk> findByMaterialIdOrderBySequenceAsc(Long materialId);
 
+    @Query("""
+        SELECT mc
+          FROM MaterialChunk mc
+          JOIN FETCH mc.material m
+         WHERE m.workspaceId = :workspaceId
+        """)
+    List<MaterialChunk> findAllByWorkspaceId(Long workspaceId);
+
     @Query(value = """
         SELECT mc.id,
                MATCH (mc.text) AGAINST (?1 IN BOOLEAN MODE) AS score

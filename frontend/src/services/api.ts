@@ -27,9 +27,13 @@ import type {
     MaterialPayload,
     MaterialResponse,
     MaterialSearchResult,
+    MaterialDuplicateCandidate,
+    MaterialMergeRequest,
+    MaterialCitationDto,
     FileImportJob,
     MaterialReviewItem,
     MaterialReviewDecisionPayload,
+    AuthValidationResponse,
 } from '../types';
 
 /**
@@ -295,11 +299,11 @@ export const refineText = (
 };
 
 // Auth APIs
-export const validateToken = (): Promise<{ username: string }> => {
+export const validateToken = (): Promise<AuthValidationResponse> => {
     return fetch('/api/auth/validate', {
         method: 'GET',
         headers: getAuthHeaders(),
-    }).then(res => handleResponse<{ username: string }>(res));
+    }).then(res => handleResponse<AuthValidationResponse>(res));
 };
 
 /**
@@ -566,6 +570,13 @@ export const createMaterial = (payload: MaterialPayload): Promise<MaterialRespon
     }).then(res => handleResponse<MaterialResponse>(res));
 };
 
+export const fetchMaterials = (): Promise<MaterialResponse[]> => {
+    return fetch('/api/v1/materials', {
+        method: 'GET',
+        headers: getAuthHeaders(),
+    }).then(res => handleResponse<MaterialResponse[]>(res));
+};
+
 export const uploadMaterialFile = (file: File): Promise<FileImportJob> => {
     const formData = new FormData();
     formData.append('file', file);
@@ -603,6 +614,29 @@ export const getAutoHints = (payload: { text: string; workspaceId?: number | nul
 export const fetchPendingMaterials = (): Promise<MaterialReviewItem[]> => {
     return fetch('/api/v1/materials/review/pending', { headers: getAuthHeaders() })
         .then(res => handleResponse<MaterialReviewItem[]>(res));
+};
+
+export const findMaterialDuplicates = (): Promise<MaterialDuplicateCandidate[]> => {
+    return fetch('/api/v1/materials/find-duplicates', {
+        method: 'POST',
+        headers: getAuthHeaders(),
+        body: JSON.stringify({}),
+    }).then(res => handleResponse<MaterialDuplicateCandidate[]>(res));
+};
+
+export const mergeMaterials = (payload: MaterialMergeRequest): Promise<MaterialResponse> => {
+    return fetch('/api/v1/materials/merge', {
+        method: 'POST',
+        headers: getAuthHeaders(),
+        body: JSON.stringify(payload),
+    }).then(res => handleResponse<MaterialResponse>(res));
+};
+
+export const fetchMaterialCitations = (materialId: number): Promise<MaterialCitationDto[]> => {
+    return fetch(`/api/v1/materials/${materialId}/citations`, {
+        method: 'GET',
+        headers: getAuthHeaders(),
+    }).then(res => handleResponse<MaterialCitationDto[]>(res));
 };
 
 export const approveMaterialReview = (materialId: number, payload: MaterialReviewDecisionPayload): Promise<MaterialReviewItem> => {

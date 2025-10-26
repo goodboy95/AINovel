@@ -4,13 +4,9 @@ import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 
-import org.springframework.ai.document.Document;
-import org.springframework.ai.vectorstore.VectorStore;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
@@ -25,6 +21,10 @@ import com.example.ainovel.model.material.MaterialChunk;
 import com.example.ainovel.model.material.MaterialStatus;
 import com.example.ainovel.repository.material.MaterialChunkRepository;
 import com.example.ainovel.repository.material.MaterialRepository;
+import com.example.ainovel.security.PermissionLevel;
+import com.example.ainovel.security.annotation.CheckPermission;
+import com.example.ainovel.security.annotation.PermissionResourceId;
+import com.example.ainovel.service.security.PermissionService;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -44,13 +44,17 @@ public class MaterialService {
     private final MaterialRepository materialRepository;
     private final MaterialChunkRepository materialChunkRepository;
     private final HybridSearchService hybridSearchService;
-    private final VectorStore vectorStore;
+    private final PermissionService permissionService;
+    private final MaterialVectorService materialVectorService;
 
     /**
      * 手动创建素材。
      */
+    @CheckPermission(resourceType = PermissionService.RESOURCE_WORKSPACE, level = PermissionLevel.WRITE)
     @Transactional
-    public MaterialResponse createMaterial(MaterialCreateRequest request, Long userId, Long workspaceId) {
+    public MaterialResponse createMaterial(MaterialCreateRequest request,
+                                           Long userId,
+                                           @PermissionResourceId(PermissionService.RESOURCE_WORKSPACE) Long workspaceId) {
         if (!StringUtils.hasText(request.getTitle())) {
             throw new IllegalArgumentException("素材标题不能为空");
         }
@@ -75,11 +79,12 @@ public class MaterialService {
     /**
      * 文件导入流程生成素材。
      */
+    @CheckPermission(resourceType = PermissionService.RESOURCE_WORKSPACE, level = PermissionLevel.WRITE)
     @Transactional
     public MaterialResponse createMaterialFromImport(String title,
                                                      String summary,
                                                      String content,
-                                                     Long workspaceId,
+                                                     @PermissionResourceId(PermissionService.RESOURCE_WORKSPACE) Long workspaceId,
                                                      Long userId,
                                                      Long sourceJobId,
                                                      String tags) {
@@ -87,11 +92,12 @@ public class MaterialService {
             MaterialStatus.PUBLISHED);
     }
 
+    @CheckPermission(resourceType = PermissionService.RESOURCE_WORKSPACE, level = PermissionLevel.WRITE)
     @Transactional
     public MaterialResponse createMaterialFromImport(String title,
                                                      String summary,
                                                      String content,
-                                                     Long workspaceId,
+                                                     @PermissionResourceId(PermissionService.RESOURCE_WORKSPACE) Long workspaceId,
                                                      Long userId,
                                                      Long sourceJobId,
                                                      String tags,
@@ -119,22 +125,39 @@ public class MaterialService {
     /**
      * 向量检索素材。
      */
+    @CheckPermission(resourceType = PermissionService.RESOURCE_WORKSPACE, level = PermissionLevel.READ)
     @Transactional(readOnly = true)
-    public List<MaterialSearchResult> searchMaterials(Long workspaceId, String query, int limit) {
-        return hybridSearchService.search(workspaceId, query, limit);
+    public List<MaterialSearchResult> searchMaterials(
+        @PermissionResourceId(PermissionService.RESOURCE_WORKSPACE) Long workspaceId,
+        Long userId,
+        String query,
+        int limit) {
+        return hybridSearchService.search(workspaceId, userId, query, limit);
     }
 
+    @CheckPermission(resourceType = PermissionService.RESOURCE_WORKSPACE, level = PermissionLevel.WRITE)
     @Transactional(readOnly = true)
-    public List<MaterialReviewItem> listPendingReview(Long workspaceId) {
+    public List<MaterialReviewItem> listPendingReview(
+        @PermissionResourceId(PermissionService.RESOURCE_WORKSPACE) Long workspaceId) {
         return materialRepository.findByWorkspaceIdAndStatus(workspaceId, MaterialStatus.PENDING_REVIEW.name())
             .stream()
             .map(this::toReviewItem)
             .toList();
     }
 
+    @CheckPermission(resourceType = PermissionService.RESOURCE_WORKSPACE, level = PermissionLevel.READ)
+    @Transactional(readOnly = true)
+    public List<MaterialResponse> listMaterials(
+        @PermissionResourceId(PermissionService.RESOURCE_WORKSPACE) Long workspaceId) {
+        return materialRepository.findByWorkspaceId(workspaceId).stream()
+            .map(this::toResponse)
+            .toList();
+    }
+
+    @CheckPermission(resourceType = "MATERIAL", level = PermissionLevel.WRITE)
     @Transactional
-    public MaterialReviewItem approveMaterial(Long materialId,
-                                              Long workspaceId,
+    public MaterialReviewItem approveMaterial(@PermissionResourceId Long materialId,
+                                              @PermissionResourceId("WORKSPACE") Long workspaceId,
                                               Long reviewerId,
                                               MaterialReviewDecisionRequest request) {
         Material material = getMaterialForWorkspace(materialId, workspaceId);
@@ -158,9 +181,10 @@ public class MaterialService {
         return toReviewItem(saved);
     }
 
+    @CheckPermission(resourceType = "MATERIAL", level = PermissionLevel.WRITE)
     @Transactional
-    public MaterialReviewItem rejectMaterial(Long materialId,
-                                             Long workspaceId,
+    public MaterialReviewItem rejectMaterial(@PermissionResourceId Long materialId,
+                                             @PermissionResourceId("WORKSPACE") Long workspaceId,
                                              Long reviewerId,
                                              MaterialReviewDecisionRequest request) {
         Material material = getMaterialForWorkspace(materialId, workspaceId);
@@ -183,6 +207,7 @@ public class MaterialService {
         material.setContent(sanitizedContent);
         material.setTags(normalizeTags(rawTags));
         Material saved = materialRepository.save(material);
+        permissionService.syncMaterialOwnership(saved.getCreatedBy(), saved.getId(), saved.getWorkspaceId());
 
         List<String> chunkTexts = chunkText(sanitizedContent);
         if (chunkTexts.isEmpty() && StringUtils.hasText(sanitizedContent)) {
@@ -218,26 +243,7 @@ public class MaterialService {
         if (!MaterialStatus.PUBLISHED.name().equals(material.getStatus())) {
             return;
         }
-        List<Document> documents = new ArrayList<>(chunks.size());
-        for (MaterialChunk chunk : chunks) {
-            Map<String, Object> metadata = new HashMap<>();
-            metadata.put("materialId", material.getId());
-            metadata.put("workspaceId", material.getWorkspaceId());
-            metadata.put("title", material.getTitle());
-            metadata.put("chunkSeq", chunk.getSequence());
-            if (StringUtils.hasText(material.getSummary())) {
-                metadata.put("summary", material.getSummary());
-            }
-            documents.add(new Document(chunk.getText(), metadata));
-        }
-        if (documents.isEmpty()) {
-            return;
-        }
-        try {
-            vectorStore.add(documents);
-        } catch (Exception ex) {
-            log.warn("向量存储写入失败（materialId={}）：{}", material.getId(), ex.getMessage());
-        }
+        materialVectorService.indexMaterial(material, chunks);
     }
 
     private Material getMaterialForWorkspace(Long materialId, Long workspaceId) {

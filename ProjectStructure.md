@@ -41,6 +41,8 @@
 | | `material/EditorContextDto.java` | 编辑器自动建议请求参数。 |
 | | `material/MaterialReviewItem.java` | 人审工作台使用的素材详情。 |
 | | `material/MaterialReviewDecisionRequest.java` | 人审审批/驳回请求体。 |
+| | `material/MaterialDuplicateCandidate.java` / `MaterialMergeRequest.java` | 素材查重与合并 API DTO。 |
+| | `material/MaterialCitationDto.java` | 素材引用历史响应对象。 |
 | **`model`** | | **数据模型 (Entity)**：与数据库表对应的实体类。 |
 | | `CharacterCard.java` | 角色卡片实体。 |
 | | `CharacterChangeLog.java` | 角色变化日志实体。 |
@@ -48,12 +50,16 @@
 | | `OutlineCard.java` | 大纲卡片实体。 |
 | | `UserSetting.java` | 用户设置实体。 |
 | | `material/Material.java` / `MaterialChunk.java` / `FileImportJob.java` | 素材库实体，包含文本切片与文件导入作业。 |
+| | `audit/SearchLog.java` / `audit/Citation.java` | 素材检索与引用审计日志实体。 |
+| | `security/Permission.java` | ACL 权限记录实体。 |
 | **`repository`** | | **数据访问层 (Repository)**：负责与数据库进行交互。 |
 | | `CharacterCardRepository.java` | 角色卡片数据仓库。 |
 | | `ManuscriptRepository.java` | 稿件数据仓库。 |
 | | `OutlineCardRepository.java` | 大纲卡片数据仓库。 |
 | | `UserRepository.java` | 用户数据仓库。 |
 | | `material/MaterialRepository.java` 等 | 素材主数据、文本块与导入任务的仓库。 |
+| | `audit/SearchLogRepository.java` / `audit/CitationRepository.java` | 审计日志仓库。 |
+| | `security/PermissionRepository.java` | 权限仓库。 |
 | **`service`** | | **业务逻辑层 (Service)**：处理核心业务逻辑。 |
 | | `AiService.java` / `OpenAiService.java` | AI 服务，封装与 OpenAI 等模型的交互。 |
 | | `AuthService.java` | 用户认证服务。 |
@@ -63,8 +69,11 @@
 | | `StoryService.java` | 故事管理服务。 |
 | | `world/` | 世界观相关服务，如模块管理、生成等。 |
 | | `material/MaterialService.java` / `material/FileImportService.java` | 素材创建、文本切片与文件上传解析流程。 |
-| | `material/HybridSearchService.java` | 混合检索逻辑（向量+全文）。 |
-| | `material/MaterialExtractionService.java` | LLM 结构化解析协程。 |
+| | `material/HybridSearchService.java` | 多路检索融合逻辑。 |
+| | `material/MaterialVectorService.java` | 素材命名向量管理。 |
+| | `material/DeduplicationService.java` | 素材查重与合并业务。 |
+| | `material/MaterialAuditService.java` / `material/MaterialAuditQueryService.java` | 素材审计事件记录与查询。 |
+| | `service/security/PermissionService.java` | 权限授予、校验、聚合服务。 |
 | **`prompt`** | | **提示词工程**：管理和构建与 AI 交互的提示词。 |
 | | `TemplateEngine.java` | 提示词模板引擎。 |
 | | `context/` | 构建不同场景下（如故事、大纲）的提示词上下文。 |
@@ -72,7 +81,9 @@
 | | `SecurityConfig.java` | Spring Security 安全配置。 |
 | | `WebConfig.java` | Web 相关配置，如 CORS。 |
 | | `ChatClientConfig.java` | Spring AI ChatClient 基础配置。 |
-| **`AinovelApplication.java`** | | Spring Boot 应用主入口。 |
+| **`AinovelApplication.java`** | | Spring Boot 应用主入口（启用 Retry + Async）。 |
+| **`security/PermissionAspect.java`** | | `@CheckPermission` AOP 切面，统一执行权限校验。 |
+| **`security/annotation`** | | 自定义注解：`@CheckPermission`、`@PermissionResourceId`。 |
 
 ---
 
@@ -94,12 +105,14 @@
 | | `Workbench.tsx` | 主工作台界面，整合写作、大纲等功能。 |
 | | `modals/` | 存放各类模态框（弹窗）组件，如编辑角色、编辑大纲等。 |
 | | `MaterialCreateForm.tsx` / `MaterialUpload.tsx` / `MaterialSearchPanel.tsx` | 素材库组件：手动录入、文件上传与检索面板。 |
+| | `MaterialList.tsx` | 素材管理表格，支持查重和引用历史查看。 |
+| | `Can.tsx` | 权限判断组件，根据用户权限渲染操作按钮。 |
 | **`pages`** | | **页面级组件**：通常代表一个完整的页面。 |
 | | `Material/MaterialPage.tsx` | 素材库管理页面（MVP：创建+上传）。 |
 | | `Material/ReviewDashboard.tsx` | 素材库人审工作台。 |
 | | `WorldBuilder/WorldBuilderPage.tsx` | 世界观构建器主页面。 |
 | **`contexts`** | | **React Context**：用于全局状态管理。 |
-| | `AuthContext.tsx` | 存储和管理用户认证状态。 |
+| | `AuthContext.tsx` | 存储和管理用户认证状态，包含权限集与 Workspace Id。 |
 | **`hooks`** | | **自定义 Hooks**：封装可复用的逻辑。 |
 | | `useOutlineData.ts` | 获取和管理大纲数据的 Hook。 |
 | | `useStoryData.ts` | 获取和管理故事数据的 Hook。 |

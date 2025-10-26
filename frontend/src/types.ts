@@ -155,6 +155,17 @@ export interface CharacterDialogueResponsePayload {
     dialogue: string;
 }
 
+export type PermissionLevel = 'READ' | 'WRITE' | 'ADMIN';
+
+export type PermissionMap = Record<string, PermissionLevel[]>;
+
+export interface AuthValidationResponse {
+    username: string;
+    userId?: number;
+    workspaceId?: number;
+    permissions?: PermissionMap;
+}
+
 export type RefineHandler = (text: string, context: RefineContext) => void;
 
 export interface PromptTemplateItem {
@@ -495,4 +506,40 @@ export interface MaterialSearchResult {
     chunkSeq?: number | null;
     snippet: string;
     score?: number | null;
+}
+
+export interface MaterialDuplicateChunk {
+    materialChunkId: number;
+    duplicateChunkId: number;
+    similarity: number;
+    snippet: string;
+}
+
+export interface MaterialDuplicateCandidate {
+    materialId: number;
+    materialTitle: string;
+    duplicateMaterialId: number;
+    duplicateTitle: string;
+    similarity: number;
+    overlappingChunks: MaterialDuplicateChunk[];
+}
+
+export interface MaterialMergeRequest {
+    sourceMaterialId: number;
+    targetMaterialId: number;
+    mergeTags?: boolean;
+    mergeSummaryWhenEmpty?: boolean;
+    note?: string;
+}
+
+export interface MaterialCitationDto {
+    id: number;
+    materialId: number;
+    chunkId?: number | null;
+    chunkSeq?: number | null;
+    documentType: string;
+    documentId: number;
+    userId: number;
+    usageContext?: string | null;
+    createdAt: string;
 }

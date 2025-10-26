@@ -2,7 +2,10 @@ package com.example.ainovel.controller;
 
 import com.example.ainovel.dto.LoginRequest;
 import com.example.ainovel.dto.RegisterRequest;
+import com.example.ainovel.model.User;
+import com.example.ainovel.security.PermissionLevel;
 import com.example.ainovel.service.AuthService;
+import com.example.ainovel.service.security.PermissionService;
 import com.example.ainovel.utils.JwtUtil;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -15,7 +18,10 @@ import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.Collections;
+import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * Controller for handling user authentication operations, such as registration and login.
@@ -27,15 +33,20 @@ public class AuthController {
     private final AuthService authService;
     private final UserDetailsService userDetailsService;
     private final JwtUtil jwtUtil;
+    private final PermissionService permissionService;
 
     /**
      * Constructs an AuthController with the necessary AuthService.
      * @param authService The service for handling authentication logic.
      */
-    public AuthController(AuthService authService, UserDetailsService userDetailsService, JwtUtil jwtUtil) {
+    public AuthController(AuthService authService,
+                          UserDetailsService userDetailsService,
+                          JwtUtil jwtUtil,
+                          PermissionService permissionService) {
         this.authService = authService;
         this.userDetailsService = userDetailsService;
         this.jwtUtil = jwtUtil;
+        this.permissionService = permissionService;
     }
 
     /**
@@ -89,12 +100,37 @@ public class AuthController {
             UserDetails userDetails = userDetailsService.loadUserByUsername(username);
             Boolean valid = jwtUtil.validateToken(token, userDetails);
             if (Boolean.TRUE.equals(valid)) {
-                return ResponseEntity.ok(Map.of("username", username));
+                Long userId = extractUserId(userDetails);
+                Map<String, List<String>> permissions = userId != null
+                    ? toResponse(permissionService.findPermissionsForWorkspace(userId, userId))
+                    : Collections.emptyMap();
+                return ResponseEntity.ok(Map.of(
+                    "username", username,
+                    "userId", userId,
+                    "workspaceId", userId,
+                    "permissions", permissions
+                ));
             } else {
                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
             }
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
+    }
+
+    private Long extractUserId(UserDetails userDetails) {
+        if (userDetails instanceof User user) {
+            return user.getId();
+        }
+        return null;
+    }
+
+    private Map<String, List<String>> toResponse(Map<String, java.util.Set<PermissionLevel>> permissions) {
+        return permissions.entrySet().stream()
+            .collect(Collectors.toMap(Map.Entry::getKey,
+                entry -> entry.getValue().stream()
+                    .map(PermissionLevel::name)
+                    .sorted()
+                    .toList()));
     }
 }

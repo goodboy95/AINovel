@@ -1,7 +1,7 @@
 package com.example.ainovel.service.material;
 
 import java.util.ArrayList;
-import java.util.LinkedHashMap;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -13,6 +13,7 @@ import java.util.stream.Collectors;
 import org.springframework.ai.document.Document;
 import org.springframework.ai.vectorstore.SearchRequest;
 import org.springframework.ai.vectorstore.VectorStore;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
@@ -21,6 +22,7 @@ import com.example.ainovel.dto.material.MaterialSearchResult;
 import com.example.ainovel.model.material.MaterialChunk;
 import com.example.ainovel.model.material.MaterialStatus;
 import com.example.ainovel.repository.material.MaterialChunkRepository;
+import com.example.ainovel.service.material.event.MaterialSearchEvent;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -35,11 +37,13 @@ public class HybridSearchService {
 
     private static final int DEFAULT_VECTOR_FACTOR = 3;
     private static final int DEFAULT_FULLTEXT_FACTOR = 2;
+    private static final double RRF_K = 60.0;
     private final VectorStore vectorStore;
     private final MaterialChunkRepository materialChunkRepository;
+    private final ApplicationEventPublisher eventPublisher;
 
     @Transactional(readOnly = true)
-    public List<MaterialSearchResult> search(Long workspaceId, String query, int limit) {
+    public List<MaterialSearchResult> search(Long workspaceId, Long userId, String query, int limit) {
         if (workspaceId == null || workspaceId <= 0) {
             throw new IllegalArgumentException("workspaceId 无效");
         }
@@ -47,20 +51,23 @@ public class HybridSearchService {
             return List.of();
         }
         int normalizedLimit = Math.min(Math.max(limit, 5), 50);
+        long start = System.currentTimeMillis();
 
-        CompletableFuture<List<MaterialSearchResult>> vectorFuture =
-            CompletableFuture.supplyAsync(() -> vectorSearch(query, workspaceId, normalizedLimit));
+        CompletableFuture<List<MaterialSearchResult>> semanticFuture =
+            CompletableFuture.supplyAsync(() -> vectorSearch(query, workspaceId, normalizedLimit, "semantic"));
+        CompletableFuture<List<MaterialSearchResult>> titleFuture =
+            CompletableFuture.supplyAsync(() -> vectorSearch(query, workspaceId, normalizedLimit, "title"));
+        CompletableFuture<List<MaterialSearchResult>> keywordFuture =
+            CompletableFuture.supplyAsync(() -> vectorSearch(query, workspaceId, normalizedLimit, "keywords"));
         CompletableFuture<List<MaterialSearchResult>> fulltextFuture =
             CompletableFuture.supplyAsync(() -> fulltextSearch(query, workspaceId, normalizedLimit));
 
-        Map<String, MaterialSearchResult> merged = new LinkedHashMap<>();
+        Map<String, List<MaterialSearchResult>> sourceResults = new HashMap<>();
         try {
-            for (MaterialSearchResult result : vectorFuture.get()) {
-                merged.putIfAbsent(buildKey(result), result);
-            }
-            for (MaterialSearchResult result : fulltextFuture.get()) {
-                merged.putIfAbsent(buildKey(result), result);
-            }
+            sourceResults.put("semantic", semanticFuture.get());
+            sourceResults.put("title", titleFuture.get());
+            sourceResults.put("keywords", keywordFuture.get());
+            sourceResults.put("fulltext", fulltextFuture.get());
         } catch (InterruptedException ex) {
             Thread.currentThread().interrupt();
             log.warn("混合检索被中断：{}", ex.getMessage());
@@ -68,12 +75,13 @@ public class HybridSearchService {
             log.warn("混合检索执行失败：{}", ex.getMessage());
         }
 
-        return merged.values().stream()
-            .limit(normalizedLimit)
-            .toList();
+        List<MaterialSearchResult> fused = fuseResults(sourceResults, normalizedLimit);
+        long duration = System.currentTimeMillis() - start;
+        eventPublisher.publishEvent(new MaterialSearchEvent(workspaceId, userId, query, duration, false));
+        return fused;
     }
 
-    private List<MaterialSearchResult> vectorSearch(String query, Long workspaceId, int limit) {
+    private List<MaterialSearchResult> vectorSearch(String query, Long workspaceId, int limit, String vectorType) {
         int topK = Math.max(limit * DEFAULT_VECTOR_FACTOR, limit);
         SearchRequest request = SearchRequest.builder()
             .query(query)
@@ -84,6 +92,10 @@ public class HybridSearchService {
         for (Document document : documents) {
             Long docWorkspaceId = toLong(document.getMetadata().get("workspaceId"));
             if (!Objects.equals(docWorkspaceId, workspaceId)) {
+                continue;
+            }
+            String docType = asString(document.getMetadata().getOrDefault("vectorType", "semantic"));
+            if (!matchesVectorType(docType, vectorType)) {
                 continue;
             }
             MaterialSearchResult result = new MaterialSearchResult();
@@ -100,6 +112,13 @@ public class HybridSearchService {
             results.add(result);
         }
         return results;
+    }
+
+    private boolean matchesVectorType(String documentType, String expectedType) {
+        if (Objects.equals(expectedType, "semantic") && !StringUtils.hasText(documentType)) {
+            return true;
+        }
+        return Objects.equals(documentType, expectedType);
     }
 
     private List<MaterialSearchResult> fulltextSearch(String query, Long workspaceId, int limit) {
@@ -141,6 +160,37 @@ public class HybridSearchService {
             results.add(result);
         }
         return results;
+    }
+
+    private List<MaterialSearchResult> fuseResults(Map<String, List<MaterialSearchResult>> sources, int limit) {
+        Map<String, Double> scoreMap = new HashMap<>();
+        Map<String, MaterialSearchResult> representatives = new HashMap<>();
+        sources.forEach((channel, list) -> {
+            if (list == null) {
+                return;
+            }
+            for (int i = 0; i < list.size(); i++) {
+                MaterialSearchResult result = list.get(i);
+                String key = buildKey(result);
+                double rankScore = 1.0 / (RRF_K + (i + 1));
+                scoreMap.merge(key, rankScore, Double::sum);
+                representatives.putIfAbsent(key, result);
+            }
+        });
+        return scoreMap.entrySet().stream()
+            .sorted((a, b) -> Double.compare(b.getValue(), a.getValue()))
+            .limit(limit)
+            .map(entry -> {
+                MaterialSearchResult base = representatives.get(entry.getKey());
+                MaterialSearchResult enriched = new MaterialSearchResult();
+                enriched.setMaterialId(base.getMaterialId());
+                enriched.setTitle(base.getTitle());
+                enriched.setChunkSeq(base.getChunkSeq());
+                enriched.setSnippet(base.getSnippet());
+                enriched.setScore(entry.getValue());
+                return enriched;
+            })
+            .toList();
     }
 
     private String buildKey(MaterialSearchResult result) {

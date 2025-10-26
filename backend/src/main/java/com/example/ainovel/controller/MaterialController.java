@@ -7,6 +7,7 @@ import java.util.Map;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -20,14 +21,19 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.example.ainovel.dto.material.EditorContextDto;
 import com.example.ainovel.dto.material.FileImportJobResponse;
+import com.example.ainovel.dto.material.MaterialCitationDto;
 import com.example.ainovel.dto.material.MaterialCreateRequest;
+import com.example.ainovel.dto.material.MaterialDuplicateCandidate;
+import com.example.ainovel.dto.material.MaterialMergeRequest;
 import com.example.ainovel.dto.material.MaterialResponse;
 import com.example.ainovel.dto.material.MaterialReviewDecisionRequest;
 import com.example.ainovel.dto.material.MaterialReviewItem;
 import com.example.ainovel.dto.material.MaterialSearchRequest;
 import com.example.ainovel.dto.material.MaterialSearchResult;
 import com.example.ainovel.model.User;
+import com.example.ainovel.service.material.DeduplicationService;
 import com.example.ainovel.service.material.FileImportService;
+import com.example.ainovel.service.material.MaterialAuditQueryService;
 import com.example.ainovel.service.material.MaterialService;
 
 import lombok.RequiredArgsConstructor;
@@ -39,6 +45,8 @@ public class MaterialController {
 
     private final MaterialService materialService;
     private final FileImportService fileImportService;
+    private final DeduplicationService deduplicationService;
+    private final MaterialAuditQueryService materialAuditQueryService;
 
     @PostMapping
     public ResponseEntity<?> createMaterial(@RequestBody MaterialCreateRequest request,
@@ -52,14 +60,38 @@ public class MaterialController {
         }
     }
 
+    @GetMapping
+    public ResponseEntity<List<MaterialResponse>> listMaterials(@AuthenticationPrincipal User user) {
+        Long workspaceId = user.getId();
+        return ResponseEntity.ok(materialService.listMaterials(workspaceId));
+    }
+
     @PostMapping("/search")
     public ResponseEntity<?> searchMaterials(@RequestBody MaterialSearchRequest request,
                                              @AuthenticationPrincipal User user) {
         try {
             Long workspaceId = user.getId();
             int limit = request.getLimit() != null && request.getLimit() > 0 ? Math.min(request.getLimit(), 20) : 10;
-            return ResponseEntity.ok(materialService.searchMaterials(workspaceId, request.getQuery(), limit));
+            return ResponseEntity.ok(materialService.searchMaterials(workspaceId, user.getId(), request.getQuery(), limit));
         } catch (IllegalArgumentException ex) {
+            return ResponseEntity.badRequest().body(Map.of("message", ex.getMessage()));
+        }
+    }
+
+    @PostMapping("/find-duplicates")
+    public ResponseEntity<List<MaterialDuplicateCandidate>> findDuplicates(@AuthenticationPrincipal User user) {
+        Long workspaceId = user.getId();
+        return ResponseEntity.ok(deduplicationService.findDuplicates(workspaceId));
+    }
+
+    @PostMapping("/merge")
+    public ResponseEntity<?> mergeMaterials(@RequestBody MaterialMergeRequest request,
+                                            @AuthenticationPrincipal User user) {
+        try {
+            Long workspaceId = user.getId();
+            MaterialResponse response = deduplicationService.mergeMaterials(workspaceId, user.getId(), request);
+            return ResponseEntity.ok(response);
+        } catch (IllegalArgumentException | IllegalStateException | AccessDeniedException ex) {
             return ResponseEntity.badRequest().body(Map.of("message", ex.getMessage()));
         }
     }
@@ -135,7 +167,19 @@ public class MaterialController {
         if (!StringUtils.hasText(query)) {
             return ResponseEntity.ok(List.of());
         }
-        return ResponseEntity.ok(materialService.searchMaterials(workspaceId, query, limit));
+        return ResponseEntity.ok(materialService.searchMaterials(workspaceId, user.getId(), query, limit));
+    }
+
+    @GetMapping("/{materialId}/citations")
+    public ResponseEntity<?> listCitations(@PathVariable Long materialId,
+                                           @AuthenticationPrincipal User user) {
+        try {
+            Long workspaceId = user.getId();
+            List<MaterialCitationDto> citations = materialAuditQueryService.listCitations(workspaceId, materialId);
+            return ResponseEntity.ok(citations);
+        } catch (IllegalArgumentException ex) {
+            return ResponseEntity.badRequest().body(Map.of("message", ex.getMessage()));
+        }
     }
 
     private String normalizeEditorContext(String text) {
