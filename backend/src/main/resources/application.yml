@@ -1,0 +1,69 @@
+server:
+  port: 8080
+spring:
+  ai:
+    openai:
+      # 如果 Chat 与 Embedding 使用相同域名，也可在这里给一个全局 base-url（下方会分别覆盖）
+      base-url: http://example.com
+      api-key: ${COMPAT_API_KEY}   # 这里放你的“兼容 OpenAI 服务”的密钥
+      chat:
+        # 指定模型名（你给的：ExampleLLM）
+        options:
+          model: ExampleLLM
+          temperature: 0.7
+        # 由于你的 BaseURL 已包含路径，这里要把“路径”单独指明
+        completions-path: /v1/chat/completions
+      embedding:
+        base-url: http://example.com          # 与 chat 可相同或不同
+        embeddings-path: /v1/embedding        # 你的 Embedding BaseURL 的路径部分
+        api-key: ${COMPAT_API_KEY}            # 如需要单独密钥可改这里
+        options:
+          model: ExampleEmbedding             # 你给的 Embedding 模型名
+
+    # —— Qdrant 向量库（RAG 用）——
+    vectorstore:
+      qdrant:
+        # 你提供的 URL 是 http://43.136.95.117:6333（REST 端口）
+        # ✅ Spring AI 默认使用 **gRPC 端口 6334**；请确保 6334 已开放
+        host: 43.136.95.117
+        port: 6334               # Qdrant 的 gRPC 端口（默认 6334）
+        api-key: 12345678        # 你给的 Qdrant Key
+        collection-name: docs    # 自定义集合名
+        use-tls: false
+        initialize-schema: true  # 首次自动建集合/索引
+  application:
+    name: ainovel
+  datasource:
+    url: jdbc:mysql://localhost:3306/ainovel?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
+    username: duwei
+    password: 123456
+    driver-class-name: com.mysql.cj.jdbc.Driver
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.MySQL8Dialect
+  main:
+    allow-circular-references: true
+  profiles:
+    active: dev
+  mvc:
+    pathmatch:
+      matching-strategy: ant_path_matcher
+app:
+  encryption:
+    key: a-very-secure-secret-key-123456
+  jwt:
+    secret: another-very-long-and-secure-secret-key-for-jwt-generation
+    expiration-ms: 86400000
+openai:
+  model:
+    default: gpt-4-turbo
+proxy:
+  enabled: true
+  host: 127.0.0.1
+  port: 7890
+cors:
+  allowed-origins: http://localhost:8080
