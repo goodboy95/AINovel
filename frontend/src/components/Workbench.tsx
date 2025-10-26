@@ -32,6 +32,7 @@ import EditOutlineModal from './modals/EditOutlineModal';
 import RefineModal from './modals/RefineModal';
 import WorkbenchHeader from './WorkbenchHeader';
 import { useAuth } from '../contexts/AuthContext';
+import MaterialSearchPanel from './MaterialSearchPanel';
 
 const SparklesSvg = () => (
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" fill="currentColor" width="1em" height="1em">
@@ -403,6 +404,11 @@ const Workbench = () => {
                                 selectedSceneId={selectedSceneId}
                                 onSelectScene={setSelectedSceneId}
                             />
+                        </div>
+                    </TabPane>
+                    <TabPane tab="素材检索" key="material-search">
+                        <div style={{ padding: 24, background: '#fff', borderRadius: '8px', height: '100%' }}>
+                            <MaterialSearchPanel />
                         </div>
                     </TabPane>
                 </Tabs>

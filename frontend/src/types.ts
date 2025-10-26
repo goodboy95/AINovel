@@ -427,3 +427,46 @@ export interface WorldPromptMetadata {
     functions: WorldPromptFunctionMetadata[];
     examples: string[];
 }
+
+export type MaterialStatus = 'DRAFT' | 'PUBLISHED' | 'ARCHIVED';
+
+export interface MaterialPayload {
+    title: string;
+    type?: string;
+    summary?: string | null;
+    content: string;
+    tags?: string | null;
+}
+
+export interface MaterialResponse {
+    id: number;
+    workspaceId: number;
+    title: string;
+    type: string;
+    summary?: string | null;
+    tags?: string | null;
+    status: MaterialStatus;
+    createdAt: string;
+    updatedAt?: string | null;
+}
+
+export type FileImportJobStatus = 'PENDING' | 'PROCESSING' | 'COMPLETED' | 'FAILED';
+
+export interface FileImportJob {
+    id: number;
+    workspaceId: number;
+    uploaderId: number;
+    fileName: string;
+    status: FileImportJobStatus;
+    errorMessage?: string | null;
+    createdAt: string;
+    finishedAt?: string | null;
+}
+
+export interface MaterialSearchResult {
+    materialId: number | null;
+    title: string;
+    chunkSeq?: number | null;
+    snippet: string;
+    score?: number | null;
+}

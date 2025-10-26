@@ -24,6 +24,10 @@ import type {
     WorldPromptTemplatesResponse,
     WorldPromptTemplatesUpdatePayload,
     WorldFull,
+    MaterialPayload,
+    MaterialResponse,
+    MaterialSearchResult,
+    FileImportJob,
 } from '../types';
 
 /**
@@ -551,4 +555,37 @@ export const retryWorldGeneration = (worldId: number, moduleKey: string): Promis
     }).then(res => handleResponse<void>(res));
 };
 
+// Material library APIs
+export const createMaterial = (payload: MaterialPayload): Promise<MaterialResponse> => {
+    return fetch('/api/v1/materials', {
+        method: 'POST',
+        headers: getAuthHeaders(),
+        body: JSON.stringify(payload),
+    }).then(res => handleResponse<MaterialResponse>(res));
+};
 
+export const uploadMaterialFile = (file: File): Promise<FileImportJob> => {
+    const formData = new FormData();
+    formData.append('file', file);
+    const headers = new Headers(getAuthHeaders());
+    headers.delete('Content-Type');
+
+    return fetch('/api/v1/materials/upload', {
+        method: 'POST',
+        headers,
+        body: formData,
+    }).then(res => handleResponse<FileImportJob>(res));
+};
+
+export const fetchMaterialUploadStatus = (jobId: number): Promise<FileImportJob> => {
+    return fetch(`/api/v1/materials/upload/${jobId}`, { headers: getAuthHeaders() })
+        .then(res => handleResponse<FileImportJob>(res));
+};
+
+export const searchMaterials = (query: string, limit = 8): Promise<MaterialSearchResult[]> => {
+    return fetch('/api/v1/materials/search', {
+        method: 'POST',
+        headers: getAuthHeaders(),
+        body: JSON.stringify({ query, limit }),
+    }).then(res => handleResponse<MaterialSearchResult[]>(res));
+};

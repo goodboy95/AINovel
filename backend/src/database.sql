@@ -391,4 +391,51 @@ ALTER TABLE `manuscripts`
 ALTER TABLE `user_settings` ADD COLUMN `base_url` varchar(255) NULL DEFAULT NULL AFTER `custom_prompt`;
 ALTER TABLE `user_settings` DROP COLUMN `llm_provider`;
 
+-- ----------------------------
+-- Material library tables (MVP)
+-- ----------------------------
+CREATE TABLE IF NOT EXISTS `materials` (
+  `id` bigint NOT NULL AUTO_INCREMENT,
+  `workspace_id` bigint NOT NULL,
+  `title` varchar(255) NOT NULL,
+  `type` varchar(50) NOT NULL,
+  `summary` text NULL,
+  `content` longtext NULL,
+  `source_id` bigint NULL,
+  `tags` varchar(255) NULL,
+  `status` varchar(50) NOT NULL,
+  `created_by` bigint NULL,
+  `updated_by` bigint NULL,
+  `created_at` datetime(6) NULL DEFAULT CURRENT_TIMESTAMP(6),
+  `updated_at` datetime(6) NULL DEFAULT CURRENT_TIMESTAMP(6) ON UPDATE CURRENT_TIMESTAMP(6),
+  PRIMARY KEY (`id`),
+  KEY `idx_materials_workspace` (`workspace_id`)
+) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci ROW_FORMAT = Dynamic;
+
+CREATE TABLE IF NOT EXISTS `material_chunks` (
+  `id` bigint NOT NULL AUTO_INCREMENT,
+  `material_id` bigint NOT NULL,
+  `seq` int NOT NULL,
+  `text` longtext NOT NULL,
+  `hash` varchar(64) NULL,
+  `token_count` int NULL,
+  `created_at` datetime(6) NULL DEFAULT CURRENT_TIMESTAMP(6),
+  PRIMARY KEY (`id`),
+  KEY `idx_material_chunks_material` (`material_id`),
+  CONSTRAINT `fk_material_chunks_material` FOREIGN KEY (`material_id`) REFERENCES `materials` (`id`) ON DELETE CASCADE ON UPDATE RESTRICT
+) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci ROW_FORMAT = Dynamic;
+
+CREATE TABLE IF NOT EXISTS `file_import_jobs` (
+  `id` bigint NOT NULL AUTO_INCREMENT,
+  `workspace_id` bigint NOT NULL,
+  `uploader_id` bigint NOT NULL,
+  `file_name` varchar(255) NOT NULL,
+  `file_path` varchar(512) NOT NULL,
+  `status` varchar(50) NOT NULL,
+  `error_message` text NULL,
+  `created_at` datetime(6) NULL DEFAULT CURRENT_TIMESTAMP(6),
+  `finished_at` datetime(6) NULL DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `idx_file_import_jobs_workspace` (`workspace_id`)
+) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci ROW_FORMAT = Dynamic;
 

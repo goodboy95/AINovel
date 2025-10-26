@@ -26,6 +26,9 @@ const HomePage: React.FC = () => {
             <Link to="/workbench">
               <Button type="primary" size="large">进入工作台</Button>
             </Link>
+            <Link to="/materials">
+              <Button size="large">素材库</Button>
+            </Link>
             <Link to="/worlds">
               <Button size="large">世界构建</Button>
             </Link>

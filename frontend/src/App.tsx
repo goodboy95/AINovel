@@ -8,6 +8,7 @@ import Settings from './components/Settings';
 import PromptHelpPage from './components/PromptHelpPage';
 import WorldPromptHelpPage from './components/WorldPromptHelpPage';
 import WorldBuilderPage from './pages/WorldBuilder/WorldBuilderPage';
+import MaterialPage from './pages/Material/MaterialPage';
 import { AuthProvider } from './contexts/AuthContext';
 
 function App() {
@@ -58,6 +59,14 @@ function App() {
             element={
               <ProtectedRoute>
                 <WorldPromptHelpPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/materials"
+            element={
+              <ProtectedRoute>
+                <MaterialPage />
               </ProtectedRoute>
             }
           />

@@ -26,11 +26,19 @@ AI Novel 是一个专为小说创作者打造的智能写作助手。它利用�
 *   **UI/UX 优化:**
     *   重新设计并美化了“小说创作”中的大纲视图，使其更直观、更易于使用，提升了用户的操作体验。
 
+### 素材库 MVP（新增）
+
+*   **素材录入：** 在后台新增素材实体与 API，前端提供“素材库”页面，可通过表单手动创建素材并维护标签与概要。
+*   **文件上传解析：** 支持上传 `.txt` 文件，后端自动提取文本、切片、向量化并写入 Qdrant，实时返回导入作业状态。
+*   **写作检索：** 在工作台新增“素材检索”面板，可按关键词检索最相关的素材片段，辅助写作。
+
 ## 技术栈
 
 *   **后端:** Java, Spring Boot
 *   **前端:** React, TypeScript, Vite, Tailwind CSS
 *   **数据库:** (请根据实际情况填写, 例如: PostgreSQL, MySQL)
+*   **向量库:** Qdrant (通过 Spring AI 集成)
+*   **文本解析:** Apache Tika（用于导入 TXT 素材）
 *   **AI 模型:** (请根据实际情况填写, 例如: OpenAI GPT-4, Anthropic Claude 3)
 
 ## 运行指南
@@ -45,6 +53,7 @@ cd backend
 mvn spring-boot:run
 ```
 后端服务将启动在 `http://localhost:8080`。
+> 在启动前请确认已配置以下环境变量或应用配置：`OPENAI_API_KEY`（Embedding 模型）、`QDRANT_HOST` / `QDRANT_PORT`（向量库地址）、`MATERIAL_UPLOAD_DIR`（可选，自定义素材上传目录）。默认情况下 Qdrant 连接到 `localhost:6333`。
 
 ### 2. 启动前端应用
 
@@ -59,6 +68,8 @@ npm install
 npm run dev
 ```
 前端应用将启动在 `http://localhost:5173`，并会自动在浏览器中打开。
+
+> 新增的“素材库”入口位于首页导航以及工作台标签页内，需登录后访问。
 
 ### 前后端独立启动说明
 
