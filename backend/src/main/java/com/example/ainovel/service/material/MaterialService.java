@@ -10,7 +10,6 @@ import java.util.Map;
 import java.util.Objects;
 
 import org.springframework.ai.document.Document;
-import org.springframework.ai.vectorstore.SearchRequest;
 import org.springframework.ai.vectorstore.VectorStore;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -18,6 +17,8 @@ import org.springframework.util.StringUtils;
 
 import com.example.ainovel.dto.material.MaterialCreateRequest;
 import com.example.ainovel.dto.material.MaterialResponse;
+import com.example.ainovel.dto.material.MaterialReviewDecisionRequest;
+import com.example.ainovel.dto.material.MaterialReviewItem;
 import com.example.ainovel.dto.material.MaterialSearchResult;
 import com.example.ainovel.model.material.Material;
 import com.example.ainovel.model.material.MaterialChunk;
@@ -42,6 +43,7 @@ public class MaterialService {
 
     private final MaterialRepository materialRepository;
     private final MaterialChunkRepository materialChunkRepository;
+    private final HybridSearchService hybridSearchService;
     private final VectorStore vectorStore;
 
     /**
@@ -62,6 +64,8 @@ public class MaterialService {
         material.setType(StringUtils.hasText(request.getType()) ? request.getType().trim() : "manual");
         material.setSummary(StringUtils.hasText(request.getSummary()) ? request.getSummary().trim() : null);
         material.setStatus(MaterialStatus.PUBLISHED.name());
+        material.setEntitiesJson(null);
+        material.setReviewNotes(null);
         material.setCreatedBy(userId);
         material.setUpdatedBy(userId);
 
@@ -79,12 +83,32 @@ public class MaterialService {
                                                      Long userId,
                                                      Long sourceJobId,
                                                      String tags) {
+        return createMaterialFromImport(title, summary, content, workspaceId, userId, sourceJobId, tags, null, null,
+            MaterialStatus.PUBLISHED);
+    }
+
+    @Transactional
+    public MaterialResponse createMaterialFromImport(String title,
+                                                     String summary,
+                                                     String content,
+                                                     Long workspaceId,
+                                                     Long userId,
+                                                     Long sourceJobId,
+                                                     String tags,
+                                                     String type,
+                                                     String entitiesJson,
+                                                     MaterialStatus status) {
+        MaterialStatus resolvedStatus = status != null ? status : MaterialStatus.PUBLISHED;
         Material material = new Material();
         material.setWorkspaceId(workspaceId);
         material.setTitle(StringUtils.hasText(title) ? title.trim() : "导入素材");
-        material.setType("file");
+        material.setType(StringUtils.hasText(type) ? type.trim() : "file");
         material.setSummary(StringUtils.hasText(summary) ? summary.trim() : null);
-        material.setStatus(MaterialStatus.PUBLISHED.name());
+        material.setStatus(resolvedStatus.name());
+        material.setEntitiesJson(StringUtils.hasText(entitiesJson) ? entitiesJson.trim() : null);
+        material.setReviewNotes(resolvedStatus == MaterialStatus.PENDING_REVIEW
+            ? "LLM 自动解析结果，待审核"
+            : null);
         material.setCreatedBy(userId);
         material.setUpdatedBy(userId);
         material.setSourceId(sourceJobId);
@@ -97,41 +121,61 @@ public class MaterialService {
      */
     @Transactional(readOnly = true)
     public List<MaterialSearchResult> searchMaterials(Long workspaceId, String query, int limit) {
-        if (!StringUtils.hasText(query)) {
-            return List.of();
+        return hybridSearchService.search(workspaceId, query, limit);
+    }
+
+    @Transactional(readOnly = true)
+    public List<MaterialReviewItem> listPendingReview(Long workspaceId) {
+        return materialRepository.findByWorkspaceIdAndStatus(workspaceId, MaterialStatus.PENDING_REVIEW.name())
+            .stream()
+            .map(this::toReviewItem)
+            .toList();
+    }
+
+    @Transactional
+    public MaterialReviewItem approveMaterial(Long materialId,
+                                              Long workspaceId,
+                                              Long reviewerId,
+                                              MaterialReviewDecisionRequest request) {
+        Material material = getMaterialForWorkspace(materialId, workspaceId);
+        MaterialStatus previousStatus = resolveStatus(material.getStatus());
+        if (previousStatus != MaterialStatus.PENDING_REVIEW && previousStatus != MaterialStatus.DRAFT) {
+            throw new IllegalStateException("当前状态不支持审核通过");
         }
 
-        int topK = Math.max(limit, 5);
-        SearchRequest searchRequest = SearchRequest.builder()
-            .query(query)
-            .topK(topK)
-            .build();
+        applyReviewUpdates(material, request);
+        material.setStatus(MaterialStatus.PUBLISHED.name());
+        material.setReviewNotes(request != null && StringUtils.hasText(request.getReviewNotes())
+            ? request.getReviewNotes().trim()
+            : null);
+        material.setUpdatedBy(reviewerId);
+        Material saved = materialRepository.save(material);
 
-        List<Document> documents = vectorStore.similaritySearch(searchRequest);
-        List<MaterialSearchResult> results = new ArrayList<>();
-        for (Document document : documents) {
-            Long docWorkspaceId = toLong(document.getMetadata().get("workspaceId"));
-            if (docWorkspaceId == null || !Objects.equals(docWorkspaceId, workspaceId)) {
-                continue;
-            }
-            MaterialSearchResult result = new MaterialSearchResult();
-            String chunkText = document.getText();
-            result.setMaterialId(toLong(document.getMetadata().get("materialId")));
-            result.setTitle(asString(document.getMetadata().getOrDefault("title", "")));
-            result.setChunkSeq(toInteger(document.getMetadata().get("chunkSeq")));
-            result.setSnippet(buildSnippet(chunkText));
-            Double score = document.getScore();
-            if (score == null) {
-                score = toDouble(document.getMetadata().getOrDefault("score",
-                    document.getMetadata().getOrDefault("distance", null)));
-            }
-            result.setScore(score);
-            results.add(result);
-            if (results.size() >= limit) {
-                break;
-            }
+        if (previousStatus != MaterialStatus.PUBLISHED) {
+            List<MaterialChunk> chunks = materialChunkRepository.findByMaterialIdOrderBySequenceAsc(saved.getId());
+            indexMaterialChunks(saved, chunks);
         }
-        return results;
+        return toReviewItem(saved);
+    }
+
+    @Transactional
+    public MaterialReviewItem rejectMaterial(Long materialId,
+                                             Long workspaceId,
+                                             Long reviewerId,
+                                             MaterialReviewDecisionRequest request) {
+        Material material = getMaterialForWorkspace(materialId, workspaceId);
+        MaterialStatus previousStatus = resolveStatus(material.getStatus());
+        if (previousStatus != MaterialStatus.PENDING_REVIEW && previousStatus != MaterialStatus.DRAFT) {
+            throw new IllegalStateException("当前状态不支持驳回");
+        }
+        applyReviewUpdates(material, request);
+        material.setStatus(MaterialStatus.REJECTED.name());
+        material.setReviewNotes(request != null && StringUtils.hasText(request.getReviewNotes())
+            ? request.getReviewNotes().trim()
+            : null);
+        material.setUpdatedBy(reviewerId);
+        Material saved = materialRepository.save(material);
+        return toReviewItem(saved);
     }
 
     private MaterialResponse persistMaterial(Material material, String content, String rawTags) {
@@ -146,7 +190,6 @@ public class MaterialService {
         }
 
         List<MaterialChunk> chunkEntities = new ArrayList<>();
-        List<Document> documents = new ArrayList<>();
         int sequence = 0;
         for (String chunkText : chunkTexts) {
             MaterialChunk chunk = new MaterialChunk();
@@ -156,30 +199,105 @@ public class MaterialService {
             chunk.setHash(calculateHash(chunkText));
             chunk.setTokenCount(estimateTokenCount(chunkText));
             chunkEntities.add(chunk);
-
-            Map<String, Object> metadata = new HashMap<>();
-            metadata.put("materialId", saved.getId());
-            metadata.put("workspaceId", saved.getWorkspaceId());
-            metadata.put("title", saved.getTitle());
-            metadata.put("chunkSeq", sequence);
-            if (StringUtils.hasText(saved.getSummary())) {
-                metadata.put("summary", saved.getSummary());
-            }
-            documents.add(new Document(chunkText, metadata));
             sequence++;
         }
 
         if (!chunkEntities.isEmpty()) {
             materialChunkRepository.saveAll(chunkEntities);
-            try {
-                vectorStore.add(documents);
-            } catch (Exception ex) {
-                log.warn("向量存储写入失败（materialId={}）：{}", saved.getId(), ex.getMessage());
-            }
+            indexMaterialChunks(saved, chunkEntities);
         }
 
         saved.setChunks(chunkEntities);
         return toResponse(saved);
+    }
+
+    private void indexMaterialChunks(Material material, List<MaterialChunk> chunks) {
+        if (chunks == null || chunks.isEmpty()) {
+            return;
+        }
+        if (!MaterialStatus.PUBLISHED.name().equals(material.getStatus())) {
+            return;
+        }
+        List<Document> documents = new ArrayList<>(chunks.size());
+        for (MaterialChunk chunk : chunks) {
+            Map<String, Object> metadata = new HashMap<>();
+            metadata.put("materialId", material.getId());
+            metadata.put("workspaceId", material.getWorkspaceId());
+            metadata.put("title", material.getTitle());
+            metadata.put("chunkSeq", chunk.getSequence());
+            if (StringUtils.hasText(material.getSummary())) {
+                metadata.put("summary", material.getSummary());
+            }
+            documents.add(new Document(chunk.getText(), metadata));
+        }
+        if (documents.isEmpty()) {
+            return;
+        }
+        try {
+            vectorStore.add(documents);
+        } catch (Exception ex) {
+            log.warn("向量存储写入失败（materialId={}）：{}", material.getId(), ex.getMessage());
+        }
+    }
+
+    private Material getMaterialForWorkspace(Long materialId, Long workspaceId) {
+        Material material = materialRepository.findById(materialId)
+            .orElseThrow(() -> new IllegalArgumentException("未找到对应素材"));
+        if (!Objects.equals(material.getWorkspaceId(), workspaceId)) {
+            throw new IllegalArgumentException("无权操作该素材");
+        }
+        return material;
+    }
+
+    private void applyReviewUpdates(Material material, MaterialReviewDecisionRequest request) {
+        if (request == null) {
+            return;
+        }
+        if (StringUtils.hasText(request.getTitle())) {
+            material.setTitle(request.getTitle().trim());
+        }
+        if (StringUtils.hasText(request.getType())) {
+            material.setType(request.getType().trim());
+        }
+        if (request.getSummary() != null) {
+            material.setSummary(StringUtils.hasText(request.getSummary()) ? request.getSummary().trim() : null);
+        }
+        if (request.getTags() != null) {
+            material.setTags(normalizeTags(request.getTags()));
+        }
+        if (request.getEntitiesJson() != null) {
+            material.setEntitiesJson(StringUtils.hasText(request.getEntitiesJson())
+                ? request.getEntitiesJson().trim()
+                : null);
+        }
+    }
+
+    private MaterialReviewItem toReviewItem(Material material) {
+        MaterialReviewItem item = new MaterialReviewItem();
+        item.setId(material.getId());
+        item.setWorkspaceId(material.getWorkspaceId());
+        item.setTitle(material.getTitle());
+        item.setType(material.getType());
+        item.setSummary(material.getSummary());
+        item.setTags(material.getTags());
+        item.setContent(material.getContent());
+        item.setEntitiesJson(material.getEntitiesJson());
+        item.setStatus(material.getStatus());
+        item.setCreatedAt(material.getCreatedAt());
+        item.setUpdatedAt(material.getUpdatedAt());
+        item.setReviewNotes(material.getReviewNotes());
+        return item;
+    }
+
+    private MaterialStatus resolveStatus(String status) {
+        if (!StringUtils.hasText(status)) {
+            return MaterialStatus.DRAFT;
+        }
+        try {
+            return MaterialStatus.valueOf(status);
+        } catch (IllegalArgumentException ignored) {
+            return MaterialStatus.DRAFT;
+        }
     }
 
     private List<String> chunkText(String content) {
@@ -268,17 +386,6 @@ public class MaterialService {
         return tokens.length;
     }
 
-    private String buildSnippet(String content) {
-        if (!StringUtils.hasText(content)) {
-            return "";
-        }
-        String trimmed = content.trim();
-        if (trimmed.length() <= MAX_SNIPPET_LENGTH) {
-            return trimmed;
-        }
-        return trimmed.substring(0, MAX_SNIPPET_LENGTH) + "...";
-    }
-
     private MaterialResponse toResponse(Material material) {
         MaterialResponse response = new MaterialResponse();
         response.setId(material.getId());
@@ -288,63 +395,11 @@ public class MaterialService {
         response.setSummary(material.getSummary());
         response.setTags(material.getTags());
         response.setStatus(material.getStatus());
+        response.setEntitiesJson(material.getEntitiesJson());
+        response.setReviewNotes(material.getReviewNotes());
         response.setCreatedAt(material.getCreatedAt());
         response.setUpdatedAt(material.getUpdatedAt());
         return response;
     }
 
-    private Long toLong(Object value) {
-        if (value == null) {
-            return null;
-        }
-        if (value instanceof Number number) {
-            return number.longValue();
-        }
-        if (value instanceof String str && StringUtils.hasText(str)) {
-            try {
-                return Long.parseLong(str);
-            } catch (NumberFormatException ignored) {
-                return null;
-            }
-        }
-        return null;
-    }
-
-    private Integer toInteger(Object value) {
-        if (value == null) {
-            return null;
-        }
-        if (value instanceof Number number) {
-            return number.intValue();
-        }
-        if (value instanceof String str && StringUtils.hasText(str)) {
-            try {
-                return Integer.parseInt(str);
-            } catch (NumberFormatException ignored) {
-                return null;
-            }
-        }
-        return null;
-    }
-
-    private Double toDouble(Object value) {
-        if (value == null) {
-            return null;
-        }
-        if (value instanceof Number number) {
-            return number.doubleValue();
-        }
-        if (value instanceof String str && StringUtils.hasText(str)) {
-            try {
-                return Double.parseDouble(str);
-            } catch (NumberFormatException ignored) {
-                return null;
-            }
-        }
-        return null;
-    }
-
-    private String asString(Object value) {
-        return value == null ? "" : String.valueOf(value);
-    }
 }

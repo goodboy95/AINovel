@@ -1,6 +1,7 @@
 import { Card, Tabs, Alert } from 'antd';
 import MaterialCreateForm from '../../components/MaterialCreateForm';
 import MaterialUpload from '../../components/MaterialUpload';
+import ReviewDashboard from './ReviewDashboard';
 
 const { TabPane } = Tabs;
 
@@ -13,6 +14,9 @@ const MaterialPage = () => (
                 </TabPane>
                 <TabPane tab="上传文件" key="upload">
                     <MaterialUpload />
+                </TabPane>
+                <TabPane tab="素材审核" key="review">
+                    <ReviewDashboard />
                 </TabPane>
                 <TabPane tab="素材列表" key="list">
                     <Alert
@@ -27,4 +31,3 @@ const MaterialPage = () => (
 );
 
 export default MaterialPage;
-

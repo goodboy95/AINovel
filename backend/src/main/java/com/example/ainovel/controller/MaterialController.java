@@ -1,12 +1,14 @@
 package com.example.ainovel.controller;
 
 import java.io.IOException;
+import java.util.List;
 import java.util.Map;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -16,9 +18,12 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.example.ainovel.dto.material.EditorContextDto;
 import com.example.ainovel.dto.material.FileImportJobResponse;
 import com.example.ainovel.dto.material.MaterialCreateRequest;
 import com.example.ainovel.dto.material.MaterialResponse;
+import com.example.ainovel.dto.material.MaterialReviewDecisionRequest;
+import com.example.ainovel.dto.material.MaterialReviewItem;
 import com.example.ainovel.dto.material.MaterialSearchRequest;
 import com.example.ainovel.dto.material.MaterialSearchResult;
 import com.example.ainovel.model.User;
@@ -85,5 +90,63 @@ public class MaterialController {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("message", ex.getMessage()));
         }
     }
-}
 
+    @GetMapping("/review/pending")
+    public ResponseEntity<?> listPendingReview(@AuthenticationPrincipal User user) {
+        Long workspaceId = user.getId();
+        return ResponseEntity.ok(materialService.listPendingReview(workspaceId));
+    }
+
+    @PostMapping("/{materialId}/review/approve")
+    public ResponseEntity<?> approveMaterial(@PathVariable Long materialId,
+                                             @RequestBody(required = false) MaterialReviewDecisionRequest request,
+                                             @AuthenticationPrincipal User user) {
+        try {
+            Long workspaceId = user.getId();
+            MaterialReviewItem item = materialService.approveMaterial(materialId, workspaceId, user.getId(), request);
+            return ResponseEntity.ok(item);
+        } catch (IllegalArgumentException | IllegalStateException ex) {
+            return ResponseEntity.badRequest().body(Map.of("message", ex.getMessage()));
+        }
+    }
+
+    @PostMapping("/{materialId}/review/reject")
+    public ResponseEntity<?> rejectMaterial(@PathVariable Long materialId,
+                                            @RequestBody(required = false) MaterialReviewDecisionRequest request,
+                                            @AuthenticationPrincipal User user) {
+        try {
+            Long workspaceId = user.getId();
+            MaterialReviewItem item = materialService.rejectMaterial(materialId, workspaceId, user.getId(), request);
+            return ResponseEntity.ok(item);
+        } catch (IllegalArgumentException | IllegalStateException ex) {
+            return ResponseEntity.badRequest().body(Map.of("message", ex.getMessage()));
+        }
+    }
+
+    @PostMapping("/editor/auto-hints")
+    public ResponseEntity<?> getAutoHints(@RequestBody EditorContextDto context,
+                                          @AuthenticationPrincipal User user) {
+        if (context == null || !StringUtils.hasText(context.getText())) {
+            return ResponseEntity.ok(List.of());
+        }
+        Long workspaceId = context.getWorkspaceId() != null ? context.getWorkspaceId() : user.getId();
+        int limit = context.getLimit() != null && context.getLimit() > 0 ? Math.min(context.getLimit(), 15) : 6;
+        String query = normalizeEditorContext(context.getText());
+        if (!StringUtils.hasText(query)) {
+            return ResponseEntity.ok(List.of());
+        }
+        return ResponseEntity.ok(materialService.searchMaterials(workspaceId, query, limit));
+    }
+
+    private String normalizeEditorContext(String text) {
+        if (!StringUtils.hasText(text)) {
+            return "";
+        }
+        String trimmed = text.trim();
+        int maxLength = 500;
+        if (trimmed.length() <= maxLength) {
+            return trimmed;
+        }
+        return trimmed.substring(trimmed.length() - maxLength);
+    }
+}

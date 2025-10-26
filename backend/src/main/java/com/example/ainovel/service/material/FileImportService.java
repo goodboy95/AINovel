@@ -18,9 +18,12 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.example.ainovel.dto.material.FileImportJobResponse;
+import com.example.ainovel.dto.material.StructuredMaterial;
 import com.example.ainovel.model.material.FileImportJob;
 import com.example.ainovel.model.material.FileImportStatus;
+import com.example.ainovel.model.material.MaterialStatus;
 import com.example.ainovel.repository.material.FileImportJobRepository;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -35,6 +38,8 @@ public class FileImportService {
 
     private final MaterialService materialService;
     private final FileImportJobRepository fileImportJobRepository;
+    private final MaterialExtractionService materialExtractionService;
+    private final ObjectMapper objectMapper;
 
     @Value("${app.material.upload-dir:./data/materials}")
     private String uploadDir;
@@ -64,14 +69,36 @@ public class FileImportService {
 
         try {
             String extractedText = extractText(target);
+            StructuredMaterial structured = materialExtractionService.extract(extractedText).orElse(null);
+            String resolvedTitle = structured != null && StringUtils.hasText(structured.getTitle())
+                ? structured.getTitle().trim()
+                : deriveTitle(originalFilename);
+            String resolvedSummary = structured != null && StringUtils.hasText(structured.getSummary())
+                ? structured.getSummary().trim()
+                : buildSummary(extractedText);
+            String resolvedTags = structured != null && structured.getTags() != null && !structured.getTags().isEmpty()
+                ? String.join(",", structured.getTags())
+                : null;
+            String resolvedType = structured != null && StringUtils.hasText(structured.getType())
+                ? structured.getType().trim()
+                : "file";
+            String entitiesJson = null;
+            if (structured != null) {
+                entitiesJson = objectMapper.writeValueAsString(structured);
+            }
+            MaterialStatus status = structured != null ? MaterialStatus.PENDING_REVIEW : MaterialStatus.PUBLISHED;
+
             materialService.createMaterialFromImport(
-                deriveTitle(originalFilename),
-                buildSummary(extractedText),
+                resolvedTitle,
+                resolvedSummary,
                 extractedText,
                 workspaceId,
                 userId,
                 job.getId(),
-                null
+                resolvedTags,
+                resolvedType,
+                entitiesJson,
+                status
             );
             job.setStatus(FileImportStatus.COMPLETED);
             job.setFinishedAt(LocalDateTime.now());

@@ -37,6 +37,10 @@
 | | `SettingsDto.java` | 用户设置数据。 |
 | | `StoryCardDto.java` | 故事卡片数据。 |
 | | `material/MaterialCreateRequest.java` 等 | 素材库相关 DTO（创建、检索、导入任务响应）。 |
+| | `material/StructuredMaterial.java` | LLM 解析出的素材结构模型。 |
+| | `material/EditorContextDto.java` | 编辑器自动建议请求参数。 |
+| | `material/MaterialReviewItem.java` | 人审工作台使用的素材详情。 |
+| | `material/MaterialReviewDecisionRequest.java` | 人审审批/驳回请求体。 |
 | **`model`** | | **数据模型 (Entity)**：与数据库表对应的实体类。 |
 | | `CharacterCard.java` | 角色卡片实体。 |
 | | `CharacterChangeLog.java` | 角色变化日志实体。 |
@@ -59,12 +63,15 @@
 | | `StoryService.java` | 故事管理服务。 |
 | | `world/` | 世界观相关服务，如模块管理、生成等。 |
 | | `material/MaterialService.java` / `material/FileImportService.java` | 素材创建、文本切片与文件上传解析流程。 |
+| | `material/HybridSearchService.java` | 混合检索逻辑（向量+全文）。 |
+| | `material/MaterialExtractionService.java` | LLM 结构化解析协程。 |
 | **`prompt`** | | **提示词工程**：管理和构建与 AI 交互的提示词。 |
 | | `TemplateEngine.java` | 提示词模板引擎。 |
 | | `context/` | 构建不同场景下（如故事、大纲）的提示词上下文。 |
 | **`config`** | | **配置类** |
 | | `SecurityConfig.java` | Spring Security 安全配置。 |
 | | `WebConfig.java` | Web 相关配置，如 CORS。 |
+| | `ChatClientConfig.java` | Spring AI ChatClient 基础配置。 |
 | **`AinovelApplication.java`** | | Spring Boot 应用主入口。 |
 
 ---
@@ -89,12 +96,14 @@
 | | `MaterialCreateForm.tsx` / `MaterialUpload.tsx` / `MaterialSearchPanel.tsx` | 素材库组件：手动录入、文件上传与检索面板。 |
 | **`pages`** | | **页面级组件**：通常代表一个完整的页面。 |
 | | `Material/MaterialPage.tsx` | 素材库管理页面（MVP：创建+上传）。 |
+| | `Material/ReviewDashboard.tsx` | 素材库人审工作台。 |
 | | `WorldBuilder/WorldBuilderPage.tsx` | 世界观构建器主页面。 |
 | **`contexts`** | | **React Context**：用于全局状态管理。 |
 | | `AuthContext.tsx` | 存储和管理用户认证状态。 |
 | **`hooks`** | | **自定义 Hooks**：封装可复用的逻辑。 |
 | | `useOutlineData.ts` | 获取和管理大纲数据的 Hook。 |
 | | `useStoryData.ts` | 获取和管理故事数据的 Hook。 |
+| | `useAutoSuggestions.ts` | 写作时自动素材建议 Hook。 |
 | **`services`** | | **API 服务**：封装与后端 API 的交互。 |
 | | `api.ts` | 定义了所有与后端通信的 API 请求函数。 |
 | **`App.tsx`** | | 应用根组件，负责路由和整体布局。 |

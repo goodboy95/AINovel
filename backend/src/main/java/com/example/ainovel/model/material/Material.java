@@ -45,6 +45,12 @@ public class Material {
     @Column(columnDefinition = "LONGTEXT")
     private String content;
 
+    @Column(name = "entities_json", columnDefinition = "JSON")
+    private String entitiesJson;
+
+    @Column(name = "review_notes", columnDefinition = "TEXT")
+    private String reviewNotes;
+
     @Column(name = "source_id")
     private Long sourceId;
 

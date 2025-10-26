@@ -13,6 +13,7 @@ import {
   Select,
   Modal,
   Typography,
+  Tag,
   Space,
 } from 'antd';
 import OutlineTreeView from './OutlineTreeView';
@@ -37,6 +38,7 @@ import {
   generateDialogue,
   fetchCharactersForStory,
 } from '../services/api';
+import { useAutoSuggestions } from '../hooks/useAutoSuggestions';
 
 const { Content } = Layout;
 const { TextArea } = Input;
@@ -107,6 +109,11 @@ const ManuscriptWriter: React.FC<ManuscriptWriterProps> = ({
   const [hasUserModifiedWorld, setHasUserModifiedWorld] = useState(false);
 
   const lastManuscriptIdRef = useRef<number | null>(null);
+
+  const { suggestions: materialSuggestions, loading: materialSuggestionsLoading } = useAutoSuggestions(
+    manuscriptContent,
+    null
+  );
 
   const handleOpenRelationshipGraph = useCallback(() => setIsRelationshipModalOpen(true), []);
   const handleCloseRelationshipGraph = useCallback(() => setIsRelationshipModalOpen(false), []);
@@ -774,6 +781,35 @@ const ManuscriptWriter: React.FC<ManuscriptWriterProps> = ({
             onOpenGrowthPath={handleOpenGrowthPath}
             onGenerateDialogue={handleOpenDialogueModal}
           />
+          <Card
+            title="素材建议"
+            size="small"
+            style={{ marginTop: 16, flex: '0 0 auto' }}
+            bodyStyle={{ maxHeight: 260, overflowY: 'auto', padding: materialSuggestionsLoading ? 24 : undefined }}
+          >
+            <Spin spinning={materialSuggestionsLoading}>
+              {materialSuggestions.length === 0 ? (
+                <Empty description="暂无推荐" image={Empty.PRESENTED_IMAGE_SIMPLE} />
+              ) : (
+                <List
+                  dataSource={materialSuggestions}
+                  renderItem={(item) => (
+                    <List.Item key={`${item.materialId}-${item.chunkSeq}`}>
+                      <Space direction="vertical" size={4} style={{ width: '100%' }}>
+                        <Space size={8}>
+                          <Text strong>{item.title || '未命名素材'}</Text>
+                          {typeof item.chunkSeq === 'number' && <Tag>片段 #{item.chunkSeq}</Tag>}
+                        </Space>
+                        <Paragraph ellipsis={{ rows: 3 }} style={{ marginBottom: 0 }}>
+                          {item.snippet}
+                        </Paragraph>
+                      </Space>
+                    </List.Item>
+                  )}
+                />
+              )}
+            </Spin>
+          </Card>
         </Col>
       </Row>
       {isRefineModalOpen && (
@@ -829,8 +865,6 @@ const ManuscriptWriter: React.FC<ManuscriptWriterProps> = ({
 };
 
 export default ManuscriptWriter;
-
-
 
 
 

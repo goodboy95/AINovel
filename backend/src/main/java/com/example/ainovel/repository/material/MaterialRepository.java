@@ -11,5 +11,6 @@ import com.example.ainovel.model.material.Material;
 public interface MaterialRepository extends JpaRepository<Material, Long> {
 
     List<Material> findByWorkspaceId(Long workspaceId);
-}
 
+    List<Material> findByWorkspaceIdAndStatus(Long workspaceId, String status);
+}

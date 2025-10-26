@@ -401,6 +401,8 @@ CREATE TABLE IF NOT EXISTS `materials` (
   `type` varchar(50) NOT NULL,
   `summary` text NULL,
   `content` longtext NULL,
+  `entities_json` json NULL,
+  `review_notes` text NULL,
   `source_id` bigint NULL,
   `tags` varchar(255) NULL,
   `status` varchar(50) NOT NULL,
@@ -425,6 +427,18 @@ CREATE TABLE IF NOT EXISTS `material_chunks` (
   CONSTRAINT `fk_material_chunks_material` FOREIGN KEY (`material_id`) REFERENCES `materials` (`id`) ON DELETE CASCADE ON UPDATE RESTRICT
 ) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci ROW_FORMAT = Dynamic;
 
+-- Hybrid search enhancements (V1)
+ALTER TABLE `materials`
+  ADD COLUMN IF NOT EXISTS `entities_json` json NULL AFTER `content`;
+ALTER TABLE `materials`
+  ADD COLUMN IF NOT EXISTS `review_notes` text NULL AFTER `entities_json`;
+
+ALTER TABLE `materials`
+  ADD FULLTEXT INDEX `ft_materials_content` (`title`, `summary`, `content`) WITH PARSER ngram;
+
+ALTER TABLE `material_chunks`
+  ADD FULLTEXT INDEX `ft_material_chunks_text` (`text`) WITH PARSER ngram;
+
 CREATE TABLE IF NOT EXISTS `file_import_jobs` (
   `id` bigint NOT NULL AUTO_INCREMENT,
   `workspace_id` bigint NOT NULL,
@@ -438,4 +452,3 @@ CREATE TABLE IF NOT EXISTS `file_import_jobs` (
   PRIMARY KEY (`id`),
   KEY `idx_file_import_jobs_workspace` (`workspace_id`)
 ) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci ROW_FORMAT = Dynamic;
-

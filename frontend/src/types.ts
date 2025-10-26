@@ -428,7 +428,7 @@ export interface WorldPromptMetadata {
     examples: string[];
 }
 
-export type MaterialStatus = 'DRAFT' | 'PUBLISHED' | 'ARCHIVED';
+export type MaterialStatus = 'PENDING_REVIEW' | 'DRAFT' | 'PUBLISHED' | 'REJECTED' | 'ARCHIVED';
 
 export interface MaterialPayload {
     title: string;
@@ -446,8 +446,34 @@ export interface MaterialResponse {
     summary?: string | null;
     tags?: string | null;
     status: MaterialStatus;
+    entitiesJson?: string | null;
+    reviewNotes?: string | null;
     createdAt: string;
     updatedAt?: string | null;
+}
+
+export interface MaterialReviewItem {
+    id: number;
+    workspaceId: number;
+    title: string;
+    type: string;
+    summary?: string | null;
+    tags?: string | null;
+    content?: string | null;
+    entitiesJson?: string | null;
+    status: MaterialStatus;
+    reviewNotes?: string | null;
+    createdAt: string;
+    updatedAt?: string | null;
+}
+
+export interface MaterialReviewDecisionPayload {
+    title?: string;
+    summary?: string | null;
+    tags?: string | null;
+    type?: string | null;
+    entitiesJson?: string | null;
+    reviewNotes?: string | null;
 }
 
 export type FileImportJobStatus = 'PENDING' | 'PROCESSING' | 'COMPLETED' | 'FAILED';

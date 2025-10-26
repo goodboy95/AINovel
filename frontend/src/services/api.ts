@@ -28,6 +28,8 @@ import type {
     MaterialResponse,
     MaterialSearchResult,
     FileImportJob,
+    MaterialReviewItem,
+    MaterialReviewDecisionPayload,
 } from '../types';
 
 /**
@@ -588,4 +590,33 @@ export const searchMaterials = (query: string, limit = 8): Promise<MaterialSearc
         headers: getAuthHeaders(),
         body: JSON.stringify({ query, limit }),
     }).then(res => handleResponse<MaterialSearchResult[]>(res));
+};
+
+export const getAutoHints = (payload: { text: string; workspaceId?: number | null; limit?: number }): Promise<MaterialSearchResult[]> => {
+    return fetch('/api/v1/materials/editor/auto-hints', {
+        method: 'POST',
+        headers: getAuthHeaders(),
+        body: JSON.stringify(payload),
+    }).then(res => handleResponse<MaterialSearchResult[]>(res));
+};
+
+export const fetchPendingMaterials = (): Promise<MaterialReviewItem[]> => {
+    return fetch('/api/v1/materials/review/pending', { headers: getAuthHeaders() })
+        .then(res => handleResponse<MaterialReviewItem[]>(res));
+};
+
+export const approveMaterialReview = (materialId: number, payload: MaterialReviewDecisionPayload): Promise<MaterialReviewItem> => {
+    return fetch(`/api/v1/materials/${materialId}/review/approve`, {
+        method: 'POST',
+        headers: getAuthHeaders(),
+        body: JSON.stringify(payload),
+    }).then(res => handleResponse<MaterialReviewItem>(res));
+};
+
+export const rejectMaterialReview = (materialId: number, payload: MaterialReviewDecisionPayload): Promise<MaterialReviewItem> => {
+    return fetch(`/api/v1/materials/${materialId}/review/reject`, {
+        method: 'POST',
+        headers: getAuthHeaders(),
+        body: JSON.stringify(payload),
+    }).then(res => handleResponse<MaterialReviewItem>(res));
 };
