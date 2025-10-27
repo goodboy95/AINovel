@@ -66,6 +66,11 @@ public class AuthService {
                 new UsernamePasswordAuthenticationToken(username, password)
         );
 
+        Object principal = authentication.getPrincipal();
+        if (principal instanceof User user && user.getId() != null) {
+            permissionService.ensureWorkspaceAdmin(user.getId(), user.getId());
+        }
+
         SecurityContextHolder.getContext().setAuthentication(authentication);
         UserDetails userDetails = (UserDetails) authentication.getPrincipal();
         return jwtUtil.generateToken(userDetails);

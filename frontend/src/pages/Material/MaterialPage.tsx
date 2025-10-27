@@ -1,37 +1,53 @@
 import { Card, Tabs } from 'antd';
+import type { TabsProps } from 'antd';
+import { useMemo } from 'react';
 import MaterialCreateForm from '../../components/MaterialCreateForm';
 import MaterialUpload from '../../components/MaterialUpload';
 import ReviewDashboard from './ReviewDashboard';
 import MaterialList from '../../components/MaterialList';
-import Can from '../../components/Can';
+import { useCanPerform } from '../../hooks/useCanPerform';
 
-const { TabPane } = Tabs;
+const MaterialPage = () => {
+    const canWriteWorkspace = useCanPerform('workspace:write');
 
-const MaterialPage = () => (
-    <div style={{ padding: 24 }}>
-        <Card title="素材库" bordered={false}>
-            <Tabs defaultActiveKey="create">
-                <Can perform="workspace:write">
-                    <TabPane tab="创建素材" key="create">
-                        <MaterialCreateForm />
-                    </TabPane>
-                </Can>
-                <Can perform="workspace:write">
-                    <TabPane tab="上传文件" key="upload">
-                        <MaterialUpload />
-                    </TabPane>
-                </Can>
-                <Can perform="workspace:write">
-                    <TabPane tab="素材审核" key="review">
-                        <ReviewDashboard />
-                    </TabPane>
-                </Can>
-                <TabPane tab="素材列表" key="list">
-                    <MaterialList />
-                </TabPane>
-            </Tabs>
-        </Card>
-    </div>
-);
+    const tabItems = useMemo(() => {
+        const items: TabsProps['items'] = [];
+        if (canWriteWorkspace) {
+            items.push(
+                {
+                    key: 'create',
+                    label: '创建素材',
+                    children: <MaterialCreateForm />,
+                },
+                {
+                    key: 'upload',
+                    label: '上传文件',
+                    children: <MaterialUpload />,
+                },
+                {
+                    key: 'review',
+                    label: '素材审核',
+                    children: <ReviewDashboard />,
+                },
+            );
+        }
+        items.push({
+            key: 'list',
+            label: '素材列表',
+            children: <MaterialList />,
+        });
+        return items;
+    }, [canWriteWorkspace]);
+
+    const defaultActiveKey = canWriteWorkspace ? 'create' : 'list';
+
+    return (
+        <div style={{ padding: 24 }}>
+            <Card title="素材库" style={{ border: 'none' }}>
+                <Tabs defaultActiveKey={defaultActiveKey} items={tabItems} />
+            </Card>
+        </div>
+    );
+};
 
 export default MaterialPage;
