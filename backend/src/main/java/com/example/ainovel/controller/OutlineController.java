@@ -159,7 +159,7 @@ public class OutlineController {
     @PostMapping("/outlines/scenes/{id}/refine")
     public ResponseEntity<RefineResponse> refineScene(
             @PathVariable Long id, @RequestBody RefineRequest request, @AuthenticationPrincipal User user) {
-        RefineResponse response = outlineService.refineSceneSynopsis(id, request, user);
+        RefineResponse response = outlineService.refineScene(id, request, user);
         return ResponseEntity.ok(response);
     }
 

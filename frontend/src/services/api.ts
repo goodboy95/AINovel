@@ -26,6 +26,7 @@ import type {
     WorldFull,
     MaterialPayload,
     MaterialResponse,
+    MaterialDetail,
     MaterialSearchResult,
     MaterialDuplicateCandidate,
     MaterialMergeRequest,
@@ -34,6 +35,7 @@ import type {
     MaterialReviewItem,
     MaterialReviewDecisionPayload,
     AuthValidationResponse,
+    MaterialUpdatePayload,
 } from '../types';
 
 /**
@@ -575,6 +577,28 @@ export const fetchMaterials = (): Promise<MaterialResponse[]> => {
         method: 'GET',
         headers: getAuthHeaders(),
     }).then(res => handleResponse<MaterialResponse[]>(res));
+};
+
+export const fetchMaterialDetail = (materialId: number): Promise<MaterialDetail> => {
+    return fetch(`/api/v1/materials/${materialId}`, {
+        method: 'GET',
+        headers: getAuthHeaders(),
+    }).then(res => handleResponse<MaterialDetail>(res));
+};
+
+export const updateMaterial = (materialId: number, payload: MaterialUpdatePayload): Promise<MaterialDetail> => {
+    return fetch(`/api/v1/materials/${materialId}`, {
+        method: 'PUT',
+        headers: getAuthHeaders(),
+        body: JSON.stringify(payload),
+    }).then(res => handleResponse<MaterialDetail>(res));
+};
+
+export const deleteMaterial = (materialId: number): Promise<void> => {
+    return fetch(`/api/v1/materials/${materialId}`, {
+        method: 'DELETE',
+        headers: getAuthHeaders(),
+    }).then(res => handleResponse<void>(res));
 };
 
 export const uploadMaterialFile = (file: File): Promise<FileImportJob> => {

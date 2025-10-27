@@ -13,6 +13,8 @@ public interface MaterialChunkRepository extends JpaRepository<MaterialChunk, Lo
 
     List<MaterialChunk> findByMaterialIdOrderBySequenceAsc(Long materialId);
 
+    void deleteByMaterialId(Long materialId);
+
     @Query("""
         SELECT mc
           FROM MaterialChunk mc

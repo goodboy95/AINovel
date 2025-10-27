@@ -3,30 +3,32 @@ server:
 spring:
   ai:
     openai:
-      # 如果 Chat 与 Embedding 使用相同域名，也可在这里给一个全局 base-url（下方会分别覆盖）
       base-url: https://generativelanguage.googleapis.com
       api-key: AIzaSyDAzuA3U3JqB7tqXrDgriC-CnnmHuEg2Tk
       chat:
+        base-url: https://generativelanguage.googleapis.com
+        api-key: AIzaSyDAzuA3U3JqB7tqXrDgriC-CnnmHuEg2Tk
         options:
           model: gemini-2.5-pro
           temperature: 0.7
         completions-path: /v1beta/openai/
       embedding:
-        base-url: http://example.com          # 与 chat 可相同或不同
-        embeddings-path: /v1/embedding        # 你的 Embedding BaseURL 的路径部分
-        api-key: ${COMPAT_API_KEY}            # 如需要单独密钥可改这里
+        base-url: https://www.dmxapi.com
+        api-key: sk-8QAFuKFgznLTuzF7DdB60b9b02D84dFa81F6Ee0716D2310f
+        embeddings-path: /v1/embedding
         options:
-          model: ExampleEmbedding             # 你给的 Embedding 模型名
+          model: text-embedding-3-small
 
     # —— Qdrant 向量库（RAG 用）——
     vectorstore:
       qdrant:
         host: 43.136.95.117
-        port: 6334               # Qdrant 的 gRPC 端口（默认 6334）
-        api-key: 12345678        # 你给的 Qdrant Key
-        collection-name: docs    # 自定义集合名
+        port: 6334
+        api-key: superhs2cr1
+        collection-name: materials
+        distance-type: Cosine
         use-tls: false
-        initialize-schema: false  # 首次自动建集合/索引
+        initialize-schema: false
   application:
     name: ainovel
   datasource:

@@ -463,6 +463,20 @@ export interface MaterialResponse {
     updatedAt?: string | null;
 }
 
+export interface MaterialDetail extends MaterialResponse {
+    content: string;
+}
+
+export interface MaterialUpdatePayload {
+    title?: string;
+    type?: string;
+    summary?: string | null;
+    tags?: string | null;
+    content?: string;
+    status?: MaterialStatus;
+    entitiesJson?: string | null;
+}
+
 export interface MaterialReviewItem {
     id: number;
     workspaceId: number;

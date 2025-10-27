@@ -12,10 +12,12 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
 import com.example.ainovel.dto.material.MaterialCreateRequest;
+import com.example.ainovel.dto.material.MaterialDetailResponse;
 import com.example.ainovel.dto.material.MaterialResponse;
 import com.example.ainovel.dto.material.MaterialReviewDecisionRequest;
 import com.example.ainovel.dto.material.MaterialReviewItem;
 import com.example.ainovel.dto.material.MaterialSearchResult;
+import com.example.ainovel.dto.material.MaterialUpdateRequest;
 import com.example.ainovel.model.material.Material;
 import com.example.ainovel.model.material.MaterialChunk;
 import com.example.ainovel.model.material.MaterialStatus;
@@ -154,6 +156,79 @@ public class MaterialService {
             .toList();
     }
 
+    @CheckPermission(resourceType = "MATERIAL", level = PermissionLevel.READ)
+    @Transactional(readOnly = true)
+    public MaterialDetailResponse getMaterialDetail(@PermissionResourceId Long materialId,
+                                                    @PermissionResourceId(PermissionService.RESOURCE_WORKSPACE) Long workspaceId) {
+        Material material = getMaterialForWorkspace(materialId, workspaceId);
+        return toDetailResponse(material);
+    }
+
+    @CheckPermission(resourceType = "MATERIAL", level = PermissionLevel.WRITE)
+    @Transactional
+    public MaterialDetailResponse updateMaterial(@PermissionResourceId Long materialId,
+                                                 @PermissionResourceId(PermissionService.RESOURCE_WORKSPACE) Long workspaceId,
+                                                 Long userId,
+                                                 MaterialUpdateRequest request) {
+        if (request == null) {
+            throw new IllegalArgumentException("请求体不能为空");
+        }
+        Material material = getMaterialForWorkspace(materialId, workspaceId);
+
+        if (request.getTitle() != null) {
+            if (!StringUtils.hasText(request.getTitle())) {
+                throw new IllegalArgumentException("素材标题不能为空");
+            }
+            material.setTitle(request.getTitle().trim());
+        }
+        if (request.getType() != null) {
+            if (!StringUtils.hasText(request.getType())) {
+                throw new IllegalArgumentException("素材类型不能为空");
+            }
+            material.setType(request.getType().trim());
+        }
+        if (request.getSummary() != null) {
+            material.setSummary(StringUtils.hasText(request.getSummary()) ? request.getSummary().trim() : null);
+        }
+        if (request.getStatus() != null) {
+            MaterialStatus status = resolveStatus(request.getStatus());
+            material.setStatus(status.name());
+        }
+        if (request.getEntitiesJson() != null) {
+            material.setEntitiesJson(StringUtils.hasText(request.getEntitiesJson()) ? request.getEntitiesJson().trim() : null);
+        }
+
+        boolean contentChanged = request.getContent() != null;
+        boolean tagsChanged = request.getTags() != null;
+        if (contentChanged && !StringUtils.hasText(request.getContent())) {
+            throw new IllegalArgumentException("素材内容不能为空");
+        }
+
+        String contentToPersist = contentChanged ? request.getContent() : material.getContent();
+        String tagsToPersist = tagsChanged ? request.getTags() : material.getTags();
+
+        material.setUpdatedBy(userId);
+
+        Material saved;
+        if (contentChanged || tagsChanged) {
+            saved = persistMaterialEntity(material, contentToPersist, tagsToPersist);
+        } else {
+            saved = materialRepository.save(material);
+        }
+        return toDetailResponse(saved);
+    }
+
+    @CheckPermission(resourceType = "MATERIAL", level = PermissionLevel.WRITE)
+    @Transactional
+    public void deleteMaterial(@PermissionResourceId Long materialId,
+                               @PermissionResourceId(PermissionService.RESOURCE_WORKSPACE) Long workspaceId,
+                               Long userId) {
+        Material material = getMaterialForWorkspace(materialId, workspaceId);
+        materialChunkRepository.deleteByMaterialId(materialId);
+        materialRepository.delete(material);
+        permissionService.revokePermissionsForMaterial(materialId);
+    }
+
     @CheckPermission(resourceType = "MATERIAL", level = PermissionLevel.WRITE)
     @Transactional
     public MaterialReviewItem approveMaterial(@PermissionResourceId Long materialId,
@@ -203,11 +278,18 @@ public class MaterialService {
     }
 
     private MaterialResponse persistMaterial(Material material, String content, String rawTags) {
+        Material saved = persistMaterialEntity(material, content, rawTags);
+        return toResponse(saved);
+    }
+
+    private Material persistMaterialEntity(Material material, String content, String rawTags) {
         String sanitizedContent = content != null ? content.trim() : "";
         material.setContent(sanitizedContent);
         material.setTags(normalizeTags(rawTags));
         Material saved = materialRepository.save(material);
         permissionService.syncMaterialOwnership(saved.getCreatedBy(), saved.getId(), saved.getWorkspaceId());
+
+        materialChunkRepository.deleteByMaterialId(saved.getId());
 
         List<String> chunkTexts = chunkText(sanitizedContent);
         if (chunkTexts.isEmpty() && StringUtils.hasText(sanitizedContent)) {
@@ -233,7 +315,7 @@ public class MaterialService {
         }
 
         saved.setChunks(chunkEntities);
-        return toResponse(saved);
+        return saved;
     }
 
     private void indexMaterialChunks(Material material, List<MaterialChunk> chunks) {
@@ -392,8 +474,7 @@ public class MaterialService {
         return tokens.length;
     }
 
-    private MaterialResponse toResponse(Material material) {
-        MaterialResponse response = new MaterialResponse();
+    private void fillBaseResponse(Material material, MaterialResponse response) {
         response.setId(material.getId());
         response.setWorkspaceId(material.getWorkspaceId());
         response.setTitle(material.getTitle());
@@ -405,6 +486,18 @@ public class MaterialService {
         response.setReviewNotes(material.getReviewNotes());
         response.setCreatedAt(material.getCreatedAt());
         response.setUpdatedAt(material.getUpdatedAt());
+    }
+
+    private MaterialResponse toResponse(Material material) {
+        MaterialResponse response = new MaterialResponse();
+        fillBaseResponse(material, response);
+        return response;
+    }
+
+    private MaterialDetailResponse toDetailResponse(Material material) {
+        MaterialDetailResponse response = new MaterialDetailResponse();
+        fillBaseResponse(material, response);
+        response.setContent(material.getContent());
         return response;
     }
 

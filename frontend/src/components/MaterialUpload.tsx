@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { Button, Card, Descriptions, message, Space, Typography, Upload, Alert } from 'antd';
 import type { UploadProps } from 'antd';
 import { InboxOutlined } from '@ant-design/icons';
@@ -12,6 +12,7 @@ const MaterialUpload = () => {
     const [selectedFile, setSelectedFile] = useState<File | null>(null);
     const [isUploading, setIsUploading] = useState(false);
     const [job, setJob] = useState<FileImportJob | null>(null);
+    const lastStatusRef = useRef<string | null>(null);
 
     const polling = useMemo(() => {
         if (!job) return null;
@@ -38,6 +39,13 @@ const MaterialUpload = () => {
 
         return () => window.clearInterval(timer);
     }, [polling]);
+
+    useEffect(() => {
+        if (job && job.status === 'COMPLETED' && lastStatusRef.current !== 'COMPLETED') {
+            window.dispatchEvent(new CustomEvent('material:refresh'));
+        }
+        lastStatusRef.current = job ? job.status : null;
+    }, [job]);
 
     const uploadProps: UploadProps = {
         multiple: false,

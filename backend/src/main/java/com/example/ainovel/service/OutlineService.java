@@ -5,7 +5,6 @@ import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -246,7 +245,7 @@ public class OutlineService {
 
         Map<Long, SceneCharacter> existingMap = targetList.stream()
                 .filter(sc -> sc.getId() != null)
-                .collect(Collectors.toMap(SceneCharacter::getId, sc -> sc, (a, b) -> a));
+                .collect(Collectors.toMap(SceneCharacter::getId, sc -> sc, (a, _) -> a));
 
         List<SceneCharacter> charactersToKeep = new ArrayList<>();
         for (SceneCharacterDto dto : sceneCharacterDtos) {
@@ -312,7 +311,7 @@ public class OutlineService {
                     .collect(Collectors.toMap(
                             CharacterCard::getId,
                             card -> card.getName().trim(),
-                            (existing, replacement) -> existing
+                            (existing, _) -> existing
                     ));
             for (Long characterId : characterIds) {
                 if (characterId == null) {
@@ -388,7 +387,7 @@ public class OutlineService {
 
         // --- Chapter Management ---
         Map<Long, OutlineChapter> existingChaptersMap = outlineCard.getChapters().stream()
-                .collect(Collectors.toMap(OutlineChapter::getId, c -> c, (c1, c2) -> c1));
+                .collect(Collectors.toMap(OutlineChapter::getId, c -> c, (c1, _) -> c1));
         
         List<OutlineChapter> chaptersToKeep = new ArrayList<>();
         if (outlineDto.getChapters() != null) {
@@ -405,7 +404,7 @@ public class OutlineService {
 
                 // --- Scene Management ---
                 Map<Long, OutlineScene> existingScenesMap = chapter.getScenes().stream()
-                        .collect(Collectors.toMap(OutlineScene::getId, s -> s, (s1, s2) -> s1));
+                        .collect(Collectors.toMap(OutlineScene::getId, s -> s, (s1, _) -> s1));
                 
                 List<OutlineScene> scenesToKeep = new ArrayList<>();
                 if (chapterDto.getScenes() != null) {
@@ -435,7 +434,7 @@ public class OutlineService {
                                     ? scene.getTemporaryCharacters()
                                     : new ArrayList<>();
                             Map<Long, TemporaryCharacter> existingTempCharsMap = existingList.stream()
-                                    .collect(Collectors.toMap(TemporaryCharacter::getId, tc -> tc, (tc1, tc2) -> tc1));
+                                    .collect(Collectors.toMap(TemporaryCharacter::getId, tc -> tc, (tc1, _) -> tc1));
 
                             List<TemporaryCharacter> tempCharsToKeep = new ArrayList<>();
                             for (TemporaryCharacterDto tempCharDto : sceneDto.getTemporaryCharacters()) {
@@ -506,8 +505,7 @@ public class OutlineService {
      * @param user    The authenticated user.
      * @return A response DTO with the refined text.
      */
-    @Deprecated
-    public RefineResponse refineSceneSynopsis(Long sceneId, RefineRequest request, User user) {
+    public RefineResponse refineScene(Long sceneId, RefineRequest request, User user) {
         OutlineScene scene = findSceneById(sceneId);
         validateSceneAccess(scene, user.getId());
         // For backward compatibility, we can add a default context type
@@ -515,6 +513,11 @@ public class OutlineService {
             request.setContextType("场景梗概");
         }
         return refineGenericText(request, user);
+    }
+
+    @Deprecated
+    public RefineResponse refineSceneSynopsis(Long sceneId, RefineRequest request, User user) {
+        return refineScene(sceneId, request, user);
     }
 
     /**
@@ -800,7 +803,7 @@ public class OutlineService {
                     : new ArrayList<>();
 
             Map<Long, TemporaryCharacter> existingTempCharsMap = existingList.stream()
-                    .collect(Collectors.toMap(TemporaryCharacter::getId, tc -> tc, (tc1, tc2) -> tc1));
+                    .collect(Collectors.toMap(TemporaryCharacter::getId, tc -> tc, (tc1, _) -> tc1));
 
             List<TemporaryCharacter> tempCharsToKeep = new ArrayList<>();
             for (TemporaryCharacterDto tempCharDto : sceneDto.getTemporaryCharacters()) {

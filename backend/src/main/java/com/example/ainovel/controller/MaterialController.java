@@ -10,9 +10,11 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.util.StringUtils;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -23,13 +25,14 @@ import com.example.ainovel.dto.material.EditorContextDto;
 import com.example.ainovel.dto.material.FileImportJobResponse;
 import com.example.ainovel.dto.material.MaterialCitationDto;
 import com.example.ainovel.dto.material.MaterialCreateRequest;
+import com.example.ainovel.dto.material.MaterialDetailResponse;
 import com.example.ainovel.dto.material.MaterialDuplicateCandidate;
 import com.example.ainovel.dto.material.MaterialMergeRequest;
 import com.example.ainovel.dto.material.MaterialResponse;
 import com.example.ainovel.dto.material.MaterialReviewDecisionRequest;
 import com.example.ainovel.dto.material.MaterialReviewItem;
 import com.example.ainovel.dto.material.MaterialSearchRequest;
-import com.example.ainovel.dto.material.MaterialSearchResult;
+import com.example.ainovel.dto.material.MaterialUpdateRequest;
 import com.example.ainovel.model.User;
 import com.example.ainovel.service.material.DeduplicationService;
 import com.example.ainovel.service.material.FileImportService;
@@ -64,6 +67,43 @@ public class MaterialController {
     public ResponseEntity<List<MaterialResponse>> listMaterials(@AuthenticationPrincipal User user) {
         Long workspaceId = user.getId();
         return ResponseEntity.ok(materialService.listMaterials(workspaceId));
+    }
+
+    @GetMapping("/{materialId}")
+    public ResponseEntity<?> getMaterialDetail(@PathVariable Long materialId,
+                                               @AuthenticationPrincipal User user) {
+        try {
+            Long workspaceId = user.getId();
+            MaterialDetailResponse detail = materialService.getMaterialDetail(materialId, workspaceId);
+            return ResponseEntity.ok(detail);
+        } catch (IllegalArgumentException ex) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("message", ex.getMessage()));
+        }
+    }
+
+    @PutMapping("/{materialId}")
+    public ResponseEntity<?> updateMaterial(@PathVariable Long materialId,
+                                            @RequestBody MaterialUpdateRequest request,
+                                            @AuthenticationPrincipal User user) {
+        try {
+            Long workspaceId = user.getId();
+            MaterialDetailResponse detail = materialService.updateMaterial(materialId, workspaceId, user.getId(), request);
+            return ResponseEntity.ok(detail);
+        } catch (IllegalArgumentException | IllegalStateException ex) {
+            return ResponseEntity.badRequest().body(Map.of("message", ex.getMessage()));
+        }
+    }
+
+    @DeleteMapping("/{materialId}")
+    public ResponseEntity<?> deleteMaterial(@PathVariable Long materialId,
+                                            @AuthenticationPrincipal User user) {
+        try {
+            Long workspaceId = user.getId();
+            materialService.deleteMaterial(materialId, workspaceId, user.getId());
+            return ResponseEntity.noContent().build();
+        } catch (IllegalArgumentException ex) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("message", ex.getMessage()));
+        }
     }
 
     @PostMapping("/search")

@@ -27,6 +27,7 @@ const MaterialCreateForm = () => {
                 tags: values.tags?.trim() || undefined,
             });
             message.success('素材创建成功');
+            window.dispatchEvent(new CustomEvent('material:refresh'));
             form.resetFields(['title', 'summary', 'content', 'tags']);
         } catch (error) {
             const msg = error instanceof Error ? error.message : '创建素材失败';
@@ -81,4 +82,3 @@ const MaterialCreateForm = () => {
 };
 
 export default MaterialCreateForm;
-
