@@ -15,7 +15,7 @@ spring:
       embedding:
         base-url: https://www.dmxapi.com
         api-key: sk-8QAFuKFgznLTuzF7DdB60b9b02D84dFa81F6Ee0716D2310f
-        embeddings-path: /v1/embedding
+        embeddings-path: /v1/embeddings
         options:
           model: text-embedding-3-small
 
