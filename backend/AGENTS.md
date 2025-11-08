@@ -18,6 +18,7 @@
 - 编写新服务时优先使用构造函数注入，复用现有日志与异常处理模式。
 - 需要持久化新配置时，请在 `application*.properties` 中添加默认值，并更新 `doc/getting_started.md` 与 `doc/features.md`。
 - 修改或新增 REST 接口后，请同步更新 Swagger/文档（目前以手工文档为主）。
+- 前端开发联调时请参考 `backend/apidoc/` 中的接口文档；后端增删改接口时务必同步维护该目录内容。
 
 ## 安全与配置
 - 生产环境务必覆盖 `application.properties` 中的示例密钥与数据库凭据。
