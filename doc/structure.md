@@ -1,19 +1,34 @@
 # 项目目录结构说明
 
 - `frontend/`：React 18 + Vite 前端代码，包含页面、组件、样式与构建配置。
-  - `src/pages/`：首页、登录注册、工作台、素材库、世界构建、设置及帮助页。
-  - `src/contexts/AuthContext.tsx`：全局认证状态管理。
-  - `src/lib/api.ts`：与后端交互的统一请求封装。
+  - `src/pages/`：首页、登录注册、工作台、素材库、世界构建、设置与帮助页。
+  - `src/pages/Profile/`：个人中心（积分、签到、兑换、修改密码）。
+  - `src/pages/Admin/`：后台管理（仪表盘、模型管理、用户管理、积分日志、兑换码、系统设置）。
+  - `src/components/ai/`：AI Copilot 侧边栏与润色弹窗等创作辅助组件。
+  - `src/components/auth/`：注册流程的人机验证（CapJS）组件。
+  - `src/components/layout/`：用户端与后台端布局组件（含 AdminLayout）。
+  - `src/contexts/AuthContext.tsx`：全局认证、角色与积分刷新逻辑。
+  - `src/lib/mock-api.ts`：前端 Mock API（含积分/模型配置/后台数据）。
+  - `package.json`：前端依赖与脚本配置（Vitest 现升级到 v4）。
+  - `package-lock.json`：npm 依赖锁定文件。
   - `Dockerfile`、`nginx.conf`：前端构建与部署镜像配置。
 - `backend/`：Spring Boot 3 后端代码，提供认证、故事、素材、世界观、设置等 REST API。
   - `src/main/java/com/ainovel/app/`：入口与各业务模块（security、user、story、material、world、settings、manuscript）。
   - `src/main/resources/application.yml`：默认配置（可通过环境变量覆盖）。
+  - `src/test/resources/mockito-extensions/org.mockito.plugins.MockMaker`：测试环境禁用 Mockito inline mock maker，避免 JDK 动态 attach 失败。
   - `Dockerfile`：后端构建与运行镜像配置。
-- `design/`：原型设计参考文件与文档。
+- `design/`：原型设计参考文件与文档（V1/V2 页面定义）。
 - `sql/schema.sql`：数据库表结构参考脚本。
-- `docker-compose.yml`：一键启动 MySQL、Redis、后端、前端(Nginx) 的编排文件。
-- `build.sh`：本地/CI 一键构建前后端并启动容器的脚本。
+- `docker-compose.yml`：使用运行时镜像启动 MySQL、Redis、后端、前端(Nginx) 的编排文件，前后端产物通过 volume 挂载（前端映射 10001 端口，后端映射 20001 端口）。
+- `build.sh`：在宿主机完成前后端构建与测试，将后端 Jar、前端 dist 产物映射到容器后启动服务。
+- `build_prod.sh`：生产部署脚本（调用 build.sh 并输出部署结果）。
 - `doc/api/`：各 Controller 对应的接口说明文档。
+  - `auth.md`：认证/注册/验证码接口说明。
+  - `material.md`：素材上传/审核/检索接口说明。
+  - `manuscript.md`：稿件生成/保存/角色变化分析接口说明。
+  - `settings.md`：模型配置与提示词设置接口说明。
+  - `story.md`：故事与大纲相关接口说明。
+  - `world.md`：世界观与定义接口说明。
 - `doc/modules/`：功能模块说明。
 - `doc/test/`：测试用例与操作步骤文档。
 - `AGENTS.md`：任务与交付规范。

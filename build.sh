@@ -1,21 +1,47 @@
 #!/usr/bin/env bash
-set -e
+set -euo pipefail
 
-# Frontend build
-cd frontend
+ROOT_DIR="$(cd "$(dirname "$0")" && pwd)"
+SUDO_CMD=(sudo -S -p "")
+
+run_sudo() {
+  echo "123456" | "${SUDO_CMD[@]}" "$@"
+}
+
+# Frontend build & tests
+cd "$ROOT_DIR/frontend"
 npm ci --legacy-peer-deps
+if npm run | grep -q "^  test"; then
+  npm run test
+fi
 npm run build
-cd ..
+cd "$ROOT_DIR"
 
-# Backend build
-test -d backend/target && rm -rf backend/target
-cd backend
+# Backend build & tests
+if [ -d "$ROOT_DIR/backend/target" ]; then
+  rm -rf "$ROOT_DIR/backend/target"
+fi
+cd "$ROOT_DIR/backend"
+mvn -q test
 mvn -q -DskipTests clean package
-cd ..
+shopt -s nullglob
+JAR_PATH=""
+for jar in "$ROOT_DIR/backend/target/"*.jar; do
+  if [[ "$jar" != *.original ]]; then
+    JAR_PATH="$jar"
+    break
+  fi
+done
+shopt -u nullglob
+if [ -z "$JAR_PATH" ]; then
+  echo "Backend jar not found in $ROOT_DIR/backend/target"
+  exit 1
+fi
+cp "$JAR_PATH" "$ROOT_DIR/backend/target/app.jar"
+cd "$ROOT_DIR"
 
 # Docker compose rollout
-docker compose down
-docker compose build
-docker compose up -d
+run_sudo docker compose down
+run_sudo docker compose up -d
 
-echo "Deployment finished. Frontend: http://localhost (default). Backend API: http://localhost:8080/api"
+echo "Deployment finished. Frontend: http://ainovel.seekerhut.com:10001. Backend API: http://ainovel.seekerhut.com:20001/api"
