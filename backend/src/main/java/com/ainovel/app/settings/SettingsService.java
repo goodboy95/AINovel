@@ -9,6 +9,7 @@ import com.ainovel.app.settings.repo.SystemSettingsRepository;
 import com.ainovel.app.settings.repo.WorldPromptTemplatesRepository;
 import com.ainovel.app.user.User;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -17,6 +18,12 @@ import java.util.Map;
 
 @Service
 public class SettingsService {
+    @Value("${app.ai.base-url:https://api.openai.com/v1}")
+    private String defaultAiBaseUrl;
+    @Value("${app.ai.model:gpt-4o}")
+    private String defaultAiModel;
+    @Value("${app.ai.api-key:}")
+    private String defaultAiApiKey;
     @Autowired
     private SystemSettingsRepository systemSettingsRepository;
     @Autowired
@@ -29,9 +36,11 @@ public class SettingsService {
                 .orElseGet(() -> {
                     SystemSettings s = new SystemSettings();
                     s.setUser(user);
-                    s.setBaseUrl("https://api.openai.com/v1");
-                    s.setModelName("gpt-4o");
-                    s.setApiKeyEncrypted(null);
+                    s.setBaseUrl(defaultAiBaseUrl);
+                    s.setModelName(defaultAiModel);
+                    if (defaultAiApiKey != null && !defaultAiApiKey.isBlank()) {
+                        s.setApiKeyEncrypted(defaultAiApiKey);
+                    }
                     systemSettingsRepository.save(s);
                     return s;
                 });

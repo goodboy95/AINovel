@@ -14,10 +14,36 @@ doc/api/下每个文档，对应每个Controller中，各个接口的传参，�
 
 6、开发过程中，如果涉及到数据库表结构的变动，需要更新sql/目录下的数据表文件，使其保持最新。
 
-7、开发完毕后，需要确认docker-compose.yml和build.sh是否已存在。其中docker-compose.yml用来将前后端和Nginx加载到容器里并运行；build.sh则用来编译前后端，执行单元测试，然后执行docker-compose.yml关闭旧容器（如有旧容器），并启动新容器，完成部署工作。应当确保在执行build.sh之后，浏览器上可以正常使用项目给定的域名访问网站。如果发现文件缺失，或者build.sh无法正常完成部署（如脚本执行失败，执行后无法正常访问网站等），你需要根据实际情况，对docker-compose.yml和build.sh进行修复或调整。如果发现单元测试运行失败，则需要对代码本身进行修复。
+7、当前端连接后端时，应当指定20001端口。后端连接依赖服务时（根据项目具体情况而定，可能有MySQL, Redis, Qdrant之类），连接的IP为127.0.0.1，且端口号应当是服务默认端口号+2（如MySQL默认端口号为3306，则应当实际连接127.0.0.1:3308）。
 
-8、开发完毕后，应当整理出系统有哪些功能，每个功能应当如何进行操作，将每个功能的所有的操作步骤（包括最开始的注册/登录步骤）记录到/doc/test/operation.md文件中，作为系统测试的参考。
+8、开发完毕后，如果发现系统中没有安装Nginx，可以直接sudo apt install安装。
+如果发现ainovel.seekerhut.com没有hosts，则允许修改/etc/hosts文件进行配置，指向IP为127.0.0.1。
 
-9、开发完毕后，需要整理出有哪些地方需要进行集成测试和系统测试，将测试项添加到doc/test/integratedTest.md文件中（如果没有这个文件，需要创建一个）。然后使用Playwright MCP进行测试工作，确认功能均可正常使用。如果发现问题，则需要进行修复，并在修复后重新测试，直到完全没有问题为止。如果存在你自己无法直接执行解决方案的问题，请将问题和解决方案记录到doc/issues.md中，由我进行解决。
+9、开发完毕后，需要确认项目主目录下的docker-compose.yml和build.sh，build_prod.sh，以及项目deploy/目录下的docker-compose.yml和build.sh是否已存在。
+（1）项目主目录的文件说明：
+docker-compose.yml包含前后端的运行环境镜像和容器配置，同时使用volume将编译好的前后端文件加载到容器里。
+前端docker容器固定对外开放10001端口，后端docker容器固定对外开放20001端口。（容器内部的服务端口不限制，可以使用默认端口）
+build.sh和build_prod.sh则需要在宿主机上编译前后端（不要在容器内编译，更不要新建镜像），然后执行docker-compose.yml关闭旧容器（如有旧容器），并启动新容器，完成部署工作。
+build.sh和build_prod.sh在不加--init参数时，效果是相同的。
+但在增加--init参数时：
+- build.sh需要将ainovel.seekerhut.com加入hosts（IP为127.0.0.1），然后在系统中的Nginx中将ainovel.seekerhut.com反向代理到10001端口。
+- build_prod.sh需要在Let's Encrypt注册ainovel.aienie.com的证书，然后在系统中的Nginx上将ainovel.aienie.com反向代理到10001端口，并且正常加载证书，确保可以HTTPS访问。
 
-10、如果发现当前的环境为bash，那么我的账户密码为123456，如果需要的话，可以使用该密码执行sudo操作。同时，执行build.sh时，应当使用非交互式sudo完成。
+（2）项目deploy目录的文件说明：
+docker-compose.yml用来运行项目依赖的各个容器（根据项目具体情况而定，可能有MySQL, Redis, Qdrant之类，但不要运行Nginx容器，需要直接使用系统上安装的Nginx）
+为了避免与同服务器的其他项目冲突，这些容器开放的端口号应该是服务默认端口号+2（如MySQL默认端口号为3306，则容器应当对外开放3308）。
+各个容器中需要持久化保存的数据文件，应当使用volume映射到deploy目录下。
+build.sh用来使用docker-compose.yml，启动或重启容器。
+
+10、如果用户要求你进行测试，在没有强调测试build_prod.sh的情况下，你只需测试build.sh即可。
+应当确保在执行build.sh之后，浏览器上可以正常使用项目给定的域名访问网站。
+如果使用playwright MCP进行测试，需要访问http://ainovel.seekerhut.com。（执行build.sh部署脚本时，会将该域名配置到系统上的Nginx，所以不用带端口号）
+在使用playwright MCP时，如果发现浏览器正在被使用（Browser is already in use），说明其他项目正在占用。此时需等待1分钟后重试，3次重试均被占用则可暂停工作。禁止结束或重启playwright或浏览器的进程。
+如果发现文件缺失，或者build.sh无法正常完成部署（如脚本执行失败，执行后无法正常访问网站等），或者测试时遇到问题，你需要根据实际情况，对docker-compose.yml和build.sh进行修复或调整，或者对代码本身进行修复。
+我的账户密码为123456，如果需要的话，可以使用该密码执行sudo操作。所有的sudo均应使用非交互sudo，防止卡住。build.sh或者build_prod.sh需要使用sudo来执行。
+
+11、开发完毕后，应当整理出系统有哪些功能，每个功能应当如何进行操作，将每个功能的所有的操作步骤（包括最开始的注册/登录步骤）记录到/doc/test/operation.md文件中，作为系统测试的参考。
+
+12、开发完毕后，需要整理出有哪些地方需要进行集成测试和系统测试，将测试项添加到doc/test/integratedTest.md文件中（如果没有这个文件，需要创建一个）。然后使用Playwright MCP进行测试工作，确认功能均可正常使用。如果发现问题，则需要进行修复，并在修复后重新测试，直到完全没有问题为止。如果存在你自己无法直接执行解决方案的问题，请将问题和解决方案记录到doc/issues.md中，由我进行解决。
+
+13、在测试过程中，项目中需要调用AI大模型，以及使用SMTP发送邮件，对应的配置已写在SMTPandAPI.txt中，可以将这些信息配置进系统后台。

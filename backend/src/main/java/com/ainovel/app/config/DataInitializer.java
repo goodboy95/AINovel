@@ -2,6 +2,8 @@ package com.ainovel.app.config;
 
 import com.ainovel.app.material.model.Material;
 import com.ainovel.app.material.repo.MaterialRepository;
+import com.ainovel.app.settings.model.SystemSettings;
+import com.ainovel.app.settings.repo.SystemSettingsRepository;
 import com.ainovel.app.story.model.Story;
 import com.ainovel.app.story.repo.StoryRepository;
 import com.ainovel.app.user.User;
@@ -10,6 +12,7 @@ import com.ainovel.app.world.model.World;
 import com.ainovel.app.world.repo.WorldRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
@@ -26,7 +29,15 @@ public class DataInitializer implements CommandLineRunner {
     @Autowired
     private MaterialRepository materialRepository;
     @Autowired
+    private SystemSettingsRepository systemSettingsRepository;
+    @Autowired
     private PasswordEncoder passwordEncoder;
+    @Value("${app.ai.base-url:https://api.openai.com/v1}")
+    private String defaultAiBaseUrl;
+    @Value("${app.ai.model:gpt-4o}")
+    private String defaultAiModel;
+    @Value("${app.ai.api-key:}")
+    private String defaultAiApiKey;
 
     @Override
     public void run(String... args) {
@@ -38,6 +49,29 @@ public class DataInitializer implements CommandLineRunner {
             u.setRoles(Set.of("ROLE_USER"));
             return userRepository.save(u);
         });
+
+        SystemSettings settings = systemSettingsRepository.findByUser(user).orElseGet(() -> {
+            SystemSettings s = new SystemSettings();
+            s.setUser(user);
+            return s;
+        });
+        boolean settingsChanged = false;
+        if (settings.getBaseUrl() == null || !settings.getBaseUrl().equals(defaultAiBaseUrl)) {
+            settings.setBaseUrl(defaultAiBaseUrl);
+            settingsChanged = true;
+        }
+        if (settings.getModelName() == null || !settings.getModelName().equals(defaultAiModel)) {
+            settings.setModelName(defaultAiModel);
+            settingsChanged = true;
+        }
+        if (defaultAiApiKey != null && !defaultAiApiKey.isBlank()
+                && (settings.getApiKeyEncrypted() == null || !settings.getApiKeyEncrypted().equals(defaultAiApiKey))) {
+            settings.setApiKeyEncrypted(defaultAiApiKey);
+            settingsChanged = true;
+        }
+        if (settings.getId() == null || settingsChanged) {
+            systemSettingsRepository.save(settings);
+        }
 
         if (storyRepository.count() == 0) {
             Story story = new Story();

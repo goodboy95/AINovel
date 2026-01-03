@@ -1,7 +1,7 @@
 # 操作步骤（端到端）
 
 1. **注册/登录**
-   - 打开前端 `http://ainovel.seekerhut.com:10001`。
+   - 打开前端 `http://ainovel.seekerhut.com`。
    - 注册：输入邮箱 → 完成人机验证 → 发送验证码（Mock: 123456）→ 填写用户名/密码完成注册。
    - 登录：
      - 普通用户：`user / user`。
@@ -41,8 +41,11 @@
    - “发布版本”按钮触发生成/发布流程，可在“生成进度”状态中看到模块状态（示例逻辑标记为 COMPLETED）。
 
 8. **设置与提示词**
-   - 页面 `/settings`：在“模型接入”保存 Base URL/Model/API Key，点击“测试连接”。
+   - 页面 `/settings`：在“模型接入”填写 Base URL `https://www.packyapi.com/v1`、Model `gemini-2.5-flash`、API Key（来自 `SMTPandAPI.txt`），保存后点击“测试连接”。
    - “工作区提示词”/“世界观提示词”标签可编辑并保存模板；帮助按钮跳转至提示词帮助页查看变量/函数说明。
 
 9. **登出**
    - 头部用户菜单选择退出，或清除浏览器 LocalStorage 中的 `token`。
+
+10. **后端接口连通性（可选）**
+   - 访问 `http://ainovel.seekerhut.com:20001/api`，确认接口返回 JSON 或 404，但服务可连接。

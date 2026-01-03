@@ -11,17 +11,21 @@
   - `src/lib/mock-api.ts`：前端 Mock API（含积分/模型配置/后台数据）。
   - `package.json`：前端依赖与脚本配置（Vitest 现升级到 v4）。
   - `package-lock.json`：npm 依赖锁定文件。
-  - `Dockerfile`、`nginx.conf`：前端构建与部署镜像配置。
+  - `Dockerfile`、`nginx.conf`：前端构建与部署镜像配置（Nginx 静态资源 + `/api` 反向代理到 `127.0.0.1:20001`）。
 - `backend/`：Spring Boot 3 后端代码，提供认证、故事、素材、世界观、设置等 REST API。
   - `src/main/java/com/ainovel/app/`：入口与各业务模块（security、user、story、material、world、settings、manuscript）。
-  - `src/main/resources/application.yml`：默认配置（可通过环境变量覆盖）。
+  - `src/main/resources/application.yml`：默认配置（可通过环境变量覆盖，包含 SMTP 与 AI 接入参数）。
   - `src/test/resources/mockito-extensions/org.mockito.plugins.MockMaker`：测试环境禁用 Mockito inline mock maker，避免 JDK 动态 attach 失败。
   - `Dockerfile`：后端构建与运行镜像配置。
-- `design/`：原型设计参考文件与文档（V1/V2 页面定义）。
 - `sql/schema.sql`：数据库表结构参考脚本。
-- `docker-compose.yml`：使用运行时镜像启动 MySQL、Redis、后端、前端(Nginx) 的编排文件，前后端产物通过 volume 挂载（前端映射 10001 端口，后端映射 20001 端口）。
-- `build.sh`：在宿主机完成前后端构建与测试，将后端 Jar、前端 dist 产物映射到容器后启动服务。
-- `build_prod.sh`：生产部署脚本（调用 build.sh 并输出部署结果）。
+- `docker-compose.yml`：运行前后端容器的编排文件（前后端均使用 host 网络并监听 10001/20001 端口），通过 volume 挂载前端 dist 与后端 jar，并注入 SMTP 与 AI 接入环境变量。
+- `deploy/`：部署依赖服务与宿主机 Nginx 配置。
+  - `docker-compose.yml`：运行依赖服务（MySQL/Redis）的编排文件，对外开放 3308/6381 端口并持久化数据到 deploy 目录。
+  - `build.sh`：依赖服务容器的启动/重启脚本（docker compose down/up，固定项目名 `ainovel-deps`）。
+  - `nginx/ainovel.conf`：宿主机 Nginx 反向代理配置，将 `ainovel.seekerhut.com` 指向前端 10001 端口。
+  - `nginx/ainovel_prod.conf`：生产域名 `ainovel.aienie.com` 的 HTTP 反向代理模板（由 build_prod.sh 结合 Certbot 切换到 HTTPS）。
+- `build.sh`：在宿主机完成前后端构建与测试，将后端 Jar、前端 dist 产物映射到容器后启动服务（root 环境下使用 runuser/su 切回原用户，避免非交互 sudo 卡住）。
+- `build_prod.sh`：生产部署脚本（调用 build.sh，支持 --init 时申请证书并配置 `ainovel.aienie.com` HTTPS）。
 - `doc/api/`：各 Controller 对应的接口说明文档。
   - `auth.md`：认证/注册/验证码接口说明。
   - `material.md`：素材上传/审核/检索接口说明。
@@ -30,5 +34,6 @@
   - `story.md`：故事与大纲相关接口说明。
   - `world.md`：世界观与定义接口说明。
 - `doc/modules/`：功能模块说明。
+- `doc/issues.md`：开发/测试过程中记录的待处理问题与已解决事项。
 - `doc/test/`：测试用例与操作步骤文档。
 - `AGENTS.md`：任务与交付规范。

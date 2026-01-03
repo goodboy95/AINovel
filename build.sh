@@ -2,46 +2,200 @@
 set -euo pipefail
 
 ROOT_DIR="$(cd "$(dirname "$0")" && pwd)"
-SUDO_CMD=(sudo -S -p "")
+INIT_MODE=false
 
-run_sudo() {
-  echo "123456" | "${SUDO_CMD[@]}" "$@"
-}
-
-# Frontend build & tests
-cd "$ROOT_DIR/frontend"
-npm ci --legacy-peer-deps
-if npm run | grep -q "^  test"; then
-  npm run test
+if [[ "${1:-}" == "--init" ]]; then
+  INIT_MODE=true
+  shift
 fi
-npm run build
-cd "$ROOT_DIR"
 
-# Backend build & tests
-if [ -d "$ROOT_DIR/backend/target" ]; then
-  rm -rf "$ROOT_DIR/backend/target"
-fi
-cd "$ROOT_DIR/backend"
-mvn -q test
-mvn -q -DskipTests clean package
-shopt -s nullglob
-JAR_PATH=""
-for jar in "$ROOT_DIR/backend/target/"*.jar; do
-  if [[ "$jar" != *.original ]]; then
-    JAR_PATH="$jar"
-    break
-  fi
-done
-shopt -u nullglob
-if [ -z "$JAR_PATH" ]; then
-  echo "Backend jar not found in $ROOT_DIR/backend/target"
+if [[ $# -gt 0 ]]; then
+  echo "Usage: $0 [--init]"
   exit 1
 fi
-cp "$JAR_PATH" "$ROOT_DIR/backend/target/app.jar"
-cd "$ROOT_DIR"
 
-# Docker compose rollout
-run_sudo docker compose down
-run_sudo docker compose up -d
+SUDO_PASS="${SUDO_PASS:-123456}"
 
-echo "Deployment finished. Frontend: http://ainovel.seekerhut.com:10001. Backend API: http://ainovel.seekerhut.com:20001/api"
+run_sudo() {
+  if [[ "$EUID" -eq 0 ]]; then
+    "$@"
+  else
+    echo "$SUDO_PASS" | sudo -S -p "" "$@"
+  fi
+}
+
+run_user() {
+  if [[ "$EUID" -eq 0 && -n "${SUDO_USER:-}" ]]; then
+    local user_home
+    user_home="$(getent passwd "$SUDO_USER" | cut -d: -f6)"
+    if command -v runuser >/dev/null 2>&1; then
+      runuser -u "$SUDO_USER" -- env HOME="$user_home" PATH="$PATH" "$@"
+    else
+      su -s /bin/bash "$SUDO_USER" -c "HOME='$user_home' PATH='$PATH' $(printf '%q ' "$@")"
+    fi
+  else
+    "$@"
+  fi
+}
+
+ensure_nginx_installed() {
+  if ! command -v nginx >/dev/null 2>&1; then
+    run_sudo env DEBIAN_FRONTEND=noninteractive apt-get update
+    run_sudo env DEBIAN_FRONTEND=noninteractive apt-get install -y nginx
+  fi
+}
+
+reload_nginx() {
+  run_sudo nginx -t
+  if command -v systemctl >/dev/null 2>&1; then
+    if run_sudo systemctl is-active --quiet nginx; then
+      run_sudo systemctl reload nginx
+      return
+    fi
+  fi
+
+  if run_sudo pgrep -x nginx >/dev/null 2>&1; then
+    run_sudo pkill -HUP -x nginx || true
+    return
+  fi
+
+  if command -v systemctl >/dev/null 2>&1; then
+    run_sudo systemctl start nginx
+    return
+  fi
+
+  if command -v service >/dev/null 2>&1; then
+    run_sudo service nginx start
+    return
+  fi
+
+  run_sudo nginx
+}
+
+ensure_hosts_entry() {
+  if ! grep -qE "^[^#]*\s+ainovel\.seekerhut\.com" /etc/hosts; then
+    run_sudo sh -c 'echo "127.0.0.1 ainovel.seekerhut.com" >> /etc/hosts'
+  fi
+}
+
+install_dev_nginx_conf() {
+  local source_conf="$ROOT_DIR/deploy/nginx/ainovel.conf"
+  local target_conf="/etc/nginx/conf.d/ainovel.conf"
+
+  if [[ ! -f "$source_conf" ]]; then
+    echo "Missing nginx config: $source_conf"
+    exit 1
+  fi
+
+  run_sudo install -m 0644 "$source_conf" "$target_conf"
+  reload_nginx
+}
+
+build_frontend() {
+  local front_dir="$ROOT_DIR/frontend"
+  run_user bash -c "cd '$front_dir' && npm ci --legacy-peer-deps"
+  if run_user bash -c "cd '$front_dir' && npm run" | grep -q "^  test"; then
+    run_user bash -c "cd '$front_dir' && npm run test"
+  fi
+  run_user bash -c "cd '$front_dir' && npm run build"
+}
+
+build_backend() {
+  local backend_dir="$ROOT_DIR/backend"
+  if [[ -d "$backend_dir/target" ]]; then
+    run_sudo rm -rf "$backend_dir/target"
+  fi
+  run_user bash -c "cd '$backend_dir' && mvn -q test"
+  run_user bash -c "cd '$backend_dir' && mvn -q -Dmaven.test.skip=true clean package"
+
+  local jar_path=""
+  shopt -s nullglob
+  for jar in "$backend_dir/target/"*.jar; do
+    if [[ "$jar" != *.original ]]; then
+      jar_path="$jar"
+      break
+    fi
+  done
+  shopt -u nullglob
+
+  if [[ -z "$jar_path" ]]; then
+    echo "Backend jar not found in $backend_dir/target"
+    exit 1
+  fi
+
+  run_user cp "$jar_path" "$backend_dir/target/app.jar"
+}
+
+wait_for_port() {
+  local host="$1"
+  local port="$2"
+  local label="$3"
+  local retries=90
+  local count=0
+
+  while (( count < retries )); do
+    if (echo >"/dev/tcp/${host}/${port}") >/dev/null 2>&1; then
+      return 0
+    fi
+    count=$((count + 1))
+    sleep 1
+  done
+
+  echo "Timeout waiting for ${label} at ${host}:${port}"
+  exit 1
+}
+
+wait_for_health() {
+  local service="$1"
+  local label="$2"
+  local retries=30
+  local count=0
+  local compose_file="$ROOT_DIR/deploy/docker-compose.yml"
+  local project_name="ainovel-deps"
+
+  local container_id
+  container_id="$(run_sudo docker compose -p "$project_name" -f "$compose_file" ps -q "$service" 2>/dev/null || true)"
+  if [[ -z "$container_id" ]]; then
+    echo "Unable to resolve container for ${label}"
+    exit 1
+  fi
+
+  while (( count < retries )); do
+    local status
+    status="$(run_sudo docker inspect -f '{{.State.Health.Status}}' "$container_id" 2>/dev/null || true)"
+    if [[ "$status" == "healthy" ]]; then
+      return 0
+    fi
+    if [[ "$status" == "unhealthy" ]]; then
+      echo "${label} reported unhealthy status"
+      exit 1
+    fi
+    count=$((count + 1))
+    sleep 2
+  done
+
+  echo "Timeout waiting for ${label} to become healthy"
+  exit 1
+}
+
+rollout_compose() {
+  run_sudo docker compose -f "$ROOT_DIR/docker-compose.yml" down --remove-orphans
+  run_sudo docker compose -f "$ROOT_DIR/docker-compose.yml" up -d
+}
+
+build_frontend
+build_backend
+run_sudo "$ROOT_DIR/deploy/build.sh"
+wait_for_port 127.0.0.1 3308 "MySQL"
+wait_for_port 127.0.0.1 6381 "Redis"
+wait_for_health mysql "MySQL"
+wait_for_health redis "Redis"
+rollout_compose
+
+if [[ "$INIT_MODE" == "true" ]]; then
+  ensure_nginx_installed
+  ensure_hosts_entry
+  install_dev_nginx_conf
+fi
+
+echo "Deployment finished. Frontend: http://ainovel.seekerhut.com. Backend API: http://ainovel.seekerhut.com:20001/api"

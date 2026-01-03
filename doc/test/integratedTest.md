@@ -14,4 +14,6 @@
 - **素材流程**：创建素材→上传 TXT 轮询完成→在审核页批准→列表可见；检索接口返回得分排序。
 - **世界观**：新建世界，保存模块字段，发布与生成状态返回 COMPLETED；定义接口返回字段配置。
 - **设置/提示词**：读取、更新、重置提示词与模型配置；元数据接口可被帮助页渲染。
-- **部署验证**：执行 `build.sh`/`build_prod.sh`（宿主机构建产物并挂载到容器）后 docker 容器全部健康，浏览器通过 `http://ainovel.seekerhut.com:10001` 正常访问，后端 `http://ainovel.seekerhut.com:20001/api` 正常响应。
+- **AI 配置注入**：使用管理员登录后访问 `/api/v1/settings`，应返回 Base URL `https://www.packyapi.com/v1`、Model `gemini-2.5-flash`，并且 `POST /api/v1/settings/test` 返回 true。
+- **部署验证**：执行 `build.sh`/`build_prod.sh`（宿主机构建产物并挂载到容器）后 docker 容器全部健康，浏览器通过 `http://ainovel.seekerhut.com` 正常访问，后端 `http://ainovel.seekerhut.com:20001/api` 正常响应。
+- **依赖容器端口**：MySQL 容器监听 `127.0.0.1:3308`，Redis 容器监听 `127.0.0.1:6381`，后端能正常连接两者。
