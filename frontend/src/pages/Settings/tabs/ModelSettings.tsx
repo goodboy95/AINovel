@@ -26,7 +26,7 @@ const ModelSettings = () => {
       await api.settings.update({
         ...settings,
         // Only update apiKey if user entered a new one
-        ...(apiKey ? { apiKeyIsSet: true } : {}) 
+        ...(apiKey ? { apiKey } : {})
       });
       toast({ title: "设置已保存" });
       setApiKey(""); // Clear input after save

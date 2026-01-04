@@ -2,9 +2,11 @@ package com.ainovel.app.settings;
 
 import com.ainovel.app.settings.dto.*;
 import com.ainovel.app.settings.model.PromptTemplatesEntity;
+import com.ainovel.app.settings.model.GlobalSettings;
 import com.ainovel.app.settings.model.SystemSettings;
 import com.ainovel.app.settings.model.WorldPromptTemplatesEntity;
 import com.ainovel.app.settings.repo.PromptTemplatesRepository;
+import com.ainovel.app.settings.repo.GlobalSettingsRepository;
 import com.ainovel.app.settings.repo.SystemSettingsRepository;
 import com.ainovel.app.settings.repo.WorldPromptTemplatesRepository;
 import com.ainovel.app.user.User;
@@ -24,14 +26,25 @@ public class SettingsService {
     private String defaultAiModel;
     @Value("${app.ai.api-key:}")
     private String defaultAiApiKey;
+    @Value("${spring.mail.host:}")
+    private String defaultSmtpHost;
+    @Value("${spring.mail.port:587}")
+    private Integer defaultSmtpPort;
+    @Value("${spring.mail.username:}")
+    private String defaultSmtpUsername;
+    @Value("${spring.mail.password:}")
+    private String defaultSmtpPassword;
     @Autowired
     private SystemSettingsRepository systemSettingsRepository;
+    @Autowired
+    private GlobalSettingsRepository globalSettingsRepository;
     @Autowired
     private PromptTemplatesRepository promptTemplatesRepository;
     @Autowired
     private WorldPromptTemplatesRepository worldPromptTemplatesRepository;
 
     public SettingsResponse getSettings(User user) {
+        GlobalSettings global = getOrCreateGlobalSettings();
         SystemSettings settings = systemSettingsRepository.findByUser(user)
                 .orElseGet(() -> {
                     SystemSettings s = new SystemSettings();
@@ -44,11 +57,20 @@ public class SettingsService {
                     systemSettingsRepository.save(s);
                     return s;
                 });
-        return new SettingsResponse(settings.getBaseUrl(), settings.getModelName(), settings.getApiKeyEncrypted() != null);
+        return new SettingsResponse(
+                settings.getBaseUrl(),
+                settings.getModelName(),
+                settings.getApiKeyEncrypted() != null,
+                global.isRegistrationEnabled(),
+                global.isMaintenanceMode(),
+                global.getCheckInMinPoints(),
+                global.getCheckInMaxPoints()
+        );
     }
 
     @Transactional
     public SettingsResponse updateSettings(User user, SettingsUpdateRequest request) {
+        GlobalSettings global = getOrCreateGlobalSettings();
         SystemSettings settings = systemSettingsRepository.findByUser(user)
                 .orElseGet(() -> {
                     SystemSettings s = new SystemSettings();
@@ -62,7 +84,24 @@ public class SettingsService {
             settings.setApiKeyEncrypted(request.apiKey());
         }
         systemSettingsRepository.save(settings);
-        return new SettingsResponse(settings.getBaseUrl(), settings.getModelName(), settings.getApiKeyEncrypted() != null);
+
+        if (user.hasRole("ROLE_ADMIN")) {
+            if (request.registrationEnabled() != null) global.setRegistrationEnabled(request.registrationEnabled());
+            if (request.maintenanceMode() != null) global.setMaintenanceMode(request.maintenanceMode());
+            if (request.checkInMinPoints() != null) global.setCheckInMinPoints(request.checkInMinPoints());
+            if (request.checkInMaxPoints() != null) global.setCheckInMaxPoints(request.checkInMaxPoints());
+            globalSettingsRepository.save(global);
+        }
+
+        return new SettingsResponse(
+                settings.getBaseUrl(),
+                settings.getModelName(),
+                settings.getApiKeyEncrypted() != null,
+                global.isRegistrationEnabled(),
+                global.isMaintenanceMode(),
+                global.getCheckInMinPoints(),
+                global.getCheckInMaxPoints()
+        );
     }
 
     public boolean testSettings(User user) {
@@ -70,6 +109,21 @@ public class SettingsService {
         return systemSettingsRepository.findByUser(user)
                 .map(s -> s.getApiKeyEncrypted() != null && s.getModelName() != null)
                 .orElse(false);
+    }
+
+    public GlobalSettings getGlobalSettings() {
+        return getOrCreateGlobalSettings();
+    }
+
+    private GlobalSettings getOrCreateGlobalSettings() {
+        return globalSettingsRepository.findTopByOrderByUpdatedAtDesc().orElseGet(() -> {
+            GlobalSettings g = new GlobalSettings();
+            if (defaultSmtpHost != null && !defaultSmtpHost.isBlank()) g.setSmtpHost(defaultSmtpHost);
+            if (defaultSmtpPort != null) g.setSmtpPort(defaultSmtpPort);
+            if (defaultSmtpUsername != null && !defaultSmtpUsername.isBlank()) g.setSmtpUsername(defaultSmtpUsername);
+            if (defaultSmtpPassword != null && !defaultSmtpPassword.isBlank()) g.setSmtpPassword(defaultSmtpPassword);
+            return globalSettingsRepository.save(g);
+        });
     }
 
     public PromptTemplatesResponse getPromptTemplates(User user) {

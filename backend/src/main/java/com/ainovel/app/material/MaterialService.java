@@ -99,7 +99,8 @@ public class MaterialService {
         Material material = materialRepository.findById(id).orElseThrow(() -> new RuntimeException("素材不存在"));
         if (request.title() != null) material.setTitle(request.title());
         if (request.summary() != null) material.setSummary(request.summary());
-        if (request.tags() != null) material.setTagsJson(request.tags());
+        if (request.tags() != null) material.setTagsJson(writeJson(request.tags()));
+        if (request.type() != null) material.setType(request.type());
         material.setStatus("approve".equalsIgnoreCase(action) ? "approved" : "rejected");
         materialRepository.save(material);
         return toDto(material);

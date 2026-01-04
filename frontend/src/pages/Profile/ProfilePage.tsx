@@ -133,7 +133,7 @@ const ProfilePage = () => {
               <Label>积分兑换</Label>
               <div className="flex gap-2">
                 <Input 
-                  placeholder="输入兑换码 (Mock: VIP888)" 
+                  placeholder="输入兑换码 (例如 VIP888)" 
                   value={redeemCode}
                   onChange={(e) => setRedeemCode(e.target.value)}
                 />

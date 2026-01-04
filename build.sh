@@ -185,7 +185,7 @@ rollout_compose() {
 
 build_frontend
 build_backend
-run_sudo "$ROOT_DIR/deploy/build.sh"
+run_sudo bash "$ROOT_DIR/deploy/build.sh"
 wait_for_port 127.0.0.1 3308 "MySQL"
 wait_for_port 127.0.0.1 6381 "Redis"
 wait_for_health mysql "MySQL"

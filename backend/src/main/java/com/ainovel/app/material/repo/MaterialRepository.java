@@ -9,4 +9,5 @@ import java.util.UUID;
 
 public interface MaterialRepository extends JpaRepository<Material, UUID> {
     List<Material> findByUser(User user);
+    long countByStatusIgnoreCase(String status);
 }

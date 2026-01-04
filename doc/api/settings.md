@@ -1,6 +1,6 @@
 # Settings & Prompts API
 - `GET /api/v1/settings`：获取模型接入设置。
-- `PUT /api/v1/settings`：更新 `{baseUrl?,modelName?,apiKey?}`。
+- `PUT /api/v1/settings`：更新 `{baseUrl?,modelName?,apiKey?,registrationEnabled?,maintenanceMode?,checkInMinPoints?,checkInMaxPoints?}`（其中全局项仅管理员生效）。
 - `POST /api/v1/settings/test`：测试连接（返回布尔）。
 
 ## 工作区提示词

@@ -29,10 +29,10 @@ import UserManager from "./pages/Admin/UserManager";
 import CreditLogs from "./pages/Admin/CreditLogs";
 import SystemSettingsPage from "./pages/Admin/SystemSettings";
 import RedeemCodes from "./pages/Admin/RedeemCodes";
+import EmailSettings from "./pages/Admin/EmailSettings";
 
 // Placeholder Pages
 const NovelManager = () => <div className="p-4"><h1>小说管理 (开发中)</h1></div>;
-const AdminPlaceholder = ({ title }: { title: string }) => <div className="text-zinc-500">{title} (开发中)</div>;
 
 const queryClient = new QueryClient();
 
@@ -86,7 +86,7 @@ const App = () => (
                 <Route path="users" element={<UserManager />} />
                 <Route path="logs" element={<CreditLogs />} />
                 <Route path="codes" element={<RedeemCodes />} />
-                <Route path="email" element={<AdminPlaceholder title="邮件验证管理" />} />
+                <Route path="email" element={<EmailSettings />} />
                 <Route path="settings" element={<SystemSettingsPage />} />
               </Route>
             </Route>

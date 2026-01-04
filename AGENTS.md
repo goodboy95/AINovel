@@ -37,7 +37,7 @@ build.sh用来使用docker-compose.yml，启动或重启容器。
 
 10、如果用户要求你进行测试，在没有强调测试build_prod.sh的情况下，你只需测试build.sh即可。
 应当确保在执行build.sh之后，浏览器上可以正常使用项目给定的域名访问网站。
-如果使用playwright MCP进行测试，需要访问http://ainovel.seekerhut.com。（执行build.sh部署脚本时，会将该域名配置到系统上的Nginx，所以不用带端口号）
+如果使用playwright MCP进行测试，用户没有指定域名的话，需要访问http://ainovel.seekerhut.com。（执行build.sh部署脚本时，会将该域名配置到系统上的Nginx，所以不用带端口号）
 在使用playwright MCP时，如果发现浏览器正在被使用（Browser is already in use），说明其他项目正在占用。此时需等待1分钟后重试，3次重试均被占用则可暂停工作。禁止结束或重启playwright或浏览器的进程。
 如果发现文件缺失，或者build.sh无法正常完成部署（如脚本执行失败，执行后无法正常访问网站等），或者测试时遇到问题，你需要根据实际情况，对docker-compose.yml和build.sh进行修复或调整，或者对代码本身进行修复。
 我的账户密码为123456，如果需要的话，可以使用该密码执行sudo操作。所有的sudo均应使用非交互sudo，防止卡住。build.sh或者build_prod.sh需要使用sudo来执行。

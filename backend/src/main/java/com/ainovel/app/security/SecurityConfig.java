@@ -23,6 +23,8 @@ import java.util.List;
 public class SecurityConfig {
     @Autowired
     private JwtAuthFilter jwtAuthFilter;
+    @Autowired
+    private SystemGuardFilter systemGuardFilter;
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
@@ -32,11 +34,12 @@ public class SecurityConfig {
                 .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(
-                                "/v1/auth/login", "/v1/auth/register",
+                                "/v1/auth/login", "/v1/auth/register", "/v1/auth/send-code", "/v1/auth/register-v2",
                                 "/auth/login", "/auth/register",
                                 "/actuator/health").permitAll()
                         .anyRequest().authenticated())
-                .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
+                .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
+                .addFilterAfter(systemGuardFilter, JwtAuthFilter.class);
         return http.build();
     }
 

@@ -37,7 +37,7 @@ const Register = () => {
     setIsSendingCode(true);
     try {
       await api.auth.sendCode(email, captchaToken);
-      toast({ title: "验证码已发送", description: "请查收邮件 (Mock: 123456)" });
+      toast({ title: "验证码已发送", description: "请查收邮件" });
       setStep(2);
     } catch (error: any) {
       toast({ variant: "destructive", title: "发送失败", description: error.message });

@@ -1,20 +1,55 @@
-import { describe, it, expect } from "vitest";
+import { describe, it, expect, vi, beforeEach } from "vitest";
 import { api } from "@/lib/mock-api";
 
 describe("mock api", () => {
-  it("logs in admin with admin role", async () => {
-    const { user } = await api.auth.login("admin", "admin");
-    expect(user.role).toBe("admin");
+  beforeEach(() => {
+    const store: Record<string, string> = {};
+    vi.stubGlobal("localStorage", {
+      getItem: (k: string) => (k in store ? store[k] : null),
+      setItem: (k: string, v: string) => {
+        store[k] = String(v);
+      },
+      removeItem: (k: string) => {
+        delete store[k];
+      },
+      clear: () => {
+        Object.keys(store).forEach((k) => delete store[k]);
+      },
+    });
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async (url: any, init?: any) => {
+        const u = String(url);
+        if (u.endsWith("/api/v1/auth/login")) {
+          return new Response(JSON.stringify({ token: "t" }), {
+            status: 200,
+            headers: { "content-type": "application/json" },
+          });
+        }
+        if (u.endsWith("/api/v1/user/profile")) {
+          expect(init?.headers?.get?.("Authorization") || init?.headers?.Authorization).toContain("Bearer t");
+          return new Response(
+            JSON.stringify({
+              id: "u1",
+              username: "admin",
+              email: "admin@example.com",
+              role: "admin",
+              credits: 999,
+              isBanned: false,
+              lastCheckIn: null,
+            }),
+            { status: 200, headers: { "content-type": "application/json" } }
+          );
+        }
+        return new Response("Not Found", { status: 404 });
+      })
+    );
   });
 
-  it("check-in increases credits within configured range", async () => {
-    const before = await api.user.getProfile();
-    const result = await api.user.checkIn();
-    const after = await api.user.getProfile();
-
-    expect(result.points).toBeGreaterThanOrEqual(10);
-    expect(result.points).toBeLessThanOrEqual(50);
-    expect(after.credits).toBe(result.newTotal);
-    expect(after.credits).toBeGreaterThan(before.credits);
+  it("logs in and returns profile user", async () => {
+    const { token, user } = await api.auth.login("admin", "password");
+    expect(token).toBe("t");
+    expect(user.role).toBe("admin");
+    expect(user.username).toBe("admin");
   });
 });

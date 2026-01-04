@@ -74,7 +74,7 @@ install_prod_nginx_conf() {
   reload_nginx
 }
 
-"$ROOT_DIR/build.sh"
+bash "$ROOT_DIR/build.sh"
 
 if [[ "$INIT_MODE" == "true" ]]; then
   ensure_nginx_installed

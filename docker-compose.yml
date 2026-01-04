@@ -1,5 +1,6 @@
 services:
   backend:
+    container_name: ainovel-backend
     image: eclipse-temurin:21-jre
     restart: unless-stopped
     network_mode: "host"
@@ -10,13 +11,6 @@ services:
       REDIS_HOST: 127.0.0.1
       REDIS_PORT: 6381
       REDIS_PASSWORD: ""
-      SMTP_HOST: smtp-relay.brevo.com
-      SMTP_PORT: 587
-      SMTP_USERNAME: 9e7ffd001@smtp-brevo.com
-      SMTP_PASSWORD: xxx
-      AI_BASE_URL: https://www.packyapi.com/v1
-      AI_API_KEY: xxx
-      AI_MODEL: gemini-2.5-flash
       PORT: 20001
       JAVA_OPTS: ""
     volumes:
@@ -25,6 +19,7 @@ services:
     command: ["sh", "-c", "java $${JAVA_OPTS} -jar /app/app.jar"]
 
   frontend:
+    container_name: ainovel-frontend
     image: nginx:1.27-alpine
     restart: unless-stopped
     network_mode: "host"
