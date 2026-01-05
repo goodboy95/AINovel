@@ -48,6 +48,10 @@ const CopilotSidebar = ({ context, className }: CopilotSidebarProps) => {
 
   const handleSend = async () => {
     if (!input.trim() || !selectedModelId) return;
+    if (user && user.credits < 0) {
+      setMessages(prev => [...prev, { id: Date.now().toString(), role: 'assistant', content: '积分不足（已透支），请先在个人中心充值/兑换后再继续使用 AI。' }]);
+      return;
+    }
 
     const userMsg: Message = { id: Date.now().toString(), role: 'user', content: input };
     setMessages(prev => [...prev, userMsg]);
@@ -175,9 +179,9 @@ const CopilotSidebar = ({ context, className }: CopilotSidebarProps) => {
             onChange={(e) => setInput(e.target.value)}
             placeholder="输入指令或问题..."
             className="flex-1"
-            disabled={isLoading}
+            disabled={isLoading || (user?.credits ?? 0) < 0}
           />
-          <Button type="submit" size="icon" disabled={isLoading || !input.trim()}>
+          <Button type="submit" size="icon" disabled={isLoading || !input.trim() || (user?.credits ?? 0) < 0}>
             <Send className="h-4 w-4" />
           </Button>
         </form>

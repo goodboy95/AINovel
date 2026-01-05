@@ -25,3 +25,6 @@
 - `POST /api/v1/admin/email/test`：发送测试邮件，请求 `{email}`，返回 `true`。
 - `GET /api/v1/admin/email/verification-codes?limit=50`：最近验证码记录（用于测试定位验证码）。
 
+## 全局配置（SMTP/LLM）
+- `GET /api/v1/admin/system-config`：获取全局配置（注册/维护/签到、SMTP、LLM）。
+- `PUT /api/v1/admin/system-config`：更新全局配置（可选字段更新，密码/Key 仅在传入时覆盖）。

@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Sparkles, Book, FileText, PenTool, Search } from "lucide-react";
+import { useSearchParams } from "react-router-dom";
 
 // Tabs Components
 import StoryConception from "./tabs/StoryConception";
@@ -10,7 +11,9 @@ import ManuscriptWriter from "./tabs/ManuscriptWriter";
 import MaterialSearchPanel from "./tabs/MaterialSearchPanel";
 
 const Workbench = () => {
-  const [activeTab, setActiveTab] = useState("conception");
+  const [params] = useSearchParams();
+  const storyId = params.get("id") || "";
+  const [activeTab, setActiveTab] = useState(storyId ? "writing" : "conception");
 
   return (
     <div className="h-full flex flex-col space-y-6">
@@ -42,13 +45,13 @@ const Workbench = () => {
             <StoryConception />
           </TabsContent>
           <TabsContent value="stories" className="h-full m-0 border-0 p-0">
-            <StoryManager />
+            <StoryManager initialStoryId={storyId} />
           </TabsContent>
           <TabsContent value="outline" className="h-full m-0 border-0 p-0">
-            <OutlineWorkbench />
+            <OutlineWorkbench initialStoryId={storyId} />
           </TabsContent>
           <TabsContent value="writing" className="h-full m-0 border-0 p-0">
-            <ManuscriptWriter />
+            <ManuscriptWriter initialStoryId={storyId} />
           </TabsContent>
           <TabsContent value="search" className="h-full m-0 border-0 p-0">
             <MaterialSearchPanel />

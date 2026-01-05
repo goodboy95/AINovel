@@ -43,7 +43,7 @@ const TiptapEditor = ({
   width = "medium",
   theme = "light"
 }: TiptapEditorProps) => {
-  const { refreshProfile } = useAuth();
+  const { refreshProfile, user } = useAuth();
   
   // AI Refine State
   const [isRefineOpen, setIsRefineOpen] = useState(false);
@@ -86,6 +86,10 @@ const TiptapEditor = ({
 
   const handleAIPolish = async () => {
     if (!editor) return;
+    if (user && user.credits < 0) {
+      showError("积分不足（已透支），请先充值/兑换后再使用 AI");
+      return;
+    }
     const selection = editor.state.selection;
     const text = editor.state.doc.textBetween(selection.from, selection.to);
     

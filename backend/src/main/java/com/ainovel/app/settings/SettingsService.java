@@ -49,18 +49,18 @@ public class SettingsService {
                 .orElseGet(() -> {
                     SystemSettings s = new SystemSettings();
                     s.setUser(user);
-                    s.setBaseUrl(defaultAiBaseUrl);
-                    s.setModelName(defaultAiModel);
-                    if (defaultAiApiKey != null && !defaultAiApiKey.isBlank()) {
-                        s.setApiKeyEncrypted(defaultAiApiKey);
-                    }
+                    s.setBaseUrl(global.getLlmBaseUrl() != null && !global.getLlmBaseUrl().isBlank() ? global.getLlmBaseUrl() : defaultAiBaseUrl);
+                    s.setModelName(global.getLlmModelName() != null && !global.getLlmModelName().isBlank() ? global.getLlmModelName() : defaultAiModel);
                     systemSettingsRepository.save(s);
                     return s;
                 });
+        boolean apiKeyIsSet = (settings.getApiKeyEncrypted() != null && !settings.getApiKeyEncrypted().isBlank())
+                || (global.getLlmApiKeyEncrypted() != null && !global.getLlmApiKeyEncrypted().isBlank())
+                || (defaultAiApiKey != null && !defaultAiApiKey.isBlank());
         return new SettingsResponse(
                 settings.getBaseUrl(),
                 settings.getModelName(),
-                settings.getApiKeyEncrypted() != null,
+                apiKeyIsSet,
                 global.isRegistrationEnabled(),
                 global.isMaintenanceMode(),
                 global.getCheckInMinPoints(),
@@ -93,22 +93,21 @@ public class SettingsService {
             globalSettingsRepository.save(global);
         }
 
-        return new SettingsResponse(
-                settings.getBaseUrl(),
-                settings.getModelName(),
-                settings.getApiKeyEncrypted() != null,
-                global.isRegistrationEnabled(),
-                global.isMaintenanceMode(),
-                global.getCheckInMinPoints(),
-                global.getCheckInMaxPoints()
-        );
+        boolean apiKeyIsSet = (settings.getApiKeyEncrypted() != null && !settings.getApiKeyEncrypted().isBlank())
+                || (global.getLlmApiKeyEncrypted() != null && !global.getLlmApiKeyEncrypted().isBlank())
+                || (defaultAiApiKey != null && !defaultAiApiKey.isBlank());
+        return new SettingsResponse(settings.getBaseUrl(), settings.getModelName(), apiKeyIsSet, global.isRegistrationEnabled(), global.isMaintenanceMode(), global.getCheckInMinPoints(), global.getCheckInMaxPoints());
     }
 
     public boolean testSettings(User user) {
-        // 简化：只要存在模型名称和API Key即认为通过
-        return systemSettingsRepository.findByUser(user)
-                .map(s -> s.getApiKeyEncrypted() != null && s.getModelName() != null)
+        GlobalSettings global = getOrCreateGlobalSettings();
+        boolean globalOk = global.getLlmApiKeyEncrypted() != null && !global.getLlmApiKeyEncrypted().isBlank()
+                && global.getLlmModelName() != null && !global.getLlmModelName().isBlank();
+        boolean envOk = defaultAiApiKey != null && !defaultAiApiKey.isBlank() && defaultAiModel != null && !defaultAiModel.isBlank();
+        boolean userOk = systemSettingsRepository.findByUser(user)
+                .map(s -> s.getApiKeyEncrypted() != null && !s.getApiKeyEncrypted().isBlank() && s.getModelName() != null && !s.getModelName().isBlank())
                 .orElse(false);
+        return userOk || globalOk || envOk;
     }
 
     public GlobalSettings getGlobalSettings() {
@@ -122,6 +121,9 @@ public class SettingsService {
             if (defaultSmtpPort != null) g.setSmtpPort(defaultSmtpPort);
             if (defaultSmtpUsername != null && !defaultSmtpUsername.isBlank()) g.setSmtpUsername(defaultSmtpUsername);
             if (defaultSmtpPassword != null && !defaultSmtpPassword.isBlank()) g.setSmtpPassword(defaultSmtpPassword);
+            if (defaultAiBaseUrl != null && !defaultAiBaseUrl.isBlank()) g.setLlmBaseUrl(defaultAiBaseUrl);
+            if (defaultAiModel != null && !defaultAiModel.isBlank()) g.setLlmModelName(defaultAiModel);
+            if (defaultAiApiKey != null && !defaultAiApiKey.isBlank()) g.setLlmApiKeyEncrypted(defaultAiApiKey);
             return globalSettingsRepository.save(g);
         });
     }

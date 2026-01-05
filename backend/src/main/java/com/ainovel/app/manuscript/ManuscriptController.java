@@ -30,6 +30,16 @@ public class ManuscriptController {
     @GetMapping("/manuscripts/{id}")
     public ManuscriptDto get(@PathVariable UUID id) { return manuscriptService.get(id); }
 
+    @PostMapping("/manuscripts/{id}/scenes/{sceneId}/generate")
+    public ManuscriptDto generateSceneForManuscript(@PathVariable UUID id, @PathVariable UUID sceneId) {
+        return manuscriptService.generateForScene(id, sceneId);
+    }
+
+    @PutMapping("/manuscripts/{id}/sections/{sceneId}")
+    public ManuscriptDto saveSectionForManuscript(@PathVariable UUID id, @PathVariable UUID sceneId, @RequestBody SectionUpdateRequest request) {
+        return manuscriptService.updateSection(id, sceneId, request);
+    }
+
     @PostMapping("/manuscript/scenes/{sceneId}/generate")
     public ManuscriptDto generateScene(@PathVariable UUID sceneId) { return manuscriptService.generateForScene(sceneId); }
 

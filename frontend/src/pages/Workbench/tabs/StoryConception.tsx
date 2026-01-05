@@ -23,15 +23,14 @@ const StoryConception = () => {
     }
     setIsGenerating(true);
     try {
-      // Mock generation
-      await api.stories.create({
-        title: "AI 生成的故事: " + idea.slice(0, 10) + "...",
+      const title = idea.length > 16 ? idea.slice(0, 16) + "..." : idea;
+      await api.stories.conception({
+        title,
         synopsis: idea,
         genre: genre || "未分类",
         tone: tone || "默认",
-        status: "draft"
       });
-      toast({ title: "故事生成成功", description: "已添加到故事列表" });
+      toast({ title: "故事生成成功", description: "已创建故事卡与示例角色" });
       setIdea("");
     } catch (error) {
       toast({ variant: "destructive", title: "生成失败" });

@@ -3,11 +3,13 @@ import {
   CreditLog,
   FileImportJob,
   Material,
+  Manuscript,
   ModelConfig,
   Outline,
   PromptTemplates,
   Story,
   SystemSettings,
+  UserSummary,
   User,
   World,
   WorldDetail,
@@ -145,6 +147,17 @@ function toMaterial(dto: any): Material {
   };
 }
 
+function toManuscript(dto: any): Manuscript {
+  return {
+    id: dto.id,
+    outlineId: dto.outlineId,
+    title: dto.title,
+    worldId: dto.worldId || undefined,
+    sections: dto.sections || {},
+    updatedAt: dto.updatedAt || new Date().toISOString(),
+  };
+}
+
 export const api = {
   auth: {
     login: async (username: string, password: string): Promise<{ token: string; user: User }> => {
@@ -199,6 +212,9 @@ export const api = {
       });
       if (!res.success) throw new Error(res.message || "修改失败");
       return res;
+    },
+    summary: async (): Promise<UserSummary> => {
+      return await requestJson<UserSummary>("/v1/user/summary", { method: "GET" });
     },
   },
 
@@ -256,6 +272,12 @@ export const api = {
     grantCredits: async (userId: string, amount: number) => {
       return await requestJson<boolean>(`/v1/admin/users/${userId}/grant-credits`, { method: "POST", body: JSON.stringify({ amount }) });
     },
+    banUser: async (userId: string) => {
+      return await requestJson<boolean>(`/v1/admin/users/${userId}/ban`, { method: "POST" });
+    },
+    unbanUser: async (userId: string) => {
+      return await requestJson<boolean>(`/v1/admin/users/${userId}/unban`, { method: "POST" });
+    },
     getLogs: async (): Promise<CreditLog[]> => {
       const logs = await requestJson<any[]>("/v1/admin/logs", { method: "GET" });
       return logs.map((l) => ({
@@ -282,6 +304,12 @@ export const api = {
     sendTestEmail: async (email: string) => {
       return await requestJson<boolean>("/v1/admin/email/test", { method: "POST", body: JSON.stringify({ email }) });
     },
+    getSystemConfig: async () => {
+      return await requestJson<any>("/v1/admin/system-config", { method: "GET" });
+    },
+    updateSystemConfig: async (payload: any) => {
+      return await requestJson<any>("/v1/admin/system-config", { method: "PUT", body: JSON.stringify(payload) });
+    },
   },
 
   stories: {
@@ -293,9 +321,33 @@ export const api = {
       const dto = await requestJson<any>("/v1/stories", { method: "POST", body: JSON.stringify(data) });
       return toStory(dto);
     },
+    conception: async (data: any) => {
+      return await requestJson<any>("/v1/conception", { method: "POST", body: JSON.stringify(data) });
+    },
     get: async (id: string) => {
       const dto = await requestJson<any>(`/v1/story-cards/${id}`, { method: "GET" });
       return toStory(dto);
+    },
+    listCharacters: async (storyId: string) => {
+      return await requestJson<any[]>(`/v1/story-cards/${storyId}/character-cards`, { method: "GET" });
+    },
+    addCharacter: async (storyId: string, payload: { name: string; synopsis?: string; details?: string; relationships?: string }) => {
+      return await requestJson<any>(`/v1/story-cards/${storyId}/characters`, { method: "POST", body: JSON.stringify(payload) });
+    },
+    updateCharacter: async (id: string, payload: any) => {
+      return await requestJson<any>(`/v1/character-cards/${id}`, { method: "PUT", body: JSON.stringify(payload) });
+    },
+    deleteCharacter: async (id: string) => {
+      await requestJson<any>(`/v1/character-cards/${id}`, { method: "DELETE" });
+      return true;
+    },
+    update: async (id: string, data: any) => {
+      const dto = await requestJson<any>(`/v1/story-cards/${id}`, { method: "PUT", body: JSON.stringify(data) });
+      return toStory(dto);
+    },
+    delete: async (id: string) => {
+      await requestJson<any>(`/v1/stories/${id}`, { method: "DELETE" });
+      return true;
     },
   },
 
@@ -303,6 +355,66 @@ export const api = {
     listByStory: async (storyId: string): Promise<Outline[]> => {
       const data = await requestJson<any[]>(`/v1/story-cards/${storyId}/outlines`, { method: "GET" });
       return data.map(toOutline);
+    },
+    create: async (storyId: string, data: { title?: string; worldId?: string } = {}) => {
+      const dto = await requestJson<any>(`/v1/story-cards/${storyId}/outlines`, { method: "POST", body: JSON.stringify(data) });
+      return toOutline(dto);
+    },
+    get: async (outlineId: string) => {
+      const dto = await requestJson<any>(`/v1/outlines/${outlineId}`, { method: "GET" });
+      return toOutline(dto);
+    },
+    save: async (outlineId: string, outline: Outline & { worldId?: string }) => {
+      const payload = {
+        title: outline.title,
+        worldId: (outline as any).worldId,
+        chapters: (outline.chapters || []).map((c: any, ci: number) => ({
+          id: c.id,
+          title: c.title,
+          summary: c.summary,
+          order: c.order ?? ci + 1,
+          scenes: (c.scenes || []).map((s: any, si: number) => ({
+            id: s.id,
+            title: s.title,
+            summary: s.summary,
+            content: s.content,
+            order: s.order ?? si + 1,
+          })),
+        })),
+      };
+      const dto = await requestJson<any>(`/v1/outlines/${outlineId}`, { method: "PUT", body: JSON.stringify(payload) });
+      return toOutline(dto);
+    },
+    delete: async (outlineId: string) => {
+      await requestJson<any>(`/v1/outlines/${outlineId}`, { method: "DELETE" });
+      return true;
+    },
+  },
+
+  manuscripts: {
+    listByOutline: async (outlineId: string): Promise<Manuscript[]> => {
+      const list = await requestJson<any[]>(`/v1/outlines/${outlineId}/manuscripts`, { method: "GET" });
+      return list.map(toManuscript);
+    },
+    create: async (outlineId: string, payload: { title: string; worldId?: string }): Promise<Manuscript> => {
+      const dto = await requestJson<any>(`/v1/outlines/${outlineId}/manuscripts`, { method: "POST", body: JSON.stringify(payload) });
+      return toManuscript(dto);
+    },
+    get: async (id: string): Promise<Manuscript> => {
+      const dto = await requestJson<any>(`/v1/manuscripts/${id}`, { method: "GET" });
+      return toManuscript(dto);
+    },
+    delete: async (id: string) => {
+      await requestJson<any>(`/v1/manuscripts/${id}`, { method: "DELETE" });
+      return true;
+    },
+    generateScene: async (manuscriptId: string, sceneId: string): Promise<Manuscript> => {
+      const dto = await requestJson<any>(`/v1/manuscripts/${manuscriptId}/scenes/${sceneId}/generate`, { method: "POST", body: "{}" });
+      return toManuscript(dto);
+    },
+    saveSection: async (manuscriptId: string, sceneId: string, content: string): Promise<Manuscript> => {
+      const dto = await requestJson<any>(`/v1/manuscripts/${manuscriptId}/sections/${sceneId}`, { method: "PUT", body: JSON.stringify({ content }) });
+      return toManuscript(dto);
     },
   },
 
@@ -337,6 +449,31 @@ export const api = {
       (detail.modules || []).forEach((m) => (modules[m.key] = m.fields || {}));
       await requestJson<any>(`/v1/worlds/${id}/modules`, { method: "PUT", body: JSON.stringify({ modules }) });
       return true;
+    },
+    delete: async (id: string) => {
+      await requestJson<any>(`/v1/worlds/${id}`, { method: "DELETE" });
+      return true;
+    },
+    refineField: async (worldId: string, moduleKey: string, fieldKey: string, text: string, instruction?: string) => {
+      return await requestJson<any>(`/v1/worlds/${worldId}/modules/${moduleKey}/fields/${fieldKey}/refine`, {
+        method: "POST",
+        body: JSON.stringify({ text, instruction: instruction || "" }),
+      });
+    },
+    publishPreview: async (worldId: string) => {
+      return await requestJson<any>(`/v1/worlds/${worldId}/publish/preview`, { method: "GET" });
+    },
+    publish: async (worldId: string) => {
+      return await requestJson<any>(`/v1/worlds/${worldId}/publish`, { method: "POST", body: "{}" });
+    },
+    generationStatus: async (worldId: string) => {
+      return await requestJson<any>(`/v1/worlds/${worldId}/generation`, { method: "GET" });
+    },
+    generateModule: async (worldId: string, moduleKey: string) => {
+      return await requestJson<any>(`/v1/worlds/${worldId}/generation/${moduleKey}`, { method: "POST", body: "{}" });
+    },
+    retryModule: async (worldId: string, moduleKey: string) => {
+      return await requestJson<any>(`/v1/worlds/${worldId}/generation/${moduleKey}/retry`, { method: "POST", body: "{}" });
     },
   },
 
@@ -444,4 +581,3 @@ export const api = {
     },
   },
 };
-

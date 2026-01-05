@@ -13,6 +13,8 @@ import com.ainovel.app.user.EmailVerificationService;
 import com.ainovel.app.user.User;
 import com.ainovel.app.user.UserRepository;
 import com.ainovel.app.user.repo.EmailVerificationCodeRepository;
+import com.ainovel.app.settings.model.GlobalSettings;
+import com.ainovel.app.settings.repo.GlobalSettingsRepository;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
@@ -51,6 +53,8 @@ public class AdminController {
     private EmailVerificationService emailVerificationService;
     @Autowired
     private SettingsService settingsService;
+    @Autowired
+    private GlobalSettingsRepository globalSettingsRepository;
 
     @GetMapping("/dashboard")
     public ResponseEntity<AdminDashboardStatsResponse> dashboard() {
@@ -154,6 +158,45 @@ public class AdminController {
         String username = g.getSmtpUsername();
         boolean pwd = g.getSmtpPassword() != null && !g.getSmtpPassword().isBlank();
         return new SmtpStatusResponse(host, port, username, pwd);
+    }
+
+    @GetMapping("/system-config")
+    public AdminSystemConfigResponse systemConfig() {
+        GlobalSettings g = settingsService.getGlobalSettings();
+        return new AdminSystemConfigResponse(
+                g.isRegistrationEnabled(),
+                g.isMaintenanceMode(),
+                g.getCheckInMinPoints(),
+                g.getCheckInMaxPoints(),
+                g.getSmtpHost(),
+                g.getSmtpPort(),
+                g.getSmtpUsername(),
+                g.getSmtpPassword() != null && !g.getSmtpPassword().isBlank(),
+                g.getLlmBaseUrl(),
+                g.getLlmModelName(),
+                g.getLlmApiKeyEncrypted() != null && !g.getLlmApiKeyEncrypted().isBlank()
+        );
+    }
+
+    @PutMapping("/system-config")
+    public AdminSystemConfigResponse updateSystemConfig(@RequestBody AdminSystemConfigUpdateRequest request) {
+        GlobalSettings g = settingsService.getGlobalSettings();
+        if (request.registrationEnabled() != null) g.setRegistrationEnabled(request.registrationEnabled());
+        if (request.maintenanceMode() != null) g.setMaintenanceMode(request.maintenanceMode());
+        if (request.checkInMinPoints() != null) g.setCheckInMinPoints(request.checkInMinPoints());
+        if (request.checkInMaxPoints() != null) g.setCheckInMaxPoints(request.checkInMaxPoints());
+
+        if (request.smtpHost() != null) g.setSmtpHost(request.smtpHost());
+        if (request.smtpPort() != null) g.setSmtpPort(request.smtpPort());
+        if (request.smtpUsername() != null) g.setSmtpUsername(request.smtpUsername());
+        if (request.smtpPassword() != null && !request.smtpPassword().isBlank()) g.setSmtpPassword(request.smtpPassword());
+
+        if (request.llmBaseUrl() != null) g.setLlmBaseUrl(request.llmBaseUrl());
+        if (request.llmModelName() != null) g.setLlmModelName(request.llmModelName());
+        if (request.llmApiKey() != null && !request.llmApiKey().isBlank()) g.setLlmApiKeyEncrypted(request.llmApiKey());
+
+        globalSettingsRepository.save(g);
+        return systemConfig();
     }
 
     @PostMapping("/email/test")

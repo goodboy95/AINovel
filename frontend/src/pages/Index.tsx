@@ -21,7 +21,7 @@ const Index = () => {
           </div>
           <div className="flex items-center gap-4">
             {isAuthenticated ? (
-              <Button onClick={() => navigate("/workbench")}>
+              <Button onClick={() => navigate("/dashboard")}>
                 进入工作台 <ArrowRight className="ml-2 h-4 w-4" />
               </Button>
             ) : (
@@ -53,7 +53,7 @@ const Index = () => {
               世界观一致性检查以及智能润色功能，让你的故事栩栩如生。
             </p>
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4 animate-in slide-in-from-bottom-6 duration-700 delay-200">
-              <Button size="lg" className="h-12 px-8 text-lg" onClick={() => navigate(isAuthenticated ? "/workbench" : "/register")}>
+              <Button size="lg" className="h-12 px-8 text-lg" onClick={() => navigate(isAuthenticated ? "/dashboard" : "/register")}>
                 {isAuthenticated ? "继续创作" : "免费开始"} <ArrowRight className="ml-2 h-5 w-5" />
               </Button>
               <Button size="lg" variant="outline" className="h-12 px-8 text-lg">

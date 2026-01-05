@@ -13,9 +13,15 @@ import AdminLayout from "@/components/layout/AdminLayout";
 import Index from "./pages/Index";
 import Login from "./pages/auth/Login";
 import Register from "./pages/auth/Register";
+import Pricing from "./pages/Pricing";
 import NotFound from "./pages/NotFound";
+import DashboardHome from "./pages/Dashboard";
+import NovelManager from "./pages/NovelManager";
+import CreateNovel from "./pages/CreateNovel";
 import Workbench from "./pages/Workbench/Workbench";
-import WorldBuilderPage from "./pages/WorldBuilder/WorldBuilderPage";
+import WorldManager from "./pages/WorldManager";
+import CreateWorld from "./pages/CreateWorld";
+import Worlds from "./pages/Worlds";
 import MaterialPage from "./pages/Material/MaterialPage";
 import Settings from "./pages/Settings/Settings";
 import PromptHelpPage from "./pages/Settings/PromptHelpPage";
@@ -23,16 +29,13 @@ import WorldPromptHelpPage from "./pages/Settings/WorldPromptHelpPage";
 import ProfilePage from "./pages/Profile/ProfilePage";
 
 // Admin Pages
-import Dashboard from "./pages/Admin/Dashboard";
+import DashboardAdmin from "./pages/Admin/Dashboard";
 import ModelManager from "./pages/Admin/ModelManager";
 import UserManager from "./pages/Admin/UserManager";
 import CreditLogs from "./pages/Admin/CreditLogs";
 import SystemSettingsPage from "./pages/Admin/SystemSettings";
 import RedeemCodes from "./pages/Admin/RedeemCodes";
-import EmailSettings from "./pages/Admin/EmailSettings";
-
-// Placeholder Pages
-const NovelManager = () => <div className="p-4"><h1>小说管理 (开发中)</h1></div>;
+import EmailManager from "./pages/Admin/EmailManager";
 
 const queryClient = new QueryClient();
 
@@ -62,13 +65,19 @@ const App = () => (
             <Route path="/" element={<Index />} />
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
+            <Route path="/pricing" element={<Pricing />} />
 
             {/* User Protected Routes */}
             <Route element={<ProtectedRoute />}>
+              <Route path="/dashboard" element={<DashboardHome />} />
+              <Route path="/novels" element={<NovelManager />} />
+              <Route path="/novels/create" element={<CreateNovel />} />
+              <Route path="/worlds" element={<WorldManager />} />
+              <Route path="/worlds/create" element={<CreateWorld />} />
+              <Route path="/world-editor" element={<Worlds />} />
+
               <Route element={<AppLayout />}>
                 <Route path="/workbench" element={<Workbench />} />
-                <Route path="/novels" element={<NovelManager />} />
-                <Route path="/worlds" element={<WorldBuilderPage />} />
                 <Route path="/materials" element={<MaterialPage />} />
                 <Route path="/settings" element={<Settings />} />
                 <Route path="/settings/prompt-guide" element={<PromptHelpPage />} />
@@ -81,12 +90,12 @@ const App = () => (
             <Route path="/admin" element={<AdminRoute />}>
               <Route element={<AdminLayout />}>
                 <Route index element={<Navigate to="/admin/dashboard" replace />} />
-                <Route path="dashboard" element={<Dashboard />} />
+                <Route path="dashboard" element={<DashboardAdmin />} />
                 <Route path="models" element={<ModelManager />} />
                 <Route path="users" element={<UserManager />} />
                 <Route path="logs" element={<CreditLogs />} />
                 <Route path="codes" element={<RedeemCodes />} />
-                <Route path="email" element={<EmailSettings />} />
+                <Route path="email" element={<EmailManager />} />
                 <Route path="settings" element={<SystemSettingsPage />} />
               </Route>
             </Route>

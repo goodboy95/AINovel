@@ -3,6 +3,8 @@
 - `PUT /api/v1/settings`：更新 `{baseUrl?,modelName?,apiKey?,registrationEnabled?,maintenanceMode?,checkInMinPoints?,checkInMaxPoints?}`（其中全局项仅管理员生效）。
 - `POST /api/v1/settings/test`：测试连接（返回布尔）。
 
+> 说明：SMTP 与全局 LLM（供普通用户默认使用）通过 `GET/PUT /api/v1/admin/system-config` 管理。
+
 ## 工作区提示词
 - `GET /api/v1/prompt-templates`：获取故事/大纲/稿件/润色模板。
 - `PUT /api/v1/prompt-templates`：更新对应字段。

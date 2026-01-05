@@ -1,25 +1,29 @@
 # 项目目录结构说明
 
 - `frontend/`：React 18 + Vite 前端代码，包含页面、组件、样式与构建配置。
-  - `src/pages/`：首页、登录注册、工作台、素材库、世界构建、设置与帮助页。
+  - `src/pages/`：首页、登录注册、定价页、Dashboard（模块选择器）、小说/世界管理与编辑页等。
   - `src/pages/Profile/`：个人中心（积分、签到、兑换、修改密码）。
   - `src/pages/Admin/`：后台管理（仪表盘、模型管理、用户管理、积分日志、兑换码、系统设置）。
-  - `src/pages/Admin/EmailSettings.tsx`：邮件验证与 SMTP 页面（查看验证码记录、发送测试邮件）。
+  - `src/pages/Admin/EmailManager.tsx`：邮件验证与 SMTP 页面（查看验证码记录、发送测试邮件）。
   - `src/components/ai/`：AI Copilot 侧边栏与润色弹窗等创作辅助组件。
   - `src/components/auth/`：注册流程的人机验证（CapJS）组件。
   - `src/components/layout/`：用户端与后台端布局组件（含 AdminLayout）。
   - `src/contexts/AuthContext.tsx`：全局认证、角色与积分刷新逻辑。
   - `src/lib/mock-api.ts`：前端 API 适配层（封装对后端 `/api/v1/*` 的请求，保持页面调用接口不变）。
+  - `src/lib/sha256.ts`：SHA-256 工具（CapJS PoW 在非 HTTPS 环境下的纯 JS 回退实现）。
+  - `src/lib/sha256.test.ts`：sha256 回退实现的 Vitest 单元测试。
   - `package.json`：前端依赖与脚本配置（Vitest 现升级到 v4）。
   - `package-lock.json`：npm 依赖锁定文件。
   - `Dockerfile`、`nginx.conf`：前端构建与部署镜像配置（Nginx 静态资源 + `/api` 反向代理到 `127.0.0.1:20001`）。
 - `backend/`：Spring Boot 3 后端代码，提供认证、故事、素材、世界观、设置等 REST API。
   - `src/main/java/com/ainovel/app/`：入口与各业务模块（security、user、story、material、world、settings、manuscript）。
+  - `src/main/java/com/ainovel/app/security/PowService.java`：注册发送验证码的 PoW（CapJS）验证与防重放。
   - `src/main/java/com/ainovel/app/admin/`：后台管理接口（仪表盘、模型配置、用户管理、积分日志、兑换码、邮件验证管理）。
   - `src/main/java/com/ainovel/app/ai/`：AI Copilot 接口与 OpenAI 兼容客户端封装。
   - `src/main/java/com/ainovel/app/economy/`：积分、签到、兑换码与积分流水。
   - `src/main/resources/application.yml`：默认配置（可通过环境变量覆盖，包含 SMTP 与 AI 接入参数）。
   - `src/test/resources/mockito-extensions/org.mockito.plugins.MockMaker`：测试环境禁用 Mockito inline mock maker，避免 JDK 动态 attach 失败。
+  - `src/test/java/com/ainovel/app/world/WorldPublishFlowTests.java`：世界观发布/生成流程的回归测试（模块进度与版本号）。
   - `Dockerfile`：后端构建与运行镜像配置。
 - `sql/schema.sql`：数据库表结构参考脚本。
 - `docker-compose.yml`：运行前后端容器的编排文件（前后端均使用 host 网络并监听 10001/20001 端口，显式容器名 `ainovel-frontend`/`ainovel-backend`），通过 volume 挂载前端 dist 与后端 jar，并注入 SMTP 与 AI 接入环境变量。

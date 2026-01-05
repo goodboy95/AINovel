@@ -82,8 +82,16 @@ export interface Manuscript {
   id: string;
   outlineId: string;
   title: string;
-  content: string;
+  worldId?: string;
+  sections: Record<string, string>; // sceneId -> html content
   updatedAt: string;
+}
+
+export interface UserSummary {
+  novelCount: number;
+  worldCount: number;
+  totalWords: number;
+  totalEntries: number;
 }
 
 // --- World Building Types ---

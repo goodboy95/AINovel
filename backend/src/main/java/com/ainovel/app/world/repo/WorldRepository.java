@@ -9,4 +9,5 @@ import java.util.UUID;
 
 public interface WorldRepository extends JpaRepository<World, UUID> {
     List<World> findByUser(User user);
+    long countByUser(User user);
 }

@@ -6,6 +6,8 @@ import com.ainovel.app.story.model.Story;
 import com.ainovel.app.story.repo.StoryRepository;
 import com.ainovel.app.user.User;
 import com.ainovel.app.user.UserRepository;
+import com.ainovel.app.ai.AiService;
+import com.ainovel.app.ai.dto.AiRefineRequest;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -28,6 +30,8 @@ public class StoryController {
     private UserRepository userRepository;
     @Autowired
     private StoryRepository storyRepository;
+    @Autowired
+    private AiService aiService;
 
     private User currentUser(UserDetails details) {
         return userRepository.findByUsername(details.getUsername()).orElseThrow();
@@ -65,10 +69,14 @@ public class StoryController {
     public ResponseEntity<Void> deleteCharacter(@PathVariable UUID id) { storyService.deleteCharacter(id); return ResponseEntity.noContent().build(); }
 
     @PostMapping("/story-cards/{id}/refine")
-    public ResponseEntity<String> refineStory(@PathVariable UUID id, @RequestBody RefineRequest request) { return ResponseEntity.ok(storyService.refineStory(id, request)); }
+    public ResponseEntity<String> refineStory(@AuthenticationPrincipal UserDetails principal, @PathVariable UUID id, @RequestBody RefineRequest request) {
+        return ResponseEntity.ok(storyService.refineStory(currentUser(principal), id, request));
+    }
 
     @PostMapping("/character-cards/{id}/refine")
-    public ResponseEntity<String> refineCharacter(@PathVariable UUID id, @RequestBody RefineRequest request) { return ResponseEntity.ok(storyService.refineCharacter(id, request)); }
+    public ResponseEntity<String> refineCharacter(@AuthenticationPrincipal UserDetails principal, @PathVariable UUID id, @RequestBody RefineRequest request) {
+        return ResponseEntity.ok(storyService.refineCharacter(currentUser(principal), id, request));
+    }
 
     @PostMapping("/conception")
     public ResponseEntity<Map<String, Object>> conception(@AuthenticationPrincipal UserDetails principal, @RequestBody StoryCreateRequest request) {
@@ -102,13 +110,18 @@ public class StoryController {
     }
 
     @PutMapping("/chapters/{id}")
-    public ResponseEntity<Void> updateChapter() { return ResponseEntity.ok().build(); }
+    public ResponseEntity<OutlineDto> updateChapter(@PathVariable UUID id, @RequestBody ChapterUpdateRequest request) {
+        return ResponseEntity.ok(outlineService.updateChapter(id, request));
+    }
 
     @PutMapping("/scenes/{id}")
-    public ResponseEntity<Void> updateScene() { return ResponseEntity.ok().build(); }
+    public ResponseEntity<OutlineDto> updateScene(@PathVariable UUID id, @RequestBody SceneUpdateRequest request) {
+        return ResponseEntity.ok(outlineService.updateScene(id, request));
+    }
 
     @PostMapping("/outlines/scenes/{id}/refine")
-    public ResponseEntity<String> refineScene(@PathVariable UUID id, @RequestBody RefineRequest request) {
-        return ResponseEntity.ok("【润色】" + request.text());
+    public ResponseEntity<String> refineScene(@AuthenticationPrincipal UserDetails principal, @PathVariable UUID id, @RequestBody RefineRequest request) {
+        String instruction = request.instruction() == null ? "" : request.instruction();
+        return ResponseEntity.ok(aiService.refine(currentUser(principal), new AiRefineRequest(request.text(), instruction, null)).result());
     }
 }

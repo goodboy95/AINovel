@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { api } from "@/lib/mock-api";
 import { Button } from "@/components/ui/button";
@@ -20,6 +20,7 @@ const Register = () => {
   
   const [isSendingCode, setIsSendingCode] = useState(false);
   const [isRegistering, setIsRegistering] = useState(false);
+  const [cooldown, setCooldown] = useState(0);
   
   const navigate = useNavigate();
   const { toast } = useToast();
@@ -38,6 +39,7 @@ const Register = () => {
     try {
       await api.auth.sendCode(email, captchaToken);
       toast({ title: "验证码已发送", description: "请查收邮件" });
+      setCooldown(60);
       setStep(2);
     } catch (error: any) {
       toast({ variant: "destructive", title: "发送失败", description: error.message });
@@ -45,6 +47,13 @@ const Register = () => {
       setIsSendingCode(false);
     }
   };
+
+  useEffect(() => {
+    const t = setInterval(() => {
+      setCooldown((s) => (s > 0 ? s - 1 : 0));
+    }, 1000);
+    return () => clearInterval(t);
+  }, []);
 
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -85,19 +94,22 @@ const Register = () => {
                   type="email"
                   placeholder="writer@example.com"
                   value={email}
-                  onChange={(e) => setEmail(e.target.value)}
+                  onChange={(e) => {
+                    setEmail(e.target.value);
+                    setCaptchaToken("");
+                  }}
                 />
               </div>
               
-              <CapJS onVerify={setCaptchaToken} />
+              <CapJS email={email} onVerify={setCaptchaToken} />
               
               <Button 
                 className="w-full" 
                 onClick={handleSendCode} 
-                disabled={isSendingCode || !captchaToken || !email}
+                disabled={isSendingCode || cooldown > 0 || !captchaToken || !email}
               >
                 {isSendingCode ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Mail className="mr-2 h-4 w-4" />}
-                发送验证码
+                {cooldown > 0 ? `重新发送 (${cooldown}s)` : "发送验证码"}
               </Button>
             </div>
           )}
@@ -107,7 +119,17 @@ const Register = () => {
               <div className="p-3 bg-primary/5 rounded-md flex items-center gap-2 text-sm text-muted-foreground mb-4">
                 <CheckCircle2 className="h-4 w-4 text-green-600" />
                 验证码已发送至 {email}
-                <Button variant="link" className="h-auto p-0 ml-auto text-xs" onClick={() => setStep(1)}>修改</Button>
+                <Button
+                  variant="link"
+                  className="h-auto p-0 ml-auto text-xs"
+                  onClick={() => {
+                    setStep(1);
+                    setCaptchaToken("");
+                    setCode("");
+                  }}
+                >
+                  修改
+                </Button>
               </div>
 
               <div className="space-y-2">

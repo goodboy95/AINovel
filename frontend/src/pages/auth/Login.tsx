@@ -28,7 +28,7 @@ const Login = () => {
         title: "登录成功",
         description: `欢迎回来，${user.username}`,
       });
-      navigate("/workbench");
+      navigate("/dashboard");
     } catch (error) {
       toast({
         variant: "destructive",

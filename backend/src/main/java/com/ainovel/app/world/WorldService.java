@@ -4,6 +4,9 @@ import com.ainovel.app.world.dto.*;
 import com.ainovel.app.world.model.World;
 import com.ainovel.app.world.repo.WorldRepository;
 import com.ainovel.app.user.User;
+import com.ainovel.app.ai.AiService;
+import com.ainovel.app.ai.dto.AiRefineRequest;
+import com.ainovel.app.ai.dto.AiRefineResponse;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,6 +19,8 @@ import java.util.*;
 public class WorldService {
     @Autowired
     private WorldRepository worldRepository;
+    @Autowired
+    private AiService aiService;
     private final ObjectMapper objectMapper = new ObjectMapper();
 
     public List<WorldDefinitionDto> definitions() {
@@ -107,26 +112,72 @@ public class WorldService {
     }
 
     @Transactional
-    public String refineField(UUID id, String moduleKey, String fieldKey, String text, String instruction) {
-        return "【精修】" + text;
+    public AiRefineResponse refineField(User user, UUID id, String moduleKey, String fieldKey, String text, String instruction) {
+        String prompt = (instruction == null ? "" : instruction).trim();
+        if (prompt.isBlank()) {
+            prompt = "请优化以下世界观字段表述，使其更清晰、更具细节且保持一致性。";
+        }
+        return aiService.refine(user, new AiRefineRequest(text, prompt, null));
     }
 
     public WorldPublishPreviewResponse preview(UUID id) {
         World world = worldRepository.findById(id).orElseThrow();
         Map<String, Map<String, String>> modules = readModules(world.getModulesJson());
         List<String> missing = new ArrayList<>();
+        List<String> toGenerate = new ArrayList<>();
         for (WorldDefinitionDto def : definitions()) {
-            if (!modules.containsKey(def.key())) missing.add(def.key());
+            Map<String, String> fields = modules.get(def.key());
+            boolean hasAny = false;
+            if (fields != null) {
+                for (String v : fields.values()) {
+                    if (v != null && !v.isBlank()) {
+                        hasAny = true;
+                        break;
+                    }
+                }
+            }
+            if (!hasAny) {
+                missing.add(def.key());
+                toGenerate.add(def.key());
+            }
         }
-        return new WorldPublishPreviewResponse(missing, missing);
+        return new WorldPublishPreviewResponse(missing, toGenerate);
     }
 
     @Transactional
     public WorldDetailDto publish(UUID id) {
         World world = worldRepository.findById(id).orElseThrow();
-        world.setStatus("generating");
+        Map<String, Map<String, String>> modules = readModules(world.getModulesJson());
+
         Map<String, String> progress = new HashMap<>();
-        definitions().forEach(d -> progress.put(d.key(), "GENERATING"));
+        boolean anyAwaiting = false;
+        for (WorldDefinitionDto def : definitions()) {
+            Map<String, String> fields = modules.get(def.key());
+            boolean hasAny = false;
+            if (fields != null) {
+                for (String v : fields.values()) {
+                    if (v != null && !v.isBlank()) {
+                        hasAny = true;
+                        break;
+                    }
+                }
+            }
+            if (hasAny) {
+                progress.put(def.key(), "COMPLETED");
+            } else {
+                progress.put(def.key(), "AWAITING_GENERATION");
+                anyAwaiting = true;
+            }
+        }
+
+        if (anyAwaiting) {
+            world.setStatus("generating");
+        } else {
+            if (!"active".equalsIgnoreCase(world.getStatus())) {
+                world.setVersion(bumpPatch(world.getVersion()));
+            }
+            world.setStatus("active");
+        }
         world.setModuleProgressJson(writeJson(progress));
         worldRepository.save(world);
         return toDetail(world);
@@ -149,9 +200,34 @@ public class WorldService {
         world.setModuleProgressJson(writeJson(progress));
 
         Map<String, Map<String, String>> modules = readModules(world.getModulesJson());
-        modules.putIfAbsent(moduleKey, new HashMap<>());
-        modules.get(moduleKey).put("auto", "AI 生成的占位内容");
+        Optional<WorldDefinitionDto> moduleDef = definitions().stream().filter(d -> d.key().equals(moduleKey)).findFirst();
+        if (moduleDef.isPresent()) {
+            Map<String, String> fields = new HashMap<>(modules.getOrDefault(moduleKey, new HashMap<>()));
+            for (WorldDefinitionDto.Field f : moduleDef.get().fields()) {
+                String existing = fields.get(f.key());
+                if (existing == null || existing.isBlank()) {
+                    fields.put(f.key(), "AI 生成的占位内容：" + f.label());
+                }
+            }
+            modules.put(moduleKey, fields);
+        } else {
+            modules.putIfAbsent(moduleKey, new HashMap<>());
+            modules.get(moduleKey).putIfAbsent("auto", "AI 生成的占位内容");
+        }
         world.setModulesJson(writeJson(modules));
+
+        boolean allDone = true;
+        for (WorldDefinitionDto def : definitions()) {
+            String st = progress.get(def.key());
+            if (!"COMPLETED".equalsIgnoreCase(st)) {
+                allDone = false;
+                break;
+            }
+        }
+        if (allDone && !"active".equalsIgnoreCase(world.getStatus())) {
+            world.setStatus("active");
+            world.setVersion(bumpPatch(world.getVersion()));
+        }
         worldRepository.save(world);
         return toDetail(world);
     }
@@ -175,6 +251,20 @@ public class WorldService {
                 readProgress(world.getModuleProgressJson()),
                 world.getUpdatedAt()
         );
+    }
+
+    private String bumpPatch(String version) {
+        if (version == null || version.isBlank()) return "0.1.0";
+        String[] parts = version.split("\\.");
+        if (parts.length != 3) return version;
+        try {
+            int major = Integer.parseInt(parts[0]);
+            int minor = Integer.parseInt(parts[1]);
+            int patch = Integer.parseInt(parts[2]);
+            return major + "." + minor + "." + (patch + 1);
+        } catch (Exception e) {
+            return version;
+        }
     }
 
     private List<String> readThemes(String json) {

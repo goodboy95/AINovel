@@ -6,6 +6,8 @@ import com.ainovel.app.story.model.CharacterCard;
 import com.ainovel.app.story.model.Story;
 import com.ainovel.app.story.repo.CharacterCardRepository;
 import com.ainovel.app.story.repo.StoryRepository;
+import com.ainovel.app.ai.AiService;
+import com.ainovel.app.ai.dto.AiRefineRequest;
 import com.ainovel.app.user.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -23,6 +25,8 @@ public class StoryService {
     private StoryRepository storyRepository;
     @Autowired
     private CharacterCardRepository characterCardRepository;
+    @Autowired
+    private AiService aiService;
 
     public List<StoryDto> listStories(User user) {
         return storyRepository.findByUser(user).stream().map(this::toDto).toList();
@@ -99,13 +103,14 @@ public class StoryService {
         characterCardRepository.deleteById(id);
     }
 
-    public String refineStory(UUID storyId, RefineRequest request) {
-        // 简化：返回附加说明的文本
-        return "【润色】" + request.text();
+    public String refineStory(User user, UUID storyId, RefineRequest request) {
+        String instruction = request.instruction() == null ? "" : request.instruction();
+        return aiService.refine(user, new AiRefineRequest(request.text(), instruction, null)).result();
     }
 
-    public String refineCharacter(UUID characterId, RefineRequest request) {
-        return "【润色】" + request.text();
+    public String refineCharacter(User user, UUID characterId, RefineRequest request) {
+        String instruction = request.instruction() == null ? "" : request.instruction();
+        return aiService.refine(user, new AiRefineRequest(request.text(), instruction, null)).result();
     }
 
     @Transactional

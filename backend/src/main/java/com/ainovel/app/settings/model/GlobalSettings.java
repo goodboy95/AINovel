@@ -29,6 +29,10 @@ public class GlobalSettings {
     private String smtpUsername;
     private String smtpPassword;
 
+    private String llmBaseUrl;
+    private String llmModelName;
+    private String llmApiKeyEncrypted;
+
     @CreationTimestamp
     private Instant createdAt;
 
@@ -53,9 +57,14 @@ public class GlobalSettings {
     public void setSmtpUsername(String smtpUsername) { this.smtpUsername = smtpUsername; }
     public String getSmtpPassword() { return smtpPassword; }
     public void setSmtpPassword(String smtpPassword) { this.smtpPassword = smtpPassword; }
+    public String getLlmBaseUrl() { return llmBaseUrl; }
+    public void setLlmBaseUrl(String llmBaseUrl) { this.llmBaseUrl = llmBaseUrl; }
+    public String getLlmModelName() { return llmModelName; }
+    public void setLlmModelName(String llmModelName) { this.llmModelName = llmModelName; }
+    public String getLlmApiKeyEncrypted() { return llmApiKeyEncrypted; }
+    public void setLlmApiKeyEncrypted(String llmApiKeyEncrypted) { this.llmApiKeyEncrypted = llmApiKeyEncrypted; }
     public Instant getCreatedAt() { return createdAt; }
     public void setCreatedAt(Instant createdAt) { this.createdAt = createdAt; }
     public Instant getUpdatedAt() { return updatedAt; }
     public void setUpdatedAt(Instant updatedAt) { this.updatedAt = updatedAt; }
 }
-

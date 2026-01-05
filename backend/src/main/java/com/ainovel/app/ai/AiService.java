@@ -42,15 +42,22 @@ public class AiService {
             settingsService.getSettings(user);
             return systemSettingsRepository.findByUser(user).orElseThrow();
         });
+        var global = settingsService.getGlobalSettings();
 
         ModelConfigEntity model = resolveModel(request.modelId()).orElse(null);
-        String modelName = model != null ? model.getName() : settings.getModelName();
+        String modelName = model != null ? model.getName()
+                : (settings.getModelName() != null && !settings.getModelName().isBlank() ? settings.getModelName() : global.getLlmModelName());
         double inMult = model != null ? model.getInputMultiplier() : 1.0;
         double outMult = model != null ? model.getOutputMultiplier() : 1.0;
 
-        if (settings.getApiKeyEncrypted() == null || settings.getApiKeyEncrypted().isBlank()) {
-            throw new RuntimeException("未配置 API Key，请前往设置页面配置");
+        String baseUrl = settings.getBaseUrl() != null && !settings.getBaseUrl().isBlank() ? settings.getBaseUrl() : global.getLlmBaseUrl();
+        if (baseUrl == null || baseUrl.isBlank()) baseUrl = "https://api.openai.com/v1";
+        String apiKey = settings.getApiKeyEncrypted();
+        if (apiKey == null || apiKey.isBlank()) apiKey = global.getLlmApiKeyEncrypted();
+        if (apiKey == null || apiKey.isBlank()) {
+            throw new RuntimeException("未配置 API Key，请联系管理员在后台配置，或前往设置页配置");
         }
+        if (modelName == null || modelName.isBlank()) modelName = "gpt-4o";
 
         List<Map<String, Object>> messages = new ArrayList<>();
         if (request.context() != null) {
@@ -74,7 +81,7 @@ public class AiService {
         payload.put("messages", messages);
         payload.put("temperature", 0.7);
 
-        OpenAiCompatClient.ChatResult result = openAiCompatClient.chatCompletions(settings.getBaseUrl(), settings.getApiKeyEncrypted(), payload);
+        OpenAiCompatClient.ChatResult result = openAiCompatClient.chatCompletions(baseUrl, apiKey, payload);
         int promptTokens = result.promptTokens() != null ? result.promptTokens() : estimateTokens(messages);
         int completionTokens = result.completionTokens() != null ? result.completionTokens() : Math.max(1, result.content().length() / 4);
 

@@ -1,20 +1,25 @@
-import { WorldDetail, WorldModuleDefinition, WorldModuleData } from "@/types";
+import { WorldModuleDefinition, WorldModuleData } from "@/types";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Sparkles } from "lucide-react";
+import { Sparkles, Loader2 } from "lucide-react";
+import { useState } from "react";
 
 interface WorldModuleEditorProps {
+  worldId?: string;
   definitions: WorldModuleDefinition[];
   moduleData: WorldModuleData[];
   onUpdateModule: (moduleKey: string, fieldKey: string, value: string) => void;
   onAutoGenerate: (moduleKey: string) => void;
+  onRefineField?: (moduleKey: string, fieldKey: string, text: string) => Promise<string | null>;
 }
 
-const WorldModuleEditor = ({ definitions, moduleData, onUpdateModule, onAutoGenerate }: WorldModuleEditorProps) => {
+const WorldModuleEditor = ({ definitions, moduleData, onUpdateModule, onAutoGenerate, onRefineField }: WorldModuleEditorProps) => {
+  const [refining, setRefining] = useState<Record<string, boolean>>({});
+
   const getFieldValue = (moduleKey: string, fieldKey: string) => {
     const module = moduleData.find(m => m.key === moduleKey);
     return module?.fields[fieldKey] || "";
@@ -54,8 +59,29 @@ const WorldModuleEditor = ({ definitions, moduleData, onUpdateModule, onAutoGene
                 <div key={field.key} className="space-y-2">
                   <div className="flex justify-between">
                     <Label>{field.label}</Label>
-                    <Button variant="ghost" size="sm" className="h-6 text-xs text-muted-foreground">
-                      <Sparkles className="mr-1 h-3 w-3" /> 润色
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="h-6 text-xs text-muted-foreground"
+                      disabled={!onRefineField || refining[`${def.key}:${field.key}`]}
+                      onClick={async () => {
+                        if (!onRefineField) return;
+                        const k = `${def.key}:${field.key}`;
+                        const current = getFieldValue(def.key, field.key);
+                        if (!current.trim()) return;
+                        setRefining((m) => ({ ...m, [k]: true }));
+                        try {
+                          const result = await onRefineField(def.key, field.key, current);
+                          if (typeof result === "string" && result.trim()) {
+                            onUpdateModule(def.key, field.key, result);
+                          }
+                        } finally {
+                          setRefining((m) => ({ ...m, [k]: false }));
+                        }
+                      }}
+                    >
+                      {refining[`${def.key}:${field.key}`] ? <Loader2 className="mr-1 h-3 w-3 animate-spin" /> : <Sparkles className="mr-1 h-3 w-3" />}
+                      润色
                     </Button>
                   </div>
                   {field.type === 'textarea' ? (

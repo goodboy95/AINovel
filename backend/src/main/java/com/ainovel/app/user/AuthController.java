@@ -16,6 +16,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import com.ainovel.app.settings.SettingsService;
+import com.ainovel.app.security.PowService;
 
 @RestController
 @RequestMapping({"/v1/auth", "/auth"})
@@ -28,6 +29,8 @@ public class AuthController {
     private EmailVerificationService emailVerificationService;
     @Autowired
     private SettingsService settingsService;
+    @Autowired
+    private PowService powService;
 
     @PostMapping("/register")
     public ResponseEntity<AuthResponse> register(@Valid @RequestBody RegisterRequest request) {
@@ -44,8 +47,11 @@ public class AuthController {
         if (!settingsService.getGlobalSettings().isRegistrationEnabled()) {
             return ResponseEntity.ok(new SendCodeResponse(false, "当前未开放注册"));
         }
-        if (request.captchaToken() == null || request.captchaToken().isBlank()) {
-            return ResponseEntity.badRequest().body(new SendCodeResponse(false, "人机验证失败"));
+        if (!powService.verify(request.email(), request.captchaToken())) {
+            return ResponseEntity.badRequest().body(new SendCodeResponse(false, "人机验证失败或已过期"));
+        }
+        if (emailVerificationService.isRateLimited(request.email(), "register")) {
+            return ResponseEntity.status(429).body(new SendCodeResponse(false, "发送过于频繁，请稍后再试"));
         }
         emailVerificationService.sendRegistrationCode(request.email());
         return ResponseEntity.ok(new SendCodeResponse(true, "验证码已发送"));

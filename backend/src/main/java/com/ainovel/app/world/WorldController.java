@@ -4,6 +4,7 @@ import com.ainovel.app.common.RefineRequest;
 import com.ainovel.app.user.User;
 import com.ainovel.app.user.UserRepository;
 import com.ainovel.app.world.dto.*;
+import com.ainovel.app.ai.dto.AiRefineResponse;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -48,8 +49,8 @@ public class WorldController {
     public WorldDetailDto updateModule(@PathVariable UUID id, @PathVariable String moduleKey, @RequestBody WorldModuleUpdateRequest request) { return worldService.updateModule(id, moduleKey, request); }
 
     @PostMapping("/{id}/modules/{moduleKey}/fields/{fieldKey}/refine")
-    public ResponseEntity<String> refineField(@PathVariable UUID id, @PathVariable String moduleKey, @PathVariable String fieldKey, @RequestBody RefineRequest request) {
-        return ResponseEntity.ok(worldService.refineField(id, moduleKey, fieldKey, request.text(), request.instruction()));
+    public ResponseEntity<AiRefineResponse> refineField(@AuthenticationPrincipal UserDetails principal, @PathVariable UUID id, @PathVariable String moduleKey, @PathVariable String fieldKey, @RequestBody RefineRequest request) {
+        return ResponseEntity.ok(worldService.refineField(currentUser(principal), id, moduleKey, fieldKey, request.text(), request.instruction()));
     }
 
     @GetMapping("/{id}/publish/preview")

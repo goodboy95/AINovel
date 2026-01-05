@@ -7,7 +7,7 @@
 - `DELETE /api/v1/worlds/{id}`：删除草稿世界。
 - `PUT /api/v1/worlds/{id}/modules`：批量保存模块，Body `{modules: {key: {field:value}}}`。
 - `PUT /api/v1/worlds/{id}/modules/{moduleKey}`：单模块保存。
-- `POST /api/v1/worlds/{id}/modules/{moduleKey}/fields/{fieldKey}/refine`：字段精修，返回文本。
+- `POST /api/v1/worlds/{id}/modules/{moduleKey}/fields/{fieldKey}/refine`：字段精修（调用 LLM 并扣费），返回 `AiRefineResponse {result,usage,remainingCredits}`。
 - `GET /api/v1/worlds/{id}/publish/preview`：发布预检。
 - `POST /api/v1/worlds/{id}/publish`：进入生成状态。
 - `GET /api/v1/worlds/{id}/generation`：生成队列状态。

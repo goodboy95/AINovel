@@ -11,6 +11,7 @@ import java.util.UUID;
 
 public interface EmailVerificationCodeRepository extends JpaRepository<EmailVerificationCode, UUID> {
     Page<EmailVerificationCode> findAllByOrderByCreatedAtDesc(Pageable pageable);
+    long countByEmailIgnoreCaseAndPurposeAndCreatedAtAfter(String email, String purpose, Instant after);
 
     Optional<EmailVerificationCode> findFirstByEmailIgnoreCaseAndPurposeAndCodeAndUsedFalseAndExpiresAtAfterOrderByCreatedAtDesc(
             String email,
@@ -19,4 +20,3 @@ public interface EmailVerificationCodeRepository extends JpaRepository<EmailVeri
             Instant now
     );
 }
-

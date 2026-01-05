@@ -18,5 +18,6 @@
 - `PUT /api/v1/outlines/{id}`：保存大纲，Body `{title,worldId,chapters:[{id?,title,summary,order,scenes:[{id?,title,summary,content,order}]}]}`。
 - `DELETE /api/v1/outlines/{id}`：删除大纲。
 - `POST /api/v1/outlines/{outlineId}/chapters`：按参数生成占位章节，Body `{chapterNumber?,sectionsPerChapter?,wordsPerSection?,worldId?}`。
-- `PUT /api/v1/chapters/{id}` / `PUT /api/v1/scenes/{id}`：占位接口，当前返回 200。
+- `PUT /api/v1/chapters/{id}`：更新章节标题/摘要/顺序，Body `{title?,summary?,order?}`，返回 `OutlineDto`（包含更新后的 chapters）。
+- `PUT /api/v1/scenes/{id}`：更新场景标题/摘要/正文/顺序，Body `{title?,summary?,content?,order?}`，返回 `OutlineDto`。
 - `POST /api/v1/outlines/scenes/{id}/refine`：场景润色。

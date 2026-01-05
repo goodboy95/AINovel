@@ -38,6 +38,21 @@ const UserManager = () => {
     fetchUsers();
   };
 
+  const handleToggleBan = async (user: User) => {
+    try {
+      if (user.isBanned) {
+        await api.admin.unbanUser(user.id);
+        toast({ title: "已解除封禁" });
+      } else {
+        await api.admin.banUser(user.id);
+        toast({ title: "已封禁账号" });
+      }
+      fetchUsers();
+    } catch (e: any) {
+      toast({ variant: "destructive", title: "操作失败", description: e.message });
+    }
+  };
+
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
@@ -91,8 +106,12 @@ const UserManager = () => {
                       >
                         <Coins className="mr-2 h-4 w-4" /> 调整积分
                       </DropdownMenuItem>
-                      <DropdownMenuItem className="text-red-500 focus:bg-red-900/20 focus:text-red-400">
-                        <Ban className="mr-2 h-4 w-4" /> 封禁账号
+                      <DropdownMenuItem
+                        onClick={() => handleToggleBan(user)}
+                        className={user.isBanned ? "text-green-400 focus:bg-green-900/20 focus:text-green-300" : "text-red-500 focus:bg-red-900/20 focus:text-red-400"}
+                      >
+                        {user.isBanned ? <CheckCircle className="mr-2 h-4 w-4" /> : <Ban className="mr-2 h-4 w-4" />}
+                        {user.isBanned ? "解除封禁" : "封禁账号"}
                       </DropdownMenuItem>
                     </DropdownMenuContent>
                   </DropdownMenu>

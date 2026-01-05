@@ -10,8 +10,8 @@ import {
   LogOut,
   Menu,
   X,
-  PenTool,
-  ChevronRight
+  ChevronRight,
+  ShieldAlert
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -27,7 +27,7 @@ import { cn } from "@/lib/utils";
 import { MadeWithDyad } from "@/components/made-with-dyad";
 
 const AppLayout = () => {
-  const { user, logout } = useAuth();
+  const { user, logout, isAdmin } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -140,9 +140,17 @@ const AppLayout = () => {
               <DropdownMenuContent align="end" className="w-56">
                 <DropdownMenuLabel>我的账户</DropdownMenuLabel>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem onClick={() => navigate("/settings")}>
-                  个人设置
-                </DropdownMenuItem>
+                {isAdmin && (
+                  <>
+                    <DropdownMenuItem onClick={() => navigate("/admin/dashboard")} className="text-red-600 focus:text-red-600 focus:bg-red-50">
+                      <ShieldAlert className="mr-2 h-4 w-4" />
+                      后台管理
+                    </DropdownMenuItem>
+                    <DropdownMenuSeparator />
+                  </>
+                )}
+                <DropdownMenuItem onClick={() => navigate("/profile")}>个人中心</DropdownMenuItem>
+                <DropdownMenuItem onClick={() => navigate("/settings")}>系统设置</DropdownMenuItem>
                 <DropdownMenuItem className="text-destructive" onClick={handleLogout}>
                   <LogOut className="mr-2 h-4 w-4" />
                   退出登录
@@ -189,6 +197,11 @@ const AppLayout = () => {
                 <span className="font-medium">{item.title}</span>
               </NavLink>
             ))}
+            {isAdmin && (
+              <Button variant="outline" className="w-full mt-4 border-red-200 text-red-600 hover:bg-red-50" onClick={() => navigate("/admin/dashboard")}>
+                <ShieldAlert className="mr-2 h-4 w-4" /> 进入后台管理
+              </Button>
+            )}
             <Button 
               variant="destructive" 
               className="w-full mt-8" 

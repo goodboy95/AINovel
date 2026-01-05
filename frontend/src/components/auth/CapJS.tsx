@@ -1,24 +1,46 @@
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { ShieldCheck, Loader2, AlertTriangle } from "lucide-react";
+import { ShieldCheck, Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { sha256Hex } from "@/lib/sha256";
 
 interface CapJSProps {
+  email: string;
   onVerify: (token: string) => void;
   className?: string;
 }
 
-const CapJS = ({ onVerify, className }: CapJSProps) => {
+const DIFFICULTY = 2; // must match backend accepted range; keep small for UX
+
+const CapJS = ({ email, onVerify, className }: CapJSProps) => {
   const [status, setStatus] = useState<'idle' | 'computing' | 'verified'>('idle');
 
+  useEffect(() => {
+    setStatus("idle");
+    onVerify("");
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [email]);
+
   const startVerification = () => {
-    setStatus('computing');
-    // Simulate PoW calculation delay (1.5s)
-    setTimeout(() => {
-      setStatus('verified');
-      const mockToken = `capjs_token_${Date.now()}`;
-      onVerify(mockToken);
-    }, 1500);
+    if (!email) return;
+    setStatus("computing");
+    (async () => {
+      const ts = Date.now();
+      let nonce = 0;
+      const prefix = "0".repeat(DIFFICULTY);
+      for (; nonce < 200000; nonce++) {
+        const hash = await sha256Hex(`${email}|${ts}|${nonce}`);
+        if (hash.startsWith(prefix)) {
+          const payload = { email, ts, nonce, difficulty: DIFFICULTY, hash };
+          const token = btoa(JSON.stringify(payload));
+          setStatus("verified");
+          onVerify(token);
+          return;
+        }
+      }
+      setStatus("idle");
+      onVerify("");
+    })();
   };
 
   return (

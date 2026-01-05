@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
 import { api } from "@/lib/mock-api";
-import { SystemSettings } from "@/types";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -9,20 +8,52 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { useToast } from "@/components/ui/use-toast";
 import { Save, Loader2 } from "lucide-react";
 
+type AdminSystemConfig = {
+  registrationEnabled: boolean;
+  maintenanceMode: boolean;
+  checkInMinPoints: number;
+  checkInMaxPoints: number;
+  smtpHost?: string;
+  smtpPort?: number;
+  smtpUsername?: string;
+  smtpPasswordIsSet?: boolean;
+  llmBaseUrl?: string;
+  llmModelName?: string;
+  llmApiKeyIsSet?: boolean;
+};
+
 const SystemSettingsPage = () => {
-  const [settings, setSettings] = useState<SystemSettings | null>(null);
+  const [settings, setSettings] = useState<AdminSystemConfig | null>(null);
+  const [smtpPassword, setSmtpPassword] = useState("");
+  const [llmApiKey, setLlmApiKey] = useState("");
   const [isSaving, setIsSaving] = useState(false);
   const { toast } = useToast();
 
   useEffect(() => {
-    api.settings.get().then(setSettings);
+    api.admin.getSystemConfig().then(setSettings);
   }, []);
 
   const handleSave = async () => {
     if (!settings) return;
     setIsSaving(true);
     try {
-      await api.settings.update(settings);
+      const payload: any = {
+        registrationEnabled: settings.registrationEnabled,
+        maintenanceMode: settings.maintenanceMode,
+        checkInMinPoints: settings.checkInMinPoints,
+        checkInMaxPoints: settings.checkInMaxPoints,
+        smtpHost: settings.smtpHost,
+        smtpPort: settings.smtpPort,
+        smtpUsername: settings.smtpUsername,
+        llmBaseUrl: settings.llmBaseUrl,
+        llmModelName: settings.llmModelName,
+        ...(smtpPassword ? { smtpPassword } : {}),
+        ...(llmApiKey ? { llmApiKey } : {}),
+      };
+      const updated = await api.admin.updateSystemConfig(payload);
+      setSettings(updated);
+      setSmtpPassword("");
+      setLlmApiKey("");
       toast({ title: "系统设置已更新" });
     } finally {
       setIsSaving(false);
@@ -66,6 +97,71 @@ const SystemSettingsPage = () => {
                 className="bg-zinc-950 border-zinc-800"
               />
             </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      <Card className="bg-zinc-900 border-zinc-800 text-zinc-100">
+        <CardHeader>
+          <CardTitle>LLM 配置（全局）</CardTitle>
+          <CardDescription className="text-zinc-400">配置后，普通用户无需填写 Key 即可使用 AI 能力。</CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="space-y-2">
+            <Label>Base URL</Label>
+            <Input value={settings.llmBaseUrl || ""} onChange={(e) => setSettings({ ...settings, llmBaseUrl: e.target.value })} className="bg-zinc-950 border-zinc-800" placeholder="https://api.openai.com/v1" />
+          </div>
+          <div className="space-y-2">
+            <Label>Model Name</Label>
+            <Input value={settings.llmModelName || ""} onChange={(e) => setSettings({ ...settings, llmModelName: e.target.value })} className="bg-zinc-950 border-zinc-800" placeholder="gpt-4o" />
+          </div>
+          <div className="space-y-2">
+            <Label>API Key</Label>
+            <Input
+              type="password"
+              value={llmApiKey}
+              onChange={(e) => setLlmApiKey(e.target.value)}
+              className="bg-zinc-950 border-zinc-800"
+              placeholder={settings.llmApiKeyIsSet ? "已设置（输入新 Key 覆盖）" : "请输入 Key"}
+            />
+          </div>
+        </CardContent>
+      </Card>
+
+      <Card className="bg-zinc-900 border-zinc-800 text-zinc-100">
+        <CardHeader>
+          <CardTitle>SMTP 配置（全局）</CardTitle>
+          <CardDescription className="text-zinc-400">用于注册验证码与测试邮件。</CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label>Host</Label>
+              <Input value={settings.smtpHost || ""} onChange={(e) => setSettings({ ...settings, smtpHost: e.target.value })} className="bg-zinc-950 border-zinc-800" />
+            </div>
+            <div className="space-y-2">
+              <Label>Port</Label>
+              <Input
+                type="number"
+                value={settings.smtpPort ?? 587}
+                onChange={(e) => setSettings({ ...settings, smtpPort: parseInt(e.target.value) })}
+                className="bg-zinc-950 border-zinc-800"
+              />
+            </div>
+          </div>
+          <div className="space-y-2">
+            <Label>Username</Label>
+            <Input value={settings.smtpUsername || ""} onChange={(e) => setSettings({ ...settings, smtpUsername: e.target.value })} className="bg-zinc-950 border-zinc-800" />
+          </div>
+          <div className="space-y-2">
+            <Label>Password</Label>
+            <Input
+              type="password"
+              value={smtpPassword}
+              onChange={(e) => setSmtpPassword(e.target.value)}
+              className="bg-zinc-950 border-zinc-800"
+              placeholder={settings.smtpPasswordIsSet ? "已设置（输入新密码覆盖）" : "请输入密码"}
+            />
           </div>
         </CardContent>
       </Card>

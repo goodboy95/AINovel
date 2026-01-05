@@ -15,6 +15,8 @@ import {
   Image as ImageIcon
 } from "lucide-react";
 import React from "react";
+import { api } from "@/lib/mock-api";
+import { showError, showSuccess } from "@/utils/toast";
 
 // 定义指令列表
 const getSuggestionItems = ({ query }: { query: string }) => {
@@ -24,8 +26,29 @@ const getSuggestionItems = ({ query }: { query: string }) => {
       description: "让 AI 根据上下文继续创作",
       icon: React.createElement(Sparkles, { className: "h-4 w-4 text-purple-500" }),
       command: ({ editor }) => {
-        // Mock: 插入一段模拟文本
-        editor.chain().focus().insertContent(" [AI 正在思考并续写...] ").run();
+        const placeholder = "【AI 续写中...】";
+        const from = editor.state.selection.from;
+        editor.chain().focus().insertContent(placeholder).run();
+        const to = from + placeholder.length;
+
+        (async () => {
+          try {
+            const models = await api.ai.getModels();
+            const modelId = models[0]?.id;
+            const contextText = editor.getText().slice(-1000);
+            const resp = await api.ai.chat(
+              [{ role: "user", content: "请根据上下文继续创作一段正文，保持中文小说风格。" }],
+              modelId,
+              { context: contextText }
+            );
+            const content = resp?.content || "";
+            editor.chain().focus().deleteRange({ from, to }).insertContent(content).run();
+            showSuccess("AI 续写完成");
+          } catch (e: any) {
+            editor.chain().focus().deleteRange({ from, to }).insertContent("【AI 续写失败】").run();
+            showError(e?.message || "AI 续写失败");
+          }
+        })();
       },
     },
     {

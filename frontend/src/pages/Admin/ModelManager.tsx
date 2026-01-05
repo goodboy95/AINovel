@@ -6,13 +6,28 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Badge } from "@/components/ui/badge";
 import { Switch } from "@/components/ui/switch";
 import { Edit, Plus } from "lucide-react";
+import { useToast } from "@/components/ui/use-toast";
 
 const ModelManager = () => {
   const [models, setModels] = useState<ModelConfig[]>([]);
+  const { toast } = useToast();
 
   useEffect(() => {
     api.admin.getModels().then(setModels);
   }, []);
+
+  const toggleEnabled = async (model: ModelConfig, isEnabled: boolean) => {
+    const next = { ...model, isEnabled };
+    setModels((prev) => prev.map((m) => (m.id === model.id ? next : m)));
+    try {
+      await api.admin.updateModel(next);
+      toast({ title: "已更新模型状态" });
+      setModels(await api.admin.getModels());
+    } catch (e: any) {
+      toast({ variant: "destructive", title: "更新失败", description: e.message });
+      setModels(await api.admin.getModels());
+    }
+  };
 
   return (
     <div className="space-y-6">
@@ -45,7 +60,7 @@ const ModelManager = () => {
                   <Badge variant="outline" className="border-zinc-700 text-zinc-400">{model.poolId}</Badge>
                 </TableCell>
                 <TableCell>
-                  <Switch checked={model.isEnabled} />
+                  <Switch checked={model.isEnabled} onCheckedChange={(checked) => toggleEnabled(model, checked)} />
                 </TableCell>
                 <TableCell className="text-right">
                   <Button variant="ghost" size="icon" className="text-zinc-400 hover:text-zinc-100">

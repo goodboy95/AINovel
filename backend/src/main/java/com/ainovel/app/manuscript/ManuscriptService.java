@@ -49,10 +49,8 @@ public class ManuscriptService {
     public void delete(UUID id) { manuscriptRepository.deleteById(id); }
 
     @Transactional
-    public ManuscriptDto generateForScene(UUID sceneId) {
-        // 简化：根据 sceneId 生成一段占位文本
-        Optional<Manuscript> manuscriptOpt = manuscriptRepository.findAll().stream().findFirst();
-        Manuscript manuscript = manuscriptOpt.orElseThrow(() -> new RuntimeException("请先创建稿件"));
+    public ManuscriptDto generateForScene(UUID manuscriptId, UUID sceneId) {
+        Manuscript manuscript = manuscriptRepository.findById(manuscriptId).orElseThrow(() -> new RuntimeException("稿件不存在"));
         Map<String, String> sections = readSectionMap(manuscript.getSectionsJson());
         sections.put(sceneId.toString(), "自动生成的场景正文: " + sceneId);
         manuscript.setSectionsJson(writeJson(sections));
@@ -61,14 +59,25 @@ public class ManuscriptService {
     }
 
     @Transactional
-    public ManuscriptDto updateSection(UUID sectionId, SectionUpdateRequest request) {
-        // 这里 sectionId 即 sceneId
-        Manuscript manuscript = manuscriptRepository.findAll().stream().findFirst().orElseThrow();
+    public ManuscriptDto updateSection(UUID manuscriptId, UUID sceneId, SectionUpdateRequest request) {
+        Manuscript manuscript = manuscriptRepository.findById(manuscriptId).orElseThrow(() -> new RuntimeException("稿件不存在"));
         Map<String, String> sections = readSectionMap(manuscript.getSectionsJson());
-        sections.put(sectionId.toString(), request.content());
+        sections.put(sceneId.toString(), request.content());
         manuscript.setSectionsJson(writeJson(sections));
         manuscriptRepository.save(manuscript);
         return toDto(manuscript);
+    }
+
+    @Transactional
+    public ManuscriptDto generateForScene(UUID sceneId) {
+        Manuscript manuscript = manuscriptRepository.findAll().stream().findFirst().orElseThrow(() -> new RuntimeException("请先创建稿件"));
+        return generateForScene(manuscript.getId(), sceneId);
+    }
+
+    @Transactional
+    public ManuscriptDto updateSection(UUID sectionId, SectionUpdateRequest request) {
+        Manuscript manuscript = manuscriptRepository.findAll().stream().findFirst().orElseThrow(() -> new RuntimeException("请先创建稿件"));
+        return updateSection(manuscript.getId(), sectionId, request);
     }
 
     @Transactional
