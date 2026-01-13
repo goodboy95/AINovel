@@ -1,218 +1,225 @@
--- 用户表
-CREATE TABLE users (
-  id CHAR(36) PRIMARY KEY,
-  username VARCHAR(64) UNIQUE NOT NULL,
-  email VARCHAR(128) UNIQUE NOT NULL,
-  password_hash VARCHAR(255) NOT NULL,
-  credits DOUBLE NOT NULL DEFAULT 500,
-  banned BOOLEAN NOT NULL DEFAULT FALSE,
-  last_check_in_at TIMESTAMP NULL,
-  avatar_url VARCHAR(255),
-  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  updated_at TIMESTAMP NULL
-);
+-- AINovel schema reference (MySQL)
+-- Generated from the running `ainovel` database on 2026-01-13.
+-- UUID primary keys are stored as `binary(16)` (Hibernate/Spring Boot default mapping).
 
-CREATE TABLE user_roles (
-  user_id CHAR(36) NOT NULL,
-  role VARCHAR(64) NOT NULL,
-  CONSTRAINT fk_user_roles_user FOREIGN KEY (user_id) REFERENCES users(id)
-);
-
--- 系统设置
-CREATE TABLE system_settings (
-  id CHAR(36) PRIMARY KEY,
-  user_id CHAR(36),
-  base_url VARCHAR(255),
-  model_name VARCHAR(128),
-  api_key_encrypted TEXT,
-  created_at TIMESTAMP,
-  updated_at TIMESTAMP,
-  FOREIGN KEY (user_id) REFERENCES users(id)
-);
-
--- 全局设置（注册开关/维护模式/签到范围/SMTP）
-CREATE TABLE global_settings (
-  id CHAR(36) PRIMARY KEY,
-  registration_enabled BOOLEAN NOT NULL DEFAULT TRUE,
-  maintenance_mode BOOLEAN NOT NULL DEFAULT FALSE,
-  check_in_min_points INT NOT NULL DEFAULT 10,
-  check_in_max_points INT NOT NULL DEFAULT 50,
-  llm_base_url VARCHAR(255),
-  llm_model_name VARCHAR(128),
-  llm_api_key_encrypted TEXT,
-  smtp_host VARCHAR(255),
-  smtp_port INT,
-  smtp_username VARCHAR(255),
-  smtp_password TEXT,
-  created_at TIMESTAMP,
-  updated_at TIMESTAMP
-);
-
--- 模型配置
-CREATE TABLE model_configs (
-  id CHAR(36) PRIMARY KEY,
-  name VARCHAR(128),
-  display_name VARCHAR(255),
-  input_multiplier DOUBLE,
-  output_multiplier DOUBLE,
-  pool_id VARCHAR(64),
-  enabled BOOLEAN NOT NULL DEFAULT TRUE,
-  created_at TIMESTAMP,
-  updated_at TIMESTAMP
-);
-
--- 邮箱验证码
-CREATE TABLE email_verification_codes (
-  id CHAR(36) PRIMARY KEY,
-  email VARCHAR(255),
-  code VARCHAR(16),
-  purpose VARCHAR(64),
-  used BOOLEAN NOT NULL DEFAULT FALSE,
-  expires_at TIMESTAMP,
-  used_at TIMESTAMP,
-  created_at TIMESTAMP
-);
-
--- 积分日志
-CREATE TABLE credit_logs (
-  id CHAR(36) PRIMARY KEY,
-  user_id CHAR(36) NOT NULL,
-  amount DOUBLE NOT NULL,
-  reason VARCHAR(64),
-  details TEXT,
-  created_at TIMESTAMP,
-  FOREIGN KEY (user_id) REFERENCES users(id)
-);
-
--- 兑换码
-CREATE TABLE redeem_codes (
-  id CHAR(36) PRIMARY KEY,
-  code VARCHAR(64) UNIQUE,
-  amount INT NOT NULL,
-  used BOOLEAN NOT NULL DEFAULT FALSE,
-  used_by_user_id CHAR(36),
-  expires_at TIMESTAMP,
-  used_at TIMESTAMP,
-  created_at TIMESTAMP,
-  FOREIGN KEY (used_by_user_id) REFERENCES users(id)
-);
-
--- 故事与角色
-CREATE TABLE stories (
-  id CHAR(36) PRIMARY KEY,
-  user_id CHAR(36) NOT NULL,
-  title VARCHAR(255) NOT NULL,
-  synopsis TEXT,
-  genre VARCHAR(64),
-  tone VARCHAR(64),
-  status VARCHAR(32),
-  world_id VARCHAR(64),
-  created_at TIMESTAMP,
-  updated_at TIMESTAMP,
-  FOREIGN KEY (user_id) REFERENCES users(id)
-);
-
-CREATE TABLE character_cards (
-  id CHAR(36) PRIMARY KEY,
-  story_id CHAR(36) NOT NULL,
-  name VARCHAR(128),
-  synopsis TEXT,
-  details TEXT,
-  relationships TEXT,
-  created_at TIMESTAMP,
-  updated_at TIMESTAMP,
-  FOREIGN KEY (story_id) REFERENCES stories(id)
-);
-
--- 大纲与稿件
-CREATE TABLE outlines (
-  id CHAR(36) PRIMARY KEY,
-  story_id CHAR(36) NOT NULL,
-  title VARCHAR(255),
-  world_id VARCHAR(64),
-  content_json LONGTEXT,
-  created_at TIMESTAMP,
-  updated_at TIMESTAMP,
-  FOREIGN KEY (story_id) REFERENCES stories(id)
-);
-
-CREATE TABLE manuscripts (
-  id CHAR(36) PRIMARY KEY,
-  outline_id CHAR(36) NOT NULL,
-  title VARCHAR(255),
-  world_id VARCHAR(64),
-  sections_json LONGTEXT,
-  character_logs_json LONGTEXT,
-  created_at TIMESTAMP,
-  updated_at TIMESTAMP,
-  FOREIGN KEY (outline_id) REFERENCES outlines(id)
-);
-
--- 素材与上传
-CREATE TABLE materials (
-  id CHAR(36) PRIMARY KEY,
-  user_id CHAR(36),
-  title VARCHAR(255),
-  type VARCHAR(32),
-  content LONGTEXT,
-  summary TEXT,
-  tags_json TEXT,
-  status VARCHAR(32),
-  entities_json TEXT,
-  created_at TIMESTAMP,
-  updated_at TIMESTAMP,
-  FOREIGN KEY (user_id) REFERENCES users(id)
-);
-
-CREATE TABLE material_upload_jobs (
-  id CHAR(36) PRIMARY KEY,
-  file_name VARCHAR(255),
-  status VARCHAR(32),
-  progress INT,
-  message TEXT,
-  result_material_id CHAR(36),
-  created_at TIMESTAMP,
-  updated_at TIMESTAMP,
-  FOREIGN KEY (result_material_id) REFERENCES materials(id)
-);
-
--- 世界观
-CREATE TABLE worlds (
-  id CHAR(36) PRIMARY KEY,
-  user_id CHAR(36),
-  name VARCHAR(255),
-  tagline VARCHAR(255),
-  status VARCHAR(32),
-  version VARCHAR(32),
-  themes_json TEXT,
-  creative_intent TEXT,
-  notes TEXT,
-  modules_json LONGTEXT,
-  module_progress_json TEXT,
-  created_at TIMESTAMP,
-  updated_at TIMESTAMP,
-  FOREIGN KEY (user_id) REFERENCES users(id)
-);
-
--- 提示词模板
-CREATE TABLE prompt_templates (
-  id CHAR(36) PRIMARY KEY,
-  user_id CHAR(36),
-  story_creation LONGTEXT,
-  outline_chapter LONGTEXT,
-  manuscript_section LONGTEXT,
-  refine_with_instruction LONGTEXT,
-  refine_without_instruction LONGTEXT,
-  updated_at TIMESTAMP,
-  FOREIGN KEY (user_id) REFERENCES users(id)
-);
-
-CREATE TABLE world_prompt_templates (
-  id CHAR(36) PRIMARY KEY,
-  user_id CHAR(36),
-  modules_json LONGTEXT,
-  final_templates_json LONGTEXT,
-  field_refine LONGTEXT,
-  updated_at TIMESTAMP,
-  FOREIGN KEY (user_id) REFERENCES users(id)
-);
+CREATE TABLE `character_cards` (
+  `id` binary(16) NOT NULL,
+  `created_at` datetime(6) DEFAULT NULL,
+  `details` longtext COLLATE utf8mb4_unicode_ci,
+  `name` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `relationships` longtext COLLATE utf8mb4_unicode_ci,
+  `synopsis` longtext COLLATE utf8mb4_unicode_ci,
+  `updated_at` datetime(6) DEFAULT NULL,
+  `story_id` binary(16) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `FK8fl6goog1m0be12r3huk0cxbu` (`story_id`),
+  CONSTRAINT `FK8fl6goog1m0be12r3huk0cxbu` FOREIGN KEY (`story_id`) REFERENCES `stories` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+CREATE TABLE `credit_logs` (
+  `id` binary(16) NOT NULL,
+  `amount` double NOT NULL,
+  `created_at` datetime(6) DEFAULT NULL,
+  `details` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `reason` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `user_id` binary(16) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `FKsfo24anott3tx20oavrgmr65l` (`user_id`),
+  CONSTRAINT `FKsfo24anott3tx20oavrgmr65l` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+CREATE TABLE `email_verification_codes` (
+  `id` binary(16) NOT NULL,
+  `code` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `created_at` datetime(6) DEFAULT NULL,
+  `email` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `expires_at` datetime(6) DEFAULT NULL,
+  `purpose` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `used` bit(1) NOT NULL,
+  `used_at` datetime(6) DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+CREATE TABLE `global_settings` (
+  `id` binary(16) NOT NULL,
+  `check_in_max_points` int NOT NULL,
+  `check_in_min_points` int NOT NULL,
+  `created_at` datetime(6) DEFAULT NULL,
+  `maintenance_mode` bit(1) NOT NULL,
+  `registration_enabled` bit(1) NOT NULL,
+  `smtp_host` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `smtp_password` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `smtp_port` int DEFAULT NULL,
+  `smtp_username` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `updated_at` datetime(6) DEFAULT NULL,
+  `llm_api_key_encrypted` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `llm_base_url` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `llm_model_name` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+CREATE TABLE `manuscripts` (
+  `id` binary(16) NOT NULL,
+  `character_logs_json` longtext COLLATE utf8mb4_unicode_ci,
+  `created_at` datetime(6) DEFAULT NULL,
+  `sections_json` longtext COLLATE utf8mb4_unicode_ci,
+  `title` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `updated_at` datetime(6) DEFAULT NULL,
+  `world_id` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `outline_id` binary(16) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `FKm1nvu0uvtf1nmbu4pgux6kdro` (`outline_id`),
+  CONSTRAINT `FKm1nvu0uvtf1nmbu4pgux6kdro` FOREIGN KEY (`outline_id`) REFERENCES `outlines` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+CREATE TABLE `material_upload_jobs` (
+  `id` binary(16) NOT NULL,
+  `created_at` datetime(6) DEFAULT NULL,
+  `file_name` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `message` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `progress` int NOT NULL,
+  `result_material_id` binary(16) DEFAULT NULL,
+  `status` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `updated_at` datetime(6) DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+CREATE TABLE `materials` (
+  `id` binary(16) NOT NULL,
+  `content` longtext COLLATE utf8mb4_unicode_ci,
+  `created_at` datetime(6) DEFAULT NULL,
+  `entities_json` longtext COLLATE utf8mb4_unicode_ci,
+  `status` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `summary` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `tags_json` longtext COLLATE utf8mb4_unicode_ci,
+  `title` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `type` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `updated_at` datetime(6) DEFAULT NULL,
+  `user_id` binary(16) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `FK32wqk9p2efffrkb1l6yvkysou` (`user_id`),
+  CONSTRAINT `FK32wqk9p2efffrkb1l6yvkysou` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+CREATE TABLE `model_configs` (
+  `id` binary(16) NOT NULL,
+  `created_at` datetime(6) DEFAULT NULL,
+  `display_name` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `enabled` bit(1) NOT NULL,
+  `input_multiplier` double NOT NULL,
+  `name` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `output_multiplier` double NOT NULL,
+  `pool_id` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `updated_at` datetime(6) DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+CREATE TABLE `outlines` (
+  `id` binary(16) NOT NULL,
+  `content_json` longtext COLLATE utf8mb4_unicode_ci,
+  `created_at` datetime(6) DEFAULT NULL,
+  `title` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `updated_at` datetime(6) DEFAULT NULL,
+  `world_id` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `story_id` binary(16) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `FKij56qu3qp6w5ykg4cxauyo1h7` (`story_id`),
+  CONSTRAINT `FKij56qu3qp6w5ykg4cxauyo1h7` FOREIGN KEY (`story_id`) REFERENCES `stories` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+CREATE TABLE `prompt_templates` (
+  `id` binary(16) NOT NULL,
+  `manuscript_section` longtext COLLATE utf8mb4_unicode_ci,
+  `outline_chapter` longtext COLLATE utf8mb4_unicode_ci,
+  `refine_with_instruction` longtext COLLATE utf8mb4_unicode_ci,
+  `refine_without_instruction` longtext COLLATE utf8mb4_unicode_ci,
+  `story_creation` longtext COLLATE utf8mb4_unicode_ci,
+  `updated_at` datetime(6) DEFAULT NULL,
+  `user_id` binary(16) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `UK8dm9s6fl88ua6j9y6w90hun67` (`user_id`),
+  CONSTRAINT `FK49ya7kke8ffdsxx5djymew73k` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+CREATE TABLE `redeem_codes` (
+  `id` binary(16) NOT NULL,
+  `amount` int NOT NULL,
+  `code` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `created_at` datetime(6) DEFAULT NULL,
+  `expires_at` datetime(6) DEFAULT NULL,
+  `used` bit(1) NOT NULL,
+  `used_at` datetime(6) DEFAULT NULL,
+  `used_by_user_id` binary(16) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `FKqemhvmg9mu0kpjlcvaiex3juw` (`used_by_user_id`),
+  CONSTRAINT `FKqemhvmg9mu0kpjlcvaiex3juw` FOREIGN KEY (`used_by_user_id`) REFERENCES `users` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+CREATE TABLE `stories` (
+  `id` binary(16) NOT NULL,
+  `created_at` datetime(6) DEFAULT NULL,
+  `genre` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `status` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `synopsis` longtext COLLATE utf8mb4_unicode_ci,
+  `title` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `tone` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `updated_at` datetime(6) DEFAULT NULL,
+  `world_id` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `user_id` binary(16) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `FKshv2ytgbsn9w9mpu43mc6ln6j` (`user_id`),
+  CONSTRAINT `FKshv2ytgbsn9w9mpu43mc6ln6j` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+CREATE TABLE `system_settings` (
+  `id` binary(16) NOT NULL,
+  `api_key_encrypted` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `base_url` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `created_at` datetime(6) DEFAULT NULL,
+  `model_name` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `updated_at` datetime(6) DEFAULT NULL,
+  `user_id` binary(16) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `UK1a09binh9a991bxx0slic1k43` (`user_id`),
+  CONSTRAINT `FKe1chru46gf84py92s1w04ptq5` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+CREATE TABLE `user_roles` (
+  `user_id` binary(16) NOT NULL,
+  `role` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  KEY `FKhfh9dx7w3ubf1co1vdev94g3f` (`user_id`),
+  CONSTRAINT `FKhfh9dx7w3ubf1co1vdev94g3f` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+CREATE TABLE `users` (
+  `id` binary(16) NOT NULL,
+  `avatar_url` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `banned` bit(1) NOT NULL,
+  `created_at` datetime(6) DEFAULT NULL,
+  `credits` double NOT NULL,
+  `email` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `last_check_in_at` datetime(6) DEFAULT NULL,
+  `password_hash` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `updated_at` datetime(6) DEFAULT NULL,
+  `username` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `remote_uid` bigint DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `UK6dotkott2kjsp8vw4d0m25fb7` (`email`),
+  UNIQUE KEY `UKr43af9ap4edm43mmtq01oddj6` (`username`),
+  UNIQUE KEY `UKl6igvmj08ovhtjfdxf9cm493c` (`remote_uid`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+CREATE TABLE `world_prompt_templates` (
+  `id` binary(16) NOT NULL,
+  `field_refine` longtext COLLATE utf8mb4_unicode_ci,
+  `final_templates_json` longtext COLLATE utf8mb4_unicode_ci,
+  `modules_json` longtext COLLATE utf8mb4_unicode_ci,
+  `updated_at` datetime(6) DEFAULT NULL,
+  `user_id` binary(16) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `UKjyf0gnbhdrdp109akcggleif3` (`user_id`),
+  CONSTRAINT `FK2tiidjlqeb20m1ivkw30u8diu` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+CREATE TABLE `worlds` (
+  `id` binary(16) NOT NULL,
+  `created_at` datetime(6) DEFAULT NULL,
+  `creative_intent` longtext COLLATE utf8mb4_unicode_ci,
+  `module_progress_json` longtext COLLATE utf8mb4_unicode_ci,
+  `modules_json` longtext COLLATE utf8mb4_unicode_ci,
+  `name` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `notes` longtext COLLATE utf8mb4_unicode_ci,
+  `status` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `tagline` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `themes_json` longtext COLLATE utf8mb4_unicode_ci,
+  `updated_at` datetime(6) DEFAULT NULL,
+  `version` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `user_id` binary(16) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `FK9mp0grigxj1tudlm6p9e6gxw0` (`user_id`),
+  CONSTRAINT `FK9mp0grigxj1tudlm6p9e6gxw0` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;

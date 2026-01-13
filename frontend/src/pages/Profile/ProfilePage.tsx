@@ -16,11 +16,6 @@ const ProfilePage = () => {
   const [isCheckingIn, setIsCheckingIn] = useState(false);
   const [redeemCode, setRedeemCode] = useState("");
   const [isRedeeming, setIsRedeeming] = useState(false);
-  
-  // Password change state
-  const [oldPass, setOldPass] = useState("");
-  const [newPass, setNewPass] = useState("");
-  const [isChangingPass, setIsChangingPass] = useState(false);
 
   const isCheckedInToday = () => {
     if (!user?.lastCheckIn) return false;
@@ -62,21 +57,6 @@ const ProfilePage = () => {
       toast({ variant: "destructive", title: "兑换失败", description: error.message });
     } finally {
       setIsRedeeming(false);
-    }
-  };
-
-  const handleChangePassword = async () => {
-    if (!oldPass || !newPass) return;
-    setIsChangingPass(true);
-    try {
-      await api.user.updatePassword(oldPass, newPass);
-      toast({ title: "密码修改成功" });
-      setOldPass("");
-      setNewPass("");
-    } catch (error) {
-      toast({ variant: "destructive", title: "修改失败" });
-    } finally {
-      setIsChangingPass(false);
     }
   };
 
@@ -154,18 +134,9 @@ const ProfilePage = () => {
             <Shield className="h-5 w-5" /> 安全设置
           </CardTitle>
         </CardHeader>
-        <CardContent className="max-w-md space-y-4">
-          <div className="space-y-2">
-            <Label>当前密码</Label>
-            <Input type="password" value={oldPass} onChange={(e) => setOldPass(e.target.value)} />
-          </div>
-          <div className="space-y-2">
-            <Label>新密码</Label>
-            <Input type="password" value={newPass} onChange={(e) => setNewPass(e.target.value)} />
-          </div>
-          <Button onClick={handleChangePassword} disabled={isChangingPass || !oldPass || !newPass}>
-            {isChangingPass ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : "修改密码"}
-          </Button>
+        <CardContent className="max-w-md space-y-2 text-sm text-muted-foreground">
+          <div>本系统已启用统一登录（SSO）。</div>
+          <div>密码/注册/登录相关操作由统一登录服务管理，本服务不再提供修改密码入口。</div>
         </CardContent>
       </Card>
     </div>

@@ -41,3 +41,13 @@ app:
     model: ${AI_MODEL:gpt-4o}
     base-url: ${AI_BASE_URL:https://api.openai.com/v1}
     api-key: ${AI_API_KEY:}
+
+grpc:
+  client:
+    user:
+      address: ${USER_GRPC_ADDR:static://127.0.0.1:13001}
+      negotiationType: plaintext
+
+sso:
+  session-validation:
+    enabled: ${SSO_SESSION_VALIDATION_ENABLED:true}

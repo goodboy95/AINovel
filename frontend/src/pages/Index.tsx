@@ -3,10 +3,15 @@ import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
 import { ArrowRight, Sparkles, BookOpen, Globe, Zap } from "lucide-react";
 import { MadeWithDyad } from "@/components/made-with-dyad";
+import { buildSsoUrl } from "@/lib/sso";
 
 const Index = () => {
   const { isAuthenticated } = useAuth();
   const navigate = useNavigate();
+
+  const goSso = (mode: "login" | "register", nextPath = "/workbench") => {
+    window.location.href = buildSsoUrl(mode, nextPath);
+  };
 
   return (
     <div className="min-h-screen flex flex-col bg-background">
@@ -26,10 +31,10 @@ const Index = () => {
               </Button>
             ) : (
               <>
-                <Button variant="ghost" onClick={() => navigate("/login")}>
+                <Button variant="ghost" onClick={() => goSso("login")}>
                   登录
                 </Button>
-                <Button onClick={() => navigate("/register")}>注册</Button>
+                <Button onClick={() => goSso("register")}>注册</Button>
               </>
             )}
           </div>
@@ -53,7 +58,11 @@ const Index = () => {
               世界观一致性检查以及智能润色功能，让你的故事栩栩如生。
             </p>
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4 animate-in slide-in-from-bottom-6 duration-700 delay-200">
-              <Button size="lg" className="h-12 px-8 text-lg" onClick={() => navigate(isAuthenticated ? "/dashboard" : "/register")}>
+              <Button
+                size="lg"
+                className="h-12 px-8 text-lg"
+                onClick={() => (isAuthenticated ? navigate("/dashboard") : goSso("register"))}
+              >
                 {isAuthenticated ? "继续创作" : "免费开始"} <ArrowRight className="ml-2 h-5 w-5" />
               </Button>
               <Button size="lg" variant="outline" className="h-12 px-8 text-lg">

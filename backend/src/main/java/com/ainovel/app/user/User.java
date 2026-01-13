@@ -19,7 +19,7 @@ public class User {
     @Column(nullable = false, unique = true)
     private String username;
 
-    @Column(nullable = false, unique = true)
+    @Column(unique = true, nullable = false)
     private String email;
 
     @Column(nullable = false)
@@ -30,6 +30,9 @@ public class User {
 
     @Column(nullable = false)
     private boolean banned = false;
+
+    @Column(name = "remote_uid", unique = true)
+    private Long remoteUid;
 
     private Instant lastCheckInAt;
 
@@ -75,6 +78,8 @@ public class User {
     public void setCredits(double credits) { this.credits = credits; }
     public boolean isBanned() { return banned; }
     public void setBanned(boolean banned) { this.banned = banned; }
+    public Long getRemoteUid() { return remoteUid; }
+    public void setRemoteUid(Long remoteUid) { this.remoteUid = remoteUid; }
     public Instant getLastCheckInAt() { return lastCheckInAt; }
     public void setLastCheckInAt(Instant lastCheckInAt) { this.lastCheckInAt = lastCheckInAt; }
     public String getAvatarUrl() { return avatarUrl; }

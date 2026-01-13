@@ -15,7 +15,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -30,8 +29,6 @@ public class UserController {
     private UserRepository userRepository;
     @Autowired
     private EconomyService economyService;
-    @Autowired
-    private PasswordEncoder passwordEncoder;
     @Autowired
     private StoryRepository storyRepository;
     @Autowired
@@ -77,14 +74,8 @@ public class UserController {
     }
 
     @PostMapping("/password")
-    public ResponseEntity<BasicResponse> updatePassword(@AuthenticationPrincipal UserDetails principal, @Valid @RequestBody PasswordUpdateRequest request) {
-        User user = currentUser(principal);
-        if (!passwordEncoder.matches(request.oldPassword(), user.getPasswordHash())) {
-            return ResponseEntity.badRequest().body(new BasicResponse(false, "原密码不正确"));
-        }
-        user.setPasswordHash(passwordEncoder.encode(request.newPassword()));
-        userRepository.save(user);
-        return ResponseEntity.ok(new BasicResponse(true, "密码修改成功"));
+    public ResponseEntity<BasicResponse> updatePassword(@AuthenticationPrincipal UserDetails principal) {
+        return ResponseEntity.status(501).body(new BasicResponse(false, "PASSWORD_MANAGED_BY_SSO"));
     }
 
     private UserProfileResponse toProfile(User user) {

@@ -159,38 +159,6 @@ function toManuscript(dto: any): Manuscript {
 }
 
 export const api = {
-  auth: {
-    login: async (username: string, password: string): Promise<{ token: string; user: User }> => {
-      const loginResp = await requestJson<{ token: string } & Record<string, any>>("/v1/auth/login", {
-        method: "POST",
-        body: JSON.stringify({ username, password }),
-      });
-      const token = loginResp.token;
-      const profile = await requestJson<any>("/v1/user/profile", { method: "GET" }, token);
-      return { token, user: toUser(profile) };
-    },
-    sendCode: async (email: string, captchaToken: string) => {
-      const res = await requestJson<{ success: boolean; message?: string }>("/v1/auth/send-code", {
-        method: "POST",
-        body: JSON.stringify({ email, captchaToken }),
-      });
-      if (!res.success) throw new Error(res.message || "发送失败");
-      return res;
-    },
-    registerV2: async (data: { email: string; code: string; username: string; password: string }) => {
-      const res = await requestJson<{ success: boolean; message?: string }>("/v1/auth/register-v2", {
-        method: "POST",
-        body: JSON.stringify(data),
-      });
-      if (!res.success) throw new Error(res.message || "注册失败");
-      return res;
-    },
-    validate: async (token: string) => {
-      const profile = await requestJson<any>("/v1/user/profile", { method: "GET" }, token);
-      return toUser(profile);
-    },
-  },
-
   user: {
     getProfile: async () => {
       const profile = await requestJson<any>("/v1/user/profile", { method: "GET" });
@@ -204,14 +172,6 @@ export const api = {
         method: "POST",
         body: JSON.stringify({ code }),
       });
-    },
-    updatePassword: async (oldPassword: string, newPassword: string) => {
-      const res = await requestJson<{ success: boolean; message?: string }>("/v1/user/password", {
-        method: "POST",
-        body: JSON.stringify({ oldPassword, newPassword }),
-      });
-      if (!res.success) throw new Error(res.message || "修改失败");
-      return res;
     },
     summary: async (): Promise<UserSummary> => {
       return await requestJson<UserSummary>("/v1/user/summary", { method: "GET" });
@@ -294,9 +254,6 @@ export const api = {
     },
     createCode: async (data: any) => {
       return await requestJson<boolean>("/v1/admin/redeem-codes", { method: "POST", body: JSON.stringify(data) });
-    },
-    getEmailCodes: async (limit = 50) => {
-      return await requestJson<any[]>(`/v1/admin/email/verification-codes?limit=${limit}`, { method: "GET" });
     },
     getSmtpStatus: async () => {
       return await requestJson<any>("/v1/admin/email/smtp", { method: "GET" });

@@ -2,7 +2,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route, Navigate, Outlet } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate, Outlet, useLocation } from "react-router-dom";
 import { AuthProvider, useAuth } from "@/contexts/AuthContext";
 
 // Layouts
@@ -13,6 +13,7 @@ import AdminLayout from "@/components/layout/AdminLayout";
 import Index from "./pages/Index";
 import Login from "./pages/auth/Login";
 import Register from "./pages/auth/Register";
+import SsoCallback from "./pages/auth/SsoCallback";
 import Pricing from "./pages/Pricing";
 import NotFound from "./pages/NotFound";
 import DashboardHome from "./pages/Dashboard";
@@ -42,8 +43,10 @@ const queryClient = new QueryClient();
 // Protected Route Wrapper
 const ProtectedRoute = () => {
   const { isAuthenticated, isLoading } = useAuth();
+  const location = useLocation();
   if (isLoading) return <div className="flex items-center justify-center h-screen">Loading...</div>;
-  return isAuthenticated ? <Outlet /> : <Navigate to="/login" replace />;
+  const next = encodeURIComponent(`${location.pathname}${location.search}`);
+  return isAuthenticated ? <Outlet /> : <Navigate to={`/login?next=${next}`} replace />;
 };
 
 // Admin Route Wrapper
@@ -65,6 +68,7 @@ const App = () => (
             <Route path="/" element={<Index />} />
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
+            <Route path="/sso/callback" element={<SsoCallback />} />
             <Route path="/pricing" element={<Pricing />} />
 
             {/* User Protected Routes */}

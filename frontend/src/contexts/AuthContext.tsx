@@ -7,7 +7,7 @@ interface AuthContextType {
   isAuthenticated: boolean;
   isAdmin: boolean;
   isLoading: boolean;
-  login: (token: string, user: User) => void;
+  acceptToken: (token: string) => void;
   logout: () => void;
   refreshProfile: () => Promise<void>; // V2: Refresh credits/check-in status
 }
@@ -22,7 +22,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     const token = localStorage.getItem("token");
     if (token) {
       try {
-        const userData = await api.auth.validate(token);
+        const userData = await api.user.getProfile();
         setUser(userData);
       } catch (error) {
         console.error("Auth validation failed", error);
@@ -36,9 +36,9 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     initAuth();
   }, []);
 
-  const login = (token: string, userData: User) => {
+  const acceptToken = (token: string) => {
     localStorage.setItem("token", token);
-    setUser(userData);
+    setUser(null);
   };
 
   const logout = () => {
@@ -47,7 +47,6 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   };
 
   const refreshProfile = async () => {
-    if (!user) return;
     try {
       const updatedUser = await api.user.getProfile();
       setUser(updatedUser);
@@ -63,7 +62,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         isAuthenticated: !!user,
         isAdmin: user?.role === 'admin',
         isLoading,
-        login,
+        acceptToken,
         logout,
         refreshProfile,
       }}

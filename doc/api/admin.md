@@ -23,7 +23,6 @@
 ## 邮件验证/SMTP
 - `GET /api/v1/admin/email/smtp`：SMTP 状态 `{host,port,username,passwordIsSet}`。
 - `POST /api/v1/admin/email/test`：发送测试邮件，请求 `{email}`，返回 `true`。
-- `GET /api/v1/admin/email/verification-codes?limit=50`：最近验证码记录（用于测试定位验证码）。
 
 ## 全局配置（SMTP/LLM）
 - `GET /api/v1/admin/system-config`：获取全局配置（注册/维护/签到、SMTP、LLM）。

@@ -1,19 +1,17 @@
 # 操作步骤（端到端）
 
-1. **注册/登录**
+1. **统一登录（SSO）**
    - 打开前端（开发/测试域名）`http://ainovel.seekerhut.com/`；生产域名 `https://ainovel.aienie.com/`（部署后）。
-   - 注册：输入邮箱 → 完成人机验证 → 发送验证码 → 填写用户名/密码完成注册。
-     - 如果无法直接查收邮箱，可用管理员账号进入 `/admin/email` 查看最近验证码记录用于测试。
-   - 登录：
-     - 管理员：`admin / password`（可进入后台）。
-     - 新注册用户：使用注册时填写的用户名/密码登录。
-   - 登录成功后默认进入 `/dashboard`。
+   - 登录：点击页面上的“登录”按钮会直接跳转到同域名的 `/sso/login`（由宿主机 Nginx 反代到 userservice）；也可直接访问 `/login`（会自动跳转）。
+   - 注册：点击页面上的“注册/免费开始”按钮会直接跳转到同域名的 `/register`（由宿主机 Nginx 反代到 userservice）；也可直接访问 `/register`（会自动跳转）。
+   - 登录/注册成功后会回跳到 `/sso/callback`，前端从 URL hash 读取 `access_token` 并写入 LocalStorage。
+   - 管理员权限：由 userservice 下发的 token 里 `role=ADMIN` 决定（AINovel 后端据此映射为 `ROLE_ADMIN`）。
 
 2. **个人中心（积分/签到/兑换）**
    - 进入 `/profile`，确认头像、邮箱与积分余额展示。
    - 点击“每日签到”，成功后余额增加、按钮禁用显示“今日已签到”。
    - 输入兑换码（例如 `VIP888` / `WELCOME2026` / `TOPUP100`）点击“兑换”，余额增加，输入框清空。
-   - 修改密码：输入旧密码与新密码，提示成功。
+   - 密码管理：由统一登录服务负责，本系统不提供改密功能（`POST /api/v1/user/password` 固定返回 501）。
 
 3. **后台管理（管理员账号）**
    - 进入 `/admin/dashboard` 查看仪表盘指标。
@@ -21,7 +19,7 @@
    - 进入 `/admin/users` 查看用户列表、封禁/解封、发放积分。
    - 进入 `/admin/logs` 查看积分日志记录。
    - 进入 `/admin/codes` 创建/查看兑换码状态。
-   - 进入 `/admin/email` 查看 SMTP 状态、发送测试邮件、查看最近验证码记录。
+   - 进入 `/admin/email` 查看 SMTP 状态、发送测试邮件。
    - 进入 `/admin/settings`：
      - 开关注册/维护模式、签到积分区间。
      - 配置 **LLM 全局参数**（Base URL/Model/API Key）与 **SMTP 全局参数**（Host/Port/Username/Password）。
@@ -60,4 +58,4 @@
    - 头部用户菜单选择退出，或清除浏览器 LocalStorage 中的 `token`。
 
 10. **后端接口连通性（可选）**
-   - 访问 `https://ainovel.aienie.com/api/v1/auth/login`（POST）确认接口可连接。
+   - 未登录时访问 `/api/v1/user/profile` 应返回 403；完成统一登录后再次访问应返回 200（包含 `id/username/role/credits` 等）。

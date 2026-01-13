@@ -1,10 +1,10 @@
 # 集成/系统测试用例
 
-- **认证链路**：注册（人机验证 PoW→验证码）→登录→`/api/v1/user/profile`；预期获得 JWT 并能访问受保护路由；验证码频控触发返回 429。
+- **认证链路（SSO）**：点击“登录/注册”或访问 `/login`/`/register` → 跳转 userservice（`/sso/login` 或 `/register`）→ 回跳 `/sso/callback#access_token=...` → `localStorage.token` 写入 → `/api/v1/user/profile` 返回 200；未登录时返回 403。
 - **Dashboard**：登录后进入 `/dashboard`，统计来自 `/api/v1/user/summary` 正常展示；点击卡片跳转到 `/novels`、`/worlds`。
-- **邮件验证管理**：管理员进入 `/admin/email` 可看到验证码记录并可发送 SMTP 测试邮件。
+- **SMTP 管理**：管理员进入 `/admin/email` 可查看 SMTP 状态并可发送 SMTP 测试邮件。
 - **后台全局配置**：管理员在 `/admin/settings` 配置 SMTP/LLM（对应 `/api/v1/admin/system-config`），保存后回显一致；SMTP 测试邮件可发送；普通用户 AI 可使用全局 LLM 配置。
-- **个人中心积分**：签到成功后余额增加并刷新；兑换码领取成功后余额增加；修改密码提示成功。
+- **个人中心积分**：签到成功后余额增加并刷新；兑换码领取成功后余额增加；`POST /api/v1/user/password` 返回 501（密码由 SSO 管理）。
 - **后台管理权限**：普通用户无法访问 `/admin/*`，管理员可访问并操作。
 - **后台模型管理**：调整模型倍率/启用状态后列表刷新一致。
 - **后台用户管理**：封禁/解封、发放积分后列表状态刷新。

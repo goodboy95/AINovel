@@ -1,192 +1,51 @@
-import { useEffect, useState } from "react";
-import { useNavigate, Link } from "react-router-dom";
-import { api } from "@/lib/mock-api";
+import { useEffect, useMemo } from "react";
+import { useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { useToast } from "@/components/ui/use-toast";
-import { Loader2, Mail, ArrowRight, CheckCircle2 } from "lucide-react";
-import CapJS from "@/components/auth/CapJS";
+import { buildSsoUrl } from "@/lib/sso";
 
 const Register = () => {
-  const [step, setStep] = useState<1 | 2>(1);
-  const [email, setEmail] = useState("");
-  const [captchaToken, setCaptchaToken] = useState("");
-  const [code, setCode] = useState("");
-  const [username, setUsername] = useState("");
-  const [password, setPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
-  
-  const [isSendingCode, setIsSendingCode] = useState(false);
-  const [isRegistering, setIsRegistering] = useState(false);
-  const [cooldown, setCooldown] = useState(0);
-  
-  const navigate = useNavigate();
-  const { toast } = useToast();
+  const location = useLocation();
 
-  const handleSendCode = async () => {
-    if (!email) {
-      toast({ variant: "destructive", title: "请输入邮箱" });
-      return;
-    }
-    if (!captchaToken) {
-      toast({ variant: "destructive", title: "请先完成人机验证" });
-      return;
-    }
-
-    setIsSendingCode(true);
-    try {
-      await api.auth.sendCode(email, captchaToken);
-      toast({ title: "验证码已发送", description: "请查收邮件" });
-      setCooldown(60);
-      setStep(2);
-    } catch (error: any) {
-      toast({ variant: "destructive", title: "发送失败", description: error.message });
-    } finally {
-      setIsSendingCode(false);
-    }
-  };
+  const next = useMemo(() => {
+    const qs = new URLSearchParams(location.search);
+    const raw = qs.get("next") || "/workbench";
+    return raw.startsWith("/") ? raw : "/workbench";
+  }, [location.search]);
 
   useEffect(() => {
-    const t = setInterval(() => {
-      setCooldown((s) => (s > 0 ? s - 1 : 0));
-    }, 1000);
-    return () => clearInterval(t);
-  }, []);
-
-  const handleRegister = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (password !== confirmPassword) {
-      toast({ variant: "destructive", title: "两次密码不一致" });
+    const token = localStorage.getItem("token");
+    if (token) {
+      window.location.replace(next);
       return;
     }
-
-    setIsRegistering(true);
-    try {
-      await api.auth.registerV2({ email, code, username, password });
-      toast({ title: "注册成功", description: "请登录" });
-      navigate("/login");
-    } catch (error: any) {
-      toast({ variant: "destructive", title: "注册失败", description: error.message });
-    } finally {
-      setIsRegistering(false);
-    }
-  };
+    window.location.replace(buildSsoUrl("register", next));
+  }, [next]);
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-muted/30 px-4">
       <Card className="w-full max-w-md shadow-lg">
         <CardHeader className="space-y-1">
-          <CardTitle className="text-2xl font-bold text-center">创建账号</CardTitle>
+          <CardTitle className="text-2xl font-bold text-center">注册 Novel Studio</CardTitle>
           <CardDescription className="text-center">
-            {step === 1 ? "验证您的邮箱以开始" : "设置您的账户信息"}
+            将跳转到统一登录服务完成注册
           </CardDescription>
         </CardHeader>
-        
-        <CardContent className="space-y-4">
-          {step === 1 && (
-            <div className="space-y-4 animate-in slide-in-from-right-4 duration-300">
-              <div className="space-y-2">
-                <Label htmlFor="email">邮箱地址</Label>
-                <Input
-                  id="email"
-                  type="email"
-                  placeholder="writer@example.com"
-                  value={email}
-                  onChange={(e) => {
-                    setEmail(e.target.value);
-                    setCaptchaToken("");
-                  }}
-                />
-              </div>
-              
-              <CapJS email={email} onVerify={setCaptchaToken} />
-              
-              <Button 
-                className="w-full" 
-                onClick={handleSendCode} 
-                disabled={isSendingCode || cooldown > 0 || !captchaToken || !email}
-              >
-                {isSendingCode ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Mail className="mr-2 h-4 w-4" />}
-                {cooldown > 0 ? `重新发送 (${cooldown}s)` : "发送验证码"}
-              </Button>
-            </div>
-          )}
-
-          {step === 2 && (
-            <form onSubmit={handleRegister} className="space-y-4 animate-in slide-in-from-right-4 duration-300">
-              <div className="p-3 bg-primary/5 rounded-md flex items-center gap-2 text-sm text-muted-foreground mb-4">
-                <CheckCircle2 className="h-4 w-4 text-green-600" />
-                验证码已发送至 {email}
-                <Button
-                  variant="link"
-                  className="h-auto p-0 ml-auto text-xs"
-                  onClick={() => {
-                    setStep(1);
-                    setCaptchaToken("");
-                    setCode("");
-                  }}
-                >
-                  修改
-                </Button>
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="code">验证码</Label>
-                <Input
-                  id="code"
-                  placeholder="6位数字"
-                  value={code}
-                  onChange={(e) => setCode(e.target.value)}
-                  required
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="username">用户名</Label>
-                <Input
-                  id="username"
-                  placeholder="WriterName"
-                  value={username}
-                  onChange={(e) => setUsername(e.target.value)}
-                  required
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="password">密码</Label>
-                <Input
-                  id="password"
-                  type="password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  required
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="confirmPassword">确认密码</Label>
-                <Input
-                  id="confirmPassword"
-                  type="password"
-                  value={confirmPassword}
-                  onChange={(e) => setConfirmPassword(e.target.value)}
-                  required
-                />
-              </div>
-
-              <Button type="submit" className="w-full" disabled={isRegistering}>
-                {isRegistering ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
-                完成注册
-              </Button>
-            </form>
-          )}
+        <CardContent className="space-y-3">
+          <Button className="w-full" onClick={() => (window.location.href = buildSsoUrl("register", next))}>
+            前往统一登录注册
+          </Button>
         </CardContent>
-        
-        <CardFooter>
-          <div className="w-full text-center text-sm text-muted-foreground">
-            已有账号?{" "}
-            <Link to="/login" className="text-primary hover:underline font-medium">
-              直接登录
-            </Link>
+        <CardFooter className="flex flex-col gap-2">
+          <div className="text-center text-sm text-muted-foreground">
+            已有账号？{" "}
+            <button
+              type="button"
+              className="text-primary hover:underline font-medium"
+              onClick={() => (window.location.href = buildSsoUrl("login", next))}
+            >
+              去登录（统一登录）
+            </button>
           </div>
         </CardFooter>
       </Card>

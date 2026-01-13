@@ -1,4 +1,5 @@
 import { Link } from "react-router-dom";
+import { buildSsoUrl } from "@/lib/sso";
 
 const NotFound = () => (
   <main className="min-h-screen flex flex-col items-center justify-center bg-background text-center gap-6 p-6">
@@ -16,12 +17,15 @@ const NotFound = () => (
       >
         返回首页
       </Link>
-      <Link
-        to="/login"
+      <button
+        type="button"
+        onClick={() => {
+          window.location.href = buildSsoUrl("login", "/");
+        }}
         className="inline-flex items-center rounded-md border border-border px-4 py-2 text-sm hover:bg-muted transition"
       >
         去登录
-      </Link>
+      </button>
     </div>
   </main>
 );

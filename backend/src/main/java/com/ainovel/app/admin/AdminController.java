@@ -9,10 +9,9 @@ import com.ainovel.app.economy.repo.CreditLogRepository;
 import com.ainovel.app.economy.repo.RedeemCodeRepository;
 import com.ainovel.app.material.repo.MaterialRepository;
 import com.ainovel.app.settings.SettingsService;
-import com.ainovel.app.user.EmailVerificationService;
+import com.ainovel.app.settings.SmtpService;
 import com.ainovel.app.user.User;
 import com.ainovel.app.user.UserRepository;
-import com.ainovel.app.user.repo.EmailVerificationCodeRepository;
 import com.ainovel.app.settings.model.GlobalSettings;
 import com.ainovel.app.settings.repo.GlobalSettingsRepository;
 import jakarta.validation.Valid;
@@ -48,9 +47,7 @@ public class AdminController {
     @Autowired
     private EconomyService economyService;
     @Autowired
-    private EmailVerificationCodeRepository emailVerificationCodeRepository;
-    @Autowired
-    private EmailVerificationService emailVerificationService;
+    private SmtpService smtpService;
     @Autowired
     private SettingsService settingsService;
     @Autowired
@@ -141,15 +138,6 @@ public class AdminController {
         return ResponseEntity.ok(true);
     }
 
-    @GetMapping("/email/verification-codes")
-    public List<EmailCodeDto> emailCodes(@RequestParam(defaultValue = "50") int limit) {
-        return emailVerificationCodeRepository.findAllByOrderByCreatedAtDesc(PageRequest.of(0, Math.min(200, Math.max(1, limit))))
-                .getContent()
-                .stream()
-                .map(c -> new EmailCodeDto(c.getId(), c.getEmail(), c.getCode(), c.getPurpose(), c.isUsed(), c.getExpiresAt(), c.getCreatedAt(), c.getUsedAt()))
-                .toList();
-    }
-
     @GetMapping("/email/smtp")
     public SmtpStatusResponse smtpStatus() {
         var g = settingsService.getGlobalSettings();
@@ -201,7 +189,7 @@ public class AdminController {
 
     @PostMapping("/email/test")
     public ResponseEntity<Boolean> testEmail(@Valid @RequestBody TestEmailRequest request) {
-        emailVerificationService.sendTestEmail(request.email());
+        smtpService.sendTestEmail(request.email());
         return ResponseEntity.ok(true);
     }
 

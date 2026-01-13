@@ -9,4 +9,4 @@
 - `POST /api/v1/user/redeem`：兑换码充值，请求 `{code}`，返回 `{success,points,newTotal}`。
 
 ## 密码
-- `POST /api/v1/user/password`：修改密码，请求 `{oldPassword,newPassword}`，返回 `{success,message}`。
+- `POST /api/v1/user/password`：密码由统一登录服务管理，本接口固定返回 `501` 与 `{success:false,message:"PASSWORD_MANAGED_BY_SSO"}`。

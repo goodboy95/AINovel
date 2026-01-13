@@ -12,6 +12,9 @@ services:
       REDIS_PORT: 6381
       REDIS_PASSWORD: ""
       PORT: 20001
+      JWT_SECRET: ${JWT_SECRET}
+      USER_GRPC_ADDR: ${USER_GRPC_ADDR:-static://127.0.0.1:13001}
+      SSO_SESSION_VALIDATION_ENABLED: ${SSO_SESSION_VALIDATION_ENABLED:-true}
       JAVA_OPTS: ""
     volumes:
       - ./backend/target/app.jar:/app/app.jar:ro

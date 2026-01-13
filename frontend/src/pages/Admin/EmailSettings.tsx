@@ -3,24 +3,18 @@ import { api } from "@/lib/mock-api";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { useToast } from "@/components/ui/use-toast";
 import { RefreshCw, Mail } from "lucide-react";
 
 const EmailSettings = () => {
   const { toast } = useToast();
   const [smtp, setSmtp] = useState<any>(null);
-  const [codes, setCodes] = useState<any[]>([]);
   const [testEmail, setTestEmail] = useState("");
   const [isSending, setIsSending] = useState(false);
 
   const refresh = async () => {
-    const [smtpStatus, list] = await Promise.all([
-      api.admin.getSmtpStatus(),
-      api.admin.getEmailCodes(50),
-    ]);
+    const smtpStatus = await api.admin.getSmtpStatus();
     setSmtp(smtpStatus);
-    setCodes(list);
   };
 
   useEffect(() => {
@@ -74,45 +68,10 @@ const EmailSettings = () => {
 
       <Card className="bg-zinc-900 border-zinc-800 text-zinc-100">
         <CardHeader>
-          <CardTitle>最近验证码记录</CardTitle>
+          <CardTitle>说明</CardTitle>
         </CardHeader>
-        <CardContent>
-          <div className="border border-zinc-800 rounded-md overflow-hidden">
-            <Table>
-              <TableHeader>
-                <TableRow className="border-zinc-800 hover:bg-zinc-900">
-                  <TableHead className="text-zinc-400">邮箱</TableHead>
-                  <TableHead className="text-zinc-400">验证码</TableHead>
-                  <TableHead className="text-zinc-400">用途</TableHead>
-                  <TableHead className="text-zinc-400">状态</TableHead>
-                  <TableHead className="text-zinc-400">创建时间</TableHead>
-                  <TableHead className="text-zinc-400">过期时间</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {codes.map((c) => (
-                  <TableRow key={c.id} className="border-zinc-800 hover:bg-zinc-800/50">
-                    <TableCell className="text-zinc-200">{c.email}</TableCell>
-                    <TableCell className="font-mono text-zinc-100">{c.code}</TableCell>
-                    <TableCell className="text-zinc-300">{c.purpose}</TableCell>
-                    <TableCell className="text-zinc-300">{c.used ? "已使用" : "未使用"}</TableCell>
-                    <TableCell className="text-zinc-500 text-xs">{c.createdAt}</TableCell>
-                    <TableCell className="text-zinc-500 text-xs">{c.expiresAt}</TableCell>
-                  </TableRow>
-                ))}
-                {codes.length === 0 && (
-                  <TableRow className="border-zinc-800">
-                    <TableCell colSpan={6} className="text-center text-zinc-500 py-6">
-                      暂无记录
-                    </TableCell>
-                  </TableRow>
-                )}
-              </TableBody>
-            </Table>
-          </div>
-          <div className="text-xs text-zinc-500 mt-3">
-            提示：注册时如果无法直接查收邮箱，可在这里查看验证码用于测试。
-          </div>
+        <CardContent className="text-sm text-zinc-300">
+          本系统已启用统一登录，不再提供邮箱验证码注册/登录相关功能；此处仅保留 SMTP 配置状态与测试邮件。
         </CardContent>
       </Card>
     </div>
@@ -120,4 +79,3 @@ const EmailSettings = () => {
 };
 
 export default EmailSettings;
-
